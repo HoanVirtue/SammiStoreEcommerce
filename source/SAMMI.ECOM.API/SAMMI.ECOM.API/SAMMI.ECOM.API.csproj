@@ -7,6 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Autofac" Version="8.2.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="10.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -16,13 +18,20 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SAMMI.ECOM.Core\SAMMI.ECOM.Core.csproj" />
     <ProjectReference Include="..\SAMMI.ECOM.Domain\SAMMI.ECOM.Domain.csproj" />
     <ProjectReference Include="..\SAMMI.ECOM.Infrastructure\SAMMI.ECOM.Infrastructure.csproj" />
-    <ProjectReference Include="..\SAMMI.ECOM.Service\SAMMI.ECOM.Service.csproj" />
+    <ProjectReference Include="..\SAMMI.ECOM.Repository\SAMMI.ECOM.Repository.csproj" />
+    <ProjectReference Include="..\SAMMI.ECOM.Utility\SAMMI.ECOM.Utility.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Infrastructure\AutoMapperConfigs\" />
   </ItemGroup>
 
 </Project>

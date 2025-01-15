@@ -517,3 +517,6 @@ CREATE TABLE PurchaseOrderDetail (
     IsDeleted BIT DEFAULT 0,
     DisplayOrder INT DEFAULT 0
 );
+
+
+Scaffold-DbContext "Data Source=.;Initial Catalog=SAMMI_ECOMMERCE;Integrated Security=True;Trust Server Certificate=True" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models

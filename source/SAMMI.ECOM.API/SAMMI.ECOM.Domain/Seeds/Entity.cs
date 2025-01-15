@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using MediatR;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.Seeds
 {
@@ -25,30 +26,30 @@ namespace SAMMI.ECOM.Domain.Seeds
 
         int? _requestedHashCode;
 
-        //private List<INotification> _domainEvents;
-        //public IReadOnlyCollection<INotification> DomainEvents => _domainEvents?.AsReadOnly();
+        private List<INotification> _domainEvents;
+        public IReadOnlyCollection<INotification> DomainEvents => _domainEvents?.AsReadOnly();
 
-        //public void AddDomainEvent(INotification eventItem)
-        //{
-        //    if (_domainEvents == null)
-        //    {
-        //        _domainEvents = new List<INotification> { eventItem };
-        //    }
-        //    else
-        //    {
-        //        _domainEvents.Add(eventItem);
-        //    }
-        //}
+        public void AddDomainEvent(INotification eventItem)
+        {
+            if (_domainEvents == null)
+            {
+                _domainEvents = new List<INotification> { eventItem };
+            }
+            else
+            {
+                _domainEvents.Add(eventItem);
+            }
+        }
 
-        //public void RemoveDomainEvent(INotification eventItem)
-        //{
-        //    _domainEvents?.Remove(eventItem);
-        //}
+        public void RemoveDomainEvent(INotification eventItem)
+        {
+            _domainEvents?.Remove(eventItem);
+        }
 
-        //public void ClearDomainEvents()
-        //{
-        //    _domainEvents?.Clear();
-        //}
+        public void ClearDomainEvents()
+        {
+            _domainEvents?.Clear();
+        }
 
         public bool IsTransient()
         {

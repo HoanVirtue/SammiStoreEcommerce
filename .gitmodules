@@ -1,0 +1,12 @@
+[submodule "source/sammi-fe/sammi-fe"]
+	path = source/sammi-fe/sammi-fe
+	url = https://github.com/timmy277/timmy-shop-nextjs
+[submodule "sammi-fe"]
+	path = sammi-fe
+	url = https://github.com/timmy277/timmy-shop-nextjs
+[submodule "sammi"]
+	path = sammi
+	url = https://github.com/timmy277/timmy-shop-nextjs
+[submodule "source/FE/FE"]
+	path = source/FE/FE
+	url = https://github.com/timmy277/timmy-shop-nextjs

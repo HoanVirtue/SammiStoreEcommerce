@@ -30,8 +30,4 @@
     <ProjectReference Include="..\SAMMI.ECOM.Utility\SAMMI.ECOM.Utility.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Infrastructure\AutoMapperConfigs\" />
-  </ItemGroup>
-
 </Project>

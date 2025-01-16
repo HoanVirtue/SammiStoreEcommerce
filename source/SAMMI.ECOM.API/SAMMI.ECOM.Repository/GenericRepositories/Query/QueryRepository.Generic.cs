@@ -391,7 +391,7 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
                     || (!propertyInfo.PropertyType.IsValueType && propertyInfo.PropertyType != typeof(string)))
                     continue;
 
-                selectingColumns.Add($"t1.{columnInfo.Key} AS `{columnInfo.Value.Name}`");
+                selectingColumns.Add($"t1.{columnInfo.Key} AS {columnInfo.Value.Name}");
             }
 
             return selectingColumns;

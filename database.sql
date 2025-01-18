@@ -210,7 +210,7 @@ CREATE TABLE Discount (
     CategoryId INT NULL FOREIGN KEY REFERENCES ProductCategory(Id),
     BrandId INT NULL FOREIGN KEY REFERENCES Brand(Id),
     ProductId INT NULL FOREIGN KEY REFERENCES Product(Id),
-    DiscountType NVARCHAR(10) NOT NULL CHECK (DiscountType IN ('%', '$')),
+    DiscountTypeId INT REFERENCES DiscountType(Id),
     DiscountValue DECIMAL(18, 2) NOT NULL,
     UsageLimit INT NOT NULL DEFAULT 0,
     UsedCount INT NOT NULL DEFAULT 0,
@@ -260,9 +260,10 @@ CREATE TABLE Banner (
     DisplayOrder INT DEFAULT 0
 );
 
-CREATE TABLE RoleCategory (
+CREATE TABLE Role (
     Id INT PRIMARY KEY IDENTITY(1,1),
     Name NVARCHAR(100) NOT NULL,
+	Description NVARCHAR(255) NULL,
     Culture NVARCHAR(10),
     CreatedDate DATETIME DEFAULT GETDATE(),
     UpdatedDate DATETIME NULL,
@@ -273,23 +274,54 @@ CREATE TABLE RoleCategory (
     DisplayOrder INT DEFAULT 0
 );
 
-CREATE TABLE Role (
-    Id INT PRIMARY KEY IDENTITY(1,1),
-    Name NVARCHAR(100) NOT NULL,
-    EmployeeId INT NOT NULL FOREIGN KEY REFERENCES Users(Id),
-    CategoryRoleId INT NOT NULL FOREIGN KEY REFERENCES RoleCategory(Id),
-    RoleView BIT DEFAULT 0,
-    RoleUpdate BIT DEFAULT 0,
-    RoleDelete BIT DEFAULT 0,
-    Culture NVARCHAR(10),
-    CreatedDate DATETIME DEFAULT GETDATE(),
-    UpdatedDate DATETIME NULL,
-    CreatedBy NVARCHAR(50),
-    UpdatedBy NVARCHAR(50),
-    IsActive BIT DEFAULT 1,
-    IsDeleted BIT DEFAULT 0,
-    DisplayOrder INT DEFAULT 0
+
+CREATE TABLE Permission (
+    Id INT PRIMARY KEY IDENTITY(1,1), -- ID tự tăng
+    Name NVARCHAR(100) NOT NULL, -- Tên quyền (e.g., "View Dashboard")
+    Description NVARCHAR(255) NULL, -- Mô tả quyền
+    Culture NVARCHAR(10) NULL, -- Văn hóa
+    CreatedDate DATETIME DEFAULT GETDATE(), -- Ngày tạo
+    UpdatedDate DATETIME NULL, -- Ngày cập nhật
+    CreatedBy NVARCHAR(50) NULL, -- Người tạo
+    UpdatedBy NVARCHAR(50) NULL, -- Người cập nhật
+    IsActive BIT DEFAULT 1, -- Trạng thái hoạt động
+    IsDeleted BIT DEFAULT 0, -- Đã bị xóa hay chưa
+	DisplayOrder INT DEFAULT 0
 );
+
+CREATE TABLE RolePermission (
+    Id INT PRIMARY KEY IDENTITY(1,1), -- ID tự tăng
+    RoleId INT NOT NULL FOREIGN KEY REFERENCES Role(Id), -- Vai trò
+    PermissionId INT NOT NULL FOREIGN KEY REFERENCES Permission(Id), -- Quyền chức năng
+    Allow BIT DEFAULT 0, -- Có được phép hay không (1: Có, 0: Không)
+	RoleView BIT DEFAULT 0, -- Quyền xem
+	RoleCreate BIT DEFAULT 0,
+    RoleUpdate BIT DEFAULT 0, -- Quyền cập nhật
+    RoleDelete BIT DEFAULT 0, -- Quyền xóa
+	Culture NVARCHAR(10) NULL, -- Văn hóa
+    CreatedDate DATETIME DEFAULT GETDATE(), -- Ngày tạo
+    UpdatedDate DATETIME NULL, -- Ngày cập nhật
+    CreatedBy NVARCHAR(50) NULL, -- Người tạo
+    UpdatedBy NVARCHAR(50) NULL, -- Người cập nhật
+    IsActive BIT DEFAULT 1, -- Trạng thái hoạt động
+    IsDeleted BIT DEFAULT 0, -- Đã bị xóa hay chưa
+	DisplayOrder INT DEFAULT 0
+);
+
+CREATE TABLE UserRole (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL FOREIGN KEY REFERENCES Users(Id), -- Liên kết tới người dùng
+    RoleId INT NOT NULL FOREIGN KEY REFERENCES Role(Id), -- Liên kết tới vai trò
+	Culture NVARCHAR(10) NULL, -- Văn hóa
+    CreatedDate DATETIME DEFAULT GETDATE(), -- Ngày tạo
+    UpdatedDate DATETIME NULL, -- Ngày cập nhật
+    CreatedBy NVARCHAR(50) NULL, -- Người tạo
+    UpdatedBy NVARCHAR(50) NULL, -- Người cập nhật
+    IsActive BIT DEFAULT 1, -- Trạng thái hoạt động
+    IsDeleted BIT DEFAULT 0, -- Đã bị xóa hay chưa
+	DisplayOrder INT DEFAULT 0
+);
+
 
 CREATE TABLE SysAction (
     Id INT PRIMARY KEY IDENTITY(1,1),

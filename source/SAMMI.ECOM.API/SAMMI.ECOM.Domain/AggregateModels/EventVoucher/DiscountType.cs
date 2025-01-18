@@ -1,26 +1,15 @@
 ﻿using SAMMI.ECOM.Domain.Seeds;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 
+[Table("DiscountType")]
 public partial class DiscountType : Entity
 {
-    public int Id { get; set; }
-
+    [Column("Name")]
+    [MaxLength(100)]
     public string Name { get; set; } = null!;
 
-    public string? Culture { get; set; }
-
-    public DateTime? CreatedDate { get; set; }
-
-    public DateTime? UpdatedDate { get; set; }
-
-    public string? CreatedBy { get; set; }
-
-    public string? UpdatedBy { get; set; }
-
-    public bool? IsActive { get; set; }
-
-    public bool? IsDeleted { get; set; }
-
-    public int? DisplayOrder { get; set; }
+    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
 }

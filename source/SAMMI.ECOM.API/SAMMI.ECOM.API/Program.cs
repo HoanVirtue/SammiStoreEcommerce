@@ -22,9 +22,15 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowCredentials());
 });
-
-builder.Services.AddDbContext<SammiEcommerceContext>(opt =>
-    opt.UseSqlServer(configuration.GetConnectionString("EComConnection")));
+builder.Services.AddAutoMapper(typeof(Program));
+var serverVersion = new MySqlServerVersion(new Version(8, 0, 2));
+builder.Services.AddDbContext<SammiEcommerceContext>(
+    dbContextOptions => dbContextOptions
+        .UseMySql(configuration.GetConnectionString("EComConnection"), serverVersion)
+        .LogTo(Console.WriteLine, LogLevel.Information)
+        .EnableSensitiveDataLogging()
+        .EnableDetailedErrors()
+);
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 builder.Host.ConfigureContainer<ContainerBuilder>(
@@ -32,9 +38,15 @@ builder.Host.ConfigureContainer<ContainerBuilder>(
         .RegisterModule<MediatorModule>()
 );
 
-builder.Services.AddAutoMapper(typeof(Program));
+
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<SammiEcommerceContext>();
+    await DataSeeder.SeedAsync(context);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

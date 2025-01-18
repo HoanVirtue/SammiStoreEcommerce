@@ -11,6 +11,7 @@ namespace SAMMI.ECOM.Repository.GenericRepositories.Query
             sqlTemplate = dbType switch
             {
                 DbTypeEnum.MySQL => new MySQLTemplate(),
+                DbTypeEnum.SQLServer => new MySQLTemplate(),
                 _ => new Oracle11gTemplate()
             };
         }

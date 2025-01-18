@@ -13,6 +13,7 @@ namespace SAMMI.ECOM.API.Controllers
         {
             _usersQueries = usersQueries;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery] RequestFilterModel request)
         {

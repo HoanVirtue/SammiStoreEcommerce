@@ -281,6 +281,10 @@ namespace SAMMI.ECOM.Repository.GenericRepositories.Query.TemplateBuilder
             {
                 return AddClause("take", "@numberOfTakingRecords", new { numberOfTakingRecords }, "\nLIMIT ", "\nLIMIT ", "\n", false);
             }
+            else if (this.DbType == DbTypeEnum.SQLServer)
+            {
+                return AddClause("take", "@numberOfTakingRecords", new { numberOfTakingRecords }, "\nFETCH NEXT ", "\nFETCH NEXT ", " ROWS ONLY\n", false);
+            }
             else
             {
                 return AddClause("take", $"rownum <= {numberOfTakingRecords}", null, "", "\nWHERE ", "\n", false);
@@ -292,6 +296,10 @@ namespace SAMMI.ECOM.Repository.GenericRepositories.Query.TemplateBuilder
             if (this.DbType == DbTypeEnum.MySQL)
             {
                 return AddClause("skip", "@numberOfSkipingRecords", new { numberOfSkipingRecords }, "\nOFFSET ", "\nOFFSET ", "\n", false);
+            }
+            else if (this.DbType == DbTypeEnum.SQLServer)
+            {
+                return AddClause("skip", "@numberOfSkipingRecords", new { numberOfSkipingRecords }, "\nOFFSET ", "\nOFFSET ", " ROWS\n", false);
             }
             else
             {

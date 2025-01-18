@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using SAMMI.ECOM.API.Controllers;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Repositories;
@@ -37,6 +38,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
             // Register all the Queries classes (they implement QueryRepository) in assembly holding the QueryRepositories
             builder.RegisterAssemblyTypes(typeof(UsersQueries).GetTypeInfo().Assembly)
                 .AsImplementedInterfaces();
+
+            builder.RegisterAssemblyTypes(typeof(CustomBaseController).Assembly).PropertiesAutowired();
             base.Load(builder);
         }
     }

@@ -1,17 +1,21 @@
 ﻿using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.Seeds;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
-
+[Table("PurchaseOrder")]
 public partial class PurchaseOrder : Entity
 {
-
+    [ForeignKey("Employee")]
     public int EmployeeId { get; set; }
 
+    [ForeignKey("Supplier")]
     public int SupplierId { get; set; }
 
+    [Column("Status")]
+    [StringLength(50)]
     public string? Status { get; set; }
-
 
     public virtual User Employee { get; set; } = null!;
 
@@ -19,3 +23,4 @@ public partial class PurchaseOrder : Entity
 
     public virtual User Supplier { get; set; } = null!;
 }
+

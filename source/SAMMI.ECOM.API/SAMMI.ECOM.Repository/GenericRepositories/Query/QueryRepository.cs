@@ -32,7 +32,7 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
             {
                 "Pomelo.EntityFrameworkCore.MySql" => DbTypeEnum.MySQL,
                 "Oracle.EntityFrameworkCore" => DbTypeEnum.Oracle,
-                _ => DbTypeEnum.SQLServer,
+                "Microsoft.EntityFrameworkCore.SqlServer" => DbTypeEnum.SQLServer,
             };
             _typeMap[typeof(byte)] = DbType.Byte;
             _typeMap[typeof(sbyte)] = DbType.SByte;

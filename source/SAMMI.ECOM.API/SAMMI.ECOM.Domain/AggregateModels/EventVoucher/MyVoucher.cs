@@ -1,33 +1,20 @@
 ﻿using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.Seeds;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 
+[Table("MyVoucher")]
 public partial class MyVoucher : Entity
 {
-    public int Id { get; set; }
-
+    [ForeignKey("Customer")]
     public int CustomerId { get; set; }
 
+    [ForeignKey("Voucher")]
     public int VoucherId { get; set; }
 
+    [Column("IsUsed")]
     public bool IsUsed { get; set; }
-
-    public string? Culture { get; set; }
-
-    public DateTime? CreatedDate { get; set; }
-
-    public DateTime? UpdatedDate { get; set; }
-
-    public string? CreatedBy { get; set; }
-
-    public string? UpdatedBy { get; set; }
-
-    public bool? IsActive { get; set; }
-
-    public bool? IsDeleted { get; set; }
-
-    public int? DisplayOrder { get; set; }
 
     public virtual User Customer { get; set; } = null!;
 

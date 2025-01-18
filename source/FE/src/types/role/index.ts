@@ -14,3 +14,8 @@ export type TParamsUpdateRole = {
     id: string,
     permissions?: string[]
 }
+
+export type TParamsDeleteRole = {
+    name: string,
+    id: string,
+}

@@ -36,7 +36,7 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
             paddingLeft: "8px"
         }}>
             <Box>
-                <span>{t('Đang hiển thị')}</span>
+                <span>{t('Đang hiển thị ')}</span>
                 <span className='font-bold'>
                     {page === 1 ? page : 1 + pageSize}
                     {' - '}
@@ -44,7 +44,7 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
                 <span className='font-bold'>
                     {page * pageSize}
                 </span>
-                <span>trên</span>
+                <span> trên </span>
                 <span className='font-bold'>{rowLength}</span>
             </Box>
             <Box sx={{

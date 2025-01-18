@@ -3,7 +3,8 @@ import { Dispatch } from 'redux'
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // ** Axios Imports
-import { createRoleAsync, deleteRoleAsync, getAllRolesAsync, updateRoleAsync } from './action'
+import { createRoleAsync, deleteRoleAsync, getAllRolesAsync, serviceName, updateRoleAsync } from './action'
+
 interface DataParams {
   q: string
   role: string
@@ -36,20 +37,20 @@ const initialState = {
 }
 
 export const roleSlice = createSlice({
-  name: 'role',
+  name: serviceName,
   initialState,
   reducers: {
     resetInitialState: state => {
       state.isLoading = false
       state.isSuccess = false
-      state.isError = false
+      state.isError = true
       state.message = ""
       state.typeError = ""
       state.isSuccessCreateUpdate = false
-      state.isErrorCreateUpdate = false
+      state.isErrorCreateUpdate = true
       state.errorMessageCreateUpdate = ''
       state.isSuccessDelete = false
-      state.isErrorDelete = false
+      state.isErrorDelete = true
       state.errorMessageDelete = ''
     }
   },

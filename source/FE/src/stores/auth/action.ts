@@ -2,7 +2,9 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import { changePasswordMe, registerAuth, updateAuthMe } from "src/services/auth";
 import { TChangePassword } from "src/types/auth";
 
-export const registerAuthAsync = createAsyncThunk('auth/register', async (data: any) => {
+export const serviceName = 'auth'
+
+export const registerAuthAsync = createAsyncThunk(`${serviceName}/register`, async (data: any) => {
     const response = await registerAuth(data)
     if (response?.data) {
         return response
@@ -14,7 +16,7 @@ export const registerAuthAsync = createAsyncThunk('auth/register', async (data: 
     }
 })
 
-export const updateAuthMeAsync = createAsyncThunk('auth/update-me', async (data: any) => {
+export const updateAuthMeAsync = createAsyncThunk(`${serviceName}/update-me`, async (data: any) => {
     const response = await updateAuthMe(data)
 
     if (response?.data) {
@@ -27,7 +29,7 @@ export const updateAuthMeAsync = createAsyncThunk('auth/update-me', async (data:
     }
 })
 
-export const changePasswordAsync = createAsyncThunk('auth/change-password-me', async (data: TChangePassword) => {
+export const changePasswordAsync = createAsyncThunk(`${serviceName}/change-password-me`, async (data: TChangePassword) => {
     const response = await changePasswordMe(data)
 
     if (response?.status === "Success") {

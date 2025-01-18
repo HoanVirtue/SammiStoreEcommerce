@@ -17,6 +17,10 @@ namespace SAMMI.ECOM.API.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery] RequestFilterModel request)
         {
+            if (request.Type == RequestType.Grid)
+            {
+                return Ok(await _usersQueries.GetEmployeeList(request));
+            }
             return Ok(await _usersQueries.GetEmployeeAll(request));
         }
     }

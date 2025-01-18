@@ -38,9 +38,15 @@ builder.Host.ConfigureContainer<ContainerBuilder>(
         .RegisterModule<MediatorModule>()
 );
 
-
+// Configure lowercase routes
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.LowercaseUrls = true;
+});
 
 var app = builder.Build();
+
+app.UseCors("CorsPolicy");
 
 using (var scope = app.Services.CreateScope())
 {

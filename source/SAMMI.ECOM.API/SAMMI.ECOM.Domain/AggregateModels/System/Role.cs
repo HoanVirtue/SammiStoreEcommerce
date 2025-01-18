@@ -1,24 +1,20 @@
-﻿using SAMMI.ECOM.Domain.AggregateModels.Others;
-using SAMMI.ECOM.Domain.Seeds;
+﻿using SAMMI.ECOM.Domain.Seeds;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.System;
 
+[Table("Role")]
 public partial class Role : Entity
 {
+    [Column("Name")]
+    [StringLength(100)]
     public string Name { get; set; } = null!;
 
-    public int EmployeeId { get; set; }
+    [Column("Description")]
+    [StringLength(255)]
+    public string? Description { get; set; }
 
-    public int CategoryRoleId { get; set; }
-
-    public bool? RoleView { get; set; }
-
-    public bool? RoleUpdate { get; set; }
-
-    public bool? RoleDelete { get; set; }
-
-
-    public virtual RoleCategory CategoryRole { get; set; } = null!;
-
-    public virtual User Employee { get; set; } = null!;
+    public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

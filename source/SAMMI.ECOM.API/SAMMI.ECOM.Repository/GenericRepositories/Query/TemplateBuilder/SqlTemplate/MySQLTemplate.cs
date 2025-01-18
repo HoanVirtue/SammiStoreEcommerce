@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace SAMMI.ECOM.Repository.GenericRepositories.Query.TemplateBuilder
+﻿namespace SAMMI.ECOM.Repository.GenericRepositories.Query.TemplateBuilder
 {
     public class MySQLTemplate : ISqlTemplate
     {
@@ -47,6 +41,38 @@ namespace SAMMI.ECOM.Repository.GenericRepositories.Query.TemplateBuilder
                             ? $"t1.{PrimaryKeys.First()} = s.{PrimaryKeys.First()}\n"
                             : string.Join(" AND ", PrimaryKeys.Select((k) => $"t1.{k} = s.{k}"))) +
                     $"/**innerjoin**//**leftjoin**//**rightjoin**//**groupby**//**having**//**orderby**/";
+
+
+                //var joinCondition = PrimaryKeys.Length == 1
+                //    ? $"t1.{PrimaryKeys.First()} = s.{PrimaryKeys.First()}"
+                //    : string.Join(" AND ", PrimaryKeys.Select(k => $"t1.{k} = s.{k}"));
+
+                //return $@"
+                //    SELECT
+                //        /**select**/
+                //    FROM (
+                //        SELECT DISTINCT
+                //            /**innerselect**/
+                //        FROM {TableName} t1
+                //            /**innerjoin**/
+                //            /**leftjoin**/
+                //            /**rightjoin**/
+                //            /**where**/
+                //            /**innergroupby**/
+                //            /**groupby**/
+                //            /**having**/
+                //            /**orderby**/
+                //            /**take**/
+                //            /**skip**/
+                //    ) s
+                //    INNER JOIN {TableName} t1 ON {joinCondition}
+                //        /**innerjoin**/
+                //        /**leftjoin**/
+                //        /**rightjoin**/
+                //        /**groupby**/
+                //        /**having**/
+                //        /**orderby**/
+                //";
             }
             else
             {

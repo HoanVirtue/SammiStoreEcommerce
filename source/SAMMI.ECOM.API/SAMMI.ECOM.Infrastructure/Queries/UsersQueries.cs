@@ -2,6 +2,7 @@
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.DomainModels.Users;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Queries
@@ -21,7 +22,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
             return WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.Where("t1.Type = @type", new { type = "Employee" });
+                    sqlBuilder.Where("t1.Type = @type", new { type = TypeUserEnum.Employee });
                     return conn.QueryAsync<EmployeeDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }
             );

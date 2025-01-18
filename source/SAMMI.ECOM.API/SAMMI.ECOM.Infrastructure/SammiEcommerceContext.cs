@@ -9,15 +9,12 @@ using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
 using SAMMI.ECOM.Domain.AggregateModels.System;
+using SAMMI.ECOM.Infrastructure.EntityConfigurations;
 
 namespace SAMMI.ECOM.Infrastructure;
 
 public partial class SammiEcommerceContext : DbContext
 {
-    public SammiEcommerceContext()
-    {
-    }
-
     public SammiEcommerceContext(DbContextOptions<SammiEcommerceContext> options)
         : base(options)
     {
@@ -69,7 +66,11 @@ public partial class SammiEcommerceContext : DbContext
 
     public virtual DbSet<Role> Roles { get; set; }
 
-    public virtual DbSet<RoleCategory> RoleCategories { get; set; }
+    public virtual DbSet<Permission> Permissions { get; set; }
+
+    public virtual DbSet<RolePermission> RolePermissions { get; set; }
+
+    public virtual DbSet<UserRole> UserRoles { get; set; }
 
     public virtual DbSet<ShippingCompany> ShippingCompanies { get; set; }
 
@@ -95,6 +96,47 @@ public partial class SammiEcommerceContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        OnModelCreatingPartial(modelBuilder);
+        modelBuilder
+                .HasCharSet("utf8mb4", DelegationModes.ApplyToDatabases)
+                .UseCollation("utf8mb4_0900_ai_ci", DelegationModes.ApplyToDatabases);
+
+        modelBuilder.ApplyConfiguration(new BannerEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new BrandEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new CustomerAddressEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new DiscountEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new DiscountTypeEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new DistrictEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new EventEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new FavouriteProductEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new MessageEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new MyVoucherEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new NotificationEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new OrderDetailEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new OrderEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new PaymentEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new PaymentMethodEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new PermissionEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductCategoryEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductImageEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ProvinceEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new PurchaseOrderDetailEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new PurchaseOrderEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ReviewEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new RolePermissionEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ShippingCompanyEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ShippingInfoEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new SysActionEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new SysFunctionEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new SysLogEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new UserRoleEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new WardEntityTypeConfiguration());
+
+
+        /*
         modelBuilder.Entity<Banner>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Banner__3214EC07969BC4A8");
@@ -103,7 +145,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -128,7 +170,7 @@ public partial class SammiEcommerceContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -148,7 +190,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -179,10 +221,9 @@ public partial class SammiEcommerceContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
-            entity.Property(e => e.DiscountType).HasMaxLength(10);
             entity.Property(e => e.DiscountValue).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
             entity.Property(e => e.EndDate).HasColumnType("datetime");
@@ -208,6 +249,9 @@ public partial class SammiEcommerceContext : DbContext
             entity.HasOne(d => d.Product).WithMany(p => p.Discounts)
                 .HasForeignKey(d => d.ProductId)
                 .HasConstraintName("FK__Discount__Produc__1DB06A4F");
+
+            entity.HasOne(d => d.DiscountType).WithMany(p => p.Discounts)
+                .HasForeignKey(d => d.DiscountTypeId);
         });
 
         modelBuilder.Entity<DiscountType>(entity =>
@@ -218,7 +262,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -237,7 +281,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -263,7 +307,7 @@ public partial class SammiEcommerceContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -286,7 +330,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -314,7 +358,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -345,7 +389,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -373,7 +417,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -401,7 +445,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.CustomerAddress).HasMaxLength(255);
@@ -432,7 +476,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -465,7 +509,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -496,7 +540,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -518,7 +562,7 @@ public partial class SammiEcommerceContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -550,7 +594,7 @@ public partial class SammiEcommerceContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -569,7 +613,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -596,7 +640,7 @@ public partial class SammiEcommerceContext : DbContext
             entity.Property(e => e.Country).HasMaxLength(100);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -616,7 +660,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -644,7 +688,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
@@ -674,7 +718,7 @@ public partial class SammiEcommerceContext : DbContext
             entity.Property(e => e.Comment).HasMaxLength(255);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -702,48 +746,98 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.Name).HasMaxLength(100);
-            entity.Property(e => e.RoleDelete).HasDefaultValue(false);
-            entity.Property(e => e.RoleUpdate).HasDefaultValue(false);
-            entity.Property(e => e.RoleView).HasDefaultValue(false);
+            entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.UpdatedBy).HasMaxLength(50);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
-
-            entity.HasOne(d => d.CategoryRole).WithMany(p => p.Roles)
-                .HasForeignKey(d => d.CategoryRoleId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Role__CategoryRo__3D2915A8");
-
-            entity.HasOne(d => d.Employee).WithMany(p => p.Roles)
-                .HasForeignKey(d => d.EmployeeId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Role__EmployeeId__3C34F16F");
         });
 
-        modelBuilder.Entity<RoleCategory>(entity =>
+        modelBuilder.Entity<Permission>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__RoleCate__3214EC07B11728AD");
+            entity.HasKey(e => e.Id);
 
-            entity.ToTable("RoleCategory");
+            entity.ToTable("Permission");
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
             entity.Property(e => e.IsActive).HasDefaultValue(true);
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.Property(e => e.Name).HasMaxLength(100);
+            entity.Property(e => e.Description).HasMaxLength(255);
             entity.Property(e => e.UpdatedBy).HasMaxLength(50);
             entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
         });
+
+        modelBuilder.Entity<RolePermission>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("RolePermission");
+
+            entity.Property(e => e.Allow).HasDefaultValue(false);
+            entity.Property(e => e.RoleView).HasDefaultValue(false);
+            entity.Property(e => e.RoleCreate).HasDefaultValue(false);
+            entity.Property(e => e.RoleUpdate).HasDefaultValue(false);
+            entity.Property(e => e.RoleDelete).HasDefaultValue(false);
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Culture).HasMaxLength(10);
+            entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(50);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
+
+            entity.HasOne(d => d.Role).WithMany(p => p.RolePermissions)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.Permission).WithMany(p => p.RolePermissions)
+                .HasForeignKey(d => d.PermissionId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
+        modelBuilder.Entity<UserRole>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("UserRole");
+
+            entity.Property(e => e.CreatedBy).HasMaxLength(50);
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("datetime");
+            entity.Property(e => e.Culture).HasMaxLength(10);
+            entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
+            entity.Property(e => e.IsActive).HasDefaultValue(true);
+            entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+            entity.Property(e => e.UpdatedBy).HasMaxLength(50);
+            entity.Property(e => e.UpdatedDate).HasColumnType("datetime");
+
+
+            entity.HasOne(d => d.User).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+
+            entity.HasOne(d => d.Role).WithMany(p => p.UserRoles)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
+
 
         modelBuilder.Entity<ShippingCompany>(entity =>
         {
@@ -754,7 +848,7 @@ public partial class SammiEcommerceContext : DbContext
             entity.Property(e => e.ContactInfo).HasMaxLength(255);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -776,7 +870,7 @@ public partial class SammiEcommerceContext : DbContext
             entity.Property(e => e.Cost).HasColumnType("decimal(18, 2)");
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -808,7 +902,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -827,7 +921,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -846,7 +940,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -879,7 +973,7 @@ public partial class SammiEcommerceContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -909,7 +1003,7 @@ public partial class SammiEcommerceContext : DbContext
 
             entity.Property(e => e.CreatedBy).HasMaxLength(50);
             entity.Property(e => e.CreatedDate)
-                .HasDefaultValueSql("(getdate())")
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("datetime");
             entity.Property(e => e.Culture).HasMaxLength(10);
             entity.Property(e => e.DisplayOrder).HasDefaultValue(0);
@@ -923,8 +1017,8 @@ public partial class SammiEcommerceContext : DbContext
                 .HasForeignKey(d => d.DistrictId)
                 .HasConstraintName("FK__Ward__DistrictId__5629CD9C");
         });
+        */
 
-        OnModelCreatingPartial(modelBuilder);
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

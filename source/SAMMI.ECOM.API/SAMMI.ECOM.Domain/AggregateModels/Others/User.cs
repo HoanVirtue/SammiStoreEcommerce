@@ -4,33 +4,53 @@ using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Seeds;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.Others;
 
+[Table("Users")]
 public partial class User : Entity
 {
-
+    [Column("Code")]
+    [Required]
+    [StringLength(256)]
     public string Code { get; set; } = null!;
 
+    [Column("Type")]
+    [StringLength(50)]
     public string? Type { get; set; }
 
+    [Column("FirstName")]
+    [StringLength(50)]
     public string? FirstName { get; set; }
 
+    [Column("LastName")]
+    [StringLength(50)]
     public string? LastName { get; set; }
 
+    [Column("FullName")]
+    [StringLength(100)]
     public string? FullName { get; set; }
 
+    [Column("Email")]
+    [StringLength(100)]
     public string? Email { get; set; }
 
+    [Column("Phone")]
+    [StringLength(20)]
     public string? Phone { get; set; }
 
+    [Column("StreetAddress")]
+    [StringLength(200)]
     public string? StreetAddress { get; set; }
 
+    [ForeignKey("Ward")]
+    [Column("WardId")]
     public int? WardId { get; set; }
 
+    [Column("IsAdmin")]
     public bool? IsAdmin { get; set; }
-
-
 
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 
@@ -52,7 +72,7 @@ public partial class User : Entity
 
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 
-    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
-
     public virtual Ward? Ward { get; set; }
+
+    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 }

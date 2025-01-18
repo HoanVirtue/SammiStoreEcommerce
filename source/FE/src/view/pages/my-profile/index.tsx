@@ -50,6 +50,7 @@ import Spinner from 'src/components/spinner'
 import CustomSelect from 'src/components/custom-select'
 import CustomModal from 'src/components/custom-modal'
 import { getAllRoles } from 'src/services/role'
+import { useAuth } from 'src/hooks/useAuth'
 
 type TProps = {}
 
@@ -63,13 +64,13 @@ interface IDefaultValues {
 }
 const MyProfilePage: NextPage<TProps> = () => {
     //States
-    // const { user } = useAuth()
     const [loading, setLoading] = React.useState<boolean>(false)
     const [avatar, setAvatar] = React.useState<string>('')
     const [roleOptions, setRoleOptions] = React.useState<{ label: string, value: string }[]>([])
     const [isDisableRole, setIsDisableRole] = React.useState<boolean>(false)
-
-    //Translate
+    
+    //hooks
+    const { setUser } = useAuth()
     const { i18n } = useTranslation();
 
     //Theme
@@ -115,7 +116,6 @@ const MyProfilePage: NextPage<TProps> = () => {
                 setLoading(false)
                 const data = response?.data
                 if (data) {
-                    setAvatar(data?.avatar)
                     setIsDisableRole(!data?.role?.permissions?.length)
                     reset({
                         role: data?.role?._id,
@@ -125,6 +125,8 @@ const MyProfilePage: NextPage<TProps> = () => {
                         phoneNumber: data?.phoneNumber,
                         fullName: toFullName(data?.lastName, data?.middleName, data?.firstName, i18n.language)
                     })
+                    setAvatar(data?.avatar)
+                    setUser({ ...data })
                 }
             })
             .catch(() => {
@@ -193,7 +195,7 @@ const MyProfilePage: NextPage<TProps> = () => {
 
     return (
         <>
-            <CustomModal open={false} onClose={() => { }}>
+            {/* <CustomModal open={false} onClose={() => { }}>
                 <form onSubmit={handleSubmit(onSubmit)}
                     className='bg-white w-[50vw]'
                     autoComplete='off'
@@ -328,7 +330,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                         </Button>
                     </Box>
                 </form>
-            </CustomModal>
+            </CustomModal> */}
             {loading || isLoading && <Spinner />}
             <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
                 <Grid container>

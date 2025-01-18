@@ -166,15 +166,19 @@ const ListRolePage: NextPage<TProps> = () => {
                     <Box sx={{ width: "100%" }}>
                         {!row?.permissions?.some((per: string) => ['ADMIN.GRANTED', 'BASIC.PUBLIC']?.includes(per)) ? (
                             <>
-                                <GridUpdate onClick={() => setOpenCreateUpdateRole({
-                                    open: true,
-                                    id: String(params.id)
-                                })}
+                                <GridUpdate
+                                    disabled={!UPDATE}
+                                    onClick={() => setOpenCreateUpdateRole({
+                                        open: true,
+                                        id: String(params.id)
+                                    })}
                                 />
-                                <GridDelete onClick={() => setOpenDeleteRole({
-                                    open: true,
-                                    id: String(params.id)
-                                })} />
+                                <GridDelete
+                                    disabled={!DELETE}
+                                    onClick={() => setOpenDeleteRole({
+                                        open: true,
+                                        id: String(params.id)
+                                    })} />
                             </>
                         ) : (
                             <Box sx={{ paddingLeft: "5px" }}>
@@ -273,7 +277,7 @@ const ListRolePage: NextPage<TProps> = () => {
                             display: 'flex',
                             justifyContent: 'space-between',
                             alignItems: 'center',
-                            mb: 2,
+                            mb: 4,
                         }}>
                             <Box sx={{
                                 width: '200px',
@@ -304,7 +308,7 @@ const ListRolePage: NextPage<TProps> = () => {
                             disableColumnMenu
                             onRowClick={row => {
                                 setSelectedRow({ id: String(row.id), name: row?.row?.name })
-                                setOpenCreateUpdateRole({ open: false, id: String(row.id) })
+                                // setOpenCreateUpdateRole({ open: false, id: String(row.id) })
                             }}
                             getRowClassName={(row: GridRowClassNameParams) => {
                                 return row.id === selectedRow.id ? 'selected-row' : ''

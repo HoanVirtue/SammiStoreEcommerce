@@ -1,23 +1,42 @@
 // ** Redux Imports
-import { Dispatch } from 'redux'
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit'
 
 // ** Axios Imports
 import { changePasswordAsync, registerAuthAsync, serviceName, updateAuthMeAsync } from './action'
 
-const initialState = {
+//Type
+import { UserDataType } from 'src/contexts/types'
+
+type TInitialState = {
+  isLoading: boolean,
+  isSuccess: boolean,
+  isError: boolean,
+  message: string,
+  typeError: string,
+  isSuccessUpdateMe: boolean,
+  isErrorUpdateMe: boolean,
+  messageUpdateMe: string,
+  isSuccessChangePassword: boolean,
+  isErrorChangePassword: boolean,
+  messageChangePassword: string,
+  userData: UserDataType | null
+}
+
+
+const initialState: TInitialState = {
   isLoading: false,
   isSuccess: true,
   isError: false,
   message: '',
   // statusCode: 0
   typeError: '',
-  isSuccessUpdateMe: false,
+  isSuccessUpdateMe: true,
   isErrorUpdateMe: false,
   messageUpdateMe: '',
-  isSuccessChangePassword: false,
+  isSuccessChangePassword: true,
   isErrorChangePassword: false,
-  messageChangePassword: ''
+  messageChangePassword: '',
+  userData: null
 }
 
 export const authSlice = createSlice({
@@ -70,6 +89,7 @@ export const authSlice = createSlice({
       state.isErrorUpdateMe = !action.payload?.data?.email
       state.messageUpdateMe = action.payload?.message
       state.typeError = action.payload?.typeError
+      state.userData = action.payload?.data
     })
     builder.addCase(updateAuthMeAsync.rejected, (state, action) => {
       state.isLoading = false
@@ -77,6 +97,7 @@ export const authSlice = createSlice({
       state.isErrorUpdateMe = false
       state.messageUpdateMe = ""
       state.typeError = ""
+      state.userData = null
     })
 
     //change password me

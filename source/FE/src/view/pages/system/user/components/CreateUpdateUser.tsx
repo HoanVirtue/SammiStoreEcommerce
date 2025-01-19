@@ -79,7 +79,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
             .matches(PASSWORD_REG, "The password format is incorrect"),
         fullName: yup.string().required("Fullname is required"),
         phoneNumber: yup.string().required("Phone number is required")
-            .min(8, "The phone number must be at least 8 characters"),
+            .min(9, "The phone number must be at least 9 characters"),
         role: yup.string().required("Role is required"),
         city: yup.string().nonNullable(),
         address: yup.string().nonNullable(),
@@ -117,7 +117,8 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                     address: data?.address,
                     city: data?.city,
                     avatar: avatar,
-                    id: idUser
+                    id: idUser,
+                    status: data?.status ? 1 : 0,
                 }))
             } else {
                 //create
@@ -186,8 +187,10 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
             reset({
                 ...defaultValues
             })
+            setAvatar("")
+            setShowPassword(false)
         } else {
-            if (idUser) {
+            if (idUser && open) {
                 fetchDetailUser(idUser)
             }
         }
@@ -225,7 +228,11 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                             right: "-10px",
                             top: "-6px",
                         }}>
-                            <IconifyIcon icon="material-symbols-light:close-rounded" fontSize={"30px"} onClick={onClose} />
+                            <IconifyIcon
+                                icon="material-symbols-light:close-rounded"
+                                fontSize={"30px"}
+                                onClick={onClose}
+                            />
                         </IconButton>
                     </Box>
                     <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
@@ -363,31 +370,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                         name='password'
                                                     />
                                                 </Grid>
-                                            )
-                                            }
-                                            {/* {idUser && (
-                                                <Grid item md={6} xs={12} >
-                                                    <Controller
-                                                        control={control}
-                                                        render={({ field: { onChange, onBlur, value } }) => {
-                                                            return (
-                                                                <FormControlLabel
-                                                                    control={
-                                                                        <Switch
-                                                                            checked={Boolean(value)}
-                                                                            value={value}
-                                                                            onChange={
-                                                                                (e) => onChange(e.target.checked ? 1 : 0)
-                                                                            }
-                                                                        />
-                                                                    }
-                                                                    label={Boolean(value) ? t('active') : t('inactive')} />
-                                                            )
-                                                        }}
-                                                        name='status'
-                                                    />
-                                                </Grid>
-                                            )} */}
+                                            )}
                                             <Grid item md={6} xs={12} >
                                                 <Controller
                                                     control={control}
@@ -400,7 +383,9 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                 display: "block",
                                                                 color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                             }}>
-                                                                Nhóm vai trò
+                                                                Nhóm vai trò <span style={{
+                                                                    color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                                }}>*</span>
                                                             </InputLabel>
                                                             <CustomSelect
                                                                 fullWidth
@@ -423,6 +408,29 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     name='role'
                                                 />
                                             </Grid>
+                                            {idUser && (
+                                                <Grid item md={6} xs={12} >
+                                                    <Controller
+                                                        control={control}
+                                                        render={({ field: { onChange, onBlur, value } }) => {
+                                                            return (
+                                                                <FormControlLabel
+                                                                    control={
+                                                                        <Switch
+                                                                            checked={Boolean(value)}
+                                                                            value={value}
+                                                                            onChange={
+                                                                                (e) => onChange(e.target.checked ? 1 : 0)
+                                                                            }
+                                                                        />
+                                                                    }
+                                                                    label={Boolean(value) ? t('active') : t('inactive')} />
+                                                            )
+                                                        }}
+                                                        name='status'
+                                                    />
+                                                </Grid>
+                                            )}
                                         </Grid>
                                     </Box>
                                 </Grid>
@@ -435,6 +443,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     render={({ field: { onChange, onBlur, value } }) => (
                                                         <CustomTextField
                                                             fullWidth
+                                                            required
                                                             label={t('full_name')}
                                                             onChange={onChange}
                                                             onBlur={onBlur}
@@ -488,7 +497,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                             />
                                                             {errors?.city?.message && (
                                                                 <FormHelperText sx={{
-                                                                    color: !errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                                    color: errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                                 }}>
                                                                     {errors?.city?.message}
                                                                 </FormHelperText>

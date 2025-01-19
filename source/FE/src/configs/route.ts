@@ -10,15 +10,22 @@ export const ROUTE_CONFIG = {
     MANAGE_PRODUCT: {
         PRODUCT: "/manage-product/product",
         PRODUCT_CATEGORY: "/manage-product/product-category",
+        BRAND: '/manage-product/brand'
     },
     MANAGE_ORDER: {
         ORDER: "/manage-product/order",
         REVIEW: "/manage-product/review",
     },
     SETTING: {
-        CITY: "/setting/city",
+        // CITY: "/setting/city",
         PAYMENT_TYPE: "/setting/payment-type",
         DELIVERY_TYPE: "/setting/delivery-type",
+        BANNER: "/setting/banner"
     },
     DASHBOARD: "/dashboard",
+    ADDRESS: {
+        CITY: "/address/city",
+        PROVINCE: "/address/province",
+        WARD: "/address/province"
+    }
 }

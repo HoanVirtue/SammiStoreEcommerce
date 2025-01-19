@@ -76,17 +76,22 @@ export const VerticalLayoutItems = () => {
                     icon: 'fluent-mdl2:product-list',
                     path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT_CATEGORY,
                 },
+                {
+                    title: t('brand'),
+                    icon: 'fluent-mdl2:product-list',
+                    path: ROUTE_CONFIG.MANAGE_PRODUCT.BRAND,
+                },
             ]
         },
         {
             title: t('setting'),
             icon: 'fluent-mdl2:product',
             children: [
-                {
-                    title: t('city'),
-                    icon: 'fluent-mdl2:product-list',
-                    path: ROUTE_CONFIG.SETTING.CITY,
-                },
+                // {
+                //     title: t('city'),
+                //     icon: 'fluent-mdl2:product-list',
+                //     path: ROUTE_CONFIG.SETTING.CITY,
+                // },
                 {
                     title: t('delivery_type'),
                     icon: 'fluent-mdl2:product-list',
@@ -96,6 +101,32 @@ export const VerticalLayoutItems = () => {
                     title: t('payment_type'),
                     icon: 'material-symbols:orders-rounded',
                     path: ROUTE_CONFIG.SETTING.PAYMENT_TYPE,
+                },
+                {
+                    title: t('banner'),
+                    icon: 'fluent-mdl2:product-list',
+                    path: ROUTE_CONFIG.SETTING.BANNER,
+                },
+            ]
+        },
+        {
+            title: t('address'),
+            icon: 'fluent-mdl2:product',
+            children: [
+                {
+                    title: t('city'),
+                    icon: 'fluent-mdl2:product-list',
+                    path: ROUTE_CONFIG.ADDRESS.CITY,
+                },
+                {
+                    title: t('province'),
+                    icon: 'fluent-mdl2:product-list',
+                    path: ROUTE_CONFIG.ADDRESS.PROVINCE,
+                },
+                {
+                    title: t('ward'),
+                    icon: 'fluent-mdl2:product-list',
+                    path: ROUTE_CONFIG.ADDRESS.WARD,
                 },
             ]
         },

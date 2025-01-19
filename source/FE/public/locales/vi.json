@@ -26,5 +26,8 @@
     "manage_order": "Quản trị đơn hàng",
     "product_type": "Loại sản phẩm",
     "manage_order": "Quản trị đơn hàng",
-    "dashboard": "Trang quản trị"
+    "dashboard": "Trang quản trị",
+    "active": "Đang hoạt động",
+    "inactive": "Tạm khóa",
+    "status": "Trạng thái"
 }

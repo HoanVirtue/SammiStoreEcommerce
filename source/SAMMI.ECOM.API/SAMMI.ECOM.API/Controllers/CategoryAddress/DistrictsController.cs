@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.Commands;
 using SAMMI.ECOM.Infrastructure.Queries.CategoryAddress;
+using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 
 namespace SAMMI.ECOM.API.Controllers.CategoryAddress
 {
@@ -8,10 +11,16 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
     [ApiController]
     public class DistrictsController : CustomBaseController
     {
-        private readonly IDistrictQueries _DistrictQueries;
-        public DistrictsController(IDistrictQueries DistrictQueries)
+        private readonly IDistrictQueries _districtQueries;
+        private readonly IMediator _mediator;
+        private readonly IDistrictRepository _districtRepository;
+        public DistrictsController(IDistrictQueries districtQueries,
+            IMediator mediator,
+            IDistrictRepository districtRepository)
         {
-            _DistrictQueries = DistrictQueries;
+            _districtQueries = districtQueries;
+            _mediator = mediator;
+            _districtRepository = districtRepository;
         }
 
         [HttpGet]
@@ -19,11 +28,11 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         {
             if (request.Type == RequestType.Grid)
             {
-                return Ok(await _DistrictQueries.GetList(request));
+                return Ok(await _districtQueries.GetList(request));
             }
             else if (request.Type == RequestType.Selection)
             {
-                return Ok(await _DistrictQueries.GetSelectionList(request));
+                return Ok(await _districtQueries.GetSelectionList(request));
             }
 
             return Ok();
@@ -32,7 +41,39 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            return Ok(await _DistrictQueries.GetById(id));
+            return Ok(await _districtQueries.GetById(id));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CUProvinceCommand request)
+        {
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] CUProvinceCommand request)
+        {
+            if (id != request.Id)
+            {
+                return BadRequest();
+            }
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            return Ok(_districtRepository.DeleteAndSave(id));
         }
     }
 }

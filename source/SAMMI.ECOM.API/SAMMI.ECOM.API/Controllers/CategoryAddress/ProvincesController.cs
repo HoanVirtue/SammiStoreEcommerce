@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.Commands;
 using SAMMI.ECOM.Infrastructure.Queries.CategoryAddress;
+using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 
 namespace SAMMI.ECOM.API.Controllers.CategoryAddress
 {
@@ -9,9 +12,15 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
     public class ProvincesController : CustomBaseController
     {
         private readonly IProvinceQueries _provinceQueries;
-        public ProvincesController(IProvinceQueries provinceQueries)
+        private readonly IMediator _mediator;
+        private readonly IProvinceRepository _provinRepository;
+        public ProvincesController(IProvinceQueries provinceQueries,
+            IMediator mediator,
+            IProvinceRepository provinRepository)
         {
             _provinceQueries = provinceQueries;
+            _mediator = mediator;
+            _provinRepository = provinRepository;
         }
 
         [HttpGet]
@@ -33,6 +42,38 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         public async Task<IActionResult> Get(int id)
         {
             return Ok(await _provinceQueries.GetById(id));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CUProvinceCommand request)
+        {
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] CUProvinceCommand request)
+        {
+            if (id != request.Id)
+            {
+                return BadRequest();
+            }
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            return Ok(_provinRepository.DeleteAndSave(id));
         }
     }
 }

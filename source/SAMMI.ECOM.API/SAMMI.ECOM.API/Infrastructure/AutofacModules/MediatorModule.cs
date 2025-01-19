@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using MediatR;
 using SAMMI.ECOM.API.Application.Behaviors;
+using SAMMI.ECOM.API.Application.CommandHandlers;
 using System.Reflection;
 
 namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
@@ -14,8 +15,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
                 .AsImplementedInterfaces();
 
             // Register all IRequestHandler
-            //builder.RegisterAssemblyTypes(typeof(CUOrganizationUnitCommandHandler).GetTypeInfo().Assembly)
-            //    .AsClosedTypesOf(typeof(IRequestHandler<,>));
+            builder.RegisterAssemblyTypes(typeof(CUProvinceCommandHandler).GetTypeInfo().Assembly)
+                .AsClosedTypesOf(typeof(IRequestHandler<,>));
 
             // Register all IValidator
             //builder

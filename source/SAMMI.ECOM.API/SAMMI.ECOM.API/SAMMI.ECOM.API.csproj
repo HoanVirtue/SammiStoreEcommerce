@@ -34,8 +34,4 @@
     <ProjectReference Include="..\SAMMI.ECOM.Utility\SAMMI.ECOM.Utility.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Application\CommandHandlers\" />
-  </ItemGroup>
-
 </Project>

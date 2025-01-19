@@ -23,5 +23,6 @@ namespace SAMMI.ECOM.API.Controllers
             }
             return Ok(await _usersQueries.GetEmployeeAll(request));
         }
+
     }
 }

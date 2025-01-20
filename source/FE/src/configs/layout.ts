@@ -93,14 +93,14 @@ export const VerticalLayoutItems = () => {
                 //     path: ROUTE_CONFIG.SETTING.CITY,
                 // },
                 {
-                    title: t('delivery_type'),
+                    title: t('delivery_method'),
                     icon: 'fluent-mdl2:product-list',
-                    path: ROUTE_CONFIG.SETTING.DELIVERY_TYPE,
+                    path: ROUTE_CONFIG.SETTING.DELIVERY_METHOD,
                 },
                 {
-                    title: t('payment_type'),
+                    title: t('payment_method'),
                     icon: 'material-symbols:orders-rounded',
-                    path: ROUTE_CONFIG.SETTING.PAYMENT_TYPE,
+                    path: ROUTE_CONFIG.SETTING.PAYMENT_METHOD,
                 },
                 {
                     title: t('banner'),

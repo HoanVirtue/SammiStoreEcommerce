@@ -468,7 +468,7 @@ const ListUserPage: NextPage<TProps> = () => {
                                 [{
                                     label: t("delete"),
                                     value: "delete",
-                                    disabled: memoDisableDeleteUser
+                                    disabled: memoDisableDeleteUser || !DELETE
                                 }]
                             }
                             handleAction={handleAction}

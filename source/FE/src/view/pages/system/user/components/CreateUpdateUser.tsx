@@ -393,7 +393,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                 onBlur={onBlur}
                                                                 value={value}
                                                                 options={roleOptions}
-                                                                placeholder={t('enter_your_role')}
+                                                                placeholder={t('select_your_role')}
                                                                 error={errors.role ? true : false}
                                                             />
                                                             {!errors?.role?.message && (

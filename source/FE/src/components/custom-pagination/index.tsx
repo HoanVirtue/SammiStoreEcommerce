@@ -35,18 +35,22 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
             width: "100%",
             paddingLeft: "8px"
         }}>
-            <Box>
-                <span>{t('Đang hiển thị ')}</span>
-                <span className='font-bold'>
-                    {page === 1 ? page : 1 + pageSize}
-                    {' - '}
-                </span>
-                <span className='font-bold'>
-                    {page * pageSize}
-                </span>
-                <span> trên </span>
-                <span className='font-bold'>{rowLength}</span>
-            </Box>
+            {rowLength > 0 ? (
+                <Box>
+                    <span>{t('Đang hiển thị ')}</span>
+                    <span className='font-bold'>
+                        {page === 1 ? page : 1 + pageSize}
+                        {' - '}
+                    </span>
+                    <span className='font-bold'>
+                        {page * pageSize}
+                    </span>
+                    <span> trên </span>
+                    <span className='font-bold'>{rowLength}</span>
+                </Box>
+            ) : (
+                <Box></Box>
+            )}
             <Box sx={{
                 display: 'flex',
                 alignItems: 'center',

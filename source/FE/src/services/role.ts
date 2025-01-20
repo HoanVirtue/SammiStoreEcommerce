@@ -4,7 +4,7 @@ import { TParamsCreateRole, TParamsGetAllRoles, TParamsUpdateRole } from "src/ty
 
 export const getAllRoles = async (data: {params: TParamsGetAllRoles}) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.ROLE.INDEX}`, data)
+        const res = await instance.get(`${API_ENDPOINT.SYSTEM.ROLE.INDEX}`, data)
         return res.data
     } catch (error: any) {
         return error?.response?.data
@@ -13,7 +13,7 @@ export const getAllRoles = async (data: {params: TParamsGetAllRoles}) => {
 
 export const createRole = async (data: TParamsCreateRole) => {
     try {
-        const res = await instance.post(`${API_ENDPOINT.ROLE.INDEX}`, data)
+        const res = await instance.post(`${API_ENDPOINT.SYSTEM.ROLE.INDEX}`, data)
         return res.data
     } 
     catch (error: any) {
@@ -25,7 +25,7 @@ export const createRole = async (data: TParamsCreateRole) => {
 export const updateRole = async (data: TParamsUpdateRole) => {
     const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.ROLE.INDEX}/${id}`, rests)
+        const res = await instance.put(`${API_ENDPOINT.SYSTEM.ROLE.INDEX}/${id}`, rests)
         console.log(res)
         return res.data
     } catch (error: any) {
@@ -36,7 +36,7 @@ export const updateRole = async (data: TParamsUpdateRole) => {
 
 export const deleteRole = async (id: string) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.ROLE.INDEX}/${id}`)
+        const res = await instance.delete(`${API_ENDPOINT.SYSTEM.ROLE.INDEX}/${id}`)
         return res.data
     } catch (error: any) {
         return error?.response?.data
@@ -45,7 +45,7 @@ export const deleteRole = async (id: string) => {
 
 export const getRoleDetail = async (id: string) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.ROLE.INDEX}/${id}`)
+        const res = await instance.get(`${API_ENDPOINT.SYSTEM.ROLE.INDEX}/${id}`)
         return res.data
     } catch (error: any) {
         return error?.response?.data

@@ -51,6 +51,7 @@ import CustomSelect from 'src/components/custom-select'
 import CustomModal from 'src/components/custom-modal'
 import { getAllRoles } from 'src/services/role'
 import { useAuth } from 'src/hooks/useAuth'
+import { getAllCities } from 'src/services/city'
 
 type TProps = {}
 
@@ -67,6 +68,7 @@ const MyProfilePage: NextPage<TProps> = () => {
     const [loading, setLoading] = React.useState<boolean>(false)
     const [avatar, setAvatar] = React.useState<string>('')
     const [roleOptions, setRoleOptions] = React.useState<{ label: string, value: string }[]>([])
+    const [cityOptions, setCityOptions] = React.useState<{ label: string, value: string }[]>([])
     const [isDisableRole, setIsDisableRole] = React.useState<boolean>(false)
     
     //hooks
@@ -149,6 +151,22 @@ const MyProfilePage: NextPage<TProps> = () => {
             setLoading(false)
         })
     }
+    
+    const fetchAllCities = async () => {
+        setLoading(true)
+        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
+            const data = res?.data?.cities
+            if (data) {
+                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
+                    label: item.name,
+                    value: item._id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
+    }
 
     useEffect(() => {
         fetchGetAuthMe()
@@ -171,6 +189,7 @@ const MyProfilePage: NextPage<TProps> = () => {
 
     useEffect(() => {
         fetchAllRoles()
+        fetchAllCities()
     }, [])
 
     const onSubmit = (data: any) => {
@@ -525,10 +544,10 @@ const MyProfilePage: NextPage<TProps> = () => {
                                                 </InputLabel>
                                                 <CustomSelect
                                                     fullWidth
-                                                    onChange={onChange}
+                                                    onChange={onChange} 
                                                     onBlur={onBlur}
                                                     value={value}
-                                                    options={[]}
+                                                    options={cityOptions}
                                                     placeholder={t('enter_your_city')}
                                                     error={errors.city ? true : false}
                                                 />

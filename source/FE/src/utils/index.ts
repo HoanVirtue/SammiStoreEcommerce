@@ -73,3 +73,11 @@ export const getAllValuesOfObject = (obj: any, arrExclude?: string[]) => {
         return []
     }
 }
+
+export const formatDate = (value: Date | string, format: Intl.DateTimeFormatOptions = {month: "short", day: "numeric", year: "numeric"}) =>{
+    if(!value){
+        return value
+    }
+    // return new Date(value).toLocaleDateString('vi-VN')
+    return new Intl.DateTimeFormat('vi-VN', format).format(new Date(value))
+}

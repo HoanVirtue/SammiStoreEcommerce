@@ -17,9 +17,8 @@ export const ROUTE_CONFIG = {
         REVIEW: "/manage-product/review",
     },
     SETTING: {
-        // CITY: "/setting/city",
-        PAYMENT_TYPE: "/setting/payment-type",
-        DELIVERY_TYPE: "/setting/delivery-type",
+        PAYMENT_METHOD: "/setting/payment-method",
+        DELIVERY_METHOD: "/setting/delivery-method",
         BANNER: "/setting/banner"
     },
     DASHBOARD: "/dashboard",

@@ -34,6 +34,7 @@ import { convertBase64, separationFullname, toFullName } from "src/utils";
 import { InputLabel } from "@mui/material";
 import CustomSelect from "src/components/custom-select";
 import { getAllRoles } from "src/services/role";
+import { getAllCities } from "src/services/city";
 
 interface TCreateUpdateUser {
     open: boolean
@@ -58,6 +59,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
     const [loading, setLoading] = useState(false)
     const [avatar, setAvatar] = useState("")
     const [roleOptions, setRoleOptions] = useState<{ label: string, value: string }[]>([])
+    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
     const [showPassword, setShowPassword] = useState(false)
 
     //props
@@ -182,6 +184,22 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
         })
     }
 
+    const fetchAllCities = async () => {
+        setLoading(true)
+        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
+            const data = res?.data?.cities
+            if (data) {
+                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
+                    label: item.name,
+                    value: item._id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
+    }
+
     useEffect(() => {
         if (!open) {
             reset({
@@ -198,6 +216,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
 
     useEffect(() => {
         fetchAllRoles()
+        fetchAllCities()
     }, [])
 
     return (
@@ -491,7 +510,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                 onChange={onChange}
                                                                 onBlur={onBlur}
                                                                 value={value}
-                                                                options={[]}
+                                                                options={cityOptions}
                                                                 placeholder={t('enter_your_city')}
                                                                 error={errors.city ? true : false}
                                                             />

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SAMMI.ECOM.Infrastructure;
 
@@ -11,9 +12,11 @@ using SAMMI.ECOM.Infrastructure;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     [DbContext(typeof(SammiEcommerceContext))]
-    partial class SammiEcommerceContextModelSnapshot : ModelSnapshot
+    [Migration("20250120101719_update-user")]
+    partial class updateuser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1300,16 +1303,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("FullName");
 
-                    b.Property<int?>("Gender")
-                        .HasColumnType("int")
-                        .HasColumnName("Gender");
-
-                    b.Property<string>("IdentityGuid")
-                        .IsRequired()
-                        .HasMaxLength(36)
-                        .HasColumnType("varchar(36)")
-                        .HasColumnName("IdentityGuid");
-
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsActive");
@@ -1321,10 +1314,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsDeleted");
-
-                    b.Property<bool>("IsLock")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsLock");
 
                     b.Property<string>("LastName")
                         .HasMaxLength(50)
@@ -1340,11 +1329,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)")
                         .HasColumnName("Phone");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasMaxLength(68)
-                        .HasColumnType("varchar(68)")
-                        .HasColumnName("SecurityStamp");
 
                     b.Property<string>("StreetAddress")
                         .HasMaxLength(200)

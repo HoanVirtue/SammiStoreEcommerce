@@ -29,7 +29,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
                 return actResponse;
             }
 
-            if (_provinceRepository.IsExisted(request.ProvinceId))
+            if (!_provinceRepository.IsExisted(request.ProvinceId))
             {
                 actResponse.AddError("Mã tỉnh/thành phố không tồn tại");
                 return actResponse;

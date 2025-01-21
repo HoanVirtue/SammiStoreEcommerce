@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
@@ -16,6 +17,14 @@ namespace SAMMI.ECOM.API.Controllers
         // Lay ve nguoi dung hien tai dang su dung website
         public UserIdentity? UserIdentity { get; set; }
         public IMapper Mapper { get; set; } = null!;
+        protected readonly IMediator _mediator;
+        protected readonly ILogger _logger;
+        protected CustomBaseController(IMediator mediator,
+            ILogger logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
 
         public override OkResult Ok()
         {

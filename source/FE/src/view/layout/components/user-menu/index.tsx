@@ -1,5 +1,5 @@
 //React
-import React from "react"
+import React, { useEffect } from "react"
 
 //Next
 import Image from "next/image";
@@ -23,6 +23,8 @@ import { ROUTE_CONFIG } from "src/configs/route";
 
 //Utils
 import { toFullName } from "src/utils";
+import { useSelector } from "react-redux";
+import { RootState } from "src/stores";
 
 type TProps = {}
 
@@ -56,7 +58,10 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 }));
 
 const UserMenu = (props: TProps) => {
-    const { user, logout } = useAuth()
+    const { user, logout, setUser } = useAuth()
+
+    const { userData } = useSelector((state: RootState) => state.auth)
+
     const userPermission = user?.role?.permissions ?? []
     //Translation
     const { t, i18n } = useTranslation()
@@ -84,6 +89,12 @@ const UserMenu = (props: TProps) => {
         router.push(ROUTE_CONFIG.DASHBOARD)
         handleClose()
     }
+
+    useEffect(() => {
+        if (userData) {
+            setUser({ ...userData })
+        }
+    }, [userData])
 
 
     return (

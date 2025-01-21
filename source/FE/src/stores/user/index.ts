@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
-import { createUserAsync, deleteUserAsync, getAllUsersAsync, serviceName, updateUserAsync } from './action'
+import { createUserAsync, deleteMultipleUsersAsync, deleteUserAsync, getAllUsersAsync, serviceName, updateUserAsync } from './action'
 
 const initialState = {
   isLoading: false,
@@ -16,6 +16,9 @@ const initialState = {
   isSuccessDelete: false,
   isErrorDelete: false,
   errorMessageDelete: '',
+  isSuccessDeleteMultiple: false,
+  isErrorDeleteMultiple: false,
+  errorMessageDeleteMultiple: '',
 
   users: {
     data: [],
@@ -39,6 +42,9 @@ export const userSlice = createSlice({
       state.isSuccessDelete = false
       state.isErrorDelete = true
       state.errorMessageDelete = ''
+      state.isSuccessDeleteMultiple = false
+      state.isErrorDeleteMultiple = true
+      state.errorMessageDeleteMultiple = ''
     }
   },
   extraReducers: builder => {
@@ -49,8 +55,8 @@ export const userSlice = createSlice({
     })
     builder.addCase(getAllUsersAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.users.data = Array.isArray(action.payload.data.users) ? action.payload.data.users : [];
-      state.users.total = action.payload.data.totalCount
+      state.users.data = Array.isArray(action?.payload?.data?.users) ? action?.payload?.data?.users : [];
+      state.users.total = action?.payload?.data?.totalCount
     })
     builder.addCase(getAllUsersAsync.rejected, (state, action) => {
       state.isLoading = false
@@ -72,7 +78,7 @@ export const userSlice = createSlice({
     builder.addCase(createUserAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = action.error.message || 'Error creating User'
+      state.errorMessageCreateUpdate = action?.error?.message || 'Error creating User'
     })
 
     //update User
@@ -91,7 +97,7 @@ export const userSlice = createSlice({
       state.isErrorCreateUpdate = true
       state.errorMessageCreateUpdate = action.error.message || 'Error updating User'
     })
-    
+
     //delete User
     builder.addCase(deleteUserAsync.pending, (state, action) => {
       state.isLoading = true
@@ -106,9 +112,26 @@ export const userSlice = createSlice({
     builder.addCase(deleteUserAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isErrorDelete = true
-      state.errorMessageDelete = action.error.message || 'Error deleting User'
+      state.errorMessageDelete = action?.error.message || 'Error deleting User'
     })
-    
+
+    //delete multiple User
+    builder.addCase(deleteMultipleUsersAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(deleteMultipleUsersAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.isSuccessDeleteMultiple = !!action.payload?.data
+      state.isErrorDeleteMultiple = !action.payload?.data
+      state.errorMessageDeleteMultiple = action.payload?.message
+      state.typeError = action.payload?.typeError
+    })
+    builder.addCase(deleteMultipleUsersAsync.rejected, (state, action) => {
+      state.isLoading = false
+      state.isErrorDeleteMultiple = true
+      state.errorMessageDeleteMultiple = action.error.message || 'Error deleting User'
+    })
+
   }
 })
 

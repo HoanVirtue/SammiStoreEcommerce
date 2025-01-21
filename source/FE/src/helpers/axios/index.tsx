@@ -63,25 +63,25 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
                                 if (accessToken) {
                                     setLocalUserData(JSON.stringify(user), newAccessToken, refreshToken)
                                 }
-                                // else {
+                                // else {   
                                 //     setLocalUserData(JSON.stringify(user), "", refreshToken)
                                 //     setTemporaryToken(newAccessToken)
                                 // }
                             } else {
-                                handleRedirectToLogin(router, setUser)
+                                // handleRedirectToLogin(router, setUser)
                             }
                         }).catch(() => {
-                            handleRedirectToLogin(router, setUser)
+                            // handleRedirectToLogin(router, setUser)
                         })
                     } else {
-                        handleRedirectToLogin(router, setUser)
+                        // handleRedirectToLogin(router, setUser)
                     }
                 } else {
-                    handleRedirectToLogin(router, setUser)
+                    // handleRedirectToLogin(router, setUser)
                 }
             }
         } else {
-            handleRedirectToLogin(router, setUser)
+            // handleRedirectToLogin(router, setUser)
         }
         return config
     })

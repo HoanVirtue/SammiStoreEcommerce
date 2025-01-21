@@ -1,7 +1,7 @@
 "use client"
 
 //React
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
@@ -85,11 +85,9 @@ const LoginPage: NextPage<TProps> = () => {
             login({ ...data, rememberMe: isRemember }, (err) => {
                 if (err?.response?.data?.typeError === "INVALID") {
                     toast.error(t("incorrect_email_password"))
-                    // setError('email', {type: 'invalid', message: 'Email or password is incorrect'})
                 }
             })
         }
-        console.log({ data, errors }, "dataaaaaa")
     }
 
     return (

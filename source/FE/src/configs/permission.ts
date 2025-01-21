@@ -41,21 +41,26 @@ export const PERMISSIONS: any = {
       },
     },
     SETTING: {
-      PAYMENT_TYPE: {
-        CREATE: "SETTING.PAYMENT_TYPE.CREATE",
-        UPDATE: "SETTING.PAYMENT_TYPE.UPDATE",
-        DELETE: "SETTING.PAYMENT_TYPE.DELETE",
+      PAYMENT_METHOD: {
+        CREATE: "SETTING.PAYMENT_METHOD.CREATE",
+        UPDATE: "SETTING.PAYMENT_METHOD.UPDATE",
+        DELETE: "SETTING.PAYMENT_METHOD.DELETE",
       },
-      DELIVERY_TYPE: {
-        CREATE: "SETTING.DELIVERY_TYPE.CREATE",
-        UPDATE: "SETTING.DELIVERY_TYPE.UPDATE",
-        DELETE: "SETTING.DELIVERY_TYPE.DELETE",
+      DELIVERY_METHOD: {
+        CREATE: "SETTING.DELIVERY_METHOD.CREATE",
+        UPDATE: "SETTING.DELIVERY_METHOD.UPDATE",
+        DELETE: "SETTING.DELIVERY_METHOD.DELETE",
       },
       CITY: {
         CREATE: "CITY.CREATE",
         UPDATE: "CITY.UPDATE",
         DELETE: "CITY.DELETE",
       },
+      PROVINCE: {
+        CREATE: "PROVINCE.CREATE",
+        UPDATE: "PROVINCE.UPDATE",
+        DELETE: "PROVINCE.DELETE",
+      }
     },
   };
 
@@ -69,6 +74,14 @@ export const LIST_PERMISSION_DATA: any = [
     isHideUpdate: true,
     isHideDelete: true,
     isHideCheckAll: true
+  },
+  {
+    id: 11,
+    name: "province",
+    isParent: false,
+    value: "PROVINCE",
+    parentValue: "SETTING",
+    isHideView: true,
   },
   {
     id: 1,

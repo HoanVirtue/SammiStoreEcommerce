@@ -1,10 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 //services
-import { createUser, deleteUser, getAllUsers, updateUser } from "src/services/user";
+import { createUser, deleteMultipleUsers, deleteUser, getAllUsers, updateUser } from "src/services/user";
 
 //types
-import { TParamsCreateUser, TParamsGetAllUsers, TParamsUpdateUser } from "src/types/user";
+import { TParamsCreateUser, TParamsDeleteMultipleUsers, TParamsGetAllUsers, TParamsUpdateUser } from "src/types/user";
 
 export const serviceName = 'user'
 
@@ -25,5 +25,10 @@ export const updateUserAsync = createAsyncThunk(`${serviceName}/update`, async (
 
 export const deleteUserAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
     const response = await deleteUser(id)
+    return response
+})
+
+export const deleteMultipleUsersAsync = createAsyncThunk(`${serviceName}/delete-multiple`, async (data: TParamsDeleteMultipleUsers) => {
+    const response = await deleteMultipleUsers(data)
     return response
 })

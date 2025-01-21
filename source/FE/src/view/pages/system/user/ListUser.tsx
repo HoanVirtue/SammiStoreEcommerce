@@ -1,16 +1,16 @@
 "use client"
 
 //React
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
 import { useRouter } from 'next/navigation'
 
 //MUI
-import { Grid, Typography, useTheme } from '@mui/material'
+import { Chip, ChipProps, Grid, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
-import { GridColDef, GridRenderCellParams, GridRowClassNameParams, GridSortModel } from '@mui/x-data-grid'
+import { GridColDef, GridRenderCellParams, GridRowClassNameParams, GridRowSelectionModel, GridSortModel } from '@mui/x-data-grid'
 
 //redux
 import { useDispatch, useSelector } from 'react-redux'
@@ -38,14 +38,47 @@ import ConfirmDialog from 'src/components/confirm-dialog'
 import { OBJECT_TYPE_ROLE_ERROR } from 'src/configs/role'
 
 //utils
-import { toFullName } from 'src/utils'
+import { formatFilter, toFullName } from 'src/utils'
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
+
+
 import { usePermission } from 'src/hooks/usePermission'
-import { deleteUserAsync, getAllUsersAsync } from 'src/stores/user/action'
-import { getUserDetail } from 'src/services/user'
+import { deleteMultipleUsersAsync, deleteUserAsync, getAllUsersAsync } from 'src/stores/user/action'
 import { resetInitialState } from 'src/stores/user'
+import TableHeader from 'src/components/table-header'
+import { PERMISSIONS } from 'src/configs/permission'
+import { styled } from '@mui/material'
+import CustomSelect from 'src/components/custom-select'
+import { getAllRoles } from 'src/services/role'
+import { OBJECT_USER_STATUS } from 'src/configs/user'
+import { getAllCities } from 'src/services/city'
 
 type TProps = {}
+
+type TSelectedRow = {
+    id: string,
+    role: {
+        name: string,
+        permissions: string[]
+    }
+}
+
+const StyledActiveUser = styled(Chip)<ChipProps>(({ theme }) => ({
+    backgroundColor: "#28c76f29",
+    color: "#28c76f",
+    fontSize: "14px",
+    padding: "8px 4px",
+    fontWeight: 600
+}))
+
+const StyledInactiveUser = styled(Chip)<ChipProps>(({ theme }) => ({
+    backgroundColor: "#da251d29",
+    color: "#da251d",
+    fontSize: "14px",
+    padding: "8px 4px",
+    fontWeight: 600
+}))
+
 
 const ListUserPage: NextPage<TProps> = () => {
     //States
@@ -59,10 +92,24 @@ const ListUserPage: NextPage<TProps> = () => {
         open: false,
         id: ""
     });
+
+    const [openDeleteMultipleUser, setOpenDeleteMultipleUser] = useState(false);
+
     const [sortBy, setSortBy] = useState("createdAt asc");
     const [searchBy, setSearchBy] = useState("");
-
     const [loading, setLoading] = useState(false);
+    const [selectedRow, setSelectedRow] = useState<TSelectedRow[]>([]);
+    const [roleOptions, setRoleOptions] = useState<{ label: string, value: string }[]>([])
+    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
+    const [selectedRole, setSelectedRole] = useState<string[]>([]);
+    const [selectedCity, setSelectedCity] = useState<string[]>([]);
+    const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+    const [filterBy, setFilterBy] = useState<Record<string, string | string[]>>({});
+    const USER_STATUS = OBJECT_USER_STATUS()
+
+    //Translation
+    const { t, i18n } = useTranslation();
+
 
     //hooks
     const { VIEW, CREATE, UPDATE, DELETE } = usePermission("SYSTEM.USER", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
@@ -70,12 +117,9 @@ const ListUserPage: NextPage<TProps> = () => {
     //router
     const router = useRouter();
 
-    //Translation
-    const { t, i18n } = useTranslation();
-
     //Redux
     const { users, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
-        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.user)
+        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError, isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple } = useSelector((state: RootState) => state.user)
     const dispatch: AppDispatch = useDispatch();
 
     //Theme
@@ -83,15 +127,57 @@ const ListUserPage: NextPage<TProps> = () => {
 
     //api 
     const handleGetListUser = () => {
-        dispatch(getAllUsersAsync({ params: { limit: -1, page: -1, search: searchBy, order: sortBy } }));
+        const query = {
+            params: { limit: pageSize, page: page, search: searchBy, order: sortBy, ...formatFilter(filterBy) }
+        }
+        dispatch(getAllUsersAsync(query));
+    }
+
+    const fetchAllRoles = async () => {
+        setLoading(true)
+        await getAllRoles({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
+            const data = res?.data?.roles
+            if (data) {
+                setRoleOptions(data?.map((item: { name: string, _id: string }) => ({
+                    label: item.name,
+                    value: item._id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
+    }
+
+    const fetchAllCities = async () => {
+        setLoading(true)
+        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
+            const data = res?.data?.cities
+            if (data) {
+                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
+                    label: item.name,
+                    value: item._id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
     }
 
     //handlers
-    const handleOnChangePagination = (page: number, pageSize: number) => { }
+    const handleOnChangePagination = (page: number, pageSize: number) => {
+        setPage(page)
+        setPageSize(pageSize)
+    }
 
     const handleSort = (sort: GridSortModel) => {
         const sortOption = sort[0]
-        setSortBy(`${sortOption.field} ${sortOption.sort}`)
+        if (sortOption) {
+            setSortBy(`${sortOption.field} ${sortOption.sort}`)
+        } else {
+            setSortBy("createdAt asc")
+        }
     }
 
     const handleCloseCreateUpdateUser = () => {
@@ -108,24 +194,31 @@ const ListUserPage: NextPage<TProps> = () => {
         })
     }
 
+    const handleCloseDeleteMultipleDialog = () => {
+        setOpenDeleteMultipleUser(false)
+    }
+
     const handleDeleteUser = () => {
         dispatch(deleteUserAsync(openDeleteUser.id))
     }
 
-    // const handleGetUserDetail = async (id: string) => {
-    //     setLoading(true)
-    //     await getUserDetail(id).then((res) => {
-    //         if (res?.data) {
-    //         }
-    //         setLoading(false)
-    //     }).catch((e) => {
-    //         setLoading(false)
-    //     })
-    // }
+    const handleDeleteMultipleUser = () => {
+        dispatch(deleteMultipleUsersAsync({
+            userIds: selectedRow?.map((item: TSelectedRow) => item.id)
+        }))
+    }
+
+    const handleAction = (action: string) => {
+        switch (action) {
+            case "delete": {
+                setOpenDeleteMultipleUser(true)
+            }
+        }
+    }
 
     const columns: GridColDef[] = [
         {
-            field: 'fullName',
+            field: i18n.language === "en" ? "firstName" : "lastName",
             headerName: t('full_name'),
             flex: 1,
             minWidth: 200,
@@ -184,7 +277,27 @@ const ListUserPage: NextPage<TProps> = () => {
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{row?.city}</Typography>
+                    <Typography>{row?.city?.name}</Typography>
+                )
+            }
+        },
+        {
+            field: 'status',
+            headerName: t('status'),
+            flex: 1,
+            minWidth: 200,
+            maxWidth: 200,
+            renderCell: (params: GridRenderCellParams) => {
+                const { row } = params
+                return (
+                    <>
+                        {row?.status ? (
+                            <StyledActiveUser label={t('active')} />
+                        ) : (
+                            <StyledInactiveUser label={t('inactive')} />
+                        )
+                        }
+                    </>
                 )
             }
         },
@@ -213,7 +326,6 @@ const ListUserPage: NextPage<TProps> = () => {
                             })}
                         />
                     </>
-
                 )
             }
         },
@@ -225,18 +337,24 @@ const ListUserPage: NextPage<TProps> = () => {
             pageSizeOptions={PAGE_SIZE_OPTIONS}
             onChangePagination={handleOnChangePagination}
             page={page}
-            rowLength={users.total} />
+            rowLength={users.total}
+        />
     };
+
     useEffect(() => {
         handleGetListUser();
-    }, [sortBy, searchBy])
+    }, [sortBy, searchBy, i18n.language, page, pageSize, filterBy]);
 
-    // useEffect(() => {
-    //     if (selectedRow.id) {
-    //         handleGetUserDetail(selectedRow.id)
-    //     }
-    // }, [selectedRow])
+    useEffect(() => {
+        setFilterBy({ roleId: selectedRole, status: selectedStatus, cityId: selectedCity });
+    }, [selectedRole, selectedStatus, selectedCity]);
 
+    useEffect(() => {
+        fetchAllRoles();
+        fetchAllCities();
+    }, []);
+
+    /// create update user
     useEffect(() => {
         if (isSuccessCreateUpdate) {
             if (!openCreateUpdateUser.id) {
@@ -262,6 +380,25 @@ const ListUserPage: NextPage<TProps> = () => {
         }
     }, [isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate, typeError])
 
+    //delete multiple users
+    useEffect(() => {
+        if (isSuccessDeleteMultiple) {
+            toast.success(t("delete_multiple_user_success"))
+            handleGetListUser()
+            dispatch(resetInitialState())
+            handleCloseDeleteMultipleDialog()
+            setSelectedRow([])
+        } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
+            toast.error(t("delete_multiple_user_error"))
+            dispatch(resetInitialState())
+        }
+    }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple])
+
+    const memoDisableDeleteUser = useMemo(() => {
+        return selectedRow.some((item: TSelectedRow) => item?.role?.permissions?.includes(PERMISSIONS.ADMIN))
+    }, [selectedRow])
+
+    //delete user
     useEffect(() => {
         if (isSuccessDelete) {
             toast.success(t("delete_user_success"))
@@ -284,6 +421,14 @@ const ListUserPage: NextPage<TProps> = () => {
                 title={"Xác nhận xóa người dùng"}
                 description={"Bạn có chắc xóa người dùng này không?"}
             />
+            <ConfirmDialog
+                open={openDeleteMultipleUser}
+                onClose={handleCloseDeleteMultipleDialog}
+                handleCancel={handleCloseDeleteMultipleDialog}
+                handleConfirm={handleDeleteMultipleUser}
+                title={"Xác nhận xóa nhiều người dùng"}
+                description={"Bạn có chắc xóa các người dùng này không?"}
+            />
             <CreateUpdateUser
                 idUser={openCreateUpdateUser.id}
                 open={openCreateUpdateUser.open}
@@ -299,29 +444,74 @@ const ListUserPage: NextPage<TProps> = () => {
                 height: 'fit-content',
             }}>
                 <Grid container sx={{ width: '100%', height: '100%' }}>
-                    <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'flex-end',
-                        alignItems: 'center',
-                        mb: 4,
-                        gap: 4,
-                        width: '100%'
-                    }}>
+                    {!selectedRow?.length && (
                         <Box sx={{
-                            width: '200px',
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            alignItems: 'center',
+                            mb: 4,
+                            gap: 4,
+                            width: '100%'
                         }}>
-                            <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
+                            <Box sx={{ width: '200px', }}>
+                                <CustomSelect
+                                    fullWidth
+                                    multiple
+                                    value={selectedCity}
+                                    options={cityOptions}
+                                    onChange={(e) => setSelectedCity(e.target.value as string[])}
+                                    placeholder={t('city')}
+                                />
+                            </Box>
+                            <Box sx={{ width: '200px', }}>
+                                <CustomSelect
+                                    fullWidth
+                                    multiple
+                                    value={selectedRole}
+                                    options={roleOptions}
+                                    onChange={(e) => setSelectedRole(e.target.value as string[])}
+                                    placeholder={t('role')}
+                                />
+                            </Box>
+                            <Box sx={{ width: '200px', }}>
+                                <CustomSelect
+                                    fullWidth
+                                    multiple
+                                    value={selectedStatus}
+                                    options={Object.values(USER_STATUS)}
+                                    onChange={(e) => setSelectedStatus(e.target.value as string[])}
+                                    placeholder={t('status')}
+                                />
+                            </Box>
+                            <Box sx={{
+                                width: '200px',
+                            }}>
+                                <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
+                            </Box>
+                            <GridCreate onClick={() => {
+                                setOpenCreateUpdateUser({ open: true, id: "" })
+                            }}
+                            />
                         </Box>
-                        <GridCreate onClick={() => {
-                            setOpenCreateUpdateUser({ open: true, id: "" })
-                        }}
+                    )}
+                    {selectedRow.length > 0 && (
+                        <TableHeader
+                            selectedRowNumber={selectedRow?.length}
+                            onClear={() => setSelectedRow([])}
+                            actions={
+                                [{
+                                    label: t("delete"),
+                                    value: "delete",
+                                    disabled: memoDisableDeleteUser || !DELETE
+                                }]
+                            }
+                            handleAction={handleAction}
                         />
-                    </Box>
+                    )}
                     <CustomDataGrid
                         rows={users.data}
                         columns={columns}
-                        pageSizeOptions={[5]}
-                        // checkboxSelection
+                        checkboxSelection
                         getRowId={(row) => row._id}
                         disableRowSelectionOnClick
                         autoHeight
@@ -334,15 +524,25 @@ const ListUserPage: NextPage<TProps> = () => {
                         }}
                         disableColumnFilter
                         disableColumnMenu
-                        onRowClick={row => {
-                            setOpenCreateUpdateUser({ open: true, id: String(row.id) })
-                        }}
+                        // onRowClick={row => {
+                        //     setOpenCreateUpdateUser({ open: true, id: String(row.id) })
+                        // }}
                         sx={{
                             ".selected-row": {
                                 backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
                                 color: `${theme.palette.primary.main} !important`
                             }
                         }}
+                        onRowSelectionModelChange={(row: GridRowSelectionModel) => {
+                            const formatedData: any = row.map((id) => {
+                                const findRow: any = users.data?.find((item: any) => item._id === id)
+                                if (findRow) {
+                                    return { id: findRow?._id, role: findRow?.role }
+                                }
+                            })
+                            setSelectedRow(formatedData)
+                        }}
+                        rowSelectionModel={selectedRow?.map(item => item.id)}
                     />
                 </Grid>
             </Box >

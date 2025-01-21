@@ -63,7 +63,7 @@ export const getAllValuesOfObject = (obj: any, arrExclude?: string[]) => {
                 value.push(...getAllValuesOfObject(obj[key], arrExclude))
             }
             else {
-                if(!arrExclude?.includes(obj[key])) {
+                if (!arrExclude?.includes(obj[key])) {
                     value.push(obj[key])
                 }
             }
@@ -72,4 +72,26 @@ export const getAllValuesOfObject = (obj: any, arrExclude?: string[]) => {
     } catch (error) {
         return []
     }
+}
+
+export const formatDate = (value: Date | string, format: Intl.DateTimeFormatOptions = { month: "short", day: "numeric", year: "numeric" }) => {
+    if (!value) {
+        return value
+    }
+    // return new Date(value).toLocaleDateString('vi-VN')
+    return new Intl.DateTimeFormat('vi-VN', format).format(new Date(value))
+}
+
+export const formatFilter = (filter: Record<string, string[] | string>) => {
+    const result: Record<string, string> = {}
+    Object.keys(filter)?.forEach((key: string )=> {
+        if (Array.isArray(filter[key]) && filter[key]?.length > 0) {
+            result[key] = filter[key].join('|')
+        } 
+        // else if (typeof filter[key] === 'string') {
+            else if (typeof filter[key] === 'string') {
+            result[key] = filter[key]
+        }
+    })
+    return result
 }

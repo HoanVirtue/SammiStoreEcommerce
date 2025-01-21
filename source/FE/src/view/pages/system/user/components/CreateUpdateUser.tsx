@@ -34,6 +34,7 @@ import { convertBase64, separationFullname, toFullName } from "src/utils";
 import { InputLabel } from "@mui/material";
 import CustomSelect from "src/components/custom-select";
 import { getAllRoles } from "src/services/role";
+import { getAllCities } from "src/services/city";
 
 interface TCreateUpdateUser {
     open: boolean
@@ -58,6 +59,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
     const [loading, setLoading] = useState(false)
     const [avatar, setAvatar] = useState("")
     const [roleOptions, setRoleOptions] = useState<{ label: string, value: string }[]>([])
+    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
     const [showPassword, setShowPassword] = useState(false)
 
     //props
@@ -79,7 +81,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
             .matches(PASSWORD_REG, "The password format is incorrect"),
         fullName: yup.string().required("Fullname is required"),
         phoneNumber: yup.string().required("Phone number is required")
-            .min(8, "The phone number must be at least 8 characters"),
+            .min(9, "The phone number must be at least 9 characters"),
         role: yup.string().required("Role is required"),
         city: yup.string().nonNullable(),
         address: yup.string().nonNullable(),
@@ -117,7 +119,8 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                     address: data?.address,
                     city: data?.city,
                     avatar: avatar,
-                    id: idUser
+                    id: idUser,
+                    status: data?.status ? 1 : 0,
                 }))
             } else {
                 //create
@@ -181,13 +184,31 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
         })
     }
 
+    const fetchAllCities = async () => {
+        setLoading(true)
+        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
+            const data = res?.data?.cities
+            if (data) {
+                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
+                    label: item.name,
+                    value: item._id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
+    }
+
     useEffect(() => {
         if (!open) {
             reset({
                 ...defaultValues
             })
+            setAvatar("")
+            setShowPassword(false)
         } else {
-            if (idUser) {
+            if (idUser && open) {
                 fetchDetailUser(idUser)
             }
         }
@@ -195,6 +216,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
 
     useEffect(() => {
         fetchAllRoles()
+        fetchAllCities()
     }, [])
 
     return (
@@ -225,7 +247,11 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                             right: "-10px",
                             top: "-6px",
                         }}>
-                            <IconifyIcon icon="material-symbols-light:close-rounded" fontSize={"30px"} onClick={onClose} />
+                            <IconifyIcon
+                                icon="material-symbols-light:close-rounded"
+                                fontSize={"30px"}
+                                onClick={onClose}
+                            />
                         </IconButton>
                     </Box>
                     <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
@@ -363,9 +389,45 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                         name='password'
                                                     />
                                                 </Grid>
-                                            )
-                                            }
-                                            {/* {idUser && (
+                                            )}
+                                            <Grid item md={6} xs={12} >
+                                                <Controller
+                                                    control={control}
+                                                    rules={{ required: true }}
+                                                    render={({ field: { onChange, onBlur, value } }) => (
+                                                        <Box>
+                                                            <InputLabel sx={{
+                                                                fontSize: "13px",
+                                                                mb: "4px",
+                                                                display: "block",
+                                                                color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                            }}>
+                                                                Nhóm vai trò <span style={{
+                                                                    color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                                }}>*</span>
+                                                            </InputLabel>
+                                                            <CustomSelect
+                                                                fullWidth
+                                                                onChange={onChange}
+                                                                onBlur={onBlur}
+                                                                value={value}
+                                                                options={roleOptions}
+                                                                placeholder={t('select_your_role')}
+                                                                error={errors.role ? true : false}
+                                                            />
+                                                            {!errors?.role?.message && (
+                                                                <FormHelperText sx={{
+                                                                    color: !errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                                }}>
+                                                                    {errors?.role?.message}
+                                                                </FormHelperText>
+                                                            )}
+                                                        </Box>
+                                                    )}
+                                                    name='role'
+                                                />
+                                            </Grid>
+                                            {idUser && (
                                                 <Grid item md={6} xs={12} >
                                                     <Controller
                                                         control={control}
@@ -387,42 +449,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                         name='status'
                                                     />
                                                 </Grid>
-                                            )} */}
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    rules={{ required: true }}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <Box>
-                                                            <InputLabel sx={{
-                                                                fontSize: "13px",
-                                                                mb: "4px",
-                                                                display: "block",
-                                                                color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                            }}>
-                                                                Nhóm vai trò
-                                                            </InputLabel>
-                                                            <CustomSelect
-                                                                fullWidth
-                                                                onChange={onChange}
-                                                                onBlur={onBlur}
-                                                                value={value}
-                                                                options={roleOptions}
-                                                                placeholder={t('enter_your_role')}
-                                                                error={errors.role ? true : false}
-                                                            />
-                                                            {!errors?.role?.message && (
-                                                                <FormHelperText sx={{
-                                                                    color: !errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                                }}>
-                                                                    {errors?.role?.message}
-                                                                </FormHelperText>
-                                                            )}
-                                                        </Box>
-                                                    )}
-                                                    name='role'
-                                                />
-                                            </Grid>
+                                            )}
                                         </Grid>
                                     </Box>
                                 </Grid>
@@ -435,6 +462,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     render={({ field: { onChange, onBlur, value } }) => (
                                                         <CustomTextField
                                                             fullWidth
+                                                            required
                                                             label={t('full_name')}
                                                             onChange={onChange}
                                                             onBlur={onBlur}
@@ -482,13 +510,13 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                 onChange={onChange}
                                                                 onBlur={onBlur}
                                                                 value={value}
-                                                                options={[]}
+                                                                options={cityOptions}
                                                                 placeholder={t('enter_your_city')}
                                                                 error={errors.city ? true : false}
                                                             />
                                                             {errors?.city?.message && (
                                                                 <FormHelperText sx={{
-                                                                    color: !errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                                    color: errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                                 }}>
                                                                     {errors?.city?.message}
                                                                 </FormHelperText>

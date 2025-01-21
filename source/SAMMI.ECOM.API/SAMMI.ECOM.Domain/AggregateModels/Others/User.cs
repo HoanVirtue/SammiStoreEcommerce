@@ -17,6 +17,11 @@ public partial class User : Entity
     [StringLength(256)]
     public string Code { get; set; } = null!;
 
+    [Column("IdentityGuid")]
+    [Required]
+    [StringLength(36)]
+    public string IdentityGuid { get; set; } = null!;
+
     [Column("Type")]
     [StringLength(50)]
     public string? Type { get; set; }
@@ -51,6 +56,29 @@ public partial class User : Entity
 
     [Column("IsAdmin")]
     public bool? IsAdmin { get; set; }
+
+    [Column("Username")]
+    [StringLength(100)]
+    public string? Username { get; set; }
+
+    [Column("Password")]
+    [StringLength(255)]
+    public string? Password { get; set; }
+
+    [Column("Gender")]
+    public int? Gender { get; set; }
+
+    [Column("IsLock")]
+    public bool IsLock { get; set; } = false;
+
+    // để tăng cường bảo mật: Xác thực phiên người dùng, Phát hiện các thay đổi quan trọng
+    [StringLength(68)]
+    [Column("SecurityStamp")]
+    public string? SecurityStamp { get; set; }
+
+    [StringLength(68)]
+    [Column("Avatar")]
+    public string? Avatar { get; set; }
 
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 

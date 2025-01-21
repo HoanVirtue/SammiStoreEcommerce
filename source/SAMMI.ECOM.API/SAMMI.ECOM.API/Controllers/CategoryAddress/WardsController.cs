@@ -12,14 +12,14 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
     public class WardsController : CustomBaseController
     {
         private readonly IWardQueries _wardQueries;
-        private readonly IMediator _mediator;
         private readonly IWardRepository _wardRepository;
-        public WardsController(IWardQueries WardQueries,
+        public WardsController(
             IMediator mediator,
-            IWardRepository wardRepository)
+            ILogger<WardsController> logger,
+            IWardQueries WardQueries,
+            IWardRepository wardRepository) : base(mediator, logger)
         {
             _wardQueries = WardQueries;
-            _mediator = mediator;
             _wardRepository = wardRepository;
         }
 
@@ -45,7 +45,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CUProvinceCommand request)
+        public async Task<IActionResult> Post([FromBody] CUWardCommand request)
         {
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
@@ -56,7 +56,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CUProvinceCommand request)
+        public async Task<IActionResult> Put(int id, [FromBody] CUWardCommand request)
         {
             if (id != request.Id)
             {

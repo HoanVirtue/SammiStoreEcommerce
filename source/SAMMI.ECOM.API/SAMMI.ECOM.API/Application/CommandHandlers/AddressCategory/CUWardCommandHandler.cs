@@ -29,9 +29,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
                 return actResponse;
             }
 
-            if (_districtRepository.IsExisted(request.DistrictId))
+            if (!_districtRepository.IsExisted(request.DistrictId))
             {
-                actResponse.AddError("Mã quận/huyện phố không tồn tại");
+                actResponse.AddError("Mã quận/huyện không tồn tại");
                 return actResponse;
             }
 

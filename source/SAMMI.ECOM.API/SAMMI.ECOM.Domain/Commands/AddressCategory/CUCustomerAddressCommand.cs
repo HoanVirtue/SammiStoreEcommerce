@@ -1,27 +1,19 @@
-﻿using SAMMI.ECOM.Domain.AggregateModels.Others;
-using SAMMI.ECOM.Domain.Seeds;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿namespace SAMMI.ECOM.Domain.Commands;
 
-namespace SAMMI.ECOM.Domain.Commands;
-
-[Table("CustomerAddress")]
-public partial class CUCustomerAddressCommand : Entity
+public partial class CUCustomerAddressCommand
 {
-    [ForeignKey("Customer")]
     public int? CustomerId { get; set; }
-
-    [Column("StreetAddress")]
-    [MaxLength(200)]
     public string? StreetAddress { get; set; }
-
-    [ForeignKey("Ward")]
     public int? WardId { get; set; }
-
-    [Column("IsDefault")]
     public bool? IsDefault { get; set; }
 
-    public virtual User? Customer { get; set; }
 
-    public virtual CUWardCommand? Ward { get; set; }
+    public int Id { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public DateTime? UpdatedDate { get; set; }
+    public string? CreatedBy { get; set; }
+    public string? UpdatedBy { get; set; }
+    public bool IsActive { get; set; }
+    public bool IsDeleted { get; set; }
+    public int? DisplayOrder { get; set; }
 }

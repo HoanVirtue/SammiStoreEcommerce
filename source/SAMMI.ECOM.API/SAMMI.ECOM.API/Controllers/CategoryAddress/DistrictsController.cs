@@ -12,14 +12,14 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
     public class DistrictsController : CustomBaseController
     {
         private readonly IDistrictQueries _districtQueries;
-        private readonly IMediator _mediator;
         private readonly IDistrictRepository _districtRepository;
-        public DistrictsController(IDistrictQueries districtQueries,
+        public DistrictsController(
             IMediator mediator,
-            IDistrictRepository districtRepository)
+            ILogger<DistrictsController> logger,
+            IDistrictQueries districtQueries,
+            IDistrictRepository districtRepository) : base(mediator, logger)
         {
             _districtQueries = districtQueries;
-            _mediator = mediator;
             _districtRepository = districtRepository;
         }
 
@@ -45,7 +45,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CUProvinceCommand request)
+        public async Task<IActionResult> Post([FromBody] CUDistrictCommand request)
         {
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
@@ -56,7 +56,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CUProvinceCommand request)
+        public async Task<IActionResult> Put(int id, [FromBody] CUDistrictCommand request)
         {
             if (id != request.Id)
             {

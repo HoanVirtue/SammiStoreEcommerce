@@ -1,34 +1,25 @@
 ﻿namespace SAMMI.ECOM.Domain.DomainModels.Users
 {
-    public class EmployeeDTO
+    public class UserDTO
     {
         public int Id { get; set; }
         public string Code { get; set; } = null!;
-
+        public string IdentityGuid { get; set; } = null!;
         public string? Type { get; set; }
-
         public string? FirstName { get; set; }
-
         public string? LastName { get; set; }
-
         public string? FullName { get; set; }
-
         public string? Email { get; set; }
-
         public string? Phone { get; set; }
-
         public string? StreetAddress { get; set; }
-
         public int? WardId { get; set; }
         public string? WardName { get; set; }
-
         public int? DistrictId { get; set; }
         public string? DistrictName { get; set; }
-
         public int? ProvinceId { get; set; }
         public string? ProvinceName { get; set; }
-
-        public bool? IsAdmin { get; set; }
+        public string? Username { get; set; }
+        public int? Gender { get; set; }
 
 
         public DateTime? CreatedDate { get; set; }
@@ -38,5 +29,19 @@
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }
+    }
+
+    public class EmployeeDTO : UserDTO
+    {
+        public bool? IsAdmin { get; set; }
+    }
+
+    public class CustomerDTO : UserDTO
+    {
+
+    }
+
+    public class SupplierDTO : UserDTO
+    {
     }
 }

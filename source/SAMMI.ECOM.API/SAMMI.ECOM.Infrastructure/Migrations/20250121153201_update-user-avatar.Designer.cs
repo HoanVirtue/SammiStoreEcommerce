@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SAMMI.ECOM.Infrastructure;
 
@@ -11,9 +12,11 @@ using SAMMI.ECOM.Infrastructure;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     [DbContext(typeof(SammiEcommerceContext))]
-    partial class SammiEcommerceContextModelSnapshot : ModelSnapshot
+    [Migration("20250121153201_update-user-avatar")]
+    partial class updateuseravatar
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

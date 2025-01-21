@@ -205,7 +205,7 @@ const UserMenu = (props: TProps) => {
                     </Box>
                 </Box>
                 <Divider />
-                {userPermission.length > 0 && (
+                {userPermission.length <= 0 && (
                     <MenuItem onClick={handleNavigateManageSystem}>
                         <Avatar>
                             <IconifyIcon icon="ph:user-thin" />

@@ -29,5 +29,14 @@ export const API_ENDPOINT = {
     CITY: {
       INDEX: `${BASE_URL}/city`,
     },
+    PROVINCE: {
+      INDEX: `${BASE_URL}/provinces`,
+    },
+    DISTRICT: {
+      INDEX: `${BASE_URL}/districts`,
+    },
+    WARD: {
+      INDEX: `${BASE_URL}/wards`,
+    },
   }
 }

@@ -56,6 +56,11 @@ export const PERMISSIONS: any = {
         UPDATE: "CITY.UPDATE",
         DELETE: "CITY.DELETE",
       },
+      PROVINCE: {
+        CREATE: "PROVINCE.CREATE",
+        UPDATE: "PROVINCE.UPDATE",
+        DELETE: "PROVINCE.DELETE",
+      }
     },
   };
 
@@ -69,6 +74,14 @@ export const LIST_PERMISSION_DATA: any = [
     isHideUpdate: true,
     isHideDelete: true,
     isHideCheckAll: true
+  },
+  {
+    id: 11,
+    name: "province",
+    isParent: false,
+    value: "PROVINCE",
+    parentValue: "SETTING",
+    isHideView: true,
   },
   {
     id: 1,

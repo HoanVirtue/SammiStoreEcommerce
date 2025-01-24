@@ -47,6 +47,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUProvinceCommand request)
         {
+            if (request.Id != 0)
+            {
+                return BadRequest();
+            }
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
             {
@@ -73,6 +77,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            if (!_provinRepository.IsExisted(id))
+            {
+                return NotFound();
+            }
             return Ok(_provinRepository.DeleteAndSave(id));
         }
     }

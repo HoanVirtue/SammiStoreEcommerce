@@ -112,7 +112,9 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
 
         public async Task<User?> FindByUserNameAsync(string userName)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Username.ToLower().Equals(userName.ToLower()));
+            return await _context.Users
+                .FirstOrDefaultAsync(x => x.Username.ToLower().Equals(userName.ToLower())
+                    && !x.IsDeleted);
         }
     }
 }

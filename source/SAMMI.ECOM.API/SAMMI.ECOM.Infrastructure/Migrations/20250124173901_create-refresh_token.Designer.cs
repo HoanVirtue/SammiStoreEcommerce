@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SAMMI.ECOM.Infrastructure;
 
@@ -11,9 +12,11 @@ using SAMMI.ECOM.Infrastructure;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     [DbContext(typeof(SammiEcommerceContext))]
-    partial class SammiEcommerceContextModelSnapshot : ModelSnapshot
+    [Migration("20250124173901_create-refresh_token")]
+    partial class createrefresh_token
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1924,76 +1927,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Permission");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.RefreshToken", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("CreatedBy");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreatedDate");
-
-                    b.Property<string>("Culture")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("Culture");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("DisplayOrder");
-
-                    b.Property<DateTime>("ExpirationDateUtc")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("ExpirationDateUtc");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsActive");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<bool>("IsExchanged")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsExchanged");
-
-                    b.Property<bool>("IsInvalid")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsInvalid");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("varchar(4000)")
-                        .HasColumnName("Token");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("UpdatedBy");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("UpdatedDate");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int")
-                        .HasColumnName("UserId");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("RefreshToken");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.Role", b =>

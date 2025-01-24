@@ -12,12 +12,12 @@ using System.Security.Cryptography;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.User
 {
-    public class CUEmployeeCommandHandler : CustombaseCommandHandler<CUEmployeeCommand, EmployeeDTO>
+    public class CreateEmployeeCommandHandler : CustombaseCommandHandler<CreateEmployeeCommand, EmployeeDTO>
     {
         private readonly IUsersRepository _userRepository;
         private readonly IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> _authService;
         private readonly IWardRepository _wardRepository;
-        public CUEmployeeCommandHandler(IUsersRepository userRepository,
+        public CreateEmployeeCommandHandler(IUsersRepository userRepository,
             IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
             IWardRepository wardRepository,
             UserIdentity currentUser,
@@ -31,7 +31,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
 
-        public override async Task<ActionResponse<EmployeeDTO>> Handle(CUEmployeeCommand request, CancellationToken cancellationToken)
+        public override async Task<ActionResponse<EmployeeDTO>> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
         {
             var actionResponse = new ActionResponse<EmployeeDTO>();
 
@@ -42,11 +42,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 return actionResponse;
             }
 
-            if (await _userRepository.IsExistUsername(request.Username, request.Id))
-            {
-                actionResponse.AddError("Tên tài khoản đã tồn tại");
-                return actionResponse;
-            }
             if (!string.IsNullOrEmpty(request.Email) && await _userRepository.IsExistEmail(request.Email, request.Id))
             {
                 actionResponse.AddError("Email đã tồn tại");
@@ -67,47 +62,40 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 return actionResponse;
             }
 
-            if (request.Id == 0)
+            request.CreatedDate = DateTime.Now;
+            request.CreatedBy = _currentUser.UserName;
+            request.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
+            request.Type = TypeUserEnum.Employee.ToString();
+            request.IdentityGuid = Guid.NewGuid().ToString();
+
+            var createResponse = _userRepository.Create(request);
+            actionResponse.Combine(createResponse);
+            if (!createResponse.IsSuccess)
             {
-                request.CreatedDate = DateTime.Now;
-                request.CreatedBy = _currentUser.UserName;
-                request.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
-                request.Type = TypeUserEnum.Employee.ToString();
-                request.IdentityGuid = Guid.NewGuid().ToString();
-
-                var createResponse = _userRepository.Create(request);
-                actionResponse.Combine(createResponse);
-                if (!createResponse.IsSuccess)
-                {
-                    return actionResponse;
-                }
-
-                var employee = createResponse.Result;
-
-                var validateUserResp = await _authService.ValidateUserAsync(employee!);
-                if (!validateUserResp.Succeeded)
-                {
-                    foreach (var err in validateUserResp.Errors)
-                    {
-                        actionResponse.AddError(err.Description, err.Code);
-                    }
-                    return actionResponse;
-                }
-
-                employee.SecurityStamp = this.NewSecurityStamp();
-                //mã hóa thuật toán PBKDF2
-                employee.Password = _authService.EncryptPassword(employee.Password!);
-                await _userRepository.SaveChangeAsync();
-
-                // add role và send password email(nếu có)
-
-
-                actionResponse.SetResult(_mapper.Map<EmployeeDTO>(employee));
+                return actionResponse;
             }
-            else
+
+            var employee = createResponse.Result;
+
+            var validateUserResp = await _authService.ValidateUserAsync(employee!);
+            if (!validateUserResp.Succeeded)
             {
-
+                foreach (var err in validateUserResp.Errors)
+                {
+                    actionResponse.AddError(err.Description, err.Code);
+                }
+                return actionResponse;
             }
+
+            employee.SecurityStamp = this.NewSecurityStamp();
+            //mã hóa thuật toán PBKDF2
+            employee.Password = _authService.EncryptPassword(employee.Password!);
+            await _userRepository.SaveChangeAsync();
+
+            // add role và send password email(nếu có)
+
+
+            actionResponse.SetResult(_mapper.Map<EmployeeDTO>(employee));
             return actionResponse;
         }
 
@@ -116,6 +104,78 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             byte[] bytes = new byte[20];
             _rng.GetBytes(bytes);
             return Base32.ToBase32(bytes);
+        }
+    }
+
+
+    public class UpdateEmployeeCommandHandler : CustombaseCommandHandler<UpdateEmployeeCommand, EmployeeDTO>
+    {
+        private readonly IUsersRepository _userRepository;
+        private readonly IWardRepository _wardRepository;
+        public UpdateEmployeeCommandHandler(IUsersRepository userRepository,
+            IWardRepository wardRepository,
+            UserIdentity currentUser,
+            IMapper mapper) : base(currentUser, mapper)
+        {
+            _userRepository = userRepository;
+            _wardRepository = wardRepository;
+        }
+
+
+        public override async Task<ActionResponse<EmployeeDTO>> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
+        {
+            var actionResponse = new ActionResponse<EmployeeDTO>();
+
+            #region validate
+            if (await _userRepository.IsExistCode(request.Code, request.Id))
+            {
+                actionResponse.AddError("Mã nhân viên đã tồn tại");
+                return actionResponse;
+            }
+
+            if (!string.IsNullOrEmpty(request.Email) && await _userRepository.IsExistEmail(request.Email, request.Id))
+            {
+                actionResponse.AddError("Email đã tồn tại");
+                return actionResponse;
+            }
+
+            if (!string.IsNullOrEmpty(request.Phone) && await _userRepository.IsExistPhone(request.Phone, request.Id))
+            {
+                actionResponse.AddError("Số điện thoại đã tồn tại");
+                return actionResponse;
+            }
+            #endregion
+
+            // check foreign key
+            if (!_wardRepository.IsExisted(request.WardId))
+            {
+                actionResponse.AddError("Không tìm thấy xã");
+                return actionResponse;
+            }
+
+
+            var employee = await _userRepository.FindByUserNameAsync(request.Username);
+
+            employee.UpdatedDate = DateTime.Now;
+            employee.UpdatedBy = _currentUser.UserName;
+            employee.Code = request.Code;
+            employee.FirstName = request.FirstName;
+            employee.LastName = request.LastName;
+            employee.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
+            employee.Email = request.Email;
+            employee.Phone = request.Phone;
+            employee.StreetAddress = request.StreetAddress;
+            employee.WardId = request.WardId;
+            employee.Gender = request.Gender;
+
+            var employeeUpdate = await _userRepository.UpdateAndSave(employee);
+            actionResponse.Combine(employeeUpdate);
+            if (!employeeUpdate.IsSuccess)
+            {
+                return actionResponse;
+            }
+            actionResponse.SetResult(_mapper.Map<EmployeeDTO>(employeeUpdate.Result));
+            return actionResponse;
         }
     }
 }

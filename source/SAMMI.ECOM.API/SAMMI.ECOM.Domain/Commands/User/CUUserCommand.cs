@@ -33,13 +33,20 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public int? DisplayOrder { get; set; }
     }
 
-    public class CUEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
+    public class CreateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
     {
         [DefaultValue(false)]
         public bool? IsAdmin { get; set; } = false!;
         public string Username { get; set; }
         public string Password { get; set; }
         public string? SecurityStamp { get; set; }
+    }
+
+    public class UpdateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
+    {
+        [DefaultValue(false)]
+        public bool? IsAdmin { get; set; } = false!;
+        public string Username { get; set; }
     }
 
     public class CUCustomerCommand : CUUserCommand, IRequest<ActionResponse<CustomerDTO>>

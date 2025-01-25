@@ -90,7 +90,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, isHideMenu }) 
                     </Badge>
                 </IconButton>
                 {
-                    !user
+                    user
                         ? (<UserMenu />)
                         : (
                             <Button onClick={() => { router.push(ROUTE_CONFIG.LOGIN) }}

@@ -3,6 +3,7 @@
 import { styled, TextField, TextFieldProps } from "@mui/material"
 
 const CustomTextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => {
+
     return {
         "& .MuiInputLabel-root": {
             transform: "none",
@@ -14,7 +15,7 @@ const CustomTextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => {
         "& .MuiInputBase-root": {
             borderRadius: 8,
             backgroundColor: "transparent !important",
-            border: `1px solid ${theme.palette.customColors.main}`,
+            border: `1px solid ${theme.palette.customColors.main} !important `,
             transition: theme.transitions.create(['border-color', 'box-shadow'], {
                 duration: theme.transitions.duration.shorter
             }),

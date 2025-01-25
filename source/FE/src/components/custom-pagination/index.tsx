@@ -43,7 +43,7 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
                         {' - '}
                     </span>
                     <span className='font-bold'>
-                        {page * pageSize}
+                        {page * pageSize < rowLength ? page * pageSize : rowLength}
                     </span>
                     <span> trên </span>
                     <span className='font-bold'>{rowLength}</span>

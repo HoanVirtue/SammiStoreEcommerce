@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using FluentValidation.Results;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
@@ -10,6 +12,8 @@ using ValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 
 namespace SAMMI.ECOM.API.Controllers
 {
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public abstract class CustomBaseController : ControllerBase
@@ -19,7 +23,8 @@ namespace SAMMI.ECOM.API.Controllers
         public IMapper Mapper { get; set; } = null!;
         protected readonly IMediator _mediator;
         protected readonly ILogger _logger;
-        protected CustomBaseController(IMediator mediator,
+        protected CustomBaseController(
+            IMediator mediator,
             ILogger logger)
         {
             _mediator = mediator;

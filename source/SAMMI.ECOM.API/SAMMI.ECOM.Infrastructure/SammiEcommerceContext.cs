@@ -85,6 +85,7 @@ public partial class SammiEcommerceContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     public virtual DbSet<Ward> Wards { get; set; }
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
 
 
     private readonly IMediator _mediator;
@@ -134,6 +135,7 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new UserRoleEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new WardEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new RefreshTokenEntityTypeConfiguration());
 
 
         /*

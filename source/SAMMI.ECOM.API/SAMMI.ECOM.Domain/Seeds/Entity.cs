@@ -8,13 +8,13 @@ namespace SAMMI.ECOM.Domain.Seeds
         [Column("Id")]
         public int Id { get; set; }
         [Column("Culture")]
-        public string Culture { get; set; } = "vn";
+        public string? Culture { get; set; } = "vn";
         [Column("CreatedDate")]
         public DateTime CreatedDate { get; set; }
         [Column("UpdatedDate")]
         public DateTime? UpdatedDate { get; set; }
         [Column("CreatedBy")]
-        public string CreatedBy { get; set; } = "Unknown";
+        public string? CreatedBy { get; set; } = "Unknown";
         [Column("UpdatedBy")]
         public string? UpdatedBy { get; set; }
         [Column("IsActive")]
@@ -22,7 +22,7 @@ namespace SAMMI.ECOM.Domain.Seeds
         [Column("IsDeleted")]
         public bool IsDeleted { get; set; } = false;
         [Column("DisplayOrder")]
-        public int DisplayOrder { get; set; }
+        public int? DisplayOrder { get; set; }
 
         int? _requestedHashCode;
 

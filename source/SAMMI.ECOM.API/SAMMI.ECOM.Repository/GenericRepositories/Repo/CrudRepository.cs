@@ -322,7 +322,7 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
         public virtual bool IsExisted(object id)
         {
             var entity = _context.Set<TEntity>().Find(id);
-            return entity != null;/*&& !entity.IsDeleted*/
+            return entity != null && !entity.IsDeleted;
         }
 
         public async Task<ActionResponse<TEntity>> RemoveAndSave<T>(T entityOrDto) where T : class

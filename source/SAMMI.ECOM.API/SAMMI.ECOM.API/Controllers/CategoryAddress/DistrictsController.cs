@@ -14,10 +14,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         private readonly IDistrictQueries _districtQueries;
         private readonly IDistrictRepository _districtRepository;
         public DistrictsController(
-            IMediator mediator,
-            ILogger<DistrictsController> logger,
             IDistrictQueries districtQueries,
-            IDistrictRepository districtRepository) : base(mediator, logger)
+            IDistrictRepository districtRepository,
+            IMediator mediator,
+            ILogger<UsersController> logger) : base(mediator, logger)
         {
             _districtQueries = districtQueries;
             _districtRepository = districtRepository;
@@ -47,6 +47,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUDistrictCommand request)
         {
+            if (request.Id != 0)
+            {
+                return BadRequest();
+            }
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
             {
@@ -73,6 +77,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            if (!_districtRepository.IsExisted(id))
+            {
+                return NotFound();
+            }
             return Ok(_districtRepository.DeleteAndSave(id));
         }
     }

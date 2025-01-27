@@ -14,10 +14,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         private readonly IWardQueries _wardQueries;
         private readonly IWardRepository _wardRepository;
         public WardsController(
-            IMediator mediator,
-            ILogger<WardsController> logger,
             IWardQueries WardQueries,
-            IWardRepository wardRepository) : base(mediator, logger)
+            IWardRepository wardRepository,
+            IMediator mediator,
+            ILogger<UsersController> logger) : base(mediator, logger)
         {
             _wardQueries = WardQueries;
             _wardRepository = wardRepository;
@@ -47,6 +47,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUWardCommand request)
         {
+            if (request.Id != 0)
+            {
+                return BadRequest();
+            }
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
             {
@@ -73,6 +77,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
+            if (!_wardRepository.IsExisted(id))
+            {
+                return NotFound();
+            }
             return Ok(_wardRepository.DeleteAndSave(id));
         }
     }

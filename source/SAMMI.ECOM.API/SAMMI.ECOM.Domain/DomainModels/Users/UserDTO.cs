@@ -20,6 +20,7 @@
         public string? ProvinceName { get; set; }
         public string? Username { get; set; }
         public int? Gender { get; set; }
+        public bool? IsLock { get; set; }
 
 
         public DateTime? CreatedDate { get; set; }
@@ -34,6 +35,7 @@
     public class EmployeeDTO : UserDTO
     {
         public bool? IsAdmin { get; set; }
+        public List<int> RoleIds { get; set; } = new List<int>();
     }
 
     public class CustomerDTO : UserDTO

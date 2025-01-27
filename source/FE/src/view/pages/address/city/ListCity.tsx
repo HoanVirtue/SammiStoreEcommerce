@@ -162,7 +162,7 @@ const ListCityPage: NextPage<TProps> = () => {
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{formatDate(row?.createdAt, {dateStyle: "short", timeStyle: "short"})}</Typography>
+                    <Typography>{formatDate(row?.createdAt, {dateStyle: "medium", timeStyle: "short"})}</Typography>
                 )
             }
         },

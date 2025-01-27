@@ -128,7 +128,7 @@ const ListDeliveryMethod: NextPage<TProps> = () => {
 
     const handleDeleteMultipleDeliveryMethod = () => {
         dispatch(deleteMultipleDeliveryMethodsAsync({
-            deliveryMethodIds: selectedRow
+            deliveryTypeIds: selectedRow
         }))
     }
 

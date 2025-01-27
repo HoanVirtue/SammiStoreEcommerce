@@ -28,7 +28,7 @@ import GridUpdate from 'src/components/grid-update'
 import GridDelete from 'src/components/grid-delete'
 import GridCreate from 'src/components/grid-create'
 import SearchField from 'src/components/search-field'
-import CreateUpdatePaymentMethod from './components/CreateUpdatePaymentMethod'
+import CreateUpdateProductCategory from './components/CreateUpdateProductCategory'
 import Spinner from 'src/components/spinner'
 
 //toast
@@ -41,31 +41,27 @@ import { hexToRGBA } from 'src/utils/hex-to-rgba'
 
 
 import { usePermission } from 'src/hooks/usePermission'
-import { deleteMultiplePaymentMethodsAsync, deletePaymentMethodAsync, getAllPaymentMethodsAsync } from 'src/stores/payment-method/action'
-import { resetInitialState } from 'src/stores/payment-method'
+import { deleteMultipleProductCategoriesAsync, deleteProductCategoryAsync, getAllProductCategoriesAsync } from 'src/stores/product-category/action'
+import { resetInitialState } from 'src/stores/delivery-method'
 import TableHeader from 'src/components/table-header'
 import { formatDate } from 'src/utils'
-import { PAYMENT_METHOD } from 'src/configs/payment'
 
 type TProps = {}
 
-const ListPaymentMethod: NextPage<TProps> = () => {
-
-    const ObjectPaymentMethod: any = PAYMENT_METHOD()
-
+const ListProductCategory: NextPage<TProps> = () => {
     //States
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-    const [openCreateUpdatePaymentMethod, setOpenCreateUpdatePaymentMethod] = useState({
+    const [openCreateUpdateProductCategory, setOpenCreateUpdateProductCategory] = useState({
         open: false,
         id: ""
     });
-    const [openDeletePaymentMethod, setOpenDeletePaymentMethod] = useState({
+    const [openDeleteProductCategory, setOpenDeleteProductCategory] = useState({
         open: false,
         id: ""
     });
 
-    const [openDeleteMultiplePaymentMethods, setOpenDeleteMultiplePaymentMethods] = useState(false);
+    const [openDeleteMultipleProductCategories, setOpenDeleteMultipleProductCategories] = useState(false);
 
     const [sortBy, setSortBy] = useState("createdAt asc");
     const [searchBy, setSearchBy] = useState("");
@@ -76,21 +72,21 @@ const ListPaymentMethod: NextPage<TProps> = () => {
     const { t, i18n } = useTranslation();
 
     //hooks
-    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("SETTING.PAYMENT_METHOD", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
+    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("MANAGE_PRODUCT.PRODUCT_CATEGORY", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
 
 
     //Redux
-    const { paymentMethods, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
-        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError, isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple } = useSelector((state: RootState) => state.paymentMethod)
+    const { productCategories, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
+        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError, isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple } = useSelector((state: RootState) => state.productCategory)
     const dispatch: AppDispatch = useDispatch();
 
     //Theme
     const theme = useTheme();
 
     //api 
-    const handleGetListPaymentMethod = () => {
+    const handleGetListProductCategory = () => {
         const query = { params: { limit: pageSize, page: page, search: searchBy, order: sortBy } }
-        dispatch(getAllPaymentMethodsAsync(query));
+        dispatch(getAllProductCategoriesAsync(query));
     }
 
     //handlers
@@ -108,46 +104,46 @@ const ListPaymentMethod: NextPage<TProps> = () => {
         }
     }
 
-    const handleCloseCreateUpdatePaymentMethod = () => {
-        setOpenCreateUpdatePaymentMethod({
+    const handleCloseCreateUpdateProductCategory = () => {
+        setOpenCreateUpdateProductCategory({
             open: false,
             id: ""
         })
     }
 
     const handleCloseDeleteDialog = () => {
-        setOpenDeletePaymentMethod({
+        setOpenDeleteProductCategory({
             open: false,
             id: ""
         })
     }
 
     const handleCloseDeleteMultipleDialog = () => {
-        setOpenDeleteMultiplePaymentMethods(false)
+        setOpenDeleteMultipleProductCategories(false)
     }
 
-    const handleDeletePaymentMethod = () => {
-        dispatch(deletePaymentMethodAsync(openDeletePaymentMethod.id))
+    const handleDeleteProductCategory = () => {
+        dispatch(deleteProductCategoryAsync(openDeleteProductCategory.id))
     }
 
-    const handleDeleteMultiplePaymentMethod = () => {
-        dispatch(deleteMultiplePaymentMethodsAsync({
-            paymentTypeIds: selectedRow
+    const handleDeleteMultipleProductCategory = () => {
+        dispatch(deleteMultipleProductCategoriesAsync({
+            productTypeIds: selectedRow
         }))
     }
 
     const handleAction = (action: string) => {
         switch (action) {
             case "delete": {
-                setOpenDeleteMultiplePaymentMethods(true)
+                setOpenDeleteMultipleProductCategories(true)
             }
         }
     }
 
     const columns: GridColDef[] = [
         {
-            field: 'payment_method_name',
-            headerName: t('payment_method_name'),
+            field: 'delivery_method_name',
+            headerName: t('delivery_method_name'),
             flex: 1,
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
@@ -158,26 +154,26 @@ const ListPaymentMethod: NextPage<TProps> = () => {
             }
         },
         {
-            field: 'type',
-            headerName: t('type'),
+            field: 'slug',
+            headerName: t('slug'),
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{ObjectPaymentMethod?.[row.type]?.label}</Typography>
+                    <Typography>{row?.slug}</Typography>
                 )
             }
         },
         {
             field: 'created_at',
             headerName: t('created_at'),
-            minWidth: 220,
-            maxWidth: 220,
+            minWidth: 200,
+            maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{formatDate(row?.createdAt, {dateStyle: "short", timeStyle: "short"})}</Typography>
+                    <Typography>{formatDate(row?.createdAt, { dateStyle: "short", timeStyle: "short" })}</Typography>
                 )
             }
         },
@@ -193,14 +189,14 @@ const ListPaymentMethod: NextPage<TProps> = () => {
                     <>
                         <GridUpdate
                             disabled={!UPDATE}
-                            onClick={() => setOpenCreateUpdatePaymentMethod({
+                            onClick={() => setOpenCreateUpdateProductCategory({
                                 open: true,
                                 id: String(params.id)
                             })}
                         />
                         <GridDelete
                             disabled={!DELETE}
-                            onClick={() => setOpenDeletePaymentMethod({
+                            onClick={() => setOpenDeleteProductCategory({
                                 open: true,
                                 id: String(params.id)
                             })}
@@ -217,59 +213,54 @@ const ListPaymentMethod: NextPage<TProps> = () => {
             pageSizeOptions={PAGE_SIZE_OPTIONS}
             onChangePagination={handleOnChangePagination}
             page={page}
-            rowLength={paymentMethods.total}
+            rowLength={productCategories.total}
         />
     };
 
     useEffect(() => {
-        handleGetListPaymentMethod();
+        handleGetListProductCategory();
     }, [sortBy, searchBy, page, pageSize]);
 
-    /// create update PaymentMethod
+    /// create update ProductCategory
     useEffect(() => {
         if (isSuccessCreateUpdate) {
-            if (!openCreateUpdatePaymentMethod.id) {
-                toast.success(t("create_payment_method_success"))
+            if (!openCreateUpdateProductCategory.id) {
+                toast.success(t("create_product_category_success"))
             } else {
-                toast.success(t("update_payment_method_success"))
+                toast.success(t("update_product_category_success"))
             }
-            handleGetListPaymentMethod()
-            handleCloseCreateUpdatePaymentMethod()
+            handleGetListProductCategory()
+            handleCloseCreateUpdateProductCategory()
             dispatch(resetInitialState())
         } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
-            const errConfig = OBJECT_TYPE_ROLE_ERROR[typeError]
-            if (errConfig) {
-                toast.error(t(errConfig))
+            if (openCreateUpdateProductCategory.id) {
+                toast.error(t(errorMessageCreateUpdate))
             } else {
-                if (openCreateUpdatePaymentMethod.id) {
-                    toast.error(t("update_payment_method_error"))
-                } else {
-                    toast.error(t("create_payment_method_error"))
-                }
+                toast.error(t(errorMessageCreateUpdate))
             }
             dispatch(resetInitialState())
         }
     }, [isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate, typeError])
 
-    //delete multiple PaymentMethods
+    //delete multiple ProductCategories
     useEffect(() => {
         if (isSuccessDeleteMultiple) {
-            toast.success(t("delete_multiple_payment_method_success"))
-            handleGetListPaymentMethod()
+            toast.success(t("delete_multiple_product_category_success"))
+            handleGetListProductCategory()
             dispatch(resetInitialState())
             handleCloseDeleteMultipleDialog()
             setSelectedRow([])
         } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-            toast.error(t("delete_multiple_payment_method_error"))
+            toast.error(t("delete_multiple_product_category_error"))
             dispatch(resetInitialState())
         }
     }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple])
 
-    //delete PaymentMethod
+    //delete ProductCategory
     useEffect(() => {
         if (isSuccessDelete) {
-            toast.success(t("delete_payment_method_success"))
-            handleGetListPaymentMethod()
+            toast.success(t("delete_product_category_success"))
+            handleGetListProductCategory()
             dispatch(resetInitialState())
             handleCloseDeleteDialog()
         } else if (isErrorDelete && errorMessageDelete) {
@@ -281,25 +272,25 @@ const ListPaymentMethod: NextPage<TProps> = () => {
     return (
         <>{loading && <Spinner />}
             <ConfirmDialog
-                open={openDeletePaymentMethod.open}
+                open={openDeleteProductCategory.open}
                 onClose={handleCloseDeleteDialog}
                 handleCancel={handleCloseDeleteDialog}
-                handleConfirm={handleDeletePaymentMethod}
-                title={"Xác nhận xóa phương thức thanh toán"}
-                description={"Bạn có chắc xóa phương thức thanh toán này không?"}
+                handleConfirm={handleDeleteProductCategory}
+                title={"Xác nhận xóa loại sản phẩm"}
+                description={"Bạn có chắc xóa loại sản phẩm này không?"}
             />
             <ConfirmDialog
-                open={openDeleteMultiplePaymentMethods}
+                open={openDeleteMultipleProductCategories}
                 onClose={handleCloseDeleteMultipleDialog}
                 handleCancel={handleCloseDeleteMultipleDialog}
-                handleConfirm={handleDeleteMultiplePaymentMethod}
-                title={"Xác nhận xóa nhiều phương thức thanh toán"}
-                description={"Bạn có chắc xóa các phương thức thanh toán này không?"}
+                handleConfirm={handleDeleteMultipleProductCategory}
+                title={"Xác nhận xóa nhiều loại sản phẩm"}
+                description={"Bạn có chắc xóa các loại sản phẩm này không?"}
             />
-            <CreateUpdatePaymentMethod
-                idPaymentMethod={openCreateUpdatePaymentMethod.id}
-                open={openCreateUpdatePaymentMethod.open}
-                onClose={handleCloseCreateUpdatePaymentMethod}
+            <CreateUpdateProductCategory
+                idProductCategory={openCreateUpdateProductCategory.id}
+                open={openCreateUpdateProductCategory.open}
+                onClose={handleCloseCreateUpdateProductCategory}
             />
             {isLoading && <Spinner />}
             <Box sx={{
@@ -326,7 +317,7 @@ const ListPaymentMethod: NextPage<TProps> = () => {
                                 <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
                             </Box>
                             <GridCreate onClick={() => {
-                                setOpenCreateUpdatePaymentMethod({ open: true, id: "" })
+                                setOpenCreateUpdateProductCategory({ open: true, id: "" })
                             }}
                             />
                         </Box>
@@ -346,7 +337,7 @@ const ListPaymentMethod: NextPage<TProps> = () => {
                         />
                     )}
                     <CustomDataGrid
-                        rows={paymentMethods.data}
+                        rows={productCategories.data}
                         columns={columns}
                         checkboxSelection
                         getRowId={(row) => row._id}
@@ -377,4 +368,4 @@ const ListPaymentMethod: NextPage<TProps> = () => {
     )
 }
 
-export default ListPaymentMethod
+export default ListProductCategory

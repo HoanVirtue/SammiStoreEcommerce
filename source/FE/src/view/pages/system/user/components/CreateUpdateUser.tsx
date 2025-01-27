@@ -427,7 +427,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     name='role'
                                                 />
                                             </Grid>
-                                            {idUser && (
+                                            {/* {idUser && (
                                                 <Grid item md={6} xs={12} >
                                                     <Controller
                                                         control={control}
@@ -443,13 +443,14 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                             }
                                                                         />
                                                                     }
-                                                                    label={Boolean(value) ? t('active') : t('inactive')} />
+                                                                    label={Boolean(value) ? t('active') : t('inactive')}
+                                                                />
                                                             )
                                                         }}
                                                         name='status'
                                                     />
                                                 </Grid>
-                                            )}
+                                            )} */}
                                         </Grid>
                                     </Box>
                                 </Grid>

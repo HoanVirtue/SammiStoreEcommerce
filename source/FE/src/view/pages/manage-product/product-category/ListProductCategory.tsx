@@ -34,7 +34,7 @@ import Spinner from 'src/components/spinner'
 //toast
 import toast from 'react-hot-toast'
 import ConfirmDialog from 'src/components/confirm-dialog'
-import { OBJECT_TYPE_ROLE_ERROR } from 'src/configs/role'
+import { OBJECT_TYPE_ERROR } from 'src/configs/error'
 
 //utils
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
@@ -142,8 +142,8 @@ const ListProductCategory: NextPage<TProps> = () => {
 
     const columns: GridColDef[] = [
         {
-            field: 'delivery_method_name',
-            headerName: t('delivery_method_name'),
+            field: 'product_category_name',
+            headerName: t('product_category_name'),
             flex: 1,
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => {

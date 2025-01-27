@@ -28,66 +28,63 @@ import GridUpdate from 'src/components/grid-update'
 import GridDelete from 'src/components/grid-delete'
 import GridCreate from 'src/components/grid-create'
 import SearchField from 'src/components/search-field'
-import CreateUpdateCity from './components/CreateUpdateCity'
+import CreateUpdateProduct from './components/CreateUpdateProduct'
 import Spinner from 'src/components/spinner'
 
 //toast
 import toast from 'react-hot-toast'
 import ConfirmDialog from 'src/components/confirm-dialog'
-import { OBJECT_TYPE_ERROR } from 'src/configs/error'
 
 //utils
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
-
+import { formatDate } from 'src/utils'
 
 import { usePermission } from 'src/hooks/usePermission'
-import { deleteMultipleCitiesAsync, deleteCityAsync, getAllCitiesAsync } from 'src/stores/city/action'
-import { resetInitialState } from 'src/stores/city'
+import { deleteMultipleProductsAsync, deleteProductAsync, getAllProductsAsync } from 'src/stores/product/action'
+import { resetInitialState } from 'src/stores/delivery-method'
 import TableHeader from 'src/components/table-header'
-import { formatDate } from 'src/utils'
 
 type TProps = {}
 
-const ListCityPage: NextPage<TProps> = () => {
+const ListProduct: NextPage<TProps> = () => {
     //States
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-    const [openCreateUpdateCity, setOpenCreateUpdateCity] = useState({
+    const [openCreateUpdateProduct, setOpenCreateUpdateProduct] = useState({
         open: false,
         id: ""
     });
-    const [openDeleteCity, setOpenDeleteCity] = useState({
+    const [openDeleteProduct, setOpenDeleteProduct] = useState({
         open: false,
         id: ""
     });
 
-    const [openDeleteMultipleCity, setOpenDeleteMultipleCity] = useState(false);
+    const [openDeleteMultipleProducts, setOpenDeleteMultipleProducts] = useState(false);
 
     const [sortBy, setSortBy] = useState("createdAt asc");
     const [searchBy, setSearchBy] = useState("");
     const [loading, setLoading] = useState(false);
     const [selectedRow, setSelectedRow] = useState<string[]>([]);
-    const [filterBy, setFilterBy] = useState<Record<any, any>>({});
 
     //Translation
     const { t, i18n } = useTranslation();
 
     //hooks
-    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("SETTING.CITY", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
+    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("MANAGE_PRODUCT.PRODUCT", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
 
 
     //Redux
-    const { cities, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
-        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError, isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple } = useSelector((state: RootState) => state.city)
+    const { products, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
+        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError, isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple } = useSelector((state: RootState) => state.product)
     const dispatch: AppDispatch = useDispatch();
 
     //Theme
     const theme = useTheme();
 
     //api 
-    const handleGetListCity = () => {
+    const handleGetListProduct = () => {
         const query = { params: { limit: pageSize, page: page, search: searchBy, order: sortBy } }
-        dispatch(getAllCitiesAsync(query));
+        dispatch(getAllProductsAsync(query));
     }
 
     //handlers
@@ -105,52 +102,64 @@ const ListCityPage: NextPage<TProps> = () => {
         }
     }
 
-    const handleCloseCreateUpdateCity = () => {
-        setOpenCreateUpdateCity({
+    const handleCloseCreateUpdateProduct = () => {
+        setOpenCreateUpdateProduct({
             open: false,
             id: ""
         })
     }
 
     const handleCloseDeleteDialog = () => {
-        setOpenDeleteCity({
+        setOpenDeleteProduct({
             open: false,
             id: ""
         })
     }
 
     const handleCloseDeleteMultipleDialog = () => {
-        setOpenDeleteMultipleCity(false)
+        setOpenDeleteMultipleProducts(false)
     }
 
-    const handleDeleteCity = () => {
-        dispatch(deleteCityAsync(openDeleteCity.id))
+    const handleDeleteProduct = () => {
+        dispatch(deleteProductAsync(openDeleteProduct.id))
     }
 
-    const handleDeleteMultipleCity = () => {
-        dispatch(deleteMultipleCitiesAsync({
-            cityIds: selectedRow
+    const handleDeleteMultipleProduct = () => {
+        dispatch(deleteMultipleProductsAsync({
+            productIds: selectedRow
         }))
     }
 
     const handleAction = (action: string) => {
         switch (action) {
             case "delete": {
-                setOpenDeleteMultipleCity(true)
+                setOpenDeleteMultipleProducts(true)
             }
         }
     }
 
     const columns: GridColDef[] = [
         {
-            field: 'city_name',
-            headerName: t('city_name'),
+            field: 'product_name',
+            headerName: t('product_name'),
             flex: 1,
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
                     <Typography>{row?.name}</Typography>
+                )
+            }
+        },
+        {
+            field: 'slug',
+            headerName: t('slug'),
+            minWidth: 200,
+            maxWidth: 200,
+            renderCell: (params: GridRenderCellParams) => {
+                const { row } = params
+                return (
+                    <Typography>{row?.slug}</Typography>
                 )
             }
         },
@@ -162,7 +171,7 @@ const ListCityPage: NextPage<TProps> = () => {
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{formatDate(row?.createdAt, { dateStyle: "medium", timeStyle: "short" })}</Typography>
+                    <Typography>{formatDate(row?.createdAt, { dateStyle: "short", timeStyle: "short" })}</Typography>
                 )
             }
         },
@@ -178,14 +187,14 @@ const ListCityPage: NextPage<TProps> = () => {
                     <>
                         <GridUpdate
                             disabled={!UPDATE}
-                            onClick={() => setOpenCreateUpdateCity({
+                            onClick={() => setOpenCreateUpdateProduct({
                                 open: true,
                                 id: String(params.id)
                             })}
                         />
                         <GridDelete
                             disabled={!DELETE}
-                            onClick={() => setOpenDeleteCity({
+                            onClick={() => setOpenDeleteProduct({
                                 open: true,
                                 id: String(params.id)
                             })}
@@ -202,59 +211,54 @@ const ListCityPage: NextPage<TProps> = () => {
             pageSizeOptions={PAGE_SIZE_OPTIONS}
             onChangePagination={handleOnChangePagination}
             page={page}
-            rowLength={cities.total}
+            rowLength={products.total}
         />
     };
 
     useEffect(() => {
-        handleGetListCity();
+        handleGetListProduct();
     }, [sortBy, searchBy, page, pageSize]);
 
-    /// create update City
+    /// create update Product
     useEffect(() => {
         if (isSuccessCreateUpdate) {
-            if (!openCreateUpdateCity.id) {
-                toast.success(t("create_city_success"))
+            if (!openCreateUpdateProduct.id) {
+                toast.success(t("create_product_success"))
             } else {
-                toast.success(t("update_city_success"))
+                toast.success(t("update_product_success"))
             }
-            handleGetListCity()
-            handleCloseCreateUpdateCity()
+            handleGetListProduct()
+            handleCloseCreateUpdateProduct()
             dispatch(resetInitialState())
         } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
-            const errConfig = OBJECT_TYPE_ERROR[typeError]
-            if (errConfig) {
-                toast.error(t(errConfig))
+            if (openCreateUpdateProduct.id) {
+                toast.error(t(errorMessageCreateUpdate))
             } else {
-                if (openCreateUpdateCity.id) {
-                    toast.error(t("update_city_error"))
-                } else {
-                    toast.error(t("create_city_error"))
-                }
+                toast.error(t(errorMessageCreateUpdate))
             }
             dispatch(resetInitialState())
         }
     }, [isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate, typeError])
 
-    //delete multiple Cities
+    //delete multiple Products
     useEffect(() => {
         if (isSuccessDeleteMultiple) {
-            toast.success(t("delete_multiple_city_success"))
-            handleGetListCity()
+            toast.success(t("delete_multiple_product_success"))
+            handleGetListProduct()
             dispatch(resetInitialState())
             handleCloseDeleteMultipleDialog()
             setSelectedRow([])
         } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-            toast.error(t("delete_multiple_city_error"))
+            toast.error(t("delete_multiple_product_error"))
             dispatch(resetInitialState())
         }
     }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple])
 
-    //delete City
+    //delete Product
     useEffect(() => {
         if (isSuccessDelete) {
-            toast.success(t("delete_city_success"))
-            handleGetListCity()
+            toast.success(t("delete_product_success"))
+            handleGetListProduct()
             dispatch(resetInitialState())
             handleCloseDeleteDialog()
         } else if (isErrorDelete && errorMessageDelete) {
@@ -266,25 +270,25 @@ const ListCityPage: NextPage<TProps> = () => {
     return (
         <>{loading && <Spinner />}
             <ConfirmDialog
-                open={openDeleteCity.open}
+                open={openDeleteProduct.open}
                 onClose={handleCloseDeleteDialog}
                 handleCancel={handleCloseDeleteDialog}
-                handleConfirm={handleDeleteCity}
-                title={"Xác nhận xóa thành phố"}
-                description={"Bạn có chắc xóa thành phố này không?"}
+                handleConfirm={handleDeleteProduct}
+                title={"Xác nhận xóa sản phẩm"}
+                description={"Bạn có chắc xóa sản phẩm này không?"}
             />
             <ConfirmDialog
-                open={openDeleteMultipleCity}
+                open={openDeleteMultipleProducts}
                 onClose={handleCloseDeleteMultipleDialog}
                 handleCancel={handleCloseDeleteMultipleDialog}
-                handleConfirm={handleDeleteMultipleCity}
-                title={"Xác nhận xóa nhiều thành phố"}
-                description={"Bạn có chắc xóa các thành phố này không?"}
+                handleConfirm={handleDeleteMultipleProduct}
+                title={"Xác nhận xóa nhiều sản phẩm"}
+                description={"Bạn có chắc xóa các sản phẩm này không?"}
             />
-            <CreateUpdateCity
-                idCity={openCreateUpdateCity.id}
-                open={openCreateUpdateCity.open}
-                onClose={handleCloseCreateUpdateCity}
+            <CreateUpdateProduct
+                idProduct={openCreateUpdateProduct.id}
+                open={openCreateUpdateProduct.open}
+                onClose={handleCloseCreateUpdateProduct}
             />
             {isLoading && <Spinner />}
             <Box sx={{
@@ -311,7 +315,7 @@ const ListCityPage: NextPage<TProps> = () => {
                                 <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
                             </Box>
                             <GridCreate onClick={() => {
-                                setOpenCreateUpdateCity({ open: true, id: "" })
+                                setOpenCreateUpdateProduct({ open: true, id: "" })
                             }}
                             />
                         </Box>
@@ -331,7 +335,7 @@ const ListCityPage: NextPage<TProps> = () => {
                         />
                     )}
                     <CustomDataGrid
-                        rows={cities.data}
+                        rows={products.data}
                         columns={columns}
                         checkboxSelection
                         getRowId={(row) => row._id}
@@ -362,4 +366,4 @@ const ListCityPage: NextPage<TProps> = () => {
     )
 }
 
-export default ListCityPage
+export default ListProduct

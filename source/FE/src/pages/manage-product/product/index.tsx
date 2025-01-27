@@ -1,13 +1,16 @@
 import { NextPage } from 'next'
 import React from 'react'
+import { PERMISSIONS } from 'src/configs/permission'
+import ListProduct from 'src/view/pages/manage-product/product/ListProduct'
 
 //views
 
 type TProps = {}
 
-const User: NextPage<TProps> = () => {
-    return <h1> User</h1>
+const Product: NextPage<TProps> = () => {
+    return <ListProduct />
 }
 
-export default User
+Product.permission = [PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW]
+export default Product
 

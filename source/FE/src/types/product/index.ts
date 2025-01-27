@@ -1,3 +1,5 @@
+import { EditorState } from "draft-js"
+
 export type TParamsGetAllProducts = {
     limit?: number,
     page?: number,
@@ -7,13 +9,31 @@ export type TParamsGetAllProducts = {
 
 export type TParamsCreateProduct = {
     name: string,
-    slug: string
+    type: string,
+    discount?: number,
+    price: number,
+    description: EditorState,
+    slug: string,
+    countInStock: number,
+    status: number,
+    discountStartDate?: Date | null,
+    discountEndDate?: Date | null,
+    image: string
 }
 
 export type TParamsUpdateProduct = {
     id: string,
     name: string,
-    slug: string
+    type: string,
+    discount?: number,
+    price: number,
+    description: EditorState,
+    slug: string,
+    countInStock: number,
+    status: number,
+    discountStartDate?: Date | null,
+    discountEndDate?: Date | null,
+    image: string
 }
 
 export type TParamsDeleteProduct = {
@@ -21,5 +41,5 @@ export type TParamsDeleteProduct = {
 }
 
 export type TParamsDeleteMultipleProducts = {
-    productTypeIds: string[],
+    productIds: string[],
 }

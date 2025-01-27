@@ -457,7 +457,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                 <Grid container item md={6} xs={12} >
                                     <Box>
                                         <Grid container spacing={5}>
-                                            <Grid item md={6} xs={12} >
+                                            <Grid item md={12} xs={12} >
                                                 <Controller
                                                     control={control}
                                                     render={({ field: { onChange, onBlur, value } }) => (
@@ -476,7 +476,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     name='fullName'
                                                 />
                                             </Grid>
-                                            <Grid item md={6} xs={12} >
+                                            <Grid item md={12} xs={12} >
                                                 <Controller
                                                     control={control}
                                                     name='address'
@@ -492,7 +492,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid item md={6} xs={12} >
+                                            <Grid item md={12} xs={12} >
                                                 <Controller
                                                     control={control}
                                                     name='city'
@@ -526,7 +526,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid item md={6} xs={12} >
+                                            <Grid item md={12} xs={12} >
                                                 <Controller
                                                     control={control}
                                                     render={({ field: { onChange, onBlur, value } }) => (

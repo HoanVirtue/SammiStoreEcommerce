@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
+using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands;
+using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.CategoryAddress;
 
 namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
@@ -17,6 +19,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 
             CreateMap<CUWardCommand, Ward>();
             CreateMap<Ward, WardDTO>();
+
+            CreateMap<RefreshToken, RefreshTokenDTO>();
         }
     }
 }

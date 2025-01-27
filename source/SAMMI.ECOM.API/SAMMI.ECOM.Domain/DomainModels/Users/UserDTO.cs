@@ -35,7 +35,7 @@
     public class EmployeeDTO : UserDTO
     {
         public bool? IsAdmin { get; set; }
-        public List<int> RoleIds { get; set; }
+        public List<int> RoleIds { get; set; } = new List<int>();
     }
 
     public class CustomerDTO : UserDTO

@@ -30,7 +30,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
             return WithDefaultTemplate(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.LeftJoin("UserRole t2 ON t1.Id = t2.UserId AND t2.IsDeleted != 0");
+                    sqlBuilder.LeftJoin("UserRole t2 ON t1.Id = t2.UserId AND t2.IsDeleted != 1");
 
                     sqlBuilder.Select("t2.RoleId AS RoleId");
                     if (id.HasValue)
@@ -52,7 +52,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                                 cached.Add(user.Id, userModel);
                             }
 
-                            if (roleId > 0 && (userModel.RoleIds.All(x => x != roleId)))
+                            if (roleId != null && roleId > 0 && (userModel.RoleIds.All(x => x != roleId)))
                             {
                                 userModel.RoleIds ??= new();
                                 userModel.RoleIds.Add(roleId);
@@ -60,7 +60,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                             return userModel;
                         },
                         sqlTemplate.Parameters,
-                        splitOn: "Id,RoleId");
+                        splitOn: "RoleId");
 
                     return query.FirstOrDefault();
                 });

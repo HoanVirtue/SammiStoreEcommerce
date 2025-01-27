@@ -14,10 +14,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         private readonly IDistrictQueries _districtQueries;
         private readonly IDistrictRepository _districtRepository;
         public DistrictsController(
-            IMediator mediator,
-            ILogger<DistrictsController> logger,
             IDistrictQueries districtQueries,
-            IDistrictRepository districtRepository) : base(mediator, logger)
+            IDistrictRepository districtRepository,
+            IMediator mediator,
+            ILogger<UsersController> logger) : base(mediator, logger)
         {
             _districtQueries = districtQueries;
             _districtRepository = districtRepository;

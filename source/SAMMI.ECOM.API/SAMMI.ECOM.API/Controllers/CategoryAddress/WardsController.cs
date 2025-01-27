@@ -14,10 +14,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         private readonly IWardQueries _wardQueries;
         private readonly IWardRepository _wardRepository;
         public WardsController(
-            IMediator mediator,
-            ILogger<WardsController> logger,
             IWardQueries WardQueries,
-            IWardRepository wardRepository) : base(mediator, logger)
+            IWardRepository wardRepository,
+            IMediator mediator,
+            ILogger<UsersController> logger) : base(mediator, logger)
         {
             _wardQueries = WardQueries;
             _wardRepository = wardRepository;

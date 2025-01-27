@@ -8,6 +8,7 @@ using SAMMI.ECOM.Domain.Commands.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Infrastructure.Queries;
+using SAMMI.ECOM.Infrastructure.Repositories.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Responses;
 using SAMMI.ECOM.Utility;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,10 +22,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
         protected readonly RefreshTokenProvideOptions _refreshTokenOptions;
 
         private readonly IUsersQueries _userQueries;
+        private readonly IRefreshTokenRepository _tokenRepository;
         public GenerateTokenCommandHandler(
             AccessTokenProvideOptions accessTokenOptions,
             RefreshTokenProvideOptions refreshTokenOptions,
             IUsersQueries userQueries,
+            IRefreshTokenRepository refreshTokenRepository,
             UserIdentity currentUser,
             IMapper mapper)
             : base(currentUser, mapper)
@@ -32,6 +35,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
             _accessTokenOptions = accessTokenOptions;
             _refreshTokenOptions = refreshTokenOptions;
             _userQueries = userQueries;
+            _tokenRepository = refreshTokenRepository;
         }
 
         public override async Task<ActionResponse<AuthTokenResult>> Handle(GenerateTokenCommand request, CancellationToken cancellationToken)
@@ -125,7 +129,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
                 IsInvalid = false,
             };
 
-            //actResponse.Combine()
+            actResponse.Combine(await _tokenRepository.CreateAndSave(refreshTokenEntity));
+            tokenResult.RefreshToken = refreshTokenEntity.Token;
+            actResponse.SetResult(tokenResult);
 
             return actResponse;
         }

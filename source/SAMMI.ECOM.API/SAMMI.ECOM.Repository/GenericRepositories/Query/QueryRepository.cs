@@ -26,7 +26,7 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
         protected QueryRepository(DbContext context)
         {
             this.CurrentContext = context;
-            this.ConnectionString = context.Database.GetDbConnection().ConnectionString;
+            this.ConnectionString = context.Database.GetConnectionString();
             this.DbProvider = context.Database.ProviderName ?? string.Empty;
             this.DatabaseType = DbProvider switch
             {

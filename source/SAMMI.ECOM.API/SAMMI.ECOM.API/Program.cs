@@ -1,7 +1,9 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
+using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +46,28 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseUrls = true;
 });
 
+var tokenOptionSettingsSection = builder.Configuration.GetSection("TokenProvideOptions");
+var tokenOptionSettings = tokenOptionSettingsSection.Get<AccessTokenProvideOptions>();
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
+    {
+        x.SaveToken = true;
+        x.RequireHttpsMetadata = false;
+        x.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+        {
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuer = true,
+            ValidateIssuerSigningKey = true,
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = tokenOptionSettings!.JWTIssuer,
+            IssuerSigningKey = tokenOptionSettings!.SigningCredentials.Key
+        };
+    });
+
+builder.Services.AddAuthorization();
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
@@ -63,6 +87,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

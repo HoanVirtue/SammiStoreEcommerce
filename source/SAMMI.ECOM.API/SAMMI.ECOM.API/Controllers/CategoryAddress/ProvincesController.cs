@@ -14,10 +14,10 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         private readonly IProvinceQueries _provinceQueries;
         private readonly IProvinceRepository _provinRepository;
         public ProvincesController(
-            IMediator mediator,
-            ILogger<ProvincesController> logger,
             IProvinceQueries provinceQueries,
-            IProvinceRepository provinRepository) : base(mediator, logger)
+            IProvinceRepository provinRepository,
+            IMediator mediator,
+            ILogger<UsersController> logger) : base(mediator, logger)
         {
             _provinceQueries = provinceQueries;
             _provinRepository = provinRepository;

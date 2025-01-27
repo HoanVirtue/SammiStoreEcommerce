@@ -12,5 +12,10 @@ namespace SAMMI.ECOM.Domain.Commands.Auth
         {
 
         }
+
+        public GenerateTokenCommand(int UserId)
+        {
+            this.UserId = UserId;
+        }
     }
 }

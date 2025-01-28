@@ -79,5 +79,20 @@ namespace SAMMI.ECOM.API.Controllers
             }
             return Ok(_userRepository.DeleteAndSave(id));
         }
+
+
+        [HttpGet("customer")]
+        public async Task<IActionResult> GetCustomer([FromQuery] RequestFilterModel request)
+        {
+            if (request.Type == RequestType.SimpleAll)
+                return Ok(await _usersQueries.GetCustomerAll(request));
+            return Ok(await _usersQueries.GetCustomerList(request));
+        }
+
+        [HttpGet("customer/{id}")]
+        public async Task<IActionResult> GetCustomerById(int id)
+        {
+            return Ok(await _usersQueries.GetCustomerById(id));
+        }
     }
 }

@@ -40,6 +40,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public string Username { get; set; }
         public string Password { get; set; }
         public string? SecurityStamp { get; set; }
+        public List<int>? RoleIds { get; set; }
     }
 
     public class UpdateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>

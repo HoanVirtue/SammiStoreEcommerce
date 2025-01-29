@@ -94,5 +94,36 @@ namespace SAMMI.ECOM.API.Controllers
         {
             return Ok(await _usersQueries.GetCustomerById(id));
         }
+
+        [HttpPost("customer")]
+        public async Task<IActionResult> PostCustomer([FromBody] CUCustomerCommand request)
+        {
+            if (request.Id != 0)
+            {
+                return BadRequest();
+            }
+            var response = await _mediator.Send(request);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPut("customer/{id}")]
+        public async Task<IActionResult> PutCustomer(int id, [FromBody] CUCustomerCommand request)
+        {
+            if ((id == 0 || request.Id == 0) && id != request.Id)
+            {
+                return BadRequest();
+            }
+
+            var response = await _mediator.Send(request);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
     }
 }

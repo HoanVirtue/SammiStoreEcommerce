@@ -457,5 +457,10 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
                     throw;
                 }
         }
+
+        public async Task<TEntity> FindById(object id)
+        {
+            return await _context.Set<TEntity>().FindAsync(id);
+        }
     }
 }

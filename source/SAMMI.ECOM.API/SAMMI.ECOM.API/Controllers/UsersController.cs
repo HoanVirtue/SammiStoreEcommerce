@@ -57,7 +57,7 @@ namespace SAMMI.ECOM.API.Controllers
         [HttpPut("employee/{id}")]
         public async Task<IActionResult> PutEmployee(int id, [FromBody] UpdateEmployeeCommand request)
         {
-            if ((id == 0 || request.Id == 0) && id != request.Id)
+            if ((id == 0 || request.Id == 0) || id != request.Id)
             {
                 return BadRequest();
             }
@@ -113,7 +113,7 @@ namespace SAMMI.ECOM.API.Controllers
         [HttpPut("customer/{id}")]
         public async Task<IActionResult> PutCustomer(int id, [FromBody] CUCustomerCommand request)
         {
-            if ((id == 0 || request.Id == 0) && id != request.Id)
+            if ((id == 0 || request.Id == 0) || id != request.Id)
             {
                 return BadRequest();
             }

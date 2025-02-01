@@ -66,6 +66,7 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
         Task<int> SaveChangeAsync(CancellationToken cancellationToken = default);
         Task<ActionResponse> SaveChangeWithValidationAsync(CancellationToken cancellationToken = default);
         bool IsExisted(object id);
+        Task<TEntity> FindById(object id);
 
     }
 }

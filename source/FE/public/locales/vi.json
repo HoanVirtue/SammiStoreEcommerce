@@ -29,5 +29,7 @@
     "dashboard": "Trang quản trị",
     "active": "Đang hoạt động",
     "inactive": "Tạm khóa",
-    "status": "Trạng thái"
+    "status": "Trạng thái",
+    "product_count_in_stock": "Còn {{count}} sản phẩm trong kho",
+    "product_sold": "Đã bán {{count}} sản phẩm"
 }

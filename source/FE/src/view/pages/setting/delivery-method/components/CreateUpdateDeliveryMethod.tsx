@@ -57,7 +57,7 @@ const CreateUpdateDeliveryMethod = (props: TCreateUpdateDeliveryMethod) => {
     const schema = yup.object().shape({
         name: yup.string().required("Delivery method name is required"),
         price: yup.string().required("Delivery method price is required")
-        .test('least value price', t('at_least_price'), (value) => Number(value) > 1000),
+        .test('least_value_price', t('at_least_price'), (value) => Number(value) >= 1000),
     }); 
 
     const defaultValues: TDefaultValues = {

@@ -38,13 +38,13 @@ import Spinner from 'src/components/spinner'
 import toast from 'react-hot-toast'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import IconifyIcon from 'src/components/Icon'
-import { OBJECT_TYPE_ROLE_ERROR } from 'src/configs/role'
 import TablePermission from './components/TablePermission'
 import { getRoleDetail } from 'src/services/role'
 import { PERMISSIONS } from 'src/configs/permission'
 import { getAllValuesOfObject } from 'src/utils'
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
 import { usePermission } from 'src/hooks/usePermission'
+import { OBJECT_TYPE_ERROR } from 'src/configs/error'
 
 
 type TProps = {}
@@ -221,7 +221,7 @@ const ListRolePage: NextPage<TProps> = () => {
             handleCloseCreateUpdateRole()
             dispatch(resetInitialState())
         } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
-            const errConfig = OBJECT_TYPE_ROLE_ERROR[typeError]
+            const errConfig = OBJECT_TYPE_ERROR[typeError]
             if (errConfig) {
                 toast.error(t(errConfig))
             } else {

@@ -11,7 +11,8 @@ type TProps = {
     pageSize: number,
     rowLength: number,
     pageSizeOptions: number[],
-    onChangePagination: (page: number, pageSize: number) => void
+    onChangePagination: (page: number, pageSize: number) => void,
+    isHidden?: boolean
 }
 
 const StyledPagination = styled(Pagination)<PaginationProps>(({ theme }) => ({
@@ -24,7 +25,7 @@ const StyledPagination = styled(Pagination)<PaginationProps>(({ theme }) => ({
 }))
 
 const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) => {
-    const { page, pageSize, rowLength, pageSizeOptions, onChangePagination, ...rests } = props
+    const { page, pageSize, rowLength, pageSizeOptions, onChangePagination, isHidden, ...rests } = props
 
     const { t } = useTranslation();
     return (
@@ -35,22 +36,26 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
             width: "100%",
             paddingLeft: "8px"
         }}>
-            {rowLength > 0 ? (
-                <Box>
-                    <span>{t('Đang hiển thị ')}</span>
-                    <span className='font-bold'>
-                        {page === 1 ? page : 1 + pageSize}
-                        {' - '}
-                    </span>
-                    <span className='font-bold'>
-                        {page * pageSize < rowLength ? page * pageSize : rowLength}
-                    </span>
-                    <span> trên </span>
-                    <span className='font-bold'>{rowLength}</span>
-                </Box>
-            ) : (
-                <Box></Box>
-            )}
+            {!isHidden ? (
+                <>
+                    {rowLength > 0 ? (
+                        <Box>
+                            <span>{t('Đang hiển thị ')}</span>
+                            <span className='font-bold'>
+                                {page === 1 ? page : 1 + pageSize}
+                                {' - '}
+                            </span>
+                            <span className='font-bold'>
+                                {page * pageSize < rowLength ? page * pageSize : rowLength}
+                            </span>
+                            <span> trên </span>
+                            <span className='font-bold'>{rowLength}</span>
+                        </Box>
+                    ) : (
+                        <Box></Box>
+                    )}
+                </>
+            ) : (<Box></Box>)}
             <Box sx={{
                 display: 'flex',
                 alignItems: 'center',

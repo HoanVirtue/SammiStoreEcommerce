@@ -25,8 +25,8 @@ import { EMAIL_REG } from 'src/configs/regex'
 import { Grid } from '@mui/material'
 
 //Translate
-import { useTranslation } from '../../../../node_modules/react-i18next'
 import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 
 //Service
 import { getAuthMe } from 'src/services/auth'
@@ -70,7 +70,7 @@ const MyProfilePage: NextPage<TProps> = () => {
     const [roleOptions, setRoleOptions] = React.useState<{ label: string, value: string }[]>([])
     const [cityOptions, setCityOptions] = React.useState<{ label: string, value: string }[]>([])
     const [isDisableRole, setIsDisableRole] = React.useState<boolean>(false)
-    
+
     //hooks
     const { setUser } = useAuth()
     const { i18n } = useTranslation();
@@ -151,7 +151,7 @@ const MyProfilePage: NextPage<TProps> = () => {
             setLoading(false)
         })
     }
-    
+
     const fetchAllCities = async () => {
         setLoading(true)
         await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
@@ -214,142 +214,6 @@ const MyProfilePage: NextPage<TProps> = () => {
 
     return (
         <>
-            {/* <CustomModal open={false} onClose={() => { }}>
-                <form onSubmit={handleSubmit(onSubmit)}
-                    className='bg-white w-[50vw]'
-                    autoComplete='off'
-                    noValidate>
-                    <Grid container>
-                        <Grid container item md={6} xs={12} sx={{
-                            backgroundColor: theme.palette.background.paper,
-                            borderRadius: "15px",
-                            py: 5, px: 4
-                        }} >
-                        </Grid>
-                        <Grid container item md={12} xs={12} mt={{ md: 0, xs: 5 }} >
-                            <Box sx={{
-                                width: "100%",
-                                height: "100%",
-                                backgroundColor: theme.palette.background.paper,
-                                borderRadius: "15px",
-                                py: 5, px: 4
-                            }}
-                                marginLeft={{ md: 5, xs: 0 }}
-                            >
-                                <Grid container spacing={4}>
-                                    <Grid item md={6} xs={12} >
-                                        <Controller
-                                            control={control}
-                                            render={({ field: { onChange, onBlur, value } }) => (
-                                                <CustomTextField
-                                                    fullWidth
-                                                    label={t('full_name')}
-                                                    onChange={onChange}
-                                                    onBlur={onBlur}
-                                                    value={value}
-                                                    placeholder={t('enter_your_full_name')}
-                                                    error={errors.fullName ? true : false}
-                                                    helperText={errors.fullName?.message}
-                                                />
-                                            )}
-                                            name='fullName'
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12} >
-                                        <Controller
-                                            control={control}
-                                            name='address'
-                                            render={({ field: { onChange, onBlur, value } }) => (
-                                                <CustomTextField
-                                                    fullWidth
-                                                    label={t('address')}
-                                                    onChange={onChange}
-                                                    onBlur={onBlur}
-                                                    value={value}
-                                                    placeholder={t('enter_your_address')}
-                                                // error={errors.address ? true : false}
-                                                // helperText={errors.address?.message}
-                                                />
-                                            )}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12} >
-                                        <Controller
-                                            control={control}
-                                            name='city'
-                                            render={({ field: { onChange, onBlur, value } }) => (
-                                                <Box>
-                                                    <InputLabel sx={{
-                                                        fontSize: "13px",
-                                                        mb: "4px",
-                                                        display: "block",
-                                                        color: errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                    }}>
-                                                        Thành phố
-                                                    </InputLabel>
-                                                    <CustomSelect
-                                                        fullWidth
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        value={value}
-                                                        options={[]}
-                                                        placeholder={t('enter_your_city')}
-                                                        error={errors.city ? true : false}
-                                                    />
-                                                    {errors?.city && (
-                                                        <FormHelperText sx={{
-                                                            color: theme.palette.error.main,
-                                                        }}>
-                                                            {errors?.city?.message}
-                                                        </FormHelperText>
-                                                    )}
-                                                </Box>
-                                            )}
-                                        />
-                                    </Grid>
-                                    <Grid item md={6} xs={12} >
-                                        <Controller
-                                            control={control}
-                                            render={({ field: { onChange, onBlur, value } }) => (
-                                                <CustomTextField
-                                                    required
-                                                    fullWidth
-                                                    label={t('phone_number')}
-                                                    onChange={(e) => {
-                                                        const numberValue = e.target.value.replace(/\D/g, '');
-                                                        onChange(numberValue);
-                                                    }}
-                                                    onBlur={onBlur}
-                                                    inputProps={{
-                                                        inputMode: 'numeric',
-                                                        pattern: '[0-9]*',
-                                                        minLength: 8
-                                                    }}
-                                                    value={value}
-                                                    placeholder={t('enter_your_phone_number')}
-                                                    error={errors.phoneNumber ? true : false}
-                                                    helperText={errors.phoneNumber?.message}
-                                                />
-                                            )}
-                                            name='phoneNumber'
-                                        />
-                                    </Grid>
-                                </Grid>
-                            </Box>
-                        </Grid>
-                    </Grid>
-                    <Box sx={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        justifyContent: "flex-end",
-                    }}>
-                        <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                            Thay đổi
-                        </Button>
-                    </Box>
-                </form>
-            </CustomModal> */}
             {loading || isLoading && <Spinner />}
             <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
                 <Grid container>
@@ -544,7 +408,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                                                 </InputLabel>
                                                 <CustomSelect
                                                     fullWidth
-                                                    onChange={onChange} 
+                                                    onChange={onChange}
                                                     onBlur={onBlur}
                                                     value={value}
                                                     options={cityOptions}

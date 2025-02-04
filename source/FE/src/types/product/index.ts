@@ -12,7 +12,7 @@ export type TParamsCreateProduct = {
     type: string,
     discount?: number,
     price: number,
-    description: EditorState,
+    description: string,
     slug: string,
     countInStock: number,
     status: number,
@@ -27,7 +27,7 @@ export type TParamsUpdateProduct = {
     type: string,
     discount?: number,
     price: number,
-    description: EditorState,
+    description: string,
     slug: string,
     countInStock: number,
     status: number,
@@ -42,4 +42,18 @@ export type TParamsDeleteProduct = {
 
 export type TParamsDeleteMultipleProducts = {
     productIds: string[],
+}
+
+export type TProduct = {
+    _id: string,
+    averageRating: number,
+    createdAt: Date | null,
+    image: string,
+    price: number,
+    name: string,
+    slug: string,
+    totalLike: number,
+    countInStock: number,
+    discountStartDate?: Date | null,
+    discountEndDate?: Date | null,
 }

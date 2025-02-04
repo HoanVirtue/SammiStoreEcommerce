@@ -427,7 +427,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     name='role'
                                                 />
                                             </Grid>
-                                            {/* {idUser && (
+                                            {idUser && (
                                                 <Grid item md={6} xs={12} >
                                                     <Controller
                                                         control={control}
@@ -441,6 +441,19 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                             onChange={
                                                                                 (e) => onChange(e.target.checked ? 1 : 0)
                                                                             }
+                                                                            sx={{
+                                                                                '& .MuiSwitch-switchBase': {
+                                                                                    color: theme.palette.common.white,
+                                                                                },
+                                                                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                                                                },
+                                                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                                                    backgroundColor: theme.palette.primary.main,
+                                                                                },
+                                                                                '& .MuiSwitch-track': {
+                                                                                    backgroundColor: theme.palette.grey[400],
+                                                                                },
+                                                                            }}
                                                                         />
                                                                     }
                                                                     label={Boolean(value) ? t('active') : t('inactive')}
@@ -450,7 +463,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                         name='status'
                                                     />
                                                 </Grid>
-                                            )} */}
+                                            )}
                                         </Grid>
                                     </Box>
                                 </Grid>

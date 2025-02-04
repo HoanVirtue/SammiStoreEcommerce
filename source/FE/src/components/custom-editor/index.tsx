@@ -46,7 +46,7 @@ const CustomEditor = (props: TProps) => {
                 fontSize: "13px",
                 mb: "4px",
                 display: "block",
-                color: error ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                color: error ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
             }}>
                 {label}
             </InputLabel>

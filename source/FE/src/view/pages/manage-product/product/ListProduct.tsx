@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Grid, Typography, useTheme } from '@mui/material'
+import { Chip, ChipProps, Grid, styled, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 import { GridColDef, GridRenderCellParams, GridRowSelectionModel, GridSortModel } from '@mui/x-data-grid'
 
@@ -37,14 +37,33 @@ import ConfirmDialog from 'src/components/confirm-dialog'
 
 //utils
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
-import { formatDate } from 'src/utils'
+import { formatDate, formatFilter } from 'src/utils'
 
 import { usePermission } from 'src/hooks/usePermission'
 import { deleteMultipleProductsAsync, deleteProductAsync, getAllProductsAsync } from 'src/stores/product/action'
 import { resetInitialState } from 'src/stores/delivery-method'
 import TableHeader from 'src/components/table-header'
+import CustomSelect from 'src/components/custom-select'
+import { OBJECT_PRODUCT_STATUS } from 'src/configs/product'
+import { getAllProductCategories } from '../../../../services/product-category';
 
 type TProps = {}
+
+const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
+    backgroundColor: "#28c76f29",
+    color: "#28c76f",
+    fontSize: "14px",
+    padding: "8px 4px",
+    fontWeight: 600
+}))
+
+const StyledPrivateProduct = styled(Chip)<ChipProps>(({ theme }) => ({
+    backgroundColor: "#da251d29",
+    color: "#da251d",
+    fontSize: "14px",
+    padding: "8px 4px",
+    fontWeight: 600
+}))
 
 const ListProduct: NextPage<TProps> = () => {
     //States
@@ -66,6 +85,15 @@ const ListProduct: NextPage<TProps> = () => {
     const [loading, setLoading] = useState(false);
     const [selectedRow, setSelectedRow] = useState<string[]>([]);
 
+    const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>([])
+    const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
+    const [statusOptions, setStatusOptions] = useState<{ label: string, value: string }[]>([])
+    const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+    const [filterBy, setFilterBy] = useState<Record<string, string | string[]>>({});
+
+    const PRODUCT_STATUS = OBJECT_PRODUCT_STATUS()
+
+
     //Translation
     const { t, i18n } = useTranslation();
 
@@ -83,8 +111,24 @@ const ListProduct: NextPage<TProps> = () => {
 
     //api 
     const handleGetListProduct = () => {
-        const query = { params: { limit: pageSize, page: page, search: searchBy, order: sortBy } }
+        const query = { params: { limit: pageSize, page: page, search: searchBy, order: sortBy, ...formatFilter(filterBy) } }
         dispatch(getAllProductsAsync(query));
+    }
+
+    const fetchAllCategories = async () => {
+        setLoading(true)
+        await getAllProductCategories({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
+            const data = res?.data?.productTypes
+            if (data) {
+                setCategoryOptions(data?.map((item: { name: string, _id: string }) => ({
+                    label: item.name,
+                    value: item._id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
     }
 
     //handlers
@@ -152,14 +196,59 @@ const ListProduct: NextPage<TProps> = () => {
             }
         },
         {
-            field: 'slug',
-            headerName: t('slug'),
+            field: 'category',
+            headerName: t('category'),
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{row?.slug}</Typography>
+                    // <Typography>{row?.type?.name}</Typography>
+                    <Typography>{row?.type}</Typography>
+                )
+            }
+        },
+        {
+            field: 'price',
+            headerName: t('price'),
+            minWidth: 200,
+            maxWidth: 200,
+            renderCell: (params: GridRenderCellParams) => {
+                const { row } = params
+                return (
+                    <Typography>{row?.price}</Typography>
+                )
+            }
+        },
+        {
+            field: 'countInStock',
+            headerName: t('count_in_stock'),
+            minWidth: 200,
+            maxWidth: 200,
+            renderCell: (params: GridRenderCellParams) => {
+                const { row } = params
+                return (
+                    <Typography>{row?.countInStock}</Typography>
+                )
+            }
+        },
+        {
+            field: 'status',
+            headerName: t('status'),
+            flex: 1,
+            minWidth: 200,
+            maxWidth: 200,
+            renderCell: (params: GridRenderCellParams) => {
+                const { row } = params
+                return (
+                    <>
+                        {row?.status ? (
+                            <StyledPublicProduct label={t('public')} />
+                        ) : (
+                            <StyledPrivateProduct label={t('private')} />
+                        )
+                        }
+                    </>
                 )
             }
         },
@@ -217,7 +306,7 @@ const ListProduct: NextPage<TProps> = () => {
 
     useEffect(() => {
         handleGetListProduct();
-    }, [sortBy, searchBy, page, pageSize]);
+    }, [sortBy, searchBy, page, pageSize, filterBy]);
 
     /// create update Product
     useEffect(() => {
@@ -267,8 +356,18 @@ const ListProduct: NextPage<TProps> = () => {
         }
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
 
+    useEffect(() => {
+        fetchAllCategories()
+    }, [])
+
+
+    useEffect(() => {
+        setFilterBy({ productType: selectedCategory, status: selectedStatus });
+    }, [selectedCategory, selectedStatus]);
+
     return (
-        <>{loading && <Spinner />}
+        <>
+            {(loading || isLoading) && <Spinner />}
             <ConfirmDialog
                 open={openDeleteProduct.open}
                 onClose={handleCloseDeleteDialog}
@@ -290,7 +389,7 @@ const ListProduct: NextPage<TProps> = () => {
                 open={openCreateUpdateProduct.open}
                 onClose={handleCloseCreateUpdateProduct}
             />
-            {isLoading && <Spinner />}
+
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 display: 'flex',
@@ -309,11 +408,27 @@ const ListProduct: NextPage<TProps> = () => {
                             gap: 4,
                             width: '100%'
                         }}>
-                            <Box sx={{
-                                width: '200px',
-                            }}>
-                                <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
+                            <Box sx={{ width: '200px', }}>
+                                <CustomSelect
+                                    fullWidth
+                                    multiple
+                                    value={selectedCategory}
+                                    options={categoryOptions}
+                                    onChange={(e) => setSelectedCategory(e.target.value as string[])}
+                                    placeholder={t('product-category')}
+                                />
                             </Box>
+                            <Box sx={{ width: '200px', }}>
+                                <CustomSelect
+                                    fullWidth
+                                    multiple
+                                    value={selectedStatus}
+                                    options={Object.values(PRODUCT_STATUS)}
+                                    onChange={(e) => setSelectedStatus(e.target.value as string[])}
+                                    placeholder={t('status')}
+                                />
+                            </Box>
+                            <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
                             <GridCreate onClick={() => {
                                 setOpenCreateUpdateProduct({ open: true, id: "" })
                             }}

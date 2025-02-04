@@ -55,7 +55,7 @@ export const productSlice = createSlice({
     })
     builder.addCase(getAllProductsAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.products.data = Array.isArray(action?.payload?.data?.productTypes) ? action?.payload?.data?.productTypes : [];
+      state.products.data = Array.isArray(action?.payload?.data?.products) ? action?.payload?.data?.products : [];
       state.products.total = action?.payload?.data?.totalCount
     })
     builder.addCase(getAllProductsAsync.rejected, (state, action) => {

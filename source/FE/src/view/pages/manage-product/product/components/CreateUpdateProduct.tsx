@@ -28,14 +28,16 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "src/stores"
 import FileUploadWrapper from "src/components/file-upload-wrapper";
-import { convertBase64, stringToSlug } from "src/utils";
+import { convertBase64, convertHTMLToDraft, stringToSlug } from "src/utils";
 import { InputLabel } from "@mui/material";
 import CustomSelect from "src/components/custom-select";
 import { createProductAsync, updateProductAsync } from "src/stores/product/action";
 import { getAllProductCategories } from "src/services/product-category";
 import CustomDatePicker from "src/components/custom-date-picker";
 import CustomEditor from "src/components/custom-editor";
-import { EditorState } from "draft-js";
+import { convertToRaw, EditorState } from "draft-js";
+import draftToHtml from "draftjs-to-html";
+import { getProductDetail } from "src/services/product";
 
 interface TCreateUpdateProduct {
     open: boolean
@@ -112,7 +114,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             })
             .test('less_start_discount', t('less_start_discount'), (value, context: any) => {
                 const discountEndDate = context?.parent?.discountEndDate
-                if(value && discountEndDate && discountEndDate.getTime() > value?.getTime()){
+                if (value && discountEndDate && discountEndDate.getTime() > value?.getTime()) {
                     clearErrors("discountEndDate")
                 }
                 return !discountEndDate || (discountEndDate && value && discountEndDate.getTime() > value?.getTime())
@@ -124,7 +126,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             })
             .test('greater_start_discount', t('greater_start_discount'), (value, context: any) => {
                 const discountStartDate = context?.parent?.discountStartDate
-                if(value && discountStartDate && discountStartDate.getTime() < value?.getTime()){
+                if (value && discountStartDate && discountStartDate.getTime() < value?.getTime()) {
                     clearErrors("discountStartDate")
                 }
                 return !discountStartDate || (discountStartDate && value && discountStartDate.getTime() < value?.getTime())
@@ -148,7 +150,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         discountEndDate: null,
     }
 
-    const { handleSubmit, getValues, setError, clearErrors, control, formState: { errors }, reset } = useForm({
+    const { handleSubmit, getValues, setError, clearErrors, control, formState: { errors }, reset } = useForm<TDefaultValues>({
         defaultValues,
         mode: 'onChange',
         resolver: yupResolver(schema)
@@ -164,13 +166,13 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                     name: data?.name,
                     type: data?.category,
                     discount: Number(data?.discount) || 0,
-                    description: data?.description,
+                    description: data?.description ? draftToHtml(convertToRaw(data?.description.getCurrentContent())) : "",
                     slug: data?.slug,
                     price: Number(data?.price),
                     countInStock: Number(data?.countInStock),
                     status: data?.status ? 1 : 0,
-                    discountStartDate: data?.discountStartDate || null,
-                    discountEndDate: data?.discountEndDate || null,
+                    discountStartDate: data?.discountStartDate instanceof Date ? data.discountStartDate : null,
+                    discountEndDate: data?.discountEndDate instanceof Date ? data.discountEndDate : null,
                     image: productImage
                 }))
             } else {
@@ -179,13 +181,13 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                     name: data?.name,
                     type: data?.category,
                     discount: Number(data?.discount) || 0,
-                    description: data?.description,
+                    description: data?.description ? draftToHtml(convertToRaw(data?.description.getCurrentContent())) : "",
                     slug: data?.slug,
                     price: Number(data?.price),
                     countInStock: Number(data?.countInStock),
                     status: data?.status ? 1 : 0,
-                    discountStartDate: data?.discountStartDate || null,
-                    discountEndDate: data?.discountEndDate || null,
+                    discountStartDate: data?.discountStartDate instanceof Date ? data.discountStartDate : null,
+                    discountEndDate: data?.discountEndDate instanceof Date ? data.discountEndDate : null,
                     image: productImage
                 }))
             }
@@ -200,11 +202,20 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
 
     const fetchDetailProduct = async (id: string) => {
         setLoading(true)
-        await getUserDetail(id).then((res) => {
+        await getProductDetail(id).then((res) => {
             const data = res?.data
             if (data) {
                 reset({
-
+                    name: data?.name,
+                    category: data?.type,
+                    discount: data?.discount || '',
+                    price: data?.price,
+                    description: data?.description ? convertHTMLToDraft(data?.description) : '',
+                    slug: data?.slug,
+                    countInStock: data?.countInStock,
+                    status: data?.status,
+                    discountStartDate: data?.discountStartDate ? new Date(data.discountStartDate) : null,
+                    discountEndDate: data?.discountEndDate ? new Date(data.discountEndDate) : null,
                 })
                 setProductImage(data?.image)
             }
@@ -422,7 +433,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 }}>
                                                                     {t('status')}
                                                                 </InputLabel>
-                                                                {/* <FormControlLabel
+                                                                <FormControlLabel
                                                                     control={
                                                                         <Switch
                                                                             checked={Boolean(value)}
@@ -430,10 +441,28 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                             onChange={
                                                                                 (e) => onChange(e.target.checked ? 1 : 0)
                                                                             }
+                                                                            sx={{
+                                                                                '& .MuiSwitch-switchBase': {
+                                                                                    color: theme.palette.common.white, 
+                                                                                },
+                                                                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                                                                },
+                                                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                                                    backgroundColor: theme.palette.primary.main,
+                                                                                },
+                                                                                '& .MuiSwitch-track': {
+                                                                                    backgroundColor: theme.palette.grey[400],
+                                                                                },
+                                                                            }}
                                                                         />
                                                                     }
-                                                                    label={Boolean(value) ? t('active') : t('inactive')}
-                                                                /> */}
+                                                                    label={Boolean(value) ? t('public') : t('private')}
+                                                                    sx={{
+                                                                        '& .MuiFormControlLabel-label': {
+                                                                            color: theme.palette.text.primary,
+                                                                        }
+                                                                    }}
+                                                                />
                                                             </Box>
                                                         )
                                                     }}
@@ -492,7 +521,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 fontSize: "13px",
                                                                 mb: "4px",
                                                                 display: "block",
-                                                                color: errors?.category ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                                color: errors?.category ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
                                                             }}>
                                                                 {t('category')}
                                                             </InputLabel>
@@ -507,7 +536,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             />
                                                             {errors?.category?.message && (
                                                                 <FormHelperText sx={{
-                                                                    color: errors?.category ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                                    color: errors?.category ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
                                                                 }}>
                                                                     {errors?.category?.message}
                                                                 </FormHelperText>
@@ -554,7 +583,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             label={t('discount_start_date')}
                                                             onBlur={onBlur}
                                                             minDate={new Date()}
-                                                            selectedDate={value}
+                                                            selectedDate={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
                                                             placeholder={t('Select_discount_start_date')}
                                                             error={errors.discountStartDate ? true : false}
                                                             helperText={errors.discountStartDate?.message}
@@ -574,7 +603,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             }}
                                                             label={t('discount_end_date')}
                                                             onBlur={onBlur}
-                                                            selectedDate={value}
+                                                            selectedDate={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
                                                             placeholder={t('Select_discount_end_date')}
                                                             error={errors.discountEndDate ? true : false}
                                                             helperText={errors.discountEndDate?.message}

@@ -341,11 +341,11 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                         )}
                                                         {productImage ? (
                                                             <Avatar src={productImage} alt="productImage" sx={{ width: 100, height: 100 }}>
-                                                                <IconifyIcon icon="ph:user-thin" fontSize={70} />
+                                                                <IconifyIcon icon="fluent-mdl2:product-variant" fontSize={70} />
                                                             </Avatar>
                                                         ) : (
                                                             <Avatar alt="default-product-image" sx={{ width: 100, height: 100 }}>
-                                                                <IconifyIcon icon="ph:user-thin" fontSize={70} />
+                                                                <IconifyIcon icon="fluent-mdl2:product-variant" fontSize={70} />
                                                             </Avatar>
                                                         )}
                                                     </Box>

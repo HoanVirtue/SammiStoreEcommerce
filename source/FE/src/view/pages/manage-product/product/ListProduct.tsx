@@ -46,6 +46,7 @@ import TableHeader from 'src/components/table-header'
 import CustomSelect from 'src/components/custom-select'
 import { OBJECT_PRODUCT_STATUS } from 'src/configs/product'
 import { getAllProductCategories } from '../../../../services/product-category';
+import { formatPrice } from '../../../../utils/index';
 
 type TProps = {}
 
@@ -216,7 +217,7 @@ const ListProduct: NextPage<TProps> = () => {
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{row?.price}</Typography>
+                    <Typography>{`${formatPrice(row?.price)} VND`}</Typography>
                 )
             }
         },

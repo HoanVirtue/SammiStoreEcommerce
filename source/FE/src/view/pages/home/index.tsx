@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Chip, ChipProps, Grid, styled, Typography, useTheme } from '@mui/material'
+import { Chip, ChipProps, Grid, styled, TabsProps, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 
@@ -24,17 +24,22 @@ import Spinner from 'src/components/spinner'
 
 
 import { formatFilter } from 'src/utils'
-import ProductCard from './components/ProductCard'
+import ProductCard from '../product/components/ProductCard'
 import { getAllProductsPublic } from 'src/services/product'
 import { TProduct } from 'src/types/product'
 import { Tabs } from '@mui/material'
 import { Tab } from '@mui/material'
 import { getAllProductCategories } from 'src/services/product-category'
 import SearchField from 'src/components/search-field'
+import ProductFilter from '../product/components/ProductFilter'
 
-type TProps = {
+type TProps = {}
 
-}
+const StyledTabs = styled(Tabs)<TabsProps>(({ theme }) => ({
+    "&.MuiTabs-root": {
+        borderBottom: "none"
+    }
+}))
 
 const HomePage: NextPage<TProps> = () => {
     //States
@@ -44,21 +49,18 @@ const HomePage: NextPage<TProps> = () => {
     const [sortBy, setSortBy] = useState("createdAt asc");
     const [searchBy, setSearchBy] = useState("");
     const [loading, setLoading] = useState(false);
-    const [selectedRow, setSelectedRow] = useState<string[]>([]);
+    const [selectedRewview, setSelectedReview] = useState<string>('');
 
     const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>([])
-    const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
-    const [statusOptions, setStatusOptions] = useState<{ label: string, value: string }[]>([])
-    const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
     const [filterBy, setFilterBy] = useState<Record<string, string | string[]>>({});
     const [publicProducts, setPublicProducts] = useState({
         data: [],
         total: 0
     });
-    const [value, setValue] = React.useState('one');
+    const [selectedProductCategory, setSelectedProductCategory] = React.useState('');
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-        setValue(newValue);
+        setSelectedProductCategory(newValue);
     };
 
 
@@ -70,11 +72,13 @@ const HomePage: NextPage<TProps> = () => {
 
     //api 
     const handleGetListProduct = async () => {
+        setLoading(true)
         const query = {
             params: { limit: pageSize, page: page, search: searchBy, order: sortBy, ...formatFilter(filterBy) }
         }
         await getAllProductsPublic(query).then((res) => {
             if (res?.data) {
+                setLoading(false)
                 setPublicProducts({
                     data: res?.data?.products,
                     total: res?.data?.totalCount
@@ -93,6 +97,7 @@ const HomePage: NextPage<TProps> = () => {
                     label: item.name,
                     value: item._id
                 })))
+                setSelectedProductCategory(data?.[0]?._id)
             }
             setLoading(false)
         }).catch((err) => {
@@ -106,13 +111,17 @@ const HomePage: NextPage<TProps> = () => {
         setPageSize(pageSize)
     }
 
+    const handleProductFilter = (review: string) =>{
+        setSelectedReview(review)
+    }
+
     useEffect(() => {
         handleGetListProduct();
     }, [sortBy, searchBy, page, pageSize, filterBy]);
 
     useEffect(() => {
-        setFilterBy({ productType: selectedCategory, status: selectedStatus });
-    }, [selectedCategory, selectedStatus]);
+        setFilterBy({ productType: selectedProductCategory, minStar: selectedRewview });
+    }, [selectedProductCategory, selectedRewview]);
 
     useEffect(() => {
         fetchAllCategories()
@@ -125,8 +134,8 @@ const HomePage: NextPage<TProps> = () => {
                 padding: '20px',
                 height: 'fit-content',
             }}>
-                <Tabs
-                    value={value}
+                <StyledTabs
+                    value={selectedProductCategory}
                     onChange={handleChange}
                     aria-label="wrapped label tabs example"
                 >
@@ -140,7 +149,7 @@ const HomePage: NextPage<TProps> = () => {
                             />
                         )
                     })}
-                </Tabs>
+                </StyledTabs>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
                     <Box sx={{ width: '300px' }}>
                         <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
@@ -148,21 +157,36 @@ const HomePage: NextPage<TProps> = () => {
                 </Box>
                 <Box sx={{ width: '100%', height: '100%', mt: 4, mb: 4 }}>
                     <Grid container spacing={{ md: 6, sx: 4 }} mt={2}>
-                        {publicProducts?.data?.length > 0 ? (
-                            <>
-                                {publicProducts?.data?.map((item: TProduct) => {
-                                    return (
-                                        <Grid item key={item._id} md={3} sm={6} xs={12}>
-                                            <ProductCard item={item} />
-                                        </Grid>
-                                    )
-                                })}
-                            </>
-                        ) : (
-                            <Typography variant="h4" sx={{ width: '100%', textAlign: 'center', marginTop: '20px' }}>
-                                {t("no_data")}
-                            </Typography>
-                        )}
+                        <Grid item md={3} display={{ md: "flex", xs: "none" }}>
+                            <ProductFilter handleProductFilter={handleProductFilter} />
+                        </Grid>
+                        <Grid item md={9} xs={12}>
+                            <Grid container spacing={{ md: 6, sx: 4 }}>
+                                {publicProducts?.data?.length > 0 ? (
+                                    <>
+                                        {publicProducts?.data?.map((item: TProduct) => {
+                                            return (
+                                                <Grid item key={item._id} md={4} sm={6} xs={12}>
+                                                    <ProductCard item={item} />
+                                                </Grid>
+                                            )
+                                        })}
+                                    </>
+                                ) : (
+                                    <Box sx={{
+                                        display: 'flex',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        width: '100%',
+                                        height: '100%',
+                                    }}>
+                                        <Typography variant="h4" sx={{ width: '100%', textAlign: 'center', marginTop: '20px' }}>
+                                            {t("no_data")}
+                                        </Typography>
+                                    </Box>
+                                )}
+                            </Grid>
+                        </Grid>
                     </Grid>
                 </Box>
                 <CustomPagination

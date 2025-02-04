@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 
 //config
 import { ROUTE_CONFIG } from "src/configs/route";
+import Link from "next/link";
 
 type TProps = {
     open: boolean
@@ -76,8 +77,8 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, isHideMenu }) 
                         <IconifyIcon icon="material-symbols:menu-rounded" />
                     </IconButton>
                 )}
-                <Typography component="h1" variant="h6" color="inherit" noWrap sx={{ flexGrow: 1 }}>
-                    Dashboard
+                <Typography component="h1" variant="h6" color="primary" noWrap sx={{ flexGrow: 1, fontWeight: "600", cursor: "pointer" }}>
+                    <Link href = {ROUTE_CONFIG.HOME}>Sammi Stores</Link>
                 </Typography>
                 <LanguageDropdown />
                 <ModeToggle />

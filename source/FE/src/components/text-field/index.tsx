@@ -15,7 +15,7 @@ const CustomTextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => {
         "& .MuiInputBase-root": {
             borderRadius: 8,
             backgroundColor: "transparent !important",
-            border: `1px solid ${theme.palette.customColors.main} !important `,
+            border: `1px solid ${theme.palette.primary.main}`,
             transition: theme.transitions.create(['border-color', 'box-shadow'], {
                 duration: theme.transitions.duration.shorter
             }),
@@ -24,6 +24,12 @@ const CustomTextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => {
             },
             "&:before, &:after": {
                 display: "none"
+            },
+            // "&:before": {
+            //     borderBottom: "none !important"
+            // },
+            "&:hover:not(.Mui-disabled):before": {
+                borderBottom: "none !important"
             },
             "& .MuiInputBase-input": {
                 padding: "8px 10px"
@@ -73,7 +79,7 @@ const CustomTextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => {
             "& .Mui-error": {
                 color: theme.palette.error.main
             }
-        }
+        },
     }
 })
 

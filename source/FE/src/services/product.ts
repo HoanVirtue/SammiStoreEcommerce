@@ -1,3 +1,4 @@
+import axios from "axios"
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
 import { TParamsCreateProduct, TParamsDeleteMultipleProducts, TParamsGetAllProducts, TParamsUpdateProduct } from "src/types/product"
@@ -14,8 +15,7 @@ export const getAllProducts = async (data: {params: TParamsGetAllProducts}) => {
 
 export const getAllProductsPublic = async (data: {params: TParamsGetAllProducts}) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public`, data)
-        console.log(res, "res-c")
+        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public`, data)
         return res.data
     } catch (error) {
         return error
@@ -64,7 +64,16 @@ export const getProductDetail = async (id: string) => {
 
 export const getProductDetailPublic = async (id: string) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public/${id}`)
+        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public/${id}`)
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const getProductDetailPublicBySlug = async (slug: string) => {
+    try {
+        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public/slug/${slug}`)
         return res.data
     } catch (error: any) {
         return error?.response?.data

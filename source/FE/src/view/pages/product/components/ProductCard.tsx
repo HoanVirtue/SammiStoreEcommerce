@@ -10,6 +10,9 @@ import { Box, Button, Rating } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TProduct } from 'src/types/product';
 import { hexToRGBA } from 'src/utils/hex-to-rgba';
+import { useRouter } from 'next/router';
+import { ROUTE_CONFIG } from 'src/configs/route';
+import { formatPrice } from 'src/utils';
 
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -24,6 +27,9 @@ interface TProductCard {
 const StyledCard = styled(Card)(({ theme }) => ({
     position: "relative",
     boxShadow: theme.shadows[8],
+    ".MuiCardMedia-root.MuiCardMedia-media": {
+        objectFit: "contain"
+    }
 }));
 
 const ProductCard = (props: TProductCard) => {
@@ -33,10 +39,16 @@ const ProductCard = (props: TProductCard) => {
 
     //state
 
-    //translation
+    //hooks
     const { t } = useTranslation()
+    const theme = useTheme()
+    const router = useRouter()
 
-    const theme = useTheme();
+
+    //handler
+    const handleNavigateProductDetail = (slug: string) => {
+        router.push(`${ROUTE_CONFIG.PRODUCT}/${slug}`)
+    }
 
     return (
         <StyledCard sx={{ width: "100%" }}>
@@ -59,10 +71,18 @@ const ProductCard = (props: TProductCard) => {
                 alt="product image"
             />
             <CardContent sx={{ padding: "8px 12px" }}>
-                <Typography variant="h5" sx={{
-                    color: theme.palette.primary.main,
-                    fontWeight: "bold"
-                }}>
+                <Typography variant="h5"
+                    onClick={() => handleNavigateProductDetail(item?.slug)}
+                    sx={{
+                        color: theme.palette.primary.main,
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        display: "-webkit-box",
+                        "-webkitLineClamp": "2",
+                        "-webkitBoxOrient": "vertical"
+                    }}>
                     {item?.name}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -73,7 +93,7 @@ const ProductCard = (props: TProductCard) => {
                             textDecoration: "line-through",
                             fontSize: "14px"
                         }}>
-                            {item?.price}
+                            {formatPrice(item?.price)} VND
                         </Typography>
                     )}
                     <Typography variant="h4" sx={{
@@ -83,18 +103,19 @@ const ProductCard = (props: TProductCard) => {
                     }}>
                         {item?.discount > 0 ? (
                             <>
-                                {item?.price * (100 - item?.discount) / 100} VND
+                                {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
                             </>
                         ) : (
                             <>
-                                {item?.price} VND
+                                {formatPrice(item?.price)} VND
                             </>
                         )}
                     </Typography>
                     {item?.discount > 0 && (
                         <Box sx={{
                             backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
-                            width: "25px",
+                            width: "fit-content",
+                            padding: "2px 4px",
                             height: "16px",
                             display: "flex",
                             alignItems: "center",
@@ -105,9 +126,10 @@ const ProductCard = (props: TProductCard) => {
                                 color: theme.palette.error.main,
                                 fontWeight: "bold",
                                 fontSize: "10px",
-                                lineHeight: "1.3"
+                                lineHeight: "1.3",
+                                whiteSpace: "nowrap"
                             }}>
-                                {item?.discount}%
+                                -{item?.discount}%
                             </Typography>
                         </Box>
                     )}
@@ -140,15 +162,15 @@ const ProductCard = (props: TProductCard) => {
                         )}
                     </Box>
                     {!!item?.averageRating && (
-                        <Rating
-                            name="rating"
-                            defaultValue={item?.averageRating}
-                        />
+                        <Rating defaultValue={item?.averageRating}
+                            precision={0.1}
+                            size='small'
+                            name='read-only' />
                     )}
                     <Typography>
                         {!!item?.totalReviews ? (
                             <b>{item?.totalReviews} {t("product_reviews")}</b>
-                        ): (    
+                        ) : (
                             <span>{t("no_review")}</span>
                         )}
                     </Typography>

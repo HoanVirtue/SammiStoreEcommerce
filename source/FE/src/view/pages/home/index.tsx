@@ -24,14 +24,14 @@ import Spinner from 'src/components/spinner'
 
 
 import { formatFilter } from 'src/utils'
-import ProductCard from './components/ProductCard'
+import ProductCard from '../product/components/ProductCard'
 import { getAllProductsPublic } from 'src/services/product'
 import { TProduct } from 'src/types/product'
 import { Tabs } from '@mui/material'
 import { Tab } from '@mui/material'
 import { getAllProductCategories } from 'src/services/product-category'
 import SearchField from 'src/components/search-field'
-import ProductFilter from './components/ProductFilter'
+import ProductFilter from '../product/components/ProductFilter'
 
 type TProps = {}
 

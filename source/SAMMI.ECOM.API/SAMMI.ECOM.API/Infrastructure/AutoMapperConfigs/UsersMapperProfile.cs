@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
+using SAMMI.ECOM.Domain.Commands.User;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 
 namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
@@ -8,7 +9,15 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
     {
         public UsersMapperProfile()
         {
+            CreateMap<CreateEmployeeCommand, User>();
+            CreateMap<UpdateEmployeeCommand, User>();
             CreateMap<User, EmployeeDTO>();
+
+            CreateMap<CUCustomerCommand, User>();
+            CreateMap<User, CustomerDTO>();
+
+            CreateMap<CUSupplierCommand, User>();
+            CreateMap<User, SupplierDTO>();
         }
     }
 }

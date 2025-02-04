@@ -1,15 +1,18 @@
 ﻿using AutoMapper;
 using SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
+using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands;
+using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.CategoryAddress;
+using SAMMI.ECOM.Domain.DomainModels.Products;
 
 namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 {
-    public class CategoryAddressMappingProfile : Profile
+    public class CategoryMappingProfile : Profile
     {
-        public CategoryAddressMappingProfile()
+        public CategoryMappingProfile()
         {
             CreateMap<CUProvinceCommand, Province>();
             CreateMap<Province, ProvinceDTO>();
@@ -21,6 +24,18 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<Ward, WardDTO>();
 
             CreateMap<RefreshToken, RefreshTokenDTO>();
+
+
+            //product
+            CreateMap<CUProductCommand, Product>();
+            CreateMap<Product, ProductDTO>();
+
+            //CreateMap<>();
+            //CreateMap<>();
+            //CreateMap<>();
+            //CreateMap<>();
+            //CreateMap<>();
+            //CreateMap<>();
         }
     }
 }

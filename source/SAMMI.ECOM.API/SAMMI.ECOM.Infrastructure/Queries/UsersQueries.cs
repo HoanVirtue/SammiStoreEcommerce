@@ -17,6 +17,14 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         EmployeeDTO FindByUsername(string username);
         EmployeeDTO FindById(int id);
         Task<IEnumerable<PermissionDTO>> GetPermissionOfUser(int userId);
+
+        Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null);
+        Task<IPagedList<CustomerDTO>> GetCustomerList(RequestFilterModel filterModel);
+        Task<CustomerDTO> GetCustomerById(int id);
+
+        Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null);
+        Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel);
+        Task<SupplierDTO> GetSupplierById(int id);
     }
     public class UsersQueries : QueryRepository<User>, IUsersQueries
     {
@@ -24,7 +32,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         {
         }
 
-        private EmployeeDTO Find(int? id = null, string? username = null)
+        private EmployeeDTO Find(int? id = null, string? username = null, TypeUserEnum? type = TypeUserEnum.Employee)
         {
             var cached = new Dictionary<int, EmployeeDTO>();
             return WithDefaultTemplate(
@@ -33,6 +41,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                     sqlBuilder.LeftJoin("UserRole t2 ON t1.Id = t2.UserId AND t2.IsDeleted != 1");
 
                     sqlBuilder.Select("t2.RoleId AS RoleId");
+
+                    sqlBuilder.Where("t1.Type = @type", new { type = type.ToString() });
                     if (id.HasValue)
                     {
                         sqlBuilder.Where("t1.Id = @id", new { id });
@@ -149,6 +159,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                     sqlBuilder.Select("t3.Name AS DistrictName");
                     sqlBuilder.Select("t4.Id AS ProvinceId");
                     sqlBuilder.Select("t4.Name AS ProvinceName");
+
+                    sqlBuilder.Where("t1.Type = @type", new { type = type.ToString() });
                     return conn.QueryAsync<T>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 },
                 filterModel);
@@ -171,6 +183,36 @@ namespace SAMMI.ECOM.Infrastructure.Queries
             ",
             new { userId },
             commandType: System.Data.CommandType.Text));
+        }
+
+        public async Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null)
+        {
+            return await GetUserAll<CustomerDTO>(filterModel, TypeUserEnum.Customer);
+        }
+
+        public async Task<IPagedList<CustomerDTO>> GetCustomerList(RequestFilterModel filterModel)
+        {
+            return await GetUserList<CustomerDTO>(filterModel, TypeUserEnum.Customer);
+        }
+
+        public async Task<CustomerDTO> GetCustomerById(int id)
+        {
+            return await GetUserById<CustomerDTO>(id, TypeUserEnum.Customer);
+        }
+
+        public async Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null)
+        {
+            return await GetUserAll<SupplierDTO>(filterModel, TypeUserEnum.Supplier);
+        }
+
+        public async Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel)
+        {
+            return await GetUserList<SupplierDTO>(filterModel, TypeUserEnum.Supplier);
+        }
+
+        public async Task<SupplierDTO> GetSupplierById(int id)
+        {
+            return await GetUserById<SupplierDTO>(id, TypeUserEnum.Supplier);
         }
     }
 }

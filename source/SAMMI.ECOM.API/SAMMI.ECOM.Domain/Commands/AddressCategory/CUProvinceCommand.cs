@@ -6,7 +6,7 @@ namespace SAMMI.ECOM.Domain.Commands;
 
 public partial class CUProvinceCommand : IRequest<ActionResponse<ProvinceDTO>>
 {
-    public string? Name { get; set; }
+    public string Name { get; set; }
     public string? PostalCode { get; set; }
     public string? Country { get; set; }
 

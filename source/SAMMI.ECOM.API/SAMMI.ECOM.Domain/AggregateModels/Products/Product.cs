@@ -42,6 +42,9 @@ public partial class Product : Entity
     [Column("UsageGuide")]
     public string? UsageGuide { get; set; }
 
+    [Column("Status")]
+    public int? Status { get; set; }
+
     [ForeignKey("Brand")]
     public int? BrandId { get; set; }
 

@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands.User;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
+using SAMMI.ECOM.Infrastructure.Repositories.Permission;
 using SAMMI.ECOM.Infrastructure.Services.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Helpers;
 using System.Security.Cryptography;
@@ -17,15 +19,19 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private readonly IUsersRepository _userRepository;
         private readonly IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> _authService;
         private readonly IWardRepository _wardRepository;
-        public CreateEmployeeCommandHandler(IUsersRepository userRepository,
+        private readonly IUserRoleRepository _userRoleRepository;
+        public CreateEmployeeCommandHandler(
+            IUsersRepository userRepository,
             IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
             IWardRepository wardRepository,
+            IUserRoleRepository userRoleRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
             _authService = authService;
             _userRepository = userRepository;
             _wardRepository = wardRepository;
+            _userRoleRepository = userRoleRepository;
         }
 
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
@@ -51,6 +57,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             if (!string.IsNullOrEmpty(request.Phone) && await _userRepository.IsExistPhone(request.Phone, request.Id))
             {
                 actionResponse.AddError("Số điện thoại đã tồn tại");
+                return actionResponse;
+            }
+
+            if (request.RoleIds == null || request.RoleIds.Count == 0)
+            {
+                actionResponse.AddError("Vai trò của người dùng là bắt buộc");
                 return actionResponse;
             }
             #endregion
@@ -93,6 +105,18 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             await _userRepository.SaveChangeAsync();
 
             // add role và send password email(nếu có)
+            if (actionResponse.IsSuccess && request.RoleIds != null && request.RoleIds.Count > 0)
+            {
+                foreach (var rId in request.RoleIds)
+                {
+                    UserRole userRole = new UserRole
+                    {
+                        UserId = employee.Id,
+                        RoleId = rId
+                    };
+                    await _userRoleRepository.CreateAndSave(userRole);
+                }
+            }
 
 
             actionResponse.SetResult(_mapper.Map<EmployeeDTO>(employee));
@@ -152,7 +176,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 actionResponse.AddError("Không tìm thấy xã");
                 return actionResponse;
             }
-
 
             var employee = await _userRepository.FindByUserNameAsync(request.Username);
 

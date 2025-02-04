@@ -70,6 +70,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
 
                 var createResponse = await _userRepository.CreateAndSave(request);
                 actionResponse.Combine(createResponse);
+                if (!createResponse.IsSuccess)
+                {
+                    return actionResponse;
+                }
                 actionResponse.SetResult(_mapper.Map<SupplierDTO>(createResponse));
             }
             else

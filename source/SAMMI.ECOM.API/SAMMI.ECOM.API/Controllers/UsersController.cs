@@ -70,8 +70,8 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("employee/{id}")]
-        public IActionResult DeleteEmployee(int id)
+        [HttpDelete("{id}")]
+        public IActionResult DeleteUser(int id)
         {
             if (!_userRepository.IsExisted(id))
             {
@@ -112,6 +112,54 @@ namespace SAMMI.ECOM.API.Controllers
 
         [HttpPut("customer/{id}")]
         public async Task<IActionResult> PutCustomer(int id, [FromBody] CUCustomerCommand request)
+        {
+            if ((id == 0 || request.Id == 0) || id != request.Id)
+            {
+                return BadRequest();
+            }
+
+            var response = await _mediator.Send(request);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+
+        // supplier
+
+        [HttpGet("supplier")]
+        public async Task<IActionResult> GetSupplier([FromQuery] RequestFilterModel request)
+        {
+            if (request.Type == RequestType.SimpleAll)
+                return Ok(await _usersQueries.GetSupplierAll(request));
+            return Ok(await _usersQueries.GetSupplierList(request));
+        }
+
+        [HttpGet("supplier/{id}")]
+        public async Task<IActionResult> GetSupplierById(int id)
+        {
+            return Ok(await _usersQueries.GetSupplierById(id));
+        }
+
+        [HttpPost("supplier")]
+        public async Task<IActionResult> PostSupplier([FromBody] CUSupplierCommand request)
+        {
+            if (request.Id != 0)
+            {
+                return BadRequest();
+            }
+            var response = await _mediator.Send(request);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [HttpPut("supplier/{id}")]
+        public async Task<IActionResult> PutSupplier(int id, [FromBody] CUSupplierCommand request)
         {
             if ((id == 0 || request.Id == 0) || id != request.Id)
             {

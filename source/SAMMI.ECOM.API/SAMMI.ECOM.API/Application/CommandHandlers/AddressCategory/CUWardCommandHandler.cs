@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands;
@@ -54,6 +55,16 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
             }
 
             return actResponse;
+        }
+    }
+
+    public class CUWardCommandValidator : AbstractValidator<CUWardCommand>
+    {
+        public CUWardCommandValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithMessage("Tên phường/xã là bắt buộc");
         }
     }
 }

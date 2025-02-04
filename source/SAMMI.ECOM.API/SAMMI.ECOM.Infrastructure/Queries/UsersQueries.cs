@@ -21,6 +21,10 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null);
         Task<IPagedList<CustomerDTO>> GetCustomerList(RequestFilterModel filterModel);
         Task<CustomerDTO> GetCustomerById(int id);
+
+        Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null);
+        Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel);
+        Task<SupplierDTO> GetSupplierById(int id);
     }
     public class UsersQueries : QueryRepository<User>, IUsersQueries
     {
@@ -193,7 +197,22 @@ namespace SAMMI.ECOM.Infrastructure.Queries
 
         public async Task<CustomerDTO> GetCustomerById(int id)
         {
-            return await GetUserById<CustomerDTO>(id);
+            return await GetUserById<CustomerDTO>(id, TypeUserEnum.Customer);
+        }
+
+        public async Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null)
+        {
+            return await GetUserAll<SupplierDTO>(filterModel, TypeUserEnum.Supplier);
+        }
+
+        public async Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel)
+        {
+            return await GetUserList<SupplierDTO>(filterModel, TypeUserEnum.Supplier);
+        }
+
+        public async Task<SupplierDTO> GetSupplierById(int id)
+        {
+            return await GetUserById<SupplierDTO>(id, TypeUserEnum.Supplier);
         }
     }
 }

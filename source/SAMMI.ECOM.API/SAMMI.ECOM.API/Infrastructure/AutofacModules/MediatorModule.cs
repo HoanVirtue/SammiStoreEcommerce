@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using FluentValidation;
 using MediatR;
 using SAMMI.ECOM.API.Application.Behaviors;
 using SAMMI.ECOM.API.Application.CommandHandlers;
@@ -19,10 +20,10 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
                 .AsClosedTypesOf(typeof(IRequestHandler<,>));
 
             // Register all IValidator
-            //builder
-            //    .RegisterAssemblyTypes(typeof(CUOrganizationUnitCommandValidator).GetTypeInfo().Assembly)
-            //    .Where(t => t.IsClosedTypeOf(typeof(IValidator<>)))
-            //    .AsImplementedInterfaces();
+            builder
+                .RegisterAssemblyTypes(typeof(CUProvinceCommandValidator).GetTypeInfo().Assembly)
+                .Where(t => t.IsClosedTypeOf(typeof(IValidator<>)))
+                .AsImplementedInterfaces();
 
             // Register IPipelineBehavior
             builder.RegisterGeneric(typeof(ValidatorBehavior<,>)).As(typeof(IPipelineBehavior<,>));

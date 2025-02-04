@@ -1,19 +1,15 @@
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
-import Collapse from '@mui/material/Collapse';
-import Avatar from '@mui/material/Avatar';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { red } from '@mui/material/colors';
 import IconifyIcon from 'src/components/Icon';
 import { Box, Button, Rating } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TProduct } from 'src/types/product';
+import { hexToRGBA } from 'src/utils/hex-to-rgba';
 
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -34,7 +30,6 @@ const ProductCard = (props: TProductCard) => {
 
     //props
     const { item } = props
-    console.log(item, "đ")
 
     //state
 
@@ -71,36 +66,92 @@ const ProductCard = (props: TProductCard) => {
                     {item?.name}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <Typography variant="h6" sx={{
-                        color: theme.palette.error.main,
-                        fontWeight: "bold",
-                        textDecoration: "line-through",
-                        fontSize: "14px"
-                    }}>
-                        111.111 VND
-                    </Typography>
-                    <Typography variant="h5" sx={{
+                    {item?.discount > 0 && (
+                        <Typography variant="h6" sx={{
+                            color: theme.palette.error.main,
+                            fontWeight: "bold",
+                            textDecoration: "line-through",
+                            fontSize: "14px"
+                        }}>
+                            {item?.price}
+                        </Typography>
+                    )}
+                    <Typography variant="h4" sx={{
                         color: theme.palette.primary.main,
                         fontWeight: "bold",
                         fontSize: "18px"
                     }}>
-                        {item?.price}
+                        {item?.discount > 0 ? (
+                            <>
+                                {item?.price * (100 - item?.discount) / 100} VND
+                            </>
+                        ) : (
+                            <>
+                                {item?.price} VND
+                            </>
+                        )}
                     </Typography>
+                    {item?.discount > 0 && (
+                        <Box sx={{
+                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
+                            width: "25px",
+                            height: "16px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            borderRadius: "2px"
+                        }}>
+                            <Typography variant="h6" sx={{
+                                color: theme.palette.error.main,
+                                fontWeight: "bold",
+                                fontSize: "10px",
+                                lineHeight: "1.3"
+                            }}>
+                                {item?.discount}%
+                            </Typography>
+                        </Box>
+                    )}
                 </Box>
                 <Box sx={{
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "space-between"
                 }}>
-                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                        Còn <b>{item?.countInStock}</b> sản phẩm trong kho
-                    </Typography>
+                    <Box sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        gap: "4px",
+                        alignItems: "flex-start",
+                        justifyContent: "center"
+                    }}>
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            {item?.countInStock > 0 ? (
+                                <>{t("product_count_in_stock", { count: item?.countInStock })}</>
+                            ) : (
+                                <span>
+                                    Hết hàng
+                                </span>
+                            )}
+                        </Typography>
+                        {item?.sold > 0 && (
+                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                <>{t("product_sold", { count: item?.sold })}</>
+                            </Typography>
+                        )}
+                    </Box>
                     {!!item?.averageRating && (
                         <Rating
                             name="rating"
                             defaultValue={item?.averageRating}
                         />
                     )}
+                    <Typography>
+                        {!!item?.totalReviews ? (
+                            <b>{item?.totalReviews} {t("product_reviews")}</b>
+                        ): (    
+                            <span>{t("no_review")}</span>
+                        )}
+                    </Typography>
                 </Box>
             </CardContent>
             <Box sx={{
@@ -108,7 +159,7 @@ const ProductCard = (props: TProductCard) => {
                 flexDirection: "column",
                 alignItems: "center",
                 padding: "0px 10px",
-                gap: 2 
+                gap: 2
             }}>
                 <Button fullWidth variant="outlined"
                     startIcon={<IconifyIcon icon="bx:cart" />}

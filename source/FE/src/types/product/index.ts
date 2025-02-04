@@ -56,4 +56,7 @@ export type TProduct = {
     countInStock: number,
     discountStartDate?: Date | null,
     discountEndDate?: Date | null,
+    discount: number,
+    totalReviews: number,
+    sold: number,
 }

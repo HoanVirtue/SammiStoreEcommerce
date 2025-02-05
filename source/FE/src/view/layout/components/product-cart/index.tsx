@@ -61,6 +61,10 @@ const ProductCart = (props: TProps) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${slug}`)
     }
 
+    const handleNavigateMyCart = () => {
+        router.push(`${ROUTE_CONFIG.MY_CART}`)
+    }
+
     useEffect(() => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
@@ -140,7 +144,7 @@ const ProductCart = (props: TProps) => {
             >
                 {orderItems.map((item: TItemOrderProduct) => {
                     return (
-                        <StyledMenuItem key={item.product} onClick={()=>handleNavigateProductDetail(item.slug)}>
+                        <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>
                             <Avatar src={item?.image} />
                             <Box sx={{
 
@@ -177,9 +181,11 @@ const ProductCart = (props: TProps) => {
                         </StyledMenuItem>
                     )
                 })}
-                <Box sx={{width: "100%", display: "flex", justifyContent: "flex-end"}}>
-                    <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5, mr: 2 }}>
-                        {t('view_cart')}    
+                <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
+                    <Button type="submit" variant="contained"
+                        onClick={handleNavigateMyCart}
+                        sx={{ mt: 3, mb: 2, py: 1.5, mr: 2 }}>
+                        {t('view_cart')}
                     </Button>
                 </Box>
             </Menu>

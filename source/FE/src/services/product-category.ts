@@ -1,10 +1,11 @@
+import axios from "axios"
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
 import { TParamsCreateProductCategory, TParamsDeleteMultipleProductCategories, TParamsGetAllProductCategories, TParamsUpdateProductCategory } from "src/types/product-category"
 
 export const getAllProductCategories = async (data: {params: TParamsGetAllProductCategories}) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}`, data)
+        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}`, data)
         console.log(res)
         return res.data
     } catch (error) {

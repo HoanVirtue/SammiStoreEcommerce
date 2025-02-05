@@ -1,7 +1,7 @@
 "use client"
 
 //React
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
@@ -49,7 +49,7 @@ const HomePage: NextPage<TProps> = () => {
     const [sortBy, setSortBy] = useState("createdAt asc");
     const [searchBy, setSearchBy] = useState("");
     const [loading, setLoading] = useState(false);
-    const [selectedRewview, setSelectedReview] = useState<string>('');
+    const [selectedReview, setSelectedReview] = useState<string>('');
 
     const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>([])
     const [filterBy, setFilterBy] = useState<Record<string, string | string[]>>({});
@@ -58,6 +58,8 @@ const HomePage: NextPage<TProps> = () => {
         total: 0
     });
     const [selectedProductCategory, setSelectedProductCategory] = React.useState('');
+
+    const firstRender = useRef<boolean>(false)
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
         setSelectedProductCategory(newValue);
@@ -98,6 +100,7 @@ const HomePage: NextPage<TProps> = () => {
                     value: item._id
                 })))
                 setSelectedProductCategory(data?.[0]?._id)
+                firstRender.current = true
             }
             setLoading(false)
         }).catch((err) => {
@@ -111,21 +114,25 @@ const HomePage: NextPage<TProps> = () => {
         setPageSize(pageSize)
     }
 
-    const handleProductFilter = (review: string) =>{
+    const handleProductFilter = (review: string) => {
         setSelectedReview(review)
     }
 
     useEffect(() => {
-        handleGetListProduct();
+        fetchAllCategories()
+    }, [])
+
+    useEffect(() => {
+        if (firstRender.current) {
+            handleGetListProduct();
+        }
     }, [sortBy, searchBy, page, pageSize, filterBy]);
 
     useEffect(() => {
-        setFilterBy({ productType: selectedProductCategory, minStar: selectedRewview });
-    }, [selectedProductCategory, selectedRewview]);
-
-    useEffect(() => {
-        fetchAllCategories()
-    }, [])
+        if (firstRender.current) {
+            setFilterBy({ productType: selectedProductCategory, minStar: selectedReview });
+        }
+    }, [selectedProductCategory, selectedReview]);
 
     return (
         <>
@@ -156,12 +163,12 @@ const HomePage: NextPage<TProps> = () => {
                     </Box>
                 </Box>
                 <Box sx={{ width: '100%', height: '100%', mt: 4, mb: 4 }}>
-                    <Grid container spacing={{ md: 6, sx: 4 }} mt={2}>
+                    <Grid container spacing={{ md: 4, sx: 2 }} mt={2}>
                         <Grid item md={3} display={{ md: "flex", xs: "none" }}>
                             <ProductFilter handleProductFilter={handleProductFilter} />
                         </Grid>
                         <Grid item md={9} xs={12}>
-                            <Grid container spacing={{ md: 6, sx: 4 }}>
+                            <Grid container spacing={{ md: 4, sx: 2 }}>
                                 {publicProducts?.data?.length > 0 ? (
                                     <>
                                         {publicProducts?.data?.map((item: TProduct) => {

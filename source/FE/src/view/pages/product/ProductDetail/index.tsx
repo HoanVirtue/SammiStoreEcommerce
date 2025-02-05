@@ -59,7 +59,6 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const theme = useTheme();
 
 
-
     //fetch api
     const fetchGetProductDetail = async (slug: string) => {
         setLoading(true)

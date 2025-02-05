@@ -31,5 +31,9 @@
     "inactive": "Tạm khóa",
     "status": "Trạng thái",
     "product_count_in_stock": "Còn {{count}} sản phẩm trong kho",
-    "product_sold": "Đã bán {{count}} sản phẩm"
+    "product_sold": "Đã bán {{count}} sản phẩm",
+    "greater_than_4.5": "Từ 4.5 trở lên",
+    "greater_than_4": "Từ 4 trở lên",
+    "greater_than_3.5": "Từ 3.5 trở lên",
+    "greater_than_3": "Từ 3 trở lên"
 }

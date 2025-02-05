@@ -20,6 +20,7 @@ import { useRouter } from "next/navigation";
 //config
 import { ROUTE_CONFIG } from "src/configs/route";
 import Link from "next/link";
+import ProductCart from "./components/product-cart";
 
 type TProps = {
     open: boolean
@@ -82,6 +83,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, isHideMenu }) 
                 </Typography>
                 <LanguageDropdown />
                 <ModeToggle />
+                <ProductCart />
                 <IconButton color="inherit">
                     <Badge badgeContent={4}
                         // color = {theme.palette.mode === 'light' ? theme.palette.error.main : theme.palette.primary.main}

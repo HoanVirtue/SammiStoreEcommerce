@@ -12,7 +12,12 @@ import { TProduct } from 'src/types/product';
 import { hexToRGBA } from 'src/utils/hex-to-rgba';
 import { useRouter } from 'next/router';
 import { ROUTE_CONFIG } from 'src/configs/route';
-import { formatPrice } from 'src/utils';
+import { convertAddProductToCart, formatPrice } from 'src/utils';
+import { AppDispatch, RootState } from 'src/stores';
+import { useDispatch, useSelector } from 'react-redux';
+import { addProductToCart } from 'src/stores/order-product';
+import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
+import { useAuth } from 'src/hooks/useAuth';
 
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -43,11 +48,44 @@ const ProductCard = (props: TProductCard) => {
     const { t } = useTranslation()
     const theme = useTheme()
     const router = useRouter()
+    const { user } = useAuth()
 
+    //redux
+    const dispatch: AppDispatch = useDispatch()
+    const { orderItems } = useSelector((state: RootState) => state.orderProduct)
 
     //handler
     const handleNavigateProductDetail = (slug: string) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${slug}`)
+    }
+
+    const handleAddProductToCart = (item: TProduct) => {
+        const productCart = getLocalProductFromCart()
+        const parseData = productCart ? JSON.parse(productCart) : {}
+        const listOrderItems = convertAddProductToCart(orderItems, {
+            name: item?.name,
+            amount: 1,
+            image: item?.image,
+            price: item?.price,
+            discount: item?.discount,
+            product: item._id,
+            slug: item?.slug
+        })
+        if (user?._id) {
+            dispatch(
+                addProductToCart({
+                    orderItems: listOrderItems
+                })
+            )
+            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
+        } else {
+            router.replace({
+                pathname: '/login',
+                query: {
+                    returnUrl: router.asPath
+                }
+            })
+        }
     }
 
     return (
@@ -81,7 +119,8 @@ const ProductCard = (props: TProductCard) => {
                         textOverflow: "ellipsis",
                         display: "-webkit-box",
                         "-webkitLineClamp": "2",
-                        "-webkitBoxOrient": "vertical"
+                        "-webkitBoxOrient": "vertical",
+                        minHeight: "48px"
                     }}>
                     {item?.name}
                 </Typography>
@@ -185,7 +224,9 @@ const ProductCard = (props: TProductCard) => {
             }}>
                 <Button fullWidth variant="outlined"
                     startIcon={<IconifyIcon icon="bx:cart" />}
-                    sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                    sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}
+                    onClick={() => handleAddProductToCart(item)}
+                >
                     {t('add_to_cart')}
                 </Button>
                 <Button fullWidth type="submit" variant="contained"

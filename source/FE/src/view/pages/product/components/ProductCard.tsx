@@ -12,10 +12,10 @@ import { TProduct } from 'src/types/product';
 import { hexToRGBA } from 'src/utils/hex-to-rgba';
 import { useRouter } from 'next/router';
 import { ROUTE_CONFIG } from 'src/configs/route';
-import { convertAddProductToCart, formatPrice } from 'src/utils';
+import { convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils';
 import { AppDispatch, RootState } from 'src/stores';
 import { useDispatch, useSelector } from 'react-redux';
-import { addProductToCart } from 'src/stores/order-product';
+import { updateProductToCart } from 'src/stores/order-product';
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
 import { useAuth } from 'src/hooks/useAuth';
 
@@ -59,21 +59,22 @@ const ProductCard = (props: TProductCard) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${slug}`)
     }
 
-    const handleAddProductToCart = (item: TProduct) => {
+    const handleUpdateProductToCart = (item: TProduct) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
-        const listOrderItems = convertAddProductToCart(orderItems, {
+        const discountItem = item.discountStartDate && item.discountEndDate && isExpired(item?.discountStartDate, item.discountEndDate) ? item.discount : 0
+        const listOrderItems = convertUpdateProductToCart(orderItems, {
             name: item?.name,
             amount: 1,
             image: item?.image,
             price: item?.price,
-            discount: item?.discount,
+            discount: discountItem,
             product: item._id,
             slug: item?.slug
         })
         if (user?._id) {
             dispatch(
-                addProductToCart({
+                updateProductToCart({
                     orderItems: listOrderItems
                 })
             )
@@ -87,6 +88,12 @@ const ProductCard = (props: TProductCard) => {
             })
         }
     }
+
+    const memoCheckExpire = React.useMemo(() => {
+        if (item.discountStartDate && item.discountEndDate) {
+            return isExpired(item.discountStartDate, item.discountEndDate);
+        }
+    }, [item])
 
     return (
         <StyledCard sx={{ width: "100%" }}>
@@ -125,7 +132,7 @@ const ProductCard = (props: TProductCard) => {
                     {item?.name}
                 </Typography>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    {item?.discount > 0 && (
+                    {item?.discount > 0 && memoCheckExpire && (
                         <Typography variant="h6" sx={{
                             color: theme.palette.error.main,
                             fontWeight: "bold",
@@ -140,7 +147,7 @@ const ProductCard = (props: TProductCard) => {
                         fontWeight: "bold",
                         fontSize: "18px"
                     }}>
-                        {item?.discount > 0 ? (
+                        {item?.discount > 0 && memoCheckExpire ? (
                             <>
                                 {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
                             </>
@@ -150,7 +157,7 @@ const ProductCard = (props: TProductCard) => {
                             </>
                         )}
                     </Typography>
-                    {item?.discount > 0 && (
+                    {item?.discount > 0 && memoCheckExpire && (
                         <Box sx={{
                             backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
                             width: "fit-content",
@@ -199,6 +206,12 @@ const ProductCard = (props: TProductCard) => {
                                 <>{t("product_sold", { count: item?.sold })}</>
                             </Typography>
                         )}
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+                            <IconifyIcon icon="carbon:location" width={20} height={20} />
+                            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
+                                {item?.location?.name}
+                            </Typography>
+                        </Box>
                     </Box>
                     {!!item?.averageRating && (
                         <Rating defaultValue={item?.averageRating}
@@ -225,7 +238,7 @@ const ProductCard = (props: TProductCard) => {
                 <Button fullWidth variant="outlined"
                     startIcon={<IconifyIcon icon="bx:cart" />}
                     sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}
-                    onClick={() => handleAddProductToCart(item)}
+                    onClick={() => handleUpdateProductToCart(item)}
                 >
                     {t('add_to_cart')}
                 </Button>

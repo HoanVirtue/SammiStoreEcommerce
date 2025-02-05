@@ -119,7 +119,7 @@ export const stringToSlug = (str: string) => {
 export const convertHTMLToDraft = (html: string) => {
 
     const blocksFromHTML = htmlToDraft(html);
-    const {contentBlocks, entityMap} = blocksFromHTML
+    const { contentBlocks, entityMap } = blocksFromHTML
 
     const contentState = ContentState.createFromBlockArray(contentBlocks, entityMap);
     const editorState = EditorState.createWithContent(contentState);
@@ -130,9 +130,9 @@ export const convertHTMLToDraft = (html: string) => {
 export const formatPrice = (value: number | string) => {
     try {
         return Number(value).toLocaleString(
-            "vi-VN",{
-                minimumFractionDigits: 0
-            }
+            "vi-VN", {
+            minimumFractionDigits: 0
+        }
         )
     } catch (error) {
         return value
@@ -147,18 +147,30 @@ export const cloneDeep = (data: any) => {
     }
 }
 
-export const convertAddProductToCart = (orderItems: TItemOrderProduct[], addItem: TItemOrderProduct) => {
+export const convertUpdateProductToCart = (orderItems: TItemOrderProduct[], addItem: TItemOrderProduct) => {
     try {
+        let result = []
         const cloneOrderItems = cloneDeep(orderItems)
         const findItems = cloneOrderItems.find((item: TItemOrderProduct) => item.product === addItem.product)
-        if(findItems) {
+        if (findItems) {
             findItems.amount += addItem.amount
         } else {
             cloneOrderItems.push(addItem)
         }
-        
-        return cloneOrderItems
+        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.amount > 0)
+        return result
     } catch (error) {
         return orderItems
     }
+}
+
+export const isExpired = (startDate: Date | null, endDate: Date | null) => {
+    if (startDate && endDate) {
+        const currentTime = new Date().getTime()
+        const startDateTime = new Date(startDate).getTime()
+        const endDateTime = new Date(endDate).getTime()
+
+        return startDateTime <= currentTime && currentTime <= endDateTime
+    }
+    return false
 }

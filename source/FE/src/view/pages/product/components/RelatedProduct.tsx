@@ -3,10 +3,10 @@ import { styled, useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import IconifyIcon from 'src/components/Icon';
-import { Box, Button, Rating } from '@mui/material';
+import { Box, Rating } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TProduct } from 'src/types/product';
 import { hexToRGBA } from 'src/utils/hex-to-rgba';
@@ -20,12 +20,7 @@ import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/stor
 import { useAuth } from 'src/hooks/useAuth';
 
 
-interface ExpandMoreProps extends IconButtonProps {
-    expand: boolean;
-}
-
-
-interface TProductCard {
+interface TRelatedProduct {
     item: TProduct
 }
 
@@ -37,7 +32,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
     }
 }));
 
-const ProductCard = (props: TProductCard) => {
+const RelatedProduct = (props: TRelatedProduct) => {
 
     //props
     const { item } = props
@@ -59,36 +54,6 @@ const ProductCard = (props: TProductCard) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${slug}`)
     }
 
-    const handleUpdateProductToCart = (item: TProduct) => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        const discountItem = item.discountStartDate && item.discountEndDate && isExpired(item?.discountStartDate, item.discountEndDate) ? item.discount : 0
-        const listOrderItems = convertUpdateProductToCart(orderItems, {
-            name: item?.name,
-            amount: 1,
-            image: item?.image,
-            price: item?.price,
-            discount: discountItem,
-            product: item._id,
-            slug: item?.slug
-        })
-        if (user?._id) {
-            dispatch(
-                updateProductToCart({
-                    orderItems: listOrderItems
-                })
-            )
-            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
-        } else {
-            router.replace({
-                pathname: '/login',
-                query: {
-                    returnUrl: router.asPath
-                }
-            })
-        }
-    }
-
     const memoCheckExpire = React.useMemo(() => {
         if (item.discountStartDate && item.discountEndDate) {
             return isExpired(item.discountStartDate, item.discountEndDate);
@@ -97,18 +62,6 @@ const ProductCard = (props: TProductCard) => {
 
     return (
         <StyledCard sx={{ width: "100%" }}>
-            <IconButton aria-label="add to favorites" sx={{ position: "absolute", top: "8px", right: "8px" }}>
-                <IconifyIcon icon="mdi:heart" />
-            </IconButton>
-            {/* <CardHeader
-                avatar={
-                    <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                        R
-                    </Avatar>
-                }
-                title="Shrimp and Chorizo Paella"
-                subheader="September 14, 2016"
-            /> */}
             <CardMedia
                 component="img"
                 height="194"
@@ -207,12 +160,12 @@ const ProductCard = (props: TProductCard) => {
                             </Typography>
                         )}
                         {item?.location?.name && (
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
-                                <IconifyIcon icon="carbon:location" width={20} height={20} />
-                                <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
-                                    {item?.location?.name}
-                                </Typography>
-                            </Box>
+                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+                            <IconifyIcon icon="carbon:location" width={20} height={20} />
+                            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
+                                {item?.location?.name}
+                            </Typography>
+                        </Box>
                         )}
                     </Box>
                     {!!item?.averageRating && (
@@ -230,28 +183,8 @@ const ProductCard = (props: TProductCard) => {
                     </Typography>
                 </Box>
             </CardContent>
-            <Box sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "0px 10px",
-                gap: 2
-            }}>
-                <Button fullWidth variant="outlined"
-                    startIcon={<IconifyIcon icon="bx:cart" />}
-                    sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}
-                    onClick={() => handleUpdateProductToCart(item)}
-                >
-                    {t('add_to_cart')}
-                </Button>
-                <Button fullWidth type="submit" variant="contained"
-                    startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
-                    sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                    {t('buy_now')}
-                </Button>
-            </Box>
         </StyledCard>
     )
 }
 
-export default ProductCard
+export default RelatedProduct

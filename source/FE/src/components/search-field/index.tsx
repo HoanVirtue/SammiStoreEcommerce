@@ -9,6 +9,7 @@ import { useDebounce } from "src/hooks/useDebounce"
 interface TSearchField {
     value: string,
     onChange: (value: string) => void
+    placeholder: string
 }
 
 const Search = styled('div')(({ theme }) => ({
@@ -57,7 +58,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 const SearchField = (props: TSearchField) => {
 
     //props
-    const { value, onChange } = props
+    const { value, onChange, placeholder = "Search…" } = props
 
     //state
     const [search, setSearch] = useState(value)
@@ -76,7 +77,7 @@ const SearchField = (props: TSearchField) => {
             </SearchIconWrapper>
             <StyledInputBase
                 value={search}
-                placeholder="Search…"
+                placeholder={placeholder}
                 onChange={e => setSearch(e.target.value)}
                 inputProps={{ 'aria-label': 'search' }}
             />

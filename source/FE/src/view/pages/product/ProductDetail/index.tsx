@@ -25,7 +25,7 @@ import { t } from 'i18next'
 import Spinner from 'src/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
 import { useTranslation } from 'react-i18next'
-import { getProductDetailPublicBySlug } from 'src/services/product'
+import { getListRelatedProductBySlug, getProductDetailPublicBySlug } from 'src/services/product'
 import { useRouter } from 'next/router'
 import { TProduct } from 'src/types/product'
 import Image from 'next/image'
@@ -38,6 +38,9 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import { updateProductToCart } from 'src/stores/order-product'
+import NoData from 'src/components/no-data'
+import ProductCard from '../components/ProductCard'
+import RelatedProduct from '../components/RelatedProduct'
 
 type TProps = {}
 
@@ -55,6 +58,8 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const router = useRouter();
     const productId = router.query.productId as string
     const [productData, setProductData] = useState<TProduct | any>({})
+    const [listRelatedProduct, setListRelatedProduct] = useState<TProduct[]>([])
+
     const [productAmount, setProductAmount] = useState<number>(1)
 
     //hooks
@@ -78,6 +83,21 @@ const ProductDetailPage: NextPage<TProps> = () => {
                 const data = response?.data
                 if (data) {
                     setProductData(data)
+                }
+            })
+            .catch(() => {
+                setLoading(false)
+            })
+    }
+
+    const fetchGetListRelatedProduct = async (slug: string) => {
+        setLoading(true)
+        await getListRelatedProductBySlug({ params: { slug: slug } })
+            .then(async response => {
+                setLoading(false)
+                const data = response?.data
+                if (data) {
+                    setListRelatedProduct(data.products)
                 }
             })
             .catch(() => {
@@ -120,6 +140,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
     useEffect(() => {
         if (productId) {
             fetchGetProductDetail(productId)
+            fetchGetListRelatedProduct(productId)
         }
     }, [productId])
 
@@ -346,7 +367,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                 </Grid>
                 <Grid container md={12} xs={12} mt={6}>
                     <Grid container>
-                        <Grid container item md={8} xs={12} sx={{
+                        <Grid container item md={9} xs={12} sx={{
                             backgroundColor: theme.palette.background.paper,
                             borderRadius: "15px",
                             py: 5, px: 4, mt: 6
@@ -380,7 +401,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     }} />
                             </Box>
                         </Grid>
-                        <Grid container item md={4} xs={12}>
+                        <Grid container item md={3} xs={12}>
                             <Box sx={{
                                 width: "100%",
                                 height: "100%",
@@ -390,7 +411,41 @@ const ProductDetailPage: NextPage<TProps> = () => {
                             }}
                                 marginLeft={{ md: 5, xs: 0 }}
                             >
-
+                                <Box sx={{
+                                    display: "flex", alignItems: "center", gap: 2, mt: 2,
+                                    backgroundColor: theme.palette.customColors.bodyBg,
+                                    padding: "8px",
+                                    borderRadius: "8px"
+                                }}>
+                                    <Typography variant="h6" sx={{
+                                        color: `rgba(${theme.palette.customColors.main}, 0.68)`,
+                                        fontWeight: "bold",
+                                        fontSize: "18px"
+                                    }}>
+                                        {t("related_products")}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{
+                                    mt: 4,
+                                    padding: 5,
+                                }}>
+                                    {listRelatedProduct.length > 0 ? (
+                                        <>
+                                            {listRelatedProduct.map((item: any) => {
+                                                return (
+                                                    <RelatedProduct item={item} key={item._id} />
+                                                )
+                                            })}
+                                        </>
+                                    ) : (
+                                        <Box sx={{
+                                            padding: "20px",
+                                            width: "100%",
+                                        }}>
+                                            <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
+                                        </Box>
+                                    )}
+                                </Box>
                             </Box>
                         </Grid>
                         <Grid container item md={8} xs={12} sx={{
@@ -410,7 +465,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                         </Grid>
                     </Grid>
                 </Grid>
-            </Grid>
+            </Grid >
         </>
     )
 }

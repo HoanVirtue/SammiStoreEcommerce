@@ -4,10 +4,20 @@ import { Box, BoxProps, FormControlLabel, Radio, RadioGroup } from '@mui/materia
 import { useTranslation } from 'react-i18next';
 import { FormControl, FormLabel } from '@mui/material';
 import { REVIEW_PRODUCT_FILTER } from 'src/configs/product';
+import { IconButton } from '@mui/material';
+import IconifyIcon from 'src/components/Icon';
+import { Tooltip } from '@mui/material';
 
 
 interface TProductFilter {
-    handleProductFilter: (value: string) => void
+    handleProductFilter: (value: string, type: string) => void
+    cityOptions: {
+        label: string,
+        value: string
+    }[]
+    handleReset: () => void
+    selectedLocation: string
+    selectedReview: string
 }
 
 const StyledProductFilter = styled(Box)<BoxProps>(({ theme }) => ({
@@ -21,7 +31,7 @@ const StyledProductFilter = styled(Box)<BoxProps>(({ theme }) => ({
 const ProductFilter = (props: TProductFilter) => {
 
     //props
-    const { handleProductFilter } = props
+    const { handleProductFilter, cityOptions, selectedLocation, selectedReview, handleReset } = props
 
     //state
 
@@ -33,34 +43,73 @@ const ProductFilter = (props: TProductFilter) => {
 
     const listReviewProduct = REVIEW_PRODUCT_FILTER()
 
-    const onChangeProductFilter = (e: React.ChangeEvent<HTMLInputElement>) =>{
-        handleProductFilter(e.target.value)
+    const onChangeFilter = (value: string, type: string) => {
+        handleProductFilter(value, type)
+    }
+
+    const handleResetFilter = () => {
+        handleReset()
     }
 
     return (
-        <StyledProductFilter sx={{ width: "100%" }}>
-            <FormControl>
-                <FormLabel id="radio-review-group" sx={{ 
-                    fontWeight: "bold",
-                    color: theme.palette.primary.main
-                 }}>{t("review")}</FormLabel>
-                <RadioGroup
-                    aria-labelledby="radio-review-group"
-                    name="radio-review-group"
-                    onChange={onChangeProductFilter}
-                >
-                    {listReviewProduct.map((review) => {
-                        return (
-                            <FormControlLabel
-                                key={review.value}
-                                value={review.value}
-                                control={<Radio />}
-                                label={review.label}
-                            />
-                        )
-                    })}
-                </RadioGroup>
-            </FormControl>
+        <StyledProductFilter sx={{ width: "100%", padding: 4 }}>
+            {Boolean(selectedLocation || selectedReview) && (
+                <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
+                    <Tooltip title={t("reset_filter")}>
+                        <IconButton onClick={() => handleResetFilter()}>
+                            <IconifyIcon icon="mdi:delete-outline" />
+                        </IconButton>
+                    </Tooltip>
+                </Box>
+            )}
+            <Box>
+                <FormControl>
+                    <FormLabel id="radio-review-group" sx={{
+                        fontWeight: "bold",
+                        color: theme.palette.primary.main
+                    }}>{t("review")}</FormLabel>
+                    <RadioGroup
+                        aria-labelledby="radio-review-group"
+                        name="radio-review-group"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChangeFilter(e.target.value, "review")}
+                    >
+                        {listReviewProduct.map((review) => {
+                            return (
+                                <FormControlLabel
+                                    key={review.value}
+                                    value={review.value}
+                                    control={<Radio checked={review.value === selectedReview} />}
+                                    label={review.label}
+                                />
+                            )
+                        })}
+                    </RadioGroup>
+                </FormControl>
+            </Box>
+            <Box sx={{ mt: 2 }}>
+                <FormControl>
+                    <FormLabel id="radio-review-group" sx={{
+                        fontWeight: "bold",
+                        color: theme.palette.primary.main
+                    }}>{t("location")}</FormLabel>
+                    <RadioGroup
+                        aria-labelledby="radio-review-group"
+                        name="radio-review-group"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChangeFilter(e.target.value, "location")}
+                    >
+                        {cityOptions.map((city) => {
+                            return (
+                                <FormControlLabel
+                                    key={city.value}
+                                    value={city.value}
+                                    control={<Radio checked={city.value === selectedLocation} />}
+                                    label={city.label}
+                                />
+                            )
+                        })}
+                    </RadioGroup>
+                </FormControl>
+            </Box>
         </StyledProductFilter>
     )
 }

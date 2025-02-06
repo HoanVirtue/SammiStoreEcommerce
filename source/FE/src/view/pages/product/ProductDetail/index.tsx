@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Rating, useTheme } from '@mui/material'
+import { IconButton, Rating, useTheme } from '@mui/material'
 import { Box, Button } from '@mui/material'
 
 
@@ -25,14 +25,22 @@ import { t } from 'i18next'
 import Spinner from 'src/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
 import { useTranslation } from 'react-i18next'
-import { getProductDetailPublicBySlug } from 'src/services/product'
+import { getListRelatedProductBySlug, getProductDetailPublicBySlug } from 'src/services/product'
 import { useRouter } from 'next/router'
 import { TProduct } from 'src/types/product'
 import Image from 'next/image'
 import { Typography } from '@mui/material'
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
 import IconifyIcon from 'src/components/Icon'
-import { formatPrice } from 'src/utils'
+import { convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils'
+import CustomTextField from 'src/components/text-field'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from 'src/stores'
+import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
+import { updateProductToCart } from 'src/stores/order-product'
+import NoData from 'src/components/no-data'
+import ProductCard from '../components/ProductCard'
+import RelatedProduct from '../components/RelatedProduct'
 
 type TProps = {}
 
@@ -50,10 +58,17 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const router = useRouter();
     const productId = router.query.productId as string
     const [productData, setProductData] = useState<TProduct | any>({})
+    const [listRelatedProduct, setListRelatedProduct] = useState<TProduct[]>([])
+
+    const [productAmount, setProductAmount] = useState<number>(1)
 
     //hooks
-    const { setUser } = useAuth()
+    const { user } = useAuth()
     const { i18n } = useTranslation();
+
+    //redux
+    const { orderItems } = useSelector((state: RootState) => state.orderProduct)
+    const dispatch: AppDispatch = useDispatch();
 
     //Theme
     const theme = useTheme();
@@ -75,13 +90,65 @@ const ProductDetailPage: NextPage<TProps> = () => {
             })
     }
 
+    const fetchGetListRelatedProduct = async (slug: string) => {
+        setLoading(true)
+        await getListRelatedProductBySlug({ params: { slug: slug } })
+            .then(async response => {
+                setLoading(false)
+                const data = response?.data
+                if (data) {
+                    setListRelatedProduct(data.products)
+                }
+            })
+            .catch(() => {
+                setLoading(false)
+            })
+    }
+
+    //handler
+    const handleUpdateProductToCart = (item: TProduct) => {
+        const productCart = getLocalProductFromCart()
+        const parseData = productCart ? JSON.parse(productCart) : {}
+        const discountItem = item.discountStartDate && item.discountEndDate && isExpired(item?.discountStartDate, item.discountEndDate) ? item.discount : 0
+        const listOrderItems = convertUpdateProductToCart(orderItems, {
+            name: item?.name,
+            amount: productAmount,
+            image: item?.image,
+            price: item?.price,
+            discount: discountItem,
+            product: item._id,
+            slug: item?.slug
+        })
+        if (user?._id) {
+            dispatch(
+                updateProductToCart({
+                    orderItems: listOrderItems
+                })
+            )
+            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
+        } else {
+            router.replace({
+                pathname: '/login',
+                query: {
+                    returnUrl: router.asPath
+                }
+            })
+        }
+    }
+
 
     useEffect(() => {
         if (productId) {
             fetchGetProductDetail(productId)
+            fetchGetListRelatedProduct(productId)
         }
     }, [productId])
 
+    const memoCheckExpire = React.useMemo(() => {
+        if (productData.discountStartDate && productData.discountEndDate) {
+            return isExpired(productData.discountStartDate, productData.discountEndDate);
+        }
+    }, [productData])
 
     return (
         <>
@@ -100,7 +167,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                             <Grid item md={5} xs={12}>
                                 <Image src={productData?.image}
                                     alt={productData?.name}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-[300px] max-h-[400px] object-cover"
                                     objectFit="contain"
                                     width={0}
                                     height={0}
@@ -173,13 +240,19 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         </Typography>
                                     )}
                                 </Box>
+                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+                                    <IconifyIcon icon="carbon:location" width={20} height={20} />
+                                    <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
+                                        {productData?.location?.name}
+                                    </Typography>
+                                </Box>
                                 <Box sx={{
                                     display: "flex", alignItems: "center", gap: 2, mt: 2,
                                     backgroundColor: theme.palette.customColors.bodyBg,
                                     padding: "8px",
                                     borderRadius: "8px"
                                 }}>
-                                    {productData?.discount > 0 && (
+                                    {productData?.discount > 0 && memoCheckExpire && (
                                         <Typography variant="h6" sx={{
                                             color: theme.palette.error.main,
                                             fontWeight: "bold",
@@ -194,7 +267,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         fontWeight: "bold",
                                         fontSize: "24px"
                                     }}>
-                                        {productData?.discount > 0 ? (
+                                        {productData?.discount > 0 && memoCheckExpire ? (
                                             <>
                                                 {formatPrice(productData?.price - (productData?.price * productData?.discount / 100))} VND
                                             </>
@@ -204,7 +277,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             </>
                                         )}
                                     </Typography>
-                                    {productData?.discount > 0 && (
+                                    {productData?.discount > 0 && memoCheckExpire && (
                                         <Box sx={{
                                             backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
                                             width: "fit-content",
@@ -227,6 +300,48 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         </Box>
                                     )}
                                 </Box>
+                                <Box sx={{}}>
+                                    <IconButton onClick={() => {
+                                        if (productAmount > 1) {
+                                            setProductAmount((prev) => prev - 1)
+                                        }
+                                    }}>
+                                        <IconifyIcon icon="eva:minus-fill" />
+                                    </IconButton>
+                                    <CustomTextField
+                                        type='number'
+                                        value={productAmount}
+                                        InputProps={{
+                                            inputMode: "numeric",
+                                            inputProps: {
+                                                min: 1,
+                                                max: productData?.countInStock
+                                            }
+                                        }}
+                                        onChange={(e) => {
+                                            setProductAmount(+e.target.value);
+                                        }}
+                                        sx={{
+                                            ".MuiInputBase-root.MuiFilledInput-root": {
+                                                width: "50px",
+                                                border: "none",
+                                            },
+                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button': {
+                                                WebkitAppearance: "none",
+                                                margin: 0
+                                            },
+                                            'input[type=number]': {
+                                                MozAppearance: "textfield"
+                                            }
+                                        }} />
+                                    <IconButton onClick={() => {
+                                        if (productAmount < productData?.countInStock) {
+                                            setProductAmount((prev) => prev + 1)
+                                        }
+                                    }}>
+                                        <IconifyIcon icon="ic:round-plus" />
+                                    </IconButton>
+                                </Box>
                                 <Box sx={{
                                     display: "flex",
                                     alignItems: "center",
@@ -235,6 +350,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     mt: 4
                                 }}>
                                     <Button variant="outlined"
+                                        onClick={() => handleUpdateProductToCart(productData)}
                                         startIcon={<IconifyIcon icon="bx:cart" />}
                                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                                         {t('add_to_cart')}
@@ -249,34 +365,107 @@ const ProductDetailPage: NextPage<TProps> = () => {
                         </Grid>
                     </Box>
                 </Grid>
-                <Grid container item md={12} xs={12} sx={{
-                    backgroundColor: theme.palette.background.paper,
-                    borderRadius: "15px",
-                    py: 5, px: 4, mt: 6
-                }} >
-                    <Box sx={{
-                        width: "100%",
-                        height: "100%",
-                    }}>
-                        <Box sx={{
-                            display: "flex", alignItems: "center", gap: 2, mt: 2,
-                            backgroundColor: theme.palette.customColors.bodyBg,
-                            padding: "8px",
-                            borderRadius: "8px"
-                        }}>
-                            <Typography variant="h6" sx={{
-                                color: `rgba(${theme.palette.customColors.main}, 0.68)`,
-                                fontWeight: "bold",
-                                fontSize: "18px"
+                <Grid container md={12} xs={12} mt={6}>
+                    <Grid container>
+                        <Grid container item md={9} xs={12} sx={{
+                            backgroundColor: theme.palette.background.paper,
+                            borderRadius: "15px",
+                            py: 5, px: 4, mt: 6
+                        }} >
+                            <Box sx={{
+                                width: "100%",
+                                height: "100%",
                             }}>
-                                {t("product_description")}
-                            </Typography>
-                        </Box>
-                        <Box dangerouslySetInnerHTML={{ __html: productData?.description }}
-                            sx={{ mt: 4 }} />
-                    </Box>
+                                <Box sx={{
+                                    display: "flex", alignItems: "center", gap: 2, mt: 2,
+                                    backgroundColor: theme.palette.customColors.bodyBg,
+                                    padding: "8px",
+                                    borderRadius: "8px"
+                                }}>
+                                    <Typography variant="h6" sx={{
+                                        color: `rgba(${theme.palette.customColors.main}, 0.68)`,
+                                        fontWeight: "bold",
+                                        fontSize: "18px"
+                                    }}>
+                                        {t("product_description")}
+                                    </Typography>
+                                </Box>
+                                <Box dangerouslySetInnerHTML={{ __html: productData?.description }}
+                                    sx={{
+                                        mt: 4,
+                                        padding: 5,
+                                        borderRadius: "10px",
+                                        backgroundColor: theme.palette.customColors.bodyBg,
+                                        color: `rgba(${theme.palette.customColors.main}, 0.42)`,
+                                        fontSize: "14px"
+                                    }} />
+                            </Box>
+                        </Grid>
+                        <Grid container item md={3} xs={12}>
+                            <Box sx={{
+                                width: "100%",
+                                height: "100%",
+                                backgroundColor: theme.palette.background.paper,
+                                borderRadius: "15px",
+                                py: 5, px: 4, mt: 6
+                            }}
+                                marginLeft={{ md: 5, xs: 0 }}
+                            >
+                                <Box sx={{
+                                    display: "flex", alignItems: "center", gap: 2, mt: 2,
+                                    backgroundColor: theme.palette.customColors.bodyBg,
+                                    padding: "8px",
+                                    borderRadius: "8px"
+                                }}>
+                                    <Typography variant="h6" sx={{
+                                        color: `rgba(${theme.palette.customColors.main}, 0.68)`,
+                                        fontWeight: "bold",
+                                        fontSize: "18px"
+                                    }}>
+                                        {t("related_products")}
+                                    </Typography>
+                                </Box>
+                                <Box sx={{
+                                    mt: 4,
+                                    padding: 5,
+                                }}>
+                                    {listRelatedProduct.length > 0 ? (
+                                        <>
+                                            {listRelatedProduct.map((item: any) => {
+                                                return (
+                                                    <RelatedProduct item={item} key={item._id} />
+                                                )
+                                            })}
+                                        </>
+                                    ) : (
+                                        <Box sx={{
+                                            padding: "20px",
+                                            width: "100%",
+                                        }}>
+                                            <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
+                                        </Box>
+                                    )}
+                                </Box>
+                            </Box>
+                        </Grid>
+                        <Grid container item md={8} xs={12} sx={{
+                            backgroundColor: theme.palette.background.paper,
+                            borderRadius: "15px",
+                            py: 5, px: 4, mt: 6
+                        }} >
+                            <Box sx={{
+                                width: "100%",
+                                height: "100%",
+                                backgroundColor: theme.palette.background.paper,
+                                borderRadius: "15px",
+                                py: 5, px: 4, mt: 6
+                            }}>
+
+                            </Box>
+                        </Grid>
+                    </Grid>
                 </Grid>
-            </Grid>
+            </Grid >
         </>
     )
 }

@@ -38,6 +38,7 @@ import CustomEditor from "src/components/custom-editor";
 import { convertToRaw, EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 import { getProductDetail } from "src/services/product";
+import { getAllCities } from "src/services/city";
 
 interface TCreateUpdateProduct {
     open: boolean
@@ -48,6 +49,7 @@ interface TCreateUpdateProduct {
 type TDefaultValues = {
     name: string,
     category: string,
+    location: string,
     discount?: string | null,
     price: string,
     description: EditorState,
@@ -64,6 +66,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     const [loading, setLoading] = useState(false)
     const [productImage, setProductImage] = useState("")
     const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>([])
+    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
 
     //props
     const { open, onClose, idProduct } = props
@@ -81,6 +84,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         name: yup.string().required("Product name is required"),
         slug: yup.string().required("Product slug is required"),
         category: yup.string().required("Product category is required"),
+        location: yup.string().required("Product location is required"),
         countInStock: yup.string().required("countInStock is required")
             .test('least_count', t('at_least_count'), (value) => Number(value) >= 1),
         discount: yup.string().notRequired()
@@ -140,6 +144,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     const defaultValues: TDefaultValues = {
         name: '',
         category: '',
+        location: '',
         discount: '',
         price: '',
         description: EditorState.createEmpty(),
@@ -165,6 +170,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                     id: idProduct,
                     name: data?.name,
                     type: data?.category,
+                    location: data?.location,
                     discount: Number(data?.discount) || 0,
                     description: data?.description ? draftToHtml(convertToRaw(data?.description.getCurrentContent())) : "",
                     slug: data?.slug,
@@ -180,6 +186,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                 dispatch(createProductAsync({
                     name: data?.name,
                     type: data?.category,
+                    location: data?.location,
                     discount: Number(data?.discount) || 0,
                     description: data?.description ? draftToHtml(convertToRaw(data?.description.getCurrentContent())) : "",
                     slug: data?.slug,
@@ -208,6 +215,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                 reset({
                     name: data?.name,
                     category: data?.type,
+                    location: data?.location,
                     discount: data?.discount || '',
                     price: data?.price,
                     description: data?.description ? convertHTMLToDraft(data?.description) : '',
@@ -241,6 +249,22 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         })
     }
 
+    const fetchAllCities = async () => {
+        setLoading(true)
+        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
+            const data = res?.data?.cities
+            if (data) {
+                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
+                    label: item.name,
+                    value: item._id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
+    }
+
     useEffect(() => {
         if (!open) {
             reset({
@@ -256,6 +280,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
 
     useEffect(() => {
         fetchAllProductCategories()
+        fetchAllCities()
     }, [])
 
     return (
@@ -443,7 +468,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                             }
                                                                             sx={{
                                                                                 '& .MuiSwitch-switchBase': {
-                                                                                    color: theme.palette.common.white, 
+                                                                                    color: theme.palette.common.white,
                                                                                 },
                                                                                 '& .MuiSwitch-switchBase.Mui-checked': {
                                                                                 },
@@ -610,6 +635,40 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                         />
                                                     )}
                                                     name='discountEndDate'
+                                                />
+                                            </Grid>
+                                            <Grid item md={6} xs={12} >
+                                                <Controller
+                                                    control={control}
+                                                    name='location'
+                                                    render={({ field: { onChange, onBlur, value } }) => (
+                                                        <Box>
+                                                            <InputLabel sx={{
+                                                                fontSize: "13px",
+                                                                mb: "4px",
+                                                                display: "block",
+                                                                color: errors?.location ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
+                                                            }}>
+                                                                {t('location')}
+                                                            </InputLabel>
+                                                            <CustomSelect
+                                                                fullWidth
+                                                                onChange={onChange}
+                                                                onBlur={onBlur}
+                                                                value={value}
+                                                                options={cityOptions}
+                                                                placeholder={t('Select_product_location')}
+                                                                error={errors.location ? true : false}
+                                                            />
+                                                            {errors?.location?.message && (
+                                                                <FormHelperText sx={{
+                                                                    color: errors?.location ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
+                                                                }}>
+                                                                    {errors?.location?.message}
+                                                                </FormHelperText>
+                                                            )}
+                                                        </Box>
+                                                    )}
                                                 />
                                             </Grid>
                                             <Grid item md={12} xs={12} >

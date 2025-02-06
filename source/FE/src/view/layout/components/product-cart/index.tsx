@@ -23,10 +23,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
 import { TItemOrderProduct } from "src/types/order-product";
 import { getLocalProductFromCart } from "src/helpers/storage";
-import { addProductToCart } from "src/stores/order-product";
+import { updateProductToCart } from "src/stores/order-product";
 import { hexToRGBA } from "src/utils/hex-to-rgba";
 import { formatPrice } from "src/utils";
 import { ROUTE_CONFIG } from "src/configs/route";
+import NoData from "src/components/no-data";
 
 type TProps = {}
 
@@ -69,7 +70,7 @@ const ProductCart = (props: TProps) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
         if (user?._id) {
-            dispatch(addProductToCart({
+            dispatch(updateProductToCart({
                 orderItems: parseData[user?._id] || []
             }))
         }
@@ -142,52 +143,63 @@ const ProductCart = (props: TProps) => {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                {orderItems.map((item: TItemOrderProduct) => {
-                    return (
-                        <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>
-                            <Avatar src={item?.image} />
-                            <Box sx={{
+                {orderItems.length > 0 ? (
+                    <>
+                        {orderItems.map((item: TItemOrderProduct) => {
+                            return (
+                                <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>
+                                    <Avatar src={item?.image} />
+                                    <Box sx={{
 
-                            }}>
-                                <Typography>{item?.name}</Typography>
-                                <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                    {item?.discount > 0 && (
-                                        <Typography variant="h6" sx={{
-                                            color: theme.palette.error.main,
-                                            fontWeight: "bold",
-                                            textDecoration: "line-through",
-                                            fontSize: "10px"
-                                        }}>
-                                            {formatPrice(item?.price)} VND
-                                        </Typography>
-                                    )}
-                                    <Typography variant="h4" sx={{
-                                        color: theme.palette.primary.main,
-                                        fontWeight: "bold",
-                                        fontSize: "12px"
                                     }}>
-                                        {item?.discount > 0 ? (
-                                            <>
-                                                {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
-                                            </>
-                                        ) : (
-                                            <>
-                                                {formatPrice(item?.price)} VND
-                                            </>
-                                        )}
-                                    </Typography>
-                                </Box>
-                            </Box>
-                        </StyledMenuItem>
-                    )
-                })}
-                <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
-                    <Button type="submit" variant="contained"
-                        onClick={handleNavigateMyCart}
-                        sx={{ mt: 3, mb: 2, py: 1.5, mr: 2 }}>
-                        {t('view_cart')}
-                    </Button>
-                </Box>
+                                        <Typography>{item?.name}</Typography>
+                                        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                            {item?.discount > 0 && (
+                                                <Typography variant="h6" sx={{
+                                                    color: theme.palette.error.main,
+                                                    fontWeight: "bold",
+                                                    textDecoration: "line-through",
+                                                    fontSize: "10px"
+                                                }}>
+                                                    {formatPrice(item?.price)} VND
+                                                </Typography>
+                                            )}
+                                            <Typography variant="h4" sx={{
+                                                color: theme.palette.primary.main,
+                                                fontWeight: "bold",
+                                                fontSize: "12px"
+                                            }}>
+                                                {item?.discount > 0 ? (
+                                                    <>
+                                                        {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {formatPrice(item?.price)} VND
+                                                    </>
+                                                )}
+                                            </Typography>
+                                        </Box>
+                                    </Box>
+                                </StyledMenuItem>
+                            )
+                        })}
+                        <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
+                            <Button type="submit" variant="contained"
+                                onClick={handleNavigateMyCart}
+                                sx={{ mt: 3, mb: 2, py: 1.5, mr: 2 }}>
+                                {t('view_cart')}
+                            </Button>
+                        </Box>
+                    </>
+                ) : (
+                    <Box sx={{
+                        padding: "20px",
+                        width: "100px",
+                    }}>
+                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
+                    </Box>
+                )}
             </Menu>
         </React.Fragment>
     )

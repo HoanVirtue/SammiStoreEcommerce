@@ -10,14 +10,15 @@ export type TParamsGetAllProducts = {
 export type TParamsCreateProduct = {
     name: string,
     type: string,
-    discount?: number,
+    location: string,
+    discount: number,
     price: number,
     description: string,
     slug: string,
     countInStock: number,
     status: number,
-    discountStartDate?: Date | null,
-    discountEndDate?: Date | null,
+    discountStartDate: Date | null,
+    discountEndDate: Date | null,
     image: string
 }
 
@@ -25,14 +26,15 @@ export type TParamsUpdateProduct = {
     id: string,
     name: string,
     type: string,
-    discount?: number,
+    location: string,
+    discount: number,
     price: number,
     description: string,
     slug: string,
     countInStock: number,
     status: number,
-    discountStartDate?: Date | null,
-    discountEndDate?: Date | null,
+    discountStartDate: Date | null,
+    discountEndDate: Date | null,
     image: string
 }
 
@@ -59,4 +61,16 @@ export type TProduct = {
     discount: number,
     totalReviews: number,
     sold: number,
+    location: {
+        name: string,
+        _id: string
+    }
+}
+
+export type TParamsGetRelatedProduct = {
+    limit?: number,
+    page?: number,
+    search?: string,
+    order?: string
+    slug: string   
 }

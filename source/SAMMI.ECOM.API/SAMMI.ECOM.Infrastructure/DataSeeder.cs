@@ -304,6 +304,17 @@ namespace SAMMI.ECOM.Infrastructure
                     CreatedDate = DateTime.Now,
                     CreatedBy = "Unknown"
                 });
+
+
+                try
+                {
+                    await _context.UserRoles.AddRangeAsync(userRoles);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
             }
         }
 

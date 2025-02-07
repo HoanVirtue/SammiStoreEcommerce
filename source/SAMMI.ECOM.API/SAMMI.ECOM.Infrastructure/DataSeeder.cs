@@ -1,6 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
+using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Enums;
+using System.Data;
 using System.Text.Json.Serialization;
 
 namespace SAMMI.ECOM.Infrastructure
@@ -137,11 +140,182 @@ namespace SAMMI.ECOM.Infrastructure
             }
         }
 
+        private async Task SeedPermission()
+        {
+            if (!await _context.Permissions.AnyAsync())
+            {
+                List<Permission> permissions = new List<Permission>();
+                permissions.Add(new Permission()
+                {
+                    Name = "Quản lý nhân viên",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                permissions.Add(new Permission()
+                {
+                    Name = "Quản lý khách hàng",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                permissions.Add(new Permission()
+                {
+                    Name = "Quản lý phiếu giảm giá",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                try
+                {
+                    await _context.Permissions.AddRangeAsync(permissions);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        private async Task SeedRole()
+        {
+            if (!await _context.Roles.AnyAsync())
+            {
+                List<Role> roles = new List<Role>();
+                roles.Add(new Role()
+                {
+                    Name = "Quản lý",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                roles.Add(new Role()
+                {
+                    Name = "Nhân viên",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                try
+                {
+                    await _context.Roles.AddRangeAsync(roles);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        private async Task SeedRolePermission()
+        {
+            if (!await _context.RolePermissions.AnyAsync())
+            {
+                List<RolePermission> rolePermissions = new List<RolePermission>();
+                rolePermissions.Add(new RolePermission()
+                {
+                    RoleId = 1,
+                    PermissionId = 1,
+                    Allow = true,
+                    RoleView = true,
+                    RoleCreate = true,
+                    RoleUpdate = true,
+                    RoleDelete = true,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                rolePermissions.Add(new RolePermission()
+                {
+                    RoleId = 1,
+                    PermissionId = 2,
+                    Allow = true,
+                    RoleView = true,
+                    RoleCreate = true,
+                    RoleUpdate = true,
+                    RoleDelete = true,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                rolePermissions.Add(new RolePermission()
+                {
+                    RoleId = 1,
+                    PermissionId = 3,
+                    Allow = true,
+                    RoleView = true,
+                    RoleCreate = true,
+                    RoleUpdate = true,
+                    RoleDelete = true,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                rolePermissions.Add(new RolePermission()
+                {
+                    RoleId = 2,
+                    PermissionId = 2,
+                    Allow = true,
+                    RoleView = true,
+                    RoleCreate = true,
+                    RoleUpdate = true,
+                    RoleDelete = true,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                try
+                {
+                    await _context.RolePermissions.AddRangeAsync(rolePermissions);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        private async Task SeedUserRole()
+        {
+            if (!await _context.UserRoles.AnyAsync())
+            {
+                List<UserRole> userRoles = new List<UserRole>();
+                userRoles.Add(new UserRole()
+                {
+                    RoleId = 1,
+                    UserId = 1,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+            }
+        }
+
 
         public async Task SeedAsync()
         {
             await SeedAddress();
             await SeedUsers();
+            await SeedPermission();
+            await SeedRole();
+            await SeedRolePermission();
+            await SeedUserRole();
         }
     }
 }

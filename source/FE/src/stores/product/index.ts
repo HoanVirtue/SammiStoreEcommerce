@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
-import { createProductAsync, deleteMultipleProductsAsync, deleteProductAsync, getAllProductsAsync, likeProductAsync, serviceName, unlikeProductAsync, updateProductAsync } from './action'
+import { createProductAsync, deleteMultipleProductsAsync, deleteProductAsync, getAllLikedProductsAsync, getAllProductsAsync, getAllViewedProductsAsync, likeProductAsync, serviceName, unlikeProductAsync, updateProductAsync } from './action'
 
 const initialState = {
   isLoading: false,
@@ -29,6 +29,14 @@ const initialState = {
   errorMessageUnlike: '',
 
   products: {
+    data: [],
+    total: 0
+  },
+  likedProducts: {
+    data: [],
+    total: 0
+  },
+  viewedProducts: {
     data: [],
     total: 0
   }
@@ -180,6 +188,37 @@ export const productSlice = createSlice({
       state.isLoading = false
       state.isErrorUnlike = true
       state.errorMessageUnlike = action?.error?.message || 'Error unliking Product'
+    })
+
+
+    //get all liked Product
+    builder.addCase(getAllLikedProductsAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(getAllLikedProductsAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.likedProducts.data = Array.isArray(action?.payload?.data?.products) ? action?.payload?.data?.products : [];
+      state.likedProducts.total = action?.payload?.data?.totalCount
+    })
+    builder.addCase(getAllLikedProductsAsync.rejected, (state, action) => {
+      state.isLoading = false
+      state.likedProducts.data = []
+      state.likedProducts.total = 0
+    })
+
+    //get all viewed Product
+    builder.addCase(getAllViewedProductsAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(getAllViewedProductsAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.viewedProducts.data = Array.isArray(action?.payload?.data?.products) ? action?.payload?.data?.products : [];
+      state.viewedProducts.total = action?.payload?.data?.totalCount
+    })
+    builder.addCase(getAllViewedProductsAsync.rejected, (state, action) => {
+      state.isLoading = false
+      state.viewedProducts.data = []
+      state.viewedProducts.total = 0
     })
   }
 })

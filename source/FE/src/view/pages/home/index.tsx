@@ -139,6 +139,7 @@ const HomePage: NextPage<TProps> = () => {
     const handleOnChangePagination = (page: number, pageSize: number) => {
         setPage(page)
         setPageSize(pageSize)
+        setSearchBy("")
     }
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
@@ -210,22 +211,24 @@ const HomePage: NextPage<TProps> = () => {
                 padding: '20px',
                 height: 'fit-content',
             }}>
-                <StyledTabs
-                    value={selectedProductCategory}
-                    onChange={handleChange}
-                    aria-label="wrapped label tabs example"
-                >
-                    {categoryOptions.map((option) => {
-                        return (
-                            <Tab
-                                key={option.value}
-                                value={option.value}
-                                label={option.label}
-                                wrapped
-                            />
-                        )
-                    })}
-                </StyledTabs>
+                <Box sx={{width: '100%', height: 'fit-content'}}>
+                    <StyledTabs
+                        value={selectedProductCategory}
+                        onChange={handleChange}
+                        aria-label="wrapped label tabs example"
+                    >
+                        {categoryOptions.map((option) => {
+                            return (
+                                <Tab
+                                    key={option.value}
+                                    value={option.value}
+                                    label={option.label}
+                                    wrapped
+                                />
+                            )
+                        })}
+                    </StyledTabs>
+                </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
                     <Box sx={{ width: '300px' }}>
                         <SearchField value={searchBy} placeholder={t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
@@ -270,7 +273,7 @@ const HomePage: NextPage<TProps> = () => {
                     pageSizeOptions={PAGE_SIZE_OPTIONS}
                     onChangePagination={handleOnChangePagination}
                     page={page}
-                    rowLength={10}
+                    rowLength={publicProducts.total}
                     isHidden
                 />
             </Box >

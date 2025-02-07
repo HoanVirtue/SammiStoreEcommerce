@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateProductToCart } from 'src/stores/order-product';
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
 import { useAuth } from 'src/hooks/useAuth';
+import { likeProductAsync, unlikeProductAsync } from 'src/stores/product/action';
 
 
 interface ExpandMoreProps extends IconButtonProps {
@@ -63,6 +64,7 @@ const ProductCard = (props: TProductCard) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
         const discountItem = item.discountStartDate && item.discountEndDate && isExpired(item?.discountStartDate, item.discountEndDate) ? item.discount : 0
+
         const listOrderItems = convertUpdateProductToCart(orderItems, {
             name: item?.name,
             amount: 1,
@@ -89,7 +91,25 @@ const ProductCard = (props: TProductCard) => {
         }
     }
 
-    const memoCheckExpire = React.useMemo(() => {
+    const handleToggleFavoriteProduct = (id: string, isLiked: boolean) => {
+        if (user?._id) {
+            if (isLiked) {
+                dispatch(unlikeProductAsync({ productId: id }))
+            } else {
+                dispatch(likeProductAsync({ productId: id }))
+            }
+        } else {
+            router.replace({
+                pathname: '/login',
+                query: {
+                    returnUrl: router.asPath
+                }
+            })
+        }
+    }
+
+
+    const memoCheckExpire = useMemo(() => {
         if (item.discountStartDate && item.discountEndDate) {
             return isExpired(item.discountStartDate, item.discountEndDate);
         }
@@ -97,8 +117,13 @@ const ProductCard = (props: TProductCard) => {
 
     return (
         <StyledCard sx={{ width: "100%" }}>
-            <IconButton aria-label="add to favorites" sx={{ position: "absolute", top: "8px", right: "8px" }}>
-                <IconifyIcon icon="mdi:heart" />
+            <IconButton onClick={() => handleToggleFavoriteProduct(item?._id, Boolean(user && item?.likedBy?.includes(user._id)))}
+                aria-label="add to favorites" sx={{ position: "absolute", top: "8px", right: "8px" }}>
+                {user && item?.likedBy?.includes(user._id) ? (
+                    <IconifyIcon icon="mdi:heart" color={theme.palette.primary.main} />
+                ) : (
+                    <IconifyIcon icon="tabler:heart" color={theme.palette.primary.main} />
+                )}
             </IconButton>
             {/* <CardHeader
                 avatar={

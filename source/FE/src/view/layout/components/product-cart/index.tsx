@@ -144,7 +144,7 @@ const ProductCart = (props: TProps) => {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 {orderItems.length > 0 ? (
-                    <>
+                    <Box sx={{maxHeight: "300px", overflow: "auto"}}>
                         {orderItems.map((item: TItemOrderProduct) => {
                             return (
                                 <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>
@@ -191,7 +191,7 @@ const ProductCart = (props: TProps) => {
                                 {t('view_cart')}
                             </Button>
                         </Box>
-                    </>
+                    </Box>
                 ) : (
                     <Box sx={{
                         padding: "20px",

@@ -62,9 +62,10 @@ export type TProduct = {
     totalReviews: number,
     sold: number,
     location: {
-        name: string,
+        name: string,   
         _id: string
-    }
+    },
+    likedBy: string[],
 }
 
 export type TParamsGetRelatedProduct = {

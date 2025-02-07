@@ -205,16 +205,14 @@ const MyCartPage: NextPage<TProps> = () => {
                                                     <Typography fontSize={"24px"}>{item?.name}</Typography>
                                                 </Grid>
                                                 <Grid item md={2}>
-                                                    {item?.discount > 0 && (
-                                                        <Typography variant="h6" sx={{
-                                                            color: theme.palette.error.main,
-                                                            fontWeight: "bold",
-                                                            textDecoration: "line-through",
-                                                            fontSize: "14px"
-                                                        }}>
-                                                            {formatPrice(item?.price)} VND
-                                                        </Typography>
-                                                    )}
+                                                    <Typography variant="h6" sx={{
+                                                        color: item?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
+                                                        fontWeight: "bold",
+                                                        textDecoration: item?.discount > 0 ? "line-through" : "normal",
+                                                        fontSize: "14px"
+                                                    }}>
+                                                        {formatPrice(item?.price)} VND
+                                                    </Typography>
                                                 </Grid>
                                                 <Grid item md={2}>
                                                     <Typography variant="h4" sx={{

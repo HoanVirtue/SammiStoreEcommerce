@@ -87,15 +87,16 @@ export const formatDate = (value: Date | string, format: Intl.DateTimeFormatOpti
 
 export const formatFilter = (filter: Record<string, string[] | string>) => {
     const result: Record<string, string> = {}
-    Object.keys(filter)?.forEach((key: string) => {
-        if (Array.isArray(filter[key]) && filter[key]?.length > 0) {
-            result[key] = filter[key].join('|')
-        }
-        // else if (typeof filter[key] === 'string') {
-        else if (typeof filter[key] === 'string') {
-            result[key] = filter[key]
+
+    Object.keys(filter).forEach((key) => {
+        const value = filter[key]
+        if (Array.isArray(value) && value.length > 0) {
+            result[key] = value.join('|')
+        } else if (typeof value === 'string') {
+            result[key] = value
         }
     })
+
     return result
 }
 

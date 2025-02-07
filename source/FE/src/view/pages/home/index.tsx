@@ -35,6 +35,10 @@ import ProductFilter from '../product/components/ProductFilter'
 import { getAllCities } from 'src/services/city'
 import city from 'src/stores/city';
 import NoData from 'src/components/no-data'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, RootState } from 'src/stores'
+import toast from 'react-hot-toast'
+import { resetInitialState } from 'src/stores/product'
 
 type TProps = {}
 
@@ -66,16 +70,17 @@ const HomePage: NextPage<TProps> = () => {
 
     const firstRender = useRef<boolean>(false)
 
-    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-        setSelectedProductCategory(newValue);
-    };
-
 
     //Translation
     const { t, i18n } = useTranslation();
 
     //Theme
     const theme = useTheme();
+
+    //Redux
+    const dispatch: AppDispatch = useDispatch()
+    const { isSuccessLike, isErrorLike, errorMessageLike, isSuccessUnlike, isErrorUnlike, errorMessageUnlike, typeError, isLoading } = useSelector((state: RootState) => state.product)
+
 
     //api 
     const handleGetListProduct = async () => {
@@ -93,6 +98,7 @@ const HomePage: NextPage<TProps> = () => {
             }
         })
     }
+
 
     const fetchAllCategories = async () => {
         setLoading(true)
@@ -135,13 +141,18 @@ const HomePage: NextPage<TProps> = () => {
         setPageSize(pageSize)
     }
 
+    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+        setSelectedProductCategory(newValue);
+    };
+
+
     const handleProductFilter = (value: string, type: string) => {
         switch (type) {
-            case 'review':{
+            case 'review': {
                 setSelectedReview(value)
                 break
             }
-            case 'location':{
+            case 'location': {
                 setSelectedLocation(value)
                 break
             }
@@ -170,6 +181,28 @@ const HomePage: NextPage<TProps> = () => {
         }
     }, [selectedProductCategory, selectedReview, selectedLocation]);
 
+    useEffect(() => {
+        if (isSuccessLike) {
+            toast.success(t("like_product_success"))
+            handleGetListProduct();
+            dispatch(resetInitialState())
+        } else if (isErrorLike && errorMessageLike && typeError) {
+            toast.error(t("like_product_error"))
+            dispatch(resetInitialState())
+        }
+    }, [isSuccessLike, isErrorLike, errorMessageLike, typeError])
+
+    useEffect(() => {
+        if (isSuccessUnlike) {
+            toast.success(t("unlike_product_success"))
+            handleGetListProduct();
+            dispatch(resetInitialState())
+        } else if (isErrorUnlike && errorMessageUnlike && typeError) {
+            toast.error(t("unlike_product_error"))
+            dispatch(resetInitialState())
+        }
+    }, [isSuccessUnlike, isErrorUnlike, errorMessageUnlike, typeError])
+
     return (
         <>
             {loading && <Spinner />}
@@ -195,18 +228,18 @@ const HomePage: NextPage<TProps> = () => {
                 </StyledTabs>
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
                     <Box sx={{ width: '300px' }}>
-                        <SearchField value={searchBy} placeholder= {t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
+                        <SearchField value={searchBy} placeholder={t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
                     </Box>
                 </Box>
                 <Box sx={{ width: '100%', height: '100%', mt: 4, mb: 4 }}>
                     <Grid container spacing={{ md: 4, sx: 2 }} mt={2}>
                         <Grid item md={3} display={{ md: "flex", xs: "none" }}>
-                            <ProductFilter 
-                            selectedLocation={selectedLocation}
-                            selectedReview={selectedReview}
-                            handleReset={handleResetFilter}
-                            handleProductFilter={handleProductFilter} 
-                            cityOptions={cityOptions} />
+                            <ProductFilter
+                                selectedLocation={selectedLocation}
+                                selectedReview={selectedReview}
+                                handleReset={handleResetFilter}
+                                handleProductFilter={handleProductFilter}
+                                cityOptions={cityOptions} />
                         </Grid>
                         <Grid item md={9} xs={12}>
                             <Grid container spacing={{ md: 4, sx: 2 }}>

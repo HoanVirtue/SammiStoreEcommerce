@@ -75,8 +75,14 @@ const UserMenu = (props: TProps) => {
     const handleClose = () => {
         setAnchorEl(null);
     };
+
     const handleNavigateMyProfile = () => {
         router.push(ROUTE_CONFIG.MY_PROFILE)
+        handleClose()
+    }
+
+    const handleNavigateMyProduct = () => {
+        router.push(ROUTE_CONFIG.MY_PRODUCT)
         handleClose()
     }
 
@@ -218,6 +224,12 @@ const UserMenu = (props: TProps) => {
                         <IconifyIcon icon="ph:user-thin" />
                     </Avatar>
                     {t("my_profile")}
+                </MenuItem>
+                <MenuItem onClick={handleNavigateMyProduct}>
+                    <Avatar>
+                        <IconifyIcon icon="ph:user-thin" />
+                    </Avatar>
+                    {t("my_product")}
                 </MenuItem>
                 <Divider />
                 <MenuItem onClick={handleNavigateChangePassword}>

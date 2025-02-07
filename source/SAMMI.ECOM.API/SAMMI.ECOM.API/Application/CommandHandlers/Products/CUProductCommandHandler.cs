@@ -65,7 +65,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                     return actResponse;
                 }
 
-                if (request.Images != null && request.Images.Count > 0)
+                if (request.ImageFiles != null && request.ImageFiles.Count > 0)
                 {
 
                 }

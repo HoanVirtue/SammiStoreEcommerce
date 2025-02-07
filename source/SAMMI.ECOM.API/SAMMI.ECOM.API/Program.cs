@@ -75,7 +75,8 @@ app.UseCors("CorsPolicy");
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<SammiEcommerceContext>();
-    await DataSeeder.SeedAsync(context);
+    var dataSeed = new DataSeeder(context);
+    await dataSeed.SeedAsync();
 }
 
 // Configure the HTTP request pipeline.

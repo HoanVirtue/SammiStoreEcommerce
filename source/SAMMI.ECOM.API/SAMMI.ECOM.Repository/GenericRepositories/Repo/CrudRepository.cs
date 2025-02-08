@@ -322,7 +322,7 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
         public virtual bool IsExisted(object id)
         {
             var entity = _context.Set<TEntity>().Find(id);
-            return entity != null;/*&& !entity.IsDeleted*/
+            return entity != null && !entity.IsDeleted;
         }
 
         public async Task<ActionResponse<TEntity>> RemoveAndSave<T>(T entityOrDto) where T : class
@@ -456,6 +456,11 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
                     ex.Data["SqlGenericRepository.ConnectionString"] = ConnectionString;
                     throw;
                 }
+        }
+
+        public async Task<TEntity> FindById(object id)
+        {
+            return await _context.Set<TEntity>().FindAsync(id);
         }
     }
 }

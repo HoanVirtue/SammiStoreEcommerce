@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands;
@@ -51,6 +52,16 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
             }
 
             return actResponse;
+        }
+    }
+
+    public class CUProvinceCommandValidator : AbstractValidator<CUProvinceCommand>
+    {
+        public CUProvinceCommandValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithMessage("Tên tỉnh/thành phố là bắt buộc");
         }
     }
 }

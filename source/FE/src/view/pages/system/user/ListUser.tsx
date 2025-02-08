@@ -35,7 +35,7 @@ import Spinner from 'src/components/spinner'
 //toast
 import toast from 'react-hot-toast'
 import ConfirmDialog from 'src/components/confirm-dialog'
-import { OBJECT_TYPE_ROLE_ERROR } from 'src/configs/role'
+import { OBJECT_TYPE_ERROR } from 'src/configs/error'
 
 //utils
 import { formatFilter, toFullName } from 'src/utils'
@@ -366,7 +366,7 @@ const ListUserPage: NextPage<TProps> = () => {
             handleCloseCreateUpdateUser()
             dispatch(resetInitialState())
         } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
-            const errConfig = OBJECT_TYPE_ROLE_ERROR[typeError]
+            const errConfig = OBJECT_TYPE_ERROR[typeError]
             if (errConfig) {
                 toast.error(t(errConfig))
             } else {

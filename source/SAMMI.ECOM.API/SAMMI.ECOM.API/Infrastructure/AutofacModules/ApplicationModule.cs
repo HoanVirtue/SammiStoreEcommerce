@@ -41,6 +41,9 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
             builder.Register(s => configuration.GetSection("TokenProvideOptions")
                 .Get<AccessTokenProvideOptions>() ?? new AccessTokenProvideOptions())
                 .SingleInstance();
+            builder.Register(s => configuration.GetSection("RefreshTokenProvideOptions")
+                .Get<RefreshTokenProvideOptions>() ?? new RefreshTokenProvideOptions())
+                .SingleInstance();
 
 
             builder.RegisterGeneric(typeof(PasswordHasher<>))

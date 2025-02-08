@@ -2,6 +2,7 @@
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
+using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
@@ -13,11 +14,76 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         Task<IEnumerable<EmployeeDTO>> GetEmployeeAll(RequestFilterModel? filterModel = null);
         Task<IPagedList<EmployeeDTO>> GetEmployeeList(RequestFilterModel filterModel);
         Task<EmployeeDTO> GetEmployeeById(int id);
+        EmployeeDTO FindByUsername(string username);
+        EmployeeDTO FindById(int id);
+        Task<IEnumerable<PermissionDTO>> GetPermissionOfUser(int userId);
+
+        Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null);
+        Task<IPagedList<CustomerDTO>> GetCustomerList(RequestFilterModel filterModel);
+        Task<CustomerDTO> GetCustomerById(int id);
+
+        Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null);
+        Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel);
+        Task<SupplierDTO> GetSupplierById(int id);
     }
     public class UsersQueries : QueryRepository<User>, IUsersQueries
     {
         public UsersQueries(SammiEcommerceContext context) : base(context)
         {
+        }
+
+        private EmployeeDTO Find(int? id = null, string? username = null, TypeUserEnum? type = TypeUserEnum.Employee)
+        {
+            var cached = new Dictionary<int, EmployeeDTO>();
+            return WithDefaultTemplate(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.LeftJoin("UserRole t2 ON t1.Id = t2.UserId AND t2.IsDeleted != 1");
+
+                    sqlBuilder.Select("t2.RoleId AS RoleId");
+
+                    sqlBuilder.Where("t1.Type = @type", new { type = type.ToString() });
+                    if (id.HasValue)
+                    {
+                        sqlBuilder.Where("t1.Id = @id", new { id });
+                    }
+                    else if (!string.IsNullOrEmpty(username))
+                    {
+                        sqlBuilder.Where("LOWER(t1.Username) = LOWER(@username)", new { username });
+                    }
+
+                    var query = conn.Query<EmployeeDTO, int, EmployeeDTO>(
+                        sqlTemplate.RawSql,
+                        (user, roleId) =>
+                        {
+                            if (!cached.TryGetValue(user.Id, out var userModel))
+                            {
+                                userModel = user;
+                                cached.Add(user.Id, userModel);
+                            }
+
+                            if (roleId != null && roleId > 0 && (userModel.RoleIds.All(x => x != roleId)))
+                            {
+                                userModel.RoleIds ??= new();
+                                userModel.RoleIds.Add(roleId);
+                            }
+                            return userModel;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "RoleId");
+
+                    return query.FirstOrDefault();
+                });
+        }
+
+        public EmployeeDTO FindById(int id)
+        {
+            return Find(id: id);
+        }
+
+        public EmployeeDTO FindByUsername(string username)
+        {
+            return Find(username: username);
         }
 
         public async Task<IEnumerable<EmployeeDTO>> GetEmployeeAll(RequestFilterModel? filterModel = null)
@@ -93,9 +159,60 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                     sqlBuilder.Select("t3.Name AS DistrictName");
                     sqlBuilder.Select("t4.Id AS ProvinceId");
                     sqlBuilder.Select("t4.Name AS ProvinceName");
+
+                    sqlBuilder.Where("t1.Type = @type", new { type = type.ToString() });
                     return conn.QueryAsync<T>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 },
                 filterModel);
+        }
+
+        public Task<IEnumerable<PermissionDTO>> GetPermissionOfUser(int userId)
+        {
+            return WithConnectionAsync(conn => conn.QueryAsync<PermissionDTO>(@"
+                SELECT
+                t1.UserId,
+                t2.Id AS RoleId, t2.Name AS RoleName,
+                t3.RoleView, t3.RoleCreate, t3.RoleUpdate, t3.RoleDelete,
+                t4.Id AS PermissionId, t4.Name AS PermissionName
+                FROM userrole t1
+                LEFT JOIN role t2 ON t1.RoleId = t2.Id AND t2.IsDeleted != 1 AND t2.IsActive = 1
+                LEFT JOIN rolepermission t3 ON t2.Id = t3.RoleId AND t3.IsDeleted != 1
+                LEFT JOIN permission t4 on t3.PermissionId = t4.Id AND t4.IsDeleted != 1
+                WHERE t1.IsDeleted != 1
+                AND t1.UserId = @userId
+            ",
+            new { userId },
+            commandType: System.Data.CommandType.Text));
+        }
+
+        public async Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null)
+        {
+            return await GetUserAll<CustomerDTO>(filterModel, TypeUserEnum.Customer);
+        }
+
+        public async Task<IPagedList<CustomerDTO>> GetCustomerList(RequestFilterModel filterModel)
+        {
+            return await GetUserList<CustomerDTO>(filterModel, TypeUserEnum.Customer);
+        }
+
+        public async Task<CustomerDTO> GetCustomerById(int id)
+        {
+            return await GetUserById<CustomerDTO>(id, TypeUserEnum.Customer);
+        }
+
+        public async Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null)
+        {
+            return await GetUserAll<SupplierDTO>(filterModel, TypeUserEnum.Supplier);
+        }
+
+        public async Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel)
+        {
+            return await GetUserList<SupplierDTO>(filterModel, TypeUserEnum.Supplier);
+        }
+
+        public async Task<SupplierDTO> GetSupplierById(int id)
+        {
+            return await GetUserById<SupplierDTO>(id, TypeUserEnum.Supplier);
         }
     }
 }

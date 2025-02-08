@@ -38,5 +38,24 @@ export const API_ENDPOINT = {
     WARD: {
       INDEX: `${BASE_URL}/wards`,
     },
+  },
+  MANAGE_PRODUCT: {
+    PRODUCT: {
+      INDEX: `${BASE_URL}/products`,
+    },
+    PRODUCT_CATEGORY: {
+      INDEX: `${BASE_URL}/product-types`,
+    },
+    BRAND: {
+      INDEX: `${BASE_URL}/brands`,
+    },
+  },
+  MANAGE_ORDER: {
+    ORDER: {
+      INDEX: `${BASE_URL}/orders`,
+    },
+    REVIEW: {
+      INDEX: `${BASE_URL}/reviews`,
+    },
   }
 }

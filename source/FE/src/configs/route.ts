@@ -1,8 +1,13 @@
 export const ROUTE_CONFIG = {
+    HOME: "/",
+    PRODUCT: "/product",
     MY_PROFILE: "/my-profile",
+    MY_PRODUCT: "/my-product",
     LOGIN: "/login",
     REGISTER: "/register",
     CHANGE_PASSWORD: "/change-password",
+    MY_CART: "/my-cart",
+    MY_ORDER: "/my-order",
     SYSTEM: {
         ROLE: "/system/role",
         USER: "/system/user",
@@ -25,6 +30,6 @@ export const ROUTE_CONFIG = {
     ADDRESS: {
         CITY: "/address/city",
         PROVINCE: "/address/province",
-        WARD: "/address/province"
+        WARD: "/address/ward"
     }
 }

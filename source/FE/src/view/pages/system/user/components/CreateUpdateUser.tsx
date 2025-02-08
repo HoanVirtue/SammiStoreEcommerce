@@ -441,9 +441,23 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                             onChange={
                                                                                 (e) => onChange(e.target.checked ? 1 : 0)
                                                                             }
+                                                                            sx={{
+                                                                                '& .MuiSwitch-switchBase': {
+                                                                                    color: theme.palette.common.white,
+                                                                                },
+                                                                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                                                                },
+                                                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                                                                    backgroundColor: theme.palette.primary.main,
+                                                                                },
+                                                                                '& .MuiSwitch-track': {
+                                                                                    backgroundColor: theme.palette.grey[400],
+                                                                                },
+                                                                            }}
                                                                         />
                                                                     }
-                                                                    label={Boolean(value) ? t('active') : t('inactive')} />
+                                                                    label={Boolean(value) ? t('active') : t('inactive')}
+                                                                />
                                                             )
                                                         }}
                                                         name='status'
@@ -456,7 +470,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                 <Grid container item md={6} xs={12} >
                                     <Box>
                                         <Grid container spacing={5}>
-                                            <Grid item md={6} xs={12} >
+                                            <Grid item md={12} xs={12} >
                                                 <Controller
                                                     control={control}
                                                     render={({ field: { onChange, onBlur, value } }) => (
@@ -475,7 +489,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     name='fullName'
                                                 />
                                             </Grid>
-                                            <Grid item md={6} xs={12} >
+                                            <Grid item md={12} xs={12} >
                                                 <Controller
                                                     control={control}
                                                     name='address'
@@ -491,7 +505,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid item md={6} xs={12} >
+                                            <Grid item md={12} xs={12} >
                                                 <Controller
                                                     control={control}
                                                     name='city'
@@ -525,7 +539,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     )}
                                                 />
                                             </Grid>
-                                            <Grid item md={6} xs={12} >
+                                            <Grid item md={12} xs={12} >
                                                 <Controller
                                                     control={control}
                                                     render={({ field: { onChange, onBlur, value } }) => (

@@ -7,7 +7,7 @@ export type LoginParams = {
 }
 
 export type UserDataType = {
-  id: number
+  _id: string
   role: {
     name: string,
     permissions: string[]
@@ -20,6 +20,7 @@ export type UserDataType = {
   username: string
   password: string
   avatar?: string | null
+  likedProducts: string[]
 }
 
 export type AuthValuesType = {

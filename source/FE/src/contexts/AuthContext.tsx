@@ -17,6 +17,9 @@ import { API_ENDPOINT } from 'src/configs/api'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from 'src/helpers/storage'
 import instance from 'src/helpers/axios'
 import toast from 'react-hot-toast'
+import { updateProductToCart } from 'src/stores/order-product'
+import { AppDispatch } from 'src/stores'
+import { useDispatch } from 'react-redux'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -41,6 +44,9 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter()
+
+  //redux
+  const dispatch: AppDispatch = useDispatch()
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
@@ -98,6 +104,9 @@ const AuthProvider = ({ children }: Props) => {
     logoutAuth().then((res) => {
       setUser(null)
       removeLocalUserData()
+      dispatch(updateProductToCart({
+        orderItems: []
+      }))
       router.push('/login')
     })
   }

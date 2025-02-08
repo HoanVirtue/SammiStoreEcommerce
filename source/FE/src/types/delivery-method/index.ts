@@ -21,5 +21,5 @@ export type TParamsDeleteDeliveryMethod = {
 }
 
 export type TParamsDeleteMultipleDeliveryMethods = {
-    deliveryMethodIds: string[],
+    deliveryTypeIds: string[],
 }

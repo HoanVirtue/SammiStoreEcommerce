@@ -5,10 +5,13 @@ import { Skin } from 'src/types/layouts'
 const DefaultPalette = (mode: Palette['mode'], skin: Skin): Palette => {
   // ** Vars
   const whiteColor = '#FFF'
-  const lightColor = 'rgb(47, 43, 61)'
-  const darkColor = 'rgb(67, 85, 133)'
+  const lightColor = '47, 43, 61'
+  const darkColor = '67, 85, 133'
   const darkPaperBgColor = '#2F3349'
   const mainColor = mode === 'light' ? lightColor : darkColor
+
+   const lightColorString = `rgb(${lightColor})`
+  const darkColorString = `rgb(${darkColor})`
 
   const defaultBgColor = () => {
     if (skin === 'bordered' && mode === 'light') {
@@ -22,9 +25,9 @@ const DefaultPalette = (mode: Palette['mode'], skin: Skin): Palette => {
 
   return {
     customColors: {
-      dark: darkColor,
-      main: mainColor,
-      light: lightColor,
+      dark: darkColorString,     
+      main: `rgb(${mainColor})`,
+      light: lightColorString, 
       lightPaperBg: whiteColor,
       darkPaperBg: darkPaperBgColor,
       bodyBg: mode === 'light' ? '#F8F7FA' : '#25293C', // Same as palette.background.default but doesn't consider bordered skin

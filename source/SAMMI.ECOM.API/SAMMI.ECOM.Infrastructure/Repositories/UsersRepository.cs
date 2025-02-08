@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Repositories
@@ -8,8 +9,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
     {
         Task<bool> IsExistCode(string code, int? id);
         Task<bool> IsExistUsername(string username, int? id);
-        Task<bool> IsExistEmail(string email, int? id);
-        Task<bool> IsExistPhone(string phone, int? id);
+        Task<bool> IsExistEmail(string email, int? id, TypeUserEnum? type = null);
+        Task<bool> IsExistPhone(string phone, int? id, TypeUserEnum? type = null);
         Task SetSecurityStampAsync(User user, string stamp,
             CancellationToken cancellationToken = default(CancellationToken));
 
@@ -37,14 +38,24 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
             return await _context.Users.AnyAsync(x => x.Code.Trim() == code.Trim() && x.Id != id && x.IsDeleted != true);
         }
 
-        public async Task<bool> IsExistEmail(string email, int? id)
+        public async Task<bool> IsExistEmail(string email, int? id, TypeUserEnum? type = null)
         {
-            return await _context.Users.AnyAsync(x => x.Email.Trim() == email.Trim() && x.Id != id && x.IsDeleted != true);
+            var result = _context.Users.Where(x => x.Email.Trim() == email.Trim() && x.Id != id && x.IsDeleted != true);
+            if (type != null)
+            {
+                result = result.Where(x => x.Type == type.ToString());
+            }
+            return await result.CountAsync() > 0;
         }
 
-        public async Task<bool> IsExistPhone(string phone, int? id)
+        public async Task<bool> IsExistPhone(string phone, int? id, TypeUserEnum? type = null)
         {
-            return await _context.Users.AnyAsync(x => x.Phone.Trim() == phone.Trim() && x.Id != id && x.IsDeleted != true);
+            var result = _context.Users.Where(x => x.Phone.Trim() == phone.Trim() && x.Id != id && x.IsDeleted != true);
+            if (type != null)
+            {
+                result = result.Where(x => x.Type == type.ToString());
+            }
+            return await result.CountAsync() > 0;
         }
 
         public async Task<bool> IsExistUsername(string username, int? id)
@@ -112,7 +123,9 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
 
         public async Task<User?> FindByUserNameAsync(string userName)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Username.ToLower().Equals(userName.ToLower()));
+            return await _context.Users
+                .FirstOrDefaultAsync(x => x.Username.ToLower().Equals(userName.ToLower())
+                    && !x.IsDeleted);
         }
     }
 }

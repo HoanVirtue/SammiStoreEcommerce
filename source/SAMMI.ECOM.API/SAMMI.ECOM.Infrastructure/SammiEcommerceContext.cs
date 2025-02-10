@@ -54,7 +54,7 @@ public partial class SammiEcommerceContext : DbContext
 
     public virtual DbSet<ProductCategory> ProductCategories { get; set; }
 
-    public virtual DbSet<ProductImage> ProductImages { get; set; }
+    public virtual DbSet<Image> Images { get; set; }
 
     public virtual DbSet<Province> Provinces { get; set; }
 
@@ -120,7 +120,7 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new PermissionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new ProductCategoryEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new ProductEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductImageEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new ImageEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new ProvinceEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new PurchaseOrderDetailEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new PurchaseOrderEntityTypeConfiguration());

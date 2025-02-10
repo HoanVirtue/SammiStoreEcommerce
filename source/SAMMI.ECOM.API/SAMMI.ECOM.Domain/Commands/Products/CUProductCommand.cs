@@ -31,3 +31,4 @@ namespace SAMMI.ECOM.Domain.Commands.Products
         public int? DisplayOrder { get; set; }
     }
 }
+

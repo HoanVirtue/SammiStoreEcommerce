@@ -32,7 +32,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         {
         }
 
-        private EmployeeDTO Find(int? id = null, string? username = null, TypeUserEnum? type = TypeUserEnum.Employee)
+        private EmployeeDTO Find(int? id = null, string? username = null, string? email = null, TypeUserEnum? type = TypeUserEnum.Employee)
         {
             var cached = new Dictionary<int, EmployeeDTO>();
             return WithDefaultTemplate(
@@ -50,6 +50,10 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                     else if (!string.IsNullOrEmpty(username))
                     {
                         sqlBuilder.Where("LOWER(t1.Username) = LOWER(@username)", new { username });
+                    }
+                    else if (!string.IsNullOrEmpty(email))
+                    {
+                        sqlBuilder.Where("LOWER(t1.Email) = LOWER(@email)", new { email });
                     }
 
                     var query = conn.Query<EmployeeDTO, int, EmployeeDTO>(
@@ -83,7 +87,12 @@ namespace SAMMI.ECOM.Infrastructure.Queries
 
         public EmployeeDTO FindByUsername(string username)
         {
-            return Find(username: username);
+            var employee = Find(username: username);
+            if (employee == null)
+            {
+                employee = Find(email: username);
+            }
+            return employee;
         }
 
         public async Task<IEnumerable<EmployeeDTO>> GetEmployeeAll(RequestFilterModel? filterModel = null)

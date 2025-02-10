@@ -14,11 +14,11 @@ namespace SAMMI.ECOM.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthenticationsController : CustomBaseController
+    public class AuthController : CustomBaseController
     {
         private readonly IUsersRepository _userRepository;
         private readonly IAuthenticationService<User> _authService;
-        public AuthenticationsController(
+        public AuthController(
             IUsersRepository userRepository,
             IAuthenticationService<User> authService,
             UserIdentity currentUser,

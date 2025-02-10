@@ -24,21 +24,40 @@ namespace SAMMI.ECOM.API.Controllers.Products
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
-            return Ok();
+            return Ok(await _productQueries.GetById(id));
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] CUProductCommand model)
+        public async Task<IActionResult> Post([FromForm] CUProductCommand request)
         {
-            return Ok();
+            if (request.Id != 0)
+            {
+                return BadRequest();
+            }
+            var response = await _mediator.Send(request);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Put(int id, [FromBody] CUProductCommand model)
+        public async Task<IActionResult> Put(int id, [FromBody] CUProductCommand request)
         {
-            return Ok();
+            if ((id == 0 || request.Id == 0) || id != request.Id)
+            {
+                return BadRequest();
+            }
+
+            var response = await _mediator.Send(request);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
         }
     }
 }

@@ -114,6 +114,7 @@ namespace SAMMI.ECOM.Infrastructure
                     IsAdmin = true,
                     IdentityGuid = Guid.NewGuid().ToString(),
                     Type = TypeUserEnum.Employee.ToString(),
+                    Phone = "012321232",
                     FirstName = "ad",
                     LastName = "min",
                     FullName = "admin",

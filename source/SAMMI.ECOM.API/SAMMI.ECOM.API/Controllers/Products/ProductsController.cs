@@ -12,7 +12,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         public ProductsController(
             IProductQueries productQueries,
             IMediator mediator,
-            ILogger logger) : base(mediator, logger)
+            ILogger<ProductsController> logger) : base(mediator, logger)
         {
             _productQueries = productQueries;
         }
@@ -30,7 +30,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromForm] CUProductCommand request)
+        public async Task<IActionResult> Post([FromBody] CUProductCommand request)
         {
             if (request.Id != 0)
             {

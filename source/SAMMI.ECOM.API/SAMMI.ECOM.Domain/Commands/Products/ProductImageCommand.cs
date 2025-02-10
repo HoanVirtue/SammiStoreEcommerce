@@ -1,10 +1,10 @@
 ﻿namespace SAMMI.ECOM.Domain.Commands.Products
 {
-    public class CUProductImageCommand
+    public class ProductImageCommand
     {
         public int ProductId { get; set; }
         public string? ImageUrl { get; set; }
-
+        public string ImageBase64 { get; set; }
 
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }

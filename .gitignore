@@ -408,3 +408,7 @@ next-env.d.ts
 .vercel
 
 yarn.lock
+/source/SammiMobile/.expo/devices.json
+/source/SammiMobile/.expo/packager-info.json
+/source/SammiMobile/.expo/README.md
+/source/SammiMobile/.expo/settings.json

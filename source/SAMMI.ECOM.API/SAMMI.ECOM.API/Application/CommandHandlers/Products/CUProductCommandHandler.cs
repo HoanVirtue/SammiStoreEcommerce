@@ -6,6 +6,7 @@ using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories.Brands;
 using SAMMI.ECOM.Infrastructure.Repositories.ProductCategorys;
 using SAMMI.ECOM.Infrastructure.Repositories.ProductImages;
@@ -21,12 +22,14 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         private readonly IProductImageRepository _imageRepository;
         private readonly IFileStorageService _fileStoreService;
         private readonly IProductImageRepository _productImageRepository;
+        private readonly ICloudinaryService _cloudinaryService;
         public CUProductCommandHandler(
             IProductRepository productRepository,
             IBrandRepository brandRepository,
             IProductCategoryRepository categoryRepository,
             IProductImageRepository imageRepository,
             IFileStorageService fileStoreService,
+            ICloudinaryService cloudinaryService,
             IProductImageRepository productImageRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
@@ -36,6 +39,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             _categoryRepository = categoryRepository;
             _imageRepository = imageRepository;
             _fileStoreService = fileStoreService;
+            _cloudinaryService = cloudinaryService;
         }
 
         public override async Task<ActionResponse<ProductDTO>> Handle(CUProductCommand request, CancellationToken cancellationToken)
@@ -73,22 +77,55 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
 
                 var product = createRes.Result;
 
-                if (request.ImageFiles != null && request.ImageFiles.Count > 0)
+                if (request.Images != null && request.Images.Count > 0)
                 {
-                    var listImage = new List<string>();
-                    foreach (var file in request.ImageFiles)
+                    foreach (var file in request.Images)
                     {
-                        string urlImage = await _fileStoreService.SaveFileImage(file);
-                        if (urlImage != null)
+                        if (string.IsNullOrEmpty(file.ImageBase64))
                         {
-                            var imageProduct = new ProductImage()
-                            {
-                                ProductId = product.Id,
-                                ImageUrl = urlImage,
-                            };
-                            await _imageRepository.CreateAndSave(imageProduct);
+                            actResponse.AddError("Chuỗi ImageBase64 là bắt buộc");
+                            return actResponse;
                         }
+                        if (file.DisplayOrder == null || file.DisplayOrder == 0)
+                        {
+                            actResponse.AddError("Chuỗi ImageBase64 là bắt buộc");
+                            return actResponse;
+                        }
+                        string publicId = $"product_{product.Id}_{Guid.NewGuid()}";
+                        string urlImage = await _cloudinaryService.UploadBase64Image(file.ImageBase64, publicId, ImageEnum.Product.ToString());
+                        if (urlImage == null)
+                        {
+                            actResponse.AddError("Lỗi upload ảnh lên cloudinary");
+                            return actResponse;
+                        }
+                        var imageProduct = new Image()
+                        {
+                            ProductId = product.Id,
+                            ImageUrl = urlImage,
+                            PublicId = publicId,
+                            CreatedDate = DateTime.Now,
+                            CreatedBy = _currentUser.UserName,
+                            IsActive = true,
+                            IsDeleted = false,
+                            DisplayOrder = file.DisplayOrder
+                        };
+                        await _imageRepository.CreateAndSave(imageProduct);
                     }
+                    // upload server
+                    //var listImage = new List<string>();
+                    //foreach (var file in request.ImageFiles)
+                    //{
+                    //    string urlImage = await _fileStoreService.SaveFileImage(file);
+                    //    if (urlImage != null)
+                    //    {
+                    //        var imageProduct = new ProductImage()
+                    //        {
+                    //            ProductId = product.Id,
+                    //            ImageUrl = urlImage,
+                    //        };
+                    //        await _imageRepository.CreateAndSave(imageProduct);
+                    //    }
+                    //}
                 }
 
                 actResponse.SetResult(_mapper.Map<ProductDTO>(createRes.Result));
@@ -124,10 +161,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 .NotEmpty()
                 .WithMessage("Mã sản phẩm là bắt buộc");
 
-            RuleFor(x => x.ImageFiles)
-                .NotEmpty().WithMessage("Vui lòng tải lên ít nhất 1 hình ảnh")
-                .Must(files => files.All(IsValidFile))
-                .WithMessage("File tải lên phải là hình ảnh hợp lệ và không quá 5MB");
+            //RuleFor(x => x.ImageFiles)
+            //    .NotEmpty().WithMessage("Vui lòng tải lên ít nhất 1 hình ảnh")
+            //    .Must(files => files.All(IsValidFile))
+            //    .WithMessage("File tải lên phải là hình ảnh hợp lệ và không quá 5MB");
         }
 
         private bool IsValidFile(IFormFile file)

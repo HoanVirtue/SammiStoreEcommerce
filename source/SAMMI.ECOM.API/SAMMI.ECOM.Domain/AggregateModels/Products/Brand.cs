@@ -25,4 +25,5 @@ public partial class Brand : Entity
     public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
 
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+    public virtual ICollection<Image> BrandImages { get; set; } = new List<Image>();
 }

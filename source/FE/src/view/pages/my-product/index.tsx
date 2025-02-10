@@ -111,6 +111,7 @@ const MyProductPage: NextPage<TProps> = () => {
         setPage(page)
         setPageSize(pageSize)
         setSearchBy("")
+        handleGetListData(); 
     }
 
     useEffect(() => {
@@ -137,7 +138,7 @@ const MyProductPage: NextPage<TProps> = () => {
 
     useEffect(() => {
         handleGetListData();
-    }, [searchBy, tabType])
+    }, [searchBy, tabType, page, pageSize])
 
 
     return (

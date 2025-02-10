@@ -1,10 +1,11 @@
+import axios from "axios"
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
 import { TParamsCreateCity, TParamsDeleteMultipleCities, TParamsGetAllCities, TParamsUpdateCity } from "src/types/city"
 
 export const getAllCities = async (data: {params: TParamsGetAllCities}) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.ADDRESS.CITY.INDEX}`, data)
+        const res = await axios.get(`${API_ENDPOINT.ADDRESS.CITY.INDEX}`, data)
         console.log(res)
         return res.data
     } catch (error) {

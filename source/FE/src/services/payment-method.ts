@@ -5,7 +5,6 @@ import { TParamsCreatePaymentMethod, TParamsDeleteMultiplePaymentMethods, TParam
 export const getAllPaymentMethods = async (data: {params: TParamsGetAllPaymentMethods}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.SETTING.PAYMENT_METHOD.INDEX}`, data)
-        console.log(res)
         return res.data
     } catch (error) {
         return error

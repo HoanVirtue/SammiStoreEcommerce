@@ -6,7 +6,6 @@ import { TParamsCreateCity, TParamsDeleteMultipleCities, TParamsGetAllCities, TP
 export const getAllCities = async (data: {params: TParamsGetAllCities}) => {
     try {
         const res = await axios.get(`${API_ENDPOINT.ADDRESS.CITY.INDEX}`, data)
-        console.log(res)
         return res.data
     } catch (error) {
         return error

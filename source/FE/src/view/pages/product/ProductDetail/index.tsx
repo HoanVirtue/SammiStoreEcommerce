@@ -167,8 +167,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                             <Grid item md={5} xs={12}>
                                 <Image src={productData?.image}
                                     alt={productData?.name}
-                                    className="w-full h-[300px] max-h-[400px] object-cover"
-                                    objectFit="contain"
+                                    className="w-full h-[300px] max-h-[400px] object-contain"
                                     width={0}
                                     height={0}
                                 />

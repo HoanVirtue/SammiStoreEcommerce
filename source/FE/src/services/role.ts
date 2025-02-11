@@ -26,7 +26,6 @@ export const updateRole = async (data: TParamsUpdateRole) => {
     const { id, ...rests } = data
     try {
         const res = await instance.put(`${API_ENDPOINT.SYSTEM.ROLE.INDEX}/${id}`, rests)
-        console.log(res)
         return res.data
     } catch (error: any) {
         return error?.response?.data

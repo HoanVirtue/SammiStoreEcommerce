@@ -5,7 +5,6 @@ import { TParamsCreateUser, TParamsDeleteMultipleUsers, TParamsGetAllUsers, TPar
 export const getAllUsers = async (data: {params: TParamsGetAllUsers}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.SYSTEM.USER.INDEX}`, data)
-        console.log(res)
         return res.data
     } catch (error) {
         return error

@@ -6,7 +6,6 @@ import { TParamsCreateProductCategory, TParamsDeleteMultipleProductCategories, T
 export const getAllProductCategories = async (data: {params: TParamsGetAllProductCategories}) => {
     try {
         const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}`, data)
-        console.log(res)
         return res.data
     } catch (error) {
         return error

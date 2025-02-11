@@ -6,7 +6,6 @@ import { TParamsCreateProduct, TParamsDeleteMultipleProducts, TParamsGetAllProdu
 export const getAllProducts = async (data: {params: TParamsGetAllProducts}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}`, data)
-        console.log(res, "res-c")
         return res.data
     } catch (error) {
         return error

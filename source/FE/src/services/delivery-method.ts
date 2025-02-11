@@ -5,7 +5,6 @@ import { TParamsCreateDeliveryMethod, TParamsDeleteMultipleDeliveryMethods, TPar
 export const getAllDeliveryMethods = async (data: {params: TParamsGetAllDeliveryMethods}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.SETTING.DELIVERY_METHOD.INDEX}`, data)
-        console.log(res)
         return res.data
     } catch (error) {
         return error

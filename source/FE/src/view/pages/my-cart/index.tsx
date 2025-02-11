@@ -33,6 +33,8 @@ import { updateProductToCart } from 'src/stores/order-product'
 import { TProduct } from 'src/types/product'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import NoData from 'src/components/no-data'
+import { useRouter } from 'next/router'
+import { ROUTE_CONFIG } from 'src/configs/route'
 
 type TProps = {}
 
@@ -53,6 +55,7 @@ const MyCartPage: NextPage<TProps> = () => {
     //hooks
     const { user } = useAuth()
     const { i18n } = useTranslation();
+    const router = useRouter()
 
     //Theme
     const theme = useTheme();
@@ -64,6 +67,26 @@ const MyCartPage: NextPage<TProps> = () => {
     const memoListAllProductIds = useMemo(() => {
         return orderItems.map((item: TItemOrderProduct) => item.product)
     }, [orderItems])
+
+    const memoSelectedProduct = useMemo(() => {
+        return selectedRow.map((selectedId) => {
+            const findItems: any = orderItems.find((item: TItemOrderProduct) => item.product === selectedId)
+            if (findItems) {
+                return {
+                    ...findItems
+                }
+            }
+        })
+    }, [selectedRow, orderItems])
+
+    const memoTotalPrice = useMemo(() => {
+        const total = memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
+            const currentPrice = current.discount > 0 ? (current.price * (100 - current.discount)) / 100 : current.price
+            return result + currentPrice * current.amount
+        }, 0)
+        return total
+    }, [memoSelectedProduct])
+
 
     //Handler
     const handleChangeQuantity = (item: TItemOrderProduct, amount: number) => {
@@ -113,7 +136,6 @@ const MyCartPage: NextPage<TProps> = () => {
         }
     }
 
-
     const handleCheckAll = () => {
         const isCheckAll = memoListAllProductIds.every((item) => selectedRow.includes(item))
         if (isCheckAll) {
@@ -136,6 +158,16 @@ const MyCartPage: NextPage<TProps> = () => {
             )
             setLocalProductToCart({ ...parseData, [user?._id]: filteredItem })
         }
+    }
+
+    const handleNavigateCheckout = () => {
+        router.push({
+            pathname: ROUTE_CONFIG.CHECKOUT,
+            query: {
+                totalPrice: memoTotalPrice,
+                selectedProduct: JSON.stringify(memoSelectedProduct)
+            }
+        },"checkout")
     }
 
     return (
@@ -176,11 +208,13 @@ const MyCartPage: NextPage<TProps> = () => {
                                 <Grid item md={1} xs={12}>
                                     <Typography>
                                         <Tooltip title={t("delete_all")}>
-                                            <IconButton
-                                                onClick={handleDeleteMany}
-                                                disabled={selectedRow.length === 0}>
-                                                <IconifyIcon icon="mdi:delete-outline" />
-                                            </IconButton>
+                                            <span>
+                                                <IconButton
+                                                    onClick={handleDeleteMany}
+                                                    disabled={selectedRow.length === 0}>
+                                                    <IconifyIcon icon="mdi:delete-outline" />
+                                                </IconButton>
+                                            </span>
                                         </Tooltip>
                                     </Typography>
                                 </Grid>
@@ -242,13 +276,8 @@ const MyCartPage: NextPage<TProps> = () => {
                                                             inputMode: "numeric",
                                                             inputProps: {
                                                                 min: 1,
-                                                                // max: productData?.countInStock
                                                             }
                                                         }}
-                                                        // onChange={(e) => {
-                                                        //     setProductAmount(Number(e.target.value))
-                                                        //     handleChangeQuantity(item, Number(e.target.value))
-                                                        // }}
                                                         sx={{
                                                             ".MuiInputBase-root.MuiFilledInput-root": {
                                                                 width: "50px",
@@ -286,11 +315,20 @@ const MyCartPage: NextPage<TProps> = () => {
                             <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
                         </Box>
                     )}
+                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
+                        <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "24px" }}>
+                            {t('total_price')}
+                        </Typography>
+                        <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "24px", color: theme.palette.primary.main }}>
+                            {formatPrice(memoTotalPrice)} VND
+                        </Typography>
+                    </Box>
                 </Grid>
             </Box >
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
                 <Button type="submit"
                     variant="contained"
+                    onClick={handleNavigateCheckout}
                     disabled={selectedRow.length === 0}
                     startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
                     sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>

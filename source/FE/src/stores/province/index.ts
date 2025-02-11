@@ -54,7 +54,6 @@ export const provinceSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(getAllProvincesAsync.fulfilled, (state, action) => {
-      console.log(action, 'action province');
       state.isLoading = false
       state.provinces.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
       state.provinces.total = action?.payload?.data?.totalCount
@@ -70,7 +69,6 @@ export const provinceSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(createProvinceAsync.fulfilled, (state, action) => {
-      console.log("suc", action.payload)
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.result?.id
       state.isErrorCreateUpdate = !action.payload?.result?.id
@@ -88,7 +86,6 @@ export const provinceSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(updateProvinceAsync.fulfilled, (state, action) => {
-      console.log("uppp", action)
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.result?.id
       state.isErrorCreateUpdate = !action.payload?.result?.id
@@ -105,7 +102,6 @@ export const provinceSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(deleteProvinceAsync.fulfilled, (state, action) => {
-      console.log("delete ac", action)
       state.isLoading = false
       state.isSuccessDelete = !!action.payload?.isSuccess
       state.isErrorDelete = !action.payload?.isSuccess

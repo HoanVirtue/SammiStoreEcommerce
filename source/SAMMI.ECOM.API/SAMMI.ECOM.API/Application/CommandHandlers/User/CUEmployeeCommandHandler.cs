@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.System;
@@ -199,6 +200,34 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             }
             actionResponse.SetResult(_mapper.Map<EmployeeDTO>(employeeUpdate.Result));
             return actionResponse;
+        }
+    }
+
+    public class CreateEmployeeCommandValidator : AbstractValidator<CreateEmployeeCommand>
+    {
+        public CreateEmployeeCommandValidator()
+        {
+            RuleFor(x => x.Phone)
+                .NotEmpty()
+                .WithMessage("Điện thoại là bắt buộc");
+
+            RuleFor(x => x.Email)
+                .NotEmpty()
+                .WithMessage("Email là bắt buộc");
+        }
+    }
+
+    public class UpdateEmployeeCommandValidator : AbstractValidator<UpdateEmployeeCommand>
+    {
+        public UpdateEmployeeCommandValidator()
+        {
+            RuleFor(x => x.Phone)
+                .NotEmpty()
+                .WithMessage("Điện thoại là bắt buộc");
+
+            RuleFor(x => x.Email)
+                .NotEmpty()
+                .WithMessage("Email là bắt buộc");
         }
     }
 }

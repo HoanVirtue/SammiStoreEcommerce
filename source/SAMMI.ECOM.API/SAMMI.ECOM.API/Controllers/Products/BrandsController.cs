@@ -2,23 +2,23 @@
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
-using SAMMI.ECOM.Infrastructure.Queries.Products;
-using SAMMI.ECOM.Infrastructure.Repositories.Products;
+using SAMMI.ECOM.Infrastructure.Queries.Brands;
+using SAMMI.ECOM.Infrastructure.Repositories.Brands;
 
-namespace SAMMI.ECOM.API.Controllers.Products
+namespace SAMMI.ECOM.API.Controllers.Brands
 {
-    public class ProductsController : CustomBaseController
+    public class BrandsController : CustomBaseController
     {
-        private readonly IProductQueries _productQueries;
-        private readonly IProductRepository _productRepository;
-        public ProductsController(
-            IProductQueries productQueries,
-            IProductRepository productRepository,
+        private readonly IBrandQueries _brandQueries;
+        private readonly IBrandRepository _brandRepository;
+        public BrandsController(
+            IBrandQueries brandQueries,
+            IBrandRepository brandRepository,
             IMediator mediator,
-            ILogger<ProductsController> logger) : base(mediator, logger)
+            ILogger<BrandsController> logger) : base(mediator, logger)
         {
-            _productQueries = productQueries;
-            _productRepository = productRepository;
+            _brandQueries = brandQueries;
+            _brandRepository = brandRepository;
         }
 
         [HttpGet]
@@ -26,19 +26,23 @@ namespace SAMMI.ECOM.API.Controllers.Products
         {
             if (request.Type == RequestType.SimpleAll)
             {
-                return Ok(await _productQueries.GetAll(request));
+                return Ok(await _brandQueries.GetAll(request));
             }
-            return Ok(await _productQueries.GetList(request));
+            else if (request.Type == RequestType.Selection)
+            {
+                return Ok(await _brandQueries.GetSelectionList(request));
+            }
+            return Ok(await _brandQueries.GetList(request));
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            return Ok(await _productQueries.GetById(id));
+            return Ok(await _brandQueries.GetById(id));
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CUProductCommand request)
+        public async Task<IActionResult> Post([FromBody] CUBrandCommand request)
         {
             if (request.Id != 0)
             {
@@ -53,7 +57,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CUProductCommand request)
+        public async Task<IActionResult> Put(int id, [FromBody] CUBrandCommand request)
         {
             if ((id == 0 || request.Id == 0) || id != request.Id)
             {
@@ -71,11 +75,11 @@ namespace SAMMI.ECOM.API.Controllers.Products
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            if (!_productRepository.IsExisted(id))
+            if (!_brandRepository.IsExisted(id))
             {
                 return NotFound();
             }
-            return Ok(_productRepository.DeleteAndSave(id));
+            return Ok(_brandRepository.DeleteAndSave(id));
         }
     }
 }

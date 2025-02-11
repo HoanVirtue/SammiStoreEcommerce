@@ -19,18 +19,18 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         private readonly IProductRepository _productRepository;
         private readonly IBrandRepository _brandRepository;
         private readonly IProductCategoryRepository _categoryRepository;
-        private readonly IProductImageRepository _imageRepository;
+        private readonly IImageRepository _imageRepository;
         private readonly IFileStorageService _fileStoreService;
-        private readonly IProductImageRepository _productImageRepository;
         private readonly ICloudinaryService _cloudinaryService;
+        private readonly IConfiguration _config;
         public CUProductCommandHandler(
             IProductRepository productRepository,
             IBrandRepository brandRepository,
             IProductCategoryRepository categoryRepository,
-            IProductImageRepository imageRepository,
+            IImageRepository imageRepository,
             IFileStorageService fileStoreService,
             ICloudinaryService cloudinaryService,
-            IProductImageRepository productImageRepository,
+            IConfiguration config,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -40,6 +40,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             _imageRepository = imageRepository;
             _fileStoreService = fileStoreService;
             _cloudinaryService = cloudinaryService;
+            _config = config;
         }
 
         public override async Task<ActionResponse<ProductDTO>> Handle(CUProductCommand request, CancellationToken cancellationToken)
@@ -91,8 +92,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                             actResponse.AddError("Chuỗi ImageBase64 là bắt buộc");
                             return actResponse;
                         }
-                        string publicId = $"product_{product.Id}_{Guid.NewGuid()}";
-                        string urlImage = await _cloudinaryService.UploadBase64Image(file.ImageBase64, publicId, ImageEnum.Product.ToString());
+                        string fileName = $"product_{product.Id}_{Guid.NewGuid()}";
+                        string urlImage = await _cloudinaryService.UploadBase64Image(file.ImageBase64, fileName, ImageEnum.Product.ToString());
                         if (urlImage == null)
                         {
                             actResponse.AddError("Lỗi upload ảnh lên cloudinary");
@@ -102,7 +103,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                         {
                             ProductId = product.Id,
                             ImageUrl = urlImage,
-                            PublicId = publicId,
+                            PublicId = $"{_config["CloundSettings:ImageProductFolder"]}/{fileName}",
                             CreatedDate = DateTime.Now,
                             CreatedBy = _currentUser.UserName,
                             IsActive = true,

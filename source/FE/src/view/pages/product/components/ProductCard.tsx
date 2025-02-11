@@ -15,7 +15,7 @@ import { ROUTE_CONFIG } from 'src/configs/route';
 import { convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils';
 import { AppDispatch, RootState } from 'src/stores';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateProductToCart } from 'src/stores/order-product';
+import { updateProductToCart } from 'src/stores/order';
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
 import { useAuth } from 'src/hooks/useAuth';
 import { likeProductAsync, unlikeProductAsync } from 'src/stores/product/action';
@@ -53,7 +53,7 @@ const ProductCard = (props: TProductCard) => {
 
     //redux
     const dispatch: AppDispatch = useDispatch()
-    const { orderItems } = useSelector((state: RootState) => state.orderProduct)
+    const { orderItems } = useSelector((state: RootState) => state.order)
 
     //handler
     const handleNavigateProductDetail = (slug: string) => {

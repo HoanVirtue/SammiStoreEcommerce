@@ -234,6 +234,18 @@ const ListProduct: NextPage<TProps> = () => {
             }
         },
         {
+            field: 'discount',
+            headerName: t('discount'),
+            minWidth: 200,
+            maxWidth: 200,
+            renderCell: (params: GridRenderCellParams) => {
+                const { row } = params
+                return (
+                    <Typography>{row?.discount}</Typography>
+                )
+            }
+        },
+        {
             field: 'status',
             headerName: t('status'),
             flex: 1,

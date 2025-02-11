@@ -274,8 +274,6 @@ const ListProvincePage: NextPage<TProps> = () => {
         }
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
 
-    console.log(provinces, "provinces");
-
     return (
         <>{loading && <Spinner />}
             <ConfirmDialog

@@ -39,7 +39,7 @@ const ConfirmDialog = (props: TConfirmDialog) => {
             <DialogTitle sx={{
                 textAlign: "center"
             }}>
-                <Typography variant="h4" fontWeight={600} sx={{padding: 0}}>
+                <Typography variant="h4" fontWeight={600} sx={{ padding: 0 }}>
                     {title}
                 </Typography>
             </DialogTitle>
@@ -50,7 +50,7 @@ const ConfirmDialog = (props: TConfirmDialog) => {
             </DialogContent>
             <DialogActions>
                 <Button color="error" variant="outlined" onClick={handleCancel}>Cancel</Button>
-                <Button variant="contained" onClick={handleConfirm} autoFocus>
+                <Button variant="contained" onClick={handleConfirm} >
                     Confirm
                 </Button>
             </DialogActions>

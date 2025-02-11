@@ -170,7 +170,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
-                                                autoFocus
+
                                                 required
                                                 label={t('product_category_name')}
                                                 onChange={(e) => {
@@ -198,7 +198,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
-                                                autoFocus
+
                                                 disabled
                                                 required
                                                 label={t('slug')}

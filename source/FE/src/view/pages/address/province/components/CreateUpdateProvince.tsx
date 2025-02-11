@@ -163,7 +163,7 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
-                                                autoFocus
+
                                                 required
                                                 label={t('province_name')}
                                                 onChange={onChange}

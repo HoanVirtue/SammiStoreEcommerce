@@ -55,7 +55,7 @@ import { getAllCities } from 'src/services/city'
 
 type TProps = {}
 
-interface IDefaultValues {
+interface TDefaultValues {
     email: string
     address: string
     city: string
@@ -95,7 +95,7 @@ const MyProfilePage: NextPage<TProps> = () => {
         role: isDisableRole ? yup.string().notRequired() : yup.string().required("Role is required"),
     });
 
-    const defaultValues: IDefaultValues = {
+    const defaultValues: TDefaultValues = {
         email: '',
         address: '',
         city: '',

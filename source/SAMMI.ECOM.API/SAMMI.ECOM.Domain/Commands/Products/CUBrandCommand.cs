@@ -1,6 +1,10 @@
-﻿namespace SAMMI.ECOM.Domain.Commands.Products
+﻿using MediatR;
+using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.DomainModels.Products;
+
+namespace SAMMI.ECOM.Domain.Commands.Products
 {
-    public class CUBrandCommand
+    public class CUBrandCommand : IRequest<ActionResponse<BrandDTO>>
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;

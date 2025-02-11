@@ -190,7 +190,6 @@ const UserMenu = (props: TProps) => {
                                     <Image src={user?.avatar || ""}
                                         alt={user?.fullName || ""}
                                         className="w-8 h-8 object-cover"
-                                        objectFit="cover"
                                         width={0}
                                         height={0} />
                                 )

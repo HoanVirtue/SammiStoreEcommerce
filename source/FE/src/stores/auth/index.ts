@@ -64,7 +64,6 @@ export const authSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(registerAuthAsync.fulfilled, (state, action) => {
-      console.log('action', action)
       state.isLoading = false
       state.isSuccess = !!action.payload?.data?.email
       state.isError = !action.payload?.data?.email
@@ -105,7 +104,6 @@ export const authSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(changePasswordAsync.fulfilled, (state, action) => {
-      console.log('action', action)
       state.isLoading = false
       state.isSuccessChangePassword = !!action.payload?.data
       state.isErrorChangePassword = !action.payload?.data

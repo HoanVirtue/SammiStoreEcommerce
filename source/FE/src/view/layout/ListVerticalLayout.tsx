@@ -53,7 +53,6 @@ const StyledListItemText = styled(ListItemText)<TListItemText>(({ theme, active 
 const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpenItem, disabled, activePath, setActivePath }) => {
 
     const theme = useTheme()
-        console.log(theme.palette.customColors.main, "customColors.main")
     const router = useRouter()
 
     const handleClick = (title: string) => {

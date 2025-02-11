@@ -103,7 +103,6 @@ const ListRolePage: NextPage<TProps> = () => {
 
     const handleSort = (sort: GridSortModel) => {
         const sortOption = sort[0]
-        console.log(sortOption)
         setSortBy(`${sortOption.field} ${sortOption.sort}`)
     }
 
@@ -132,7 +131,6 @@ const ListRolePage: NextPage<TProps> = () => {
                 if (res?.data.permissions.includes(PERMISSIONS.ADMIN)) {
                     setDisablePermission(true)
                     setSelectedPermissions(getAllValuesOfObject(PERMISSIONS, [PERMISSIONS.ADMIN, PERMISSIONS.BASIC]))
-                    console.log(selectedPermissions)
                 } else if (res?.data.permissions.includes(PERMISSIONS.BASIC)) {
                     setDisablePermission(true)
                     setSelectedPermissions(PERMISSIONS.DASHBOARD)

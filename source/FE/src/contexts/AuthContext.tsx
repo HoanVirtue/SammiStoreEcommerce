@@ -8,7 +8,7 @@ import { useRouter } from 'next/router'
 import axios from 'axios'
 
 // ** Config
-import authConfig from 'src/configs/auth'
+import authConfig, { LIST_PUBLIC_PAGE } from 'src/configs/auth'
 
 // ** Types
 import { AuthValuesType, LoginParams, ErrCallbackType, UserDataType } from './types'
@@ -17,7 +17,7 @@ import { API_ENDPOINT } from 'src/configs/api'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from 'src/helpers/storage'
 import instance from 'src/helpers/axios'
 import toast from 'react-hot-toast'
-import { updateProductToCart } from 'src/stores/order-product'
+import { updateProductToCart } from 'src/stores/order'
 import { AppDispatch } from 'src/stores'
 import { useDispatch } from 'react-redux'
 
@@ -107,7 +107,18 @@ const AuthProvider = ({ children }: Props) => {
       dispatch(updateProductToCart({
         orderItems: []
       }))
-      router.push('/login')
+      // if (!LIST_PUBLIC_PAGE?.some((item) => router.asPath.includes(item))) {
+      //   if (router.asPath !== '/') {
+      //     router.replace({
+      //       pathname: '/login',
+      //       query: {
+      //         returnUrl: router.asPath
+      //       }
+      //     })
+      //   } else {
+      //     router.replace('/login')
+      //   }
+      // }
     })
   }
 

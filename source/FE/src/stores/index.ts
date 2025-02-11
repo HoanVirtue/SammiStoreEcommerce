@@ -11,7 +11,7 @@ import paymentMethod from 'src/stores/payment-method'
 import province from 'src/stores/province'
 import productCategory from 'src/stores/product-category'
 import product from 'src/stores/product'
-import orderProduct from 'src/stores/order-product'
+import order from 'src/stores/order'
 
 export const store = configureStore({
   reducer: {
@@ -24,7 +24,7 @@ export const store = configureStore({
     province,
     productCategory,
     product,
-    orderProduct
+    order
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

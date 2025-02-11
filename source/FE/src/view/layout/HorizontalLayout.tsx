@@ -15,7 +15,7 @@ import LanguageDropdown from "./components/language-dropdown";
 //hooks
 import { useAuth } from "src/hooks/useAuth";
 import { Button } from "@mui/material";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 
 //config
 import { ROUTE_CONFIG } from "src/configs/route";
@@ -61,6 +61,21 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, isHideMenu }) 
     const { user } = useAuth()
     const router = useRouter()
     const theme = useTheme()
+
+    const handleNavigateLogin = () => {
+        if (router.asPath !== '/') {
+            router.replace({
+                pathname: '/login',
+                query: {
+                    returnUrl: router.asPath
+                }
+            })
+        } else {
+        }
+        router.replace('/login')
+    }
+
+
     return (
         <AppBar position="absolute" open={open}>
             <Toolbar sx={{ pr: '30px', margin: '0 20px' }} >
@@ -79,7 +94,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, isHideMenu }) 
                     </IconButton>
                 )}
                 <Typography component="h1" variant="h6" color="primary" noWrap sx={{ flexGrow: 1, fontWeight: "600", cursor: "pointer" }}>
-                    <Link href = {ROUTE_CONFIG.HOME}>Sammi Stores</Link>
+                    <Link href={ROUTE_CONFIG.HOME}>Sammi Stores</Link>
                 </Typography>
                 <LanguageDropdown />
                 <ModeToggle />
@@ -96,7 +111,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, isHideMenu }) 
                     user
                         ? (<UserMenu />)
                         : (
-                            <Button onClick={() => { router.push(ROUTE_CONFIG.LOGIN) }}
+                            <Button onClick={handleNavigateLogin}
                                 variant="contained" sx={{ mt: 3, mb: 2, ml: 2, py: 1.5, width: "auto" }}>
                                 Sign in
                             </Button>

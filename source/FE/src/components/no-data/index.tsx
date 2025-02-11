@@ -37,7 +37,6 @@ const NoData = (props: TProps) => {
             <Image src={NoDataImg}
                 alt={"no-data"}
                 style={{ width: imageWidth, height: imageHeight, objectFit: 'cover' }}
-                objectFit="cover"
                 width={0}
                 height={0} />
                 <Typography sx={{whiteSpace: "nowrap", mt: 2}}>{textNodata}</Typography>

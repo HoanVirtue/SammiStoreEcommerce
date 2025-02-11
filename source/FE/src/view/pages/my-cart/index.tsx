@@ -21,16 +21,12 @@ import { useDispatch, useSelector } from 'react-redux'
 
 //Other
 
-import Spinner from 'src/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
 import { cloneDeep, convertUpdateProductToCart, formatPrice } from 'src/utils'
-import product from 'src/stores/product';
-import { TItemOrderProduct } from 'src/types/order-product'
-import { hexToRGBA } from 'src/utils/hex-to-rgba'
+import { TItemOrderProduct } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
 import CustomTextField from 'src/components/text-field'
-import { updateProductToCart } from 'src/stores/order-product'
-import { TProduct } from 'src/types/product'
+import { updateProductToCart } from 'src/stores/order'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import NoData from 'src/components/no-data'
 import { useRouter } from 'next/router'
@@ -38,19 +34,10 @@ import { ROUTE_CONFIG } from 'src/configs/route'
 
 type TProps = {}
 
-interface IDefaultValues {
-    email: string
-    address: string
-    city: string
-    phoneNumber: string
-    role: string
-    fullName: string
-}
 const MyCartPage: NextPage<TProps> = () => {
     //States
     const [loading, setLoading] = useState<boolean>(false)
     const [selectedRow, setSelectedRow] = useState<string[]>([])
-
 
     //hooks
     const { user } = useAuth()
@@ -62,7 +49,7 @@ const MyCartPage: NextPage<TProps> = () => {
 
     //Dispatch
     const dispatch: AppDispatch = useDispatch();
-    const { orderItems } = useSelector((state: RootState) => state.orderProduct)
+    const { orderItems } = useSelector((state: RootState) => state.order)
 
     const memoListAllProductIds = useMemo(() => {
         return orderItems.map((item: TItemOrderProduct) => item.product)
@@ -167,7 +154,7 @@ const MyCartPage: NextPage<TProps> = () => {
                 totalPrice: memoTotalPrice,
                 selectedProduct: JSON.stringify(memoSelectedProduct)
             }
-        },"checkout")
+        }, "checkout")
     }
 
     return (

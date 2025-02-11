@@ -7,7 +7,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Avatar, Button, Checkbox, Divider, FormControlLabel, Grid, IconButton, Radio, RadioGroup, Tooltip, Typography, useTheme } from '@mui/material'
+import { Avatar, Button, Divider, FormControlLabel, Grid, Radio, RadioGroup, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -21,23 +21,20 @@ import { useDispatch, useSelector } from 'react-redux'
 
 //Other
 
-import Spinner from 'src/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
-import { cloneDeep, convertUpdateProductToCart, formatPrice } from 'src/utils'
-import product from 'src/stores/product';
-import { TItemOrderProduct } from 'src/types/order-product'
-import { hexToRGBA } from 'src/utils/hex-to-rgba'
+import { formatPrice, toFullName } from 'src/utils'
+import { TItemOrderProduct } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
-import CustomTextField from 'src/components/text-field'
-import { updateProductToCart } from 'src/stores/order-product'
-import { TProduct } from 'src/types/product'
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import NoData from 'src/components/no-data'
 import { useRouter } from 'next/router'
 import { getAllPaymentMethods } from 'src/services/payment-method'
 import { getAllDeliveryMethods } from 'src/services/delivery-method'
 import { FormControl } from '@mui/material'
 import { FormLabel } from '@mui/material'
+import { createOrderAsync } from 'src/stores/order/action'
+import deliveryMethod from 'src/stores/delivery-method';
+import toast from 'react-hot-toast'
+import { resetInitialState } from 'src/stores/order'
 
 type TProps = {}
 
@@ -53,7 +50,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     //States
     const [loading, setLoading] = useState<boolean>(false)
     const [paymentOptions, setPaymentOptions] = useState<{ label: string, value: string }[]>([])
-    const [deliveryOptions, setDeliveryOptions] = useState<{ label: string, value: string }[]>([])
+    const [deliveryOptions, setDeliveryOptions] = useState<{ label: string, value: string, price: string }[]>([])
     const [selectedPayment, setSelectedPayment] = useState<string>('')
     const [selectedDelivery, setSelectedDelivery] = useState<string>('')
 
@@ -66,8 +63,9 @@ const CheckoutPage: NextPage<TProps> = () => {
     //Theme
     const theme = useTheme();
 
-    //Dispatch
+    //Redux
     const dispatch: AppDispatch = useDispatch();
+    const { isLoading, isSuccessCreate, isErrorCreate, errorMessageCreate, typeError } = useSelector((state: RootState) => state.order)
 
     //memo
     const memoQueryProduct = useMemo(() => {
@@ -100,9 +98,10 @@ const CheckoutPage: NextPage<TProps> = () => {
     const getListDeliveryMethod = async () => {
         await getAllDeliveryMethods({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
             if (res?.data) {
-                setDeliveryOptions(res?.data?.deliveryTypes?.map((item: { name: string, _id: string }) => ({
+                setDeliveryOptions(res?.data?.deliveryTypes?.map((item: { name: string, _id: string, price: string }) => ({
                     label: item?.name,
-                    value: item?._id
+                    value: item?._id,
+                    price: item?.price
                 })))
                 setSelectedDelivery(res?.data?.deliveryTypes?.[0]?._id)
             }
@@ -118,11 +117,39 @@ const CheckoutPage: NextPage<TProps> = () => {
         setSelectedPayment(value)
     }
 
+    const handlePlaceOrder = () => {
+        const shippingPrice = deliveryOptions?.find(item => item.value === selectedDelivery)?.price ?? 0
+        const totalPrice = shippingPrice ? memoQueryProduct?.totalPrice + Number(shippingPrice) : memoQueryProduct?.totalPrice
+        dispatch(createOrderAsync({
+            orderItems: memoQueryProduct?.selectedProduct as TItemOrderProduct[],
+            itemsPrice: memoQueryProduct?.totalPrice,
+            paymentMethod: selectedPayment,
+            deliveryMethod: selectedDelivery,
+            shippingPrice: shippingPrice ? Number(shippingPrice) : 0,
+            user: user ? user?._id : '',
+            fullName: user ? toFullName(user?.lastName, user?.middleName, user?.firstName, i18n.language) : '',
+            address: user ? user?.address : "",
+            city: user ? user?.city : "",
+            phone: user ? user?.phoneNumber : "",
+            totalPrice: totalPrice
+        }))
+    }
+
 
     useEffect(() => {
         getListPaymentMethod()
         getListDeliveryMethod()
     }, [])
+
+    useEffect(() => {
+        if (isSuccessCreate) {
+            toast.success(t("create_order_success"))
+            dispatch(resetInitialState())
+        } else if (isErrorCreate && errorMessageCreate) {
+            toast.error(t(errorMessageCreate))
+            dispatch(resetInitialState())
+        }
+    }, [isSuccessCreate, isErrorCreate, errorMessageCreate])
 
 
     return (
@@ -284,9 +311,10 @@ const CheckoutPage: NextPage<TProps> = () => {
             <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
                 <Button type="submit"
                     variant="contained"
+                    onClick={handlePlaceOrder}
                     startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
                     sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                    {t('buy_now')}
+                    {t('place_order')}
                 </Button>
             </Box>
         </>

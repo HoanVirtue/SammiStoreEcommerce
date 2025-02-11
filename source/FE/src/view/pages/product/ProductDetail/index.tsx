@@ -37,7 +37,7 @@ import CustomTextField from 'src/components/text-field'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
-import { updateProductToCart } from 'src/stores/order-product'
+import { updateProductToCart } from 'src/stores/order'
 import NoData from 'src/components/no-data'
 import ProductCard from '../components/ProductCard'
 import RelatedProduct from '../components/RelatedProduct'
@@ -67,7 +67,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const { i18n } = useTranslation();
 
     //redux
-    const { orderItems } = useSelector((state: RootState) => state.orderProduct)
+    const { orderItems } = useSelector((state: RootState) => state.order)
     const dispatch: AppDispatch = useDispatch();
 
     //Theme

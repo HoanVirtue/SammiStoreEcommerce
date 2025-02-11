@@ -17,7 +17,7 @@ import { API_ENDPOINT } from 'src/configs/api'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from 'src/helpers/storage'
 import instance from 'src/helpers/axios'
 import toast from 'react-hot-toast'
-import { updateProductToCart } from 'src/stores/order-product'
+import { updateProductToCart } from 'src/stores/order'
 import { AppDispatch } from 'src/stores'
 import { useDispatch } from 'react-redux'
 

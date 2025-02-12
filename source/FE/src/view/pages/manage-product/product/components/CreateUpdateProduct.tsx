@@ -397,7 +397,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                     render={({ field: { onChange, onBlur, value } }) => (
                                                         <CustomTextField
                                                             fullWidth
-                                                            autoFocus
+
                                                             required
                                                             label={t('product_name')}
                                                             onChange={(e) => {
@@ -425,7 +425,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                     render={({ field: { onChange, onBlur, value } }) => (
                                                         <CustomTextField
                                                             fullWidth
-                                                            autoFocus
+
                                                             disabled
                                                             required
                                                             label={t('slug')}

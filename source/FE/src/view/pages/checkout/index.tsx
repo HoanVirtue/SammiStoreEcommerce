@@ -35,6 +35,8 @@ import { createOrderAsync } from 'src/stores/order/action'
 import deliveryMethod from 'src/stores/delivery-method';
 import toast from 'react-hot-toast'
 import { resetInitialState } from 'src/stores/order'
+import { hexToRGBA } from 'src/utils/hex-to-rgba'
+import AddressModal from './components/AddressModal'
 
 type TProps = {}
 
@@ -53,6 +55,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const [deliveryOptions, setDeliveryOptions] = useState<{ label: string, value: string, price: string }[]>([])
     const [selectedPayment, setSelectedPayment] = useState<string>('')
     const [selectedDelivery, setSelectedDelivery] = useState<string>('')
+    const [openAddressModal, setOpenAddressModal] = useState(false)
 
 
     //hooks
@@ -135,7 +138,6 @@ const CheckoutPage: NextPage<TProps> = () => {
         }))
     }
 
-
     useEffect(() => {
         getListPaymentMethod()
         getListDeliveryMethod()
@@ -155,12 +157,44 @@ const CheckoutPage: NextPage<TProps> = () => {
     return (
         <>
             {/* {loading || isLoading && <Spinner />} */}
+            <AddressModal open={openAddressModal} onClose={()=>setOpenAddressModal(false)} />
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 display: 'flex',
                 alignItems: 'center',
                 padding: '40px',
-                borderRadius: '15px'
+                borderRadius: '15px',
+                mb: 6
+            }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <IconifyIcon icon="carbon:location" width={20} height={20} style={{ color: theme.palette.primary.main }} />
+                        <Typography variant="body2" sx={{ color: theme.palette.primary.main, fontSize: "18px", fontWeight: "bold", mt: 1 }}>
+                            {t("shipping_address")}
+                        </Typography>
+                    </Box>
+                    <Box sx={{
+                        // backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.1)}`,
+                        padding: 2
+                    }}>
+                        {user?.addresses && user?.addresses?.length > 0 ? (
+                            <Typography component="span">
+                                {toFullName(user?.lastName || "", user?.middleName || "", user?.firstName || "", i18n.language)}
+                            </Typography>
+                        ) : (
+                            <Button variant='outlined' 
+                            onClick={()=>setOpenAddressModal(true)}>{t("add_address")}</Button>
+                        )}
+                    </Box>
+                </Box>
+            </Box>
+            <Box sx={{
+                backgroundColor: theme.palette.background.paper,
+                display: 'flex',
+                padding: '40px',
+                borderRadius: '15px',
+                flexDirection: 'column',
+                gap: 4
             }}>
                 <Grid container>
                     {memoQueryProduct?.selectedProduct?.length > 0 ? (
@@ -178,7 +212,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 <Grid item md={2} xs={12}>
                                     <Typography fontWeight={600}>{t("discount_price")}</Typography>
                                 </Grid>
-                                <Grid item md={1} xs={12}>
+                                <Grid item md={2} xs={12}>
                                     <Typography>{t("quantity")}</Typography>
                                 </Grid>
                             </Grid>
@@ -221,7 +255,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                                         )}
                                                     </Typography>
                                                 </Grid>
-                                                <Grid item md={1}>
+                                                <Grid item md={2}>
                                                     <Typography variant="h6" sx={{
                                                         color: theme.palette.primary.main,
                                                         fontWeight: "bold",

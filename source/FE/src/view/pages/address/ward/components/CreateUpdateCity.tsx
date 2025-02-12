@@ -164,7 +164,7 @@ const CreateUpdateCity = (props: TCreateUpdateCity) => {
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
-                                                autoFocus
+
                                                 required
                                                 label={t('city_name')}
                                                 onChange={onChange}

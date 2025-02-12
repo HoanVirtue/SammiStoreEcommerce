@@ -21,9 +21,9 @@ import { useTranslation } from "react-i18next";
 //Utils
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
-import { TItemOrderProduct } from "src/types/order-product";
+import { TItemOrderProduct } from "src/types/order";
 import { getLocalProductFromCart } from "src/helpers/storage";
-import { updateProductToCart } from "src/stores/order-product";
+import { updateProductToCart } from "src/stores/order";
 import { hexToRGBA } from "src/utils/hex-to-rgba";
 import { formatPrice } from "src/utils";
 import { ROUTE_CONFIG } from "src/configs/route";
@@ -39,7 +39,7 @@ const StyledMenuItem = styled(MenuItem)<MenuItemProps>(({ theme }) => ({
 const ProductCart = (props: TProps) => {
     const { user } = useAuth()
 
-    const { orderItems } = useSelector((state: RootState) => state.orderProduct)
+    const { orderItems } = useSelector((state: RootState) => state.order)
     const dispatch: AppDispatch = useDispatch()
 
     //Translation
@@ -144,7 +144,7 @@ const ProductCart = (props: TProps) => {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 {orderItems.length > 0 ? (
-                    <Box sx={{maxHeight: "300px", overflow: "auto"}}>
+                    <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
                         {orderItems.map((item: TItemOrderProduct) => {
                             return (
                                 <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>

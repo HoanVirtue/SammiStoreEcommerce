@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.AspNetCore.Http;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.DomainModels.Products;
 
@@ -18,7 +17,7 @@ namespace SAMMI.ECOM.Domain.Commands.Products
         public int? BrandId { get; set; }
         public int? CategoryId { get; set; }
         public int? Status { get; set; }
-        public List<IFormFile>? ImageFiles { get; set; }
+        public List<ProductImageCommand>? Images { get; set; }
 
 
         public int Id { get; set; }
@@ -31,3 +30,4 @@ namespace SAMMI.ECOM.Domain.Commands.Products
         public int? DisplayOrder { get; set; }
     }
 }
+

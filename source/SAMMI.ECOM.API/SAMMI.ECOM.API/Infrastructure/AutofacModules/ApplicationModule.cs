@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using SAMMI.ECOM.API.Controllers;
+using SAMMI.ECOM.API.Services.MediaResource;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
@@ -51,6 +52,9 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
                 .SingleInstance();
 
             builder.RegisterType<EFAuthenticationService>().As<IAuthenticationService<User>>();
+
+            builder.RegisterType<FileStorageService>().As<IFileStorageService>();
+            builder.RegisterType<CloudinaryService>().As<ICloudinaryService>();
 
 
             // Register all the Repository classes (they implement CrudRepository) in assembly holding the Repositories

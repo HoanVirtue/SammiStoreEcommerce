@@ -36,6 +36,7 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
     instance.interceptors.request.use(async (config) => {
         const { accessToken, refreshToken } = getLocalUserData()
         const { temporaryToken } = getTemporaryToken()
+        // const isPublicApi = config?.params?.isPublic
 
         if (accessToken || temporaryToken) {
             let decodedAccessToken: any = {}
@@ -80,6 +81,7 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
                     // handleRedirectToLogin(router, setUser)
                 }
             }
+        // } else if (!isPublicApi) {
         } else {
             // handleRedirectToLogin(router, setUser)
         }

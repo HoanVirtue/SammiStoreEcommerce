@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
+using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Enums;
 using System.Data;
@@ -114,6 +115,7 @@ namespace SAMMI.ECOM.Infrastructure
                     IsAdmin = true,
                     IdentityGuid = Guid.NewGuid().ToString(),
                     Type = TypeUserEnum.Employee.ToString(),
+                    Phone = "012321232",
                     FirstName = "ad",
                     LastName = "min",
                     FullName = "admin",
@@ -319,6 +321,223 @@ namespace SAMMI.ECOM.Infrastructure
         }
 
 
+        private async Task SeedBrand()
+        {
+            if (!await _context.Brands.AnyAsync())
+            {
+                List<Brand> brands = new List<Brand>();
+                brands.Add(new Brand()
+                {
+                    Code = "br00001",
+                    Name = "WHOO",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                brands.Add(new Brand()
+                {
+                    Code = "br00002",
+                    Name = "SK-II",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                brands.Add(new Brand()
+                {
+                    Code = "br00003",
+                    Name = "Estee Lauder",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                brands.Add(new Brand()
+                {
+                    Code = "br00004",
+                    Name = "Lancome",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                brands.Add(new Brand()
+                {
+                    Code = "br00005",
+                    Name = "Shiseido",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                brands.Add(new Brand()
+                {
+                    Code = "br00006",
+                    Name = "Clinique",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                brands.Add(new Brand()
+                {
+                    Code = "br00007",
+                    Name = "Dior",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                brands.Add(new Brand()
+                {
+                    Code = "br00008",
+                    Name = "Chanel",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                brands.Add(new Brand()
+                {
+                    Code = "br00009",
+                    Name = "L'Oreal",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                brands.Add(new Brand()
+                {
+                    Code = "br00010",
+                    Name = "The Face Shop",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                try
+                {
+                    await _context.Brands.AddRangeAsync(brands);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+        private async Task SeedProductCategory()
+        {
+            if (!await _context.ProductCategories.AnyAsync())
+            {
+                List<ProductCategory> categories = new List<ProductCategory>();
+                categories.Add(new ProductCategory()
+                {
+                    Code = "DM00001",
+                    Name = "Trang điểm",
+                    Level = 1,
+                    ParentId = null,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                categories.Add(new ProductCategory()
+                {
+                    Code = "DM00002",
+                    Name = "Chăm sóc da",
+                    Level = 1,
+                    ParentId = null,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                categories.Add(new ProductCategory()
+                {
+                    Code = "DM00003",
+                    Name = "Làm sạch da",
+                    Level = 2,
+                    ParentId = 2, // Thuộc "Chăm sóc da"
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                categories.Add(new ProductCategory()
+                {
+                    Code = "DM00004",
+                    Name = "Dưỡng ẩm",
+                    Level = 2,
+                    ParentId = 2, // Thuộc "Chăm sóc da"
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                categories.Add(new ProductCategory()
+                {
+                    Code = "DM00005",
+                    Name = "Son môi",
+                    Level = 2,
+                    ParentId = 1, // Thuộc "Trang điểm"
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                categories.Add(new ProductCategory()
+                {
+                    Code = "DM00006",
+                    Name = "Kem nền",
+                    Level = 2,
+                    ParentId = 1, // Thuộc "Trang điểm"
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                categories.Add(new ProductCategory()
+                {
+                    Code = "DM00007",
+                    Name = "Kem chống nắng",
+                    Level = 2,
+                    ParentId = 2, // Thuộc "Chăm sóc da"
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+
+                try
+                {
+                    await _context.ProductCategories.AddRangeAsync(categories);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+            }
+        }
+
+
         public async Task SeedAsync()
         {
             await SeedAddress();
@@ -327,6 +546,8 @@ namespace SAMMI.ECOM.Infrastructure
             await SeedRole();
             await SeedRolePermission();
             await SeedUserRole();
+            await SeedBrand();
+            await SeedProductCategory();
         }
     }
 }

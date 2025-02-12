@@ -1,6 +1,7 @@
 ﻿using SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
+using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Seeds;
@@ -103,4 +104,6 @@ public partial class User : Entity
     public virtual Ward? Ward { get; set; }
 
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+
+    public virtual ICollection<Image> UserImages { get; set; } = new List<Image>();
 }

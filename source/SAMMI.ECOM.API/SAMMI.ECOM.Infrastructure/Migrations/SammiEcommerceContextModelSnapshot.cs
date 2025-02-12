@@ -1410,6 +1410,77 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.ToTable("Brand");
                 });
 
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BrandId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Culture")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Culture");
+
+                    b.Property<int?>("DisplayOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("DisplayOrder");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("ImageUrl");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<int?>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PublicId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("PublicId");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedDate");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrandId");
+
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Image");
+                });
+
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -1571,62 +1642,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.HasIndex("ParentId");
 
                     b.ToTable("ProductCategory");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.ProductImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("CreatedBy");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreatedDate");
-
-                    b.Property<string>("Culture")
-                        .HasColumnType("longtext")
-                        .HasColumnName("Culture");
-
-                    b.Property<int?>("DisplayOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("DisplayOrder");
-
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("ImageUrl");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsActive");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("UpdatedBy");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("UpdatedDate");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductImage");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder.PurchaseOrder", b =>
@@ -2538,6 +2553,27 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("Ward");
                 });
 
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Image", b =>
+                {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", "Brand")
+                        .WithMany("BrandImages")
+                        .HasForeignKey("BrandId");
+
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Product", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId");
+
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Others.User", "User")
+                        .WithMany("UserImages")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Brand");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Product", b =>
                 {
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", "Brand")
@@ -2560,16 +2596,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasForeignKey("ParentId");
 
                     b.Navigation("Parent");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.ProductImage", b =>
-                {
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Product", "Product")
-                        .WithMany("ProductImages")
-                        .HasForeignKey("ProductId")
-                        .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder.PurchaseOrder", b =>
@@ -2736,11 +2762,15 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     b.Navigation("Reviews");
 
+                    b.Navigation("UserImages");
+
                     b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", b =>
                 {
+                    b.Navigation("BrandImages");
+
                     b.Navigation("Discounts");
 
                     b.Navigation("Products");

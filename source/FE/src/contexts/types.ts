@@ -6,6 +6,16 @@ export type LoginParams = {
   rememberMe?: boolean
 }
 
+export type TUserAddress ={
+  address: string,
+  city: string,
+  phoneNumber: string,
+  firstName: string,
+  middleName: string,
+  lastName: string,
+  isDefault: boolean
+}
+
 export type UserDataType = {
   _id: string
   role: {
@@ -21,6 +31,10 @@ export type UserDataType = {
   password: string
   avatar?: string | null
   likedProducts: string[]
+  city: string,
+  address?: string,
+  phoneNumber: string
+  addresses: TUserAddress[]
 }
 
 export type AuthValuesType = {

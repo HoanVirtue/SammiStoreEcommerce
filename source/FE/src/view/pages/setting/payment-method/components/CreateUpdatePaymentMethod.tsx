@@ -173,7 +173,7 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
-                                                autoFocus
+
                                                 required
                                                 label={t('payment_method_name')}
                                                 onChange={onChange}

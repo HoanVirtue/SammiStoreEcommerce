@@ -15,8 +15,6 @@ import { ROUTE_CONFIG } from 'src/configs/route';
 import { convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils';
 import { AppDispatch, RootState } from 'src/stores';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateProductToCart } from 'src/stores/order-product';
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
 import { useAuth } from 'src/hooks/useAuth';
 
 
@@ -47,7 +45,7 @@ const RelatedProduct = (props: TRelatedProduct) => {
 
     //redux
     const dispatch: AppDispatch = useDispatch()
-    const { orderItems } = useSelector((state: RootState) => state.orderProduct)
+    const { orderItems } = useSelector((state: RootState) => state.order)
 
     //handler
     const handleNavigateProductDetail = (slug: string) => {
@@ -160,12 +158,12 @@ const RelatedProduct = (props: TRelatedProduct) => {
                             </Typography>
                         )}
                         {item?.location?.name && (
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
-                            <IconifyIcon icon="carbon:location" width={20} height={20} />
-                            <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
-                                {item?.location?.name}
-                            </Typography>
-                        </Box>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+                                <IconifyIcon icon="carbon:location" width={20} height={20} />
+                                <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
+                                    {item?.location?.name}
+                                </Typography>
+                            </Box>
                         )}
                     </Box>
                     {!!item?.averageRating && (

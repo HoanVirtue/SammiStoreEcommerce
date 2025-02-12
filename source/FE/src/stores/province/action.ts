@@ -20,7 +20,6 @@ export const createProvinceAsync = createAsyncThunk(`${serviceName}/create`, asy
 
 export const updateProvinceAsync = createAsyncThunk(`${serviceName}/update`, async (data: TParamsUpdateProvince) => {
     const response = await updateProvince(data)
-    console.log("update ac", response)
     return response
 })
 

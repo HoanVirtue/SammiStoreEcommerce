@@ -26,8 +26,15 @@ const StyledPagination = styled(Pagination)<PaginationProps>(({ theme }) => ({
 
 const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) => {
     const { page, pageSize, rowLength, pageSizeOptions, onChangePagination, isHidden, ...rests } = props
-
+    
     const { t } = useTranslation();
+
+    const pageCount = Math.ceil(rowLength / pageSize);
+
+    const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
+        onChangePagination(newPage, pageSize);
+    };
+
     return (
         <Box sx={{
             display: 'flex',
@@ -87,7 +94,7 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
                         })}
                     </Select>
                 </Box>
-                <StyledPagination color='primary' {...rests} />
+                <StyledPagination color='primary' count={pageCount} page={page} onChange={handlePageChange} {...rests} />
             </Box>
         </Box>
     );

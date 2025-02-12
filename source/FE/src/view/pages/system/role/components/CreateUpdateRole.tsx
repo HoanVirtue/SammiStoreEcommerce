@@ -147,7 +147,7 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
                                 render={({ field: { onChange, onBlur, value } }) => (
                                     <CustomTextField
                                         required
-                                        autoFocus
+
                                         fullWidth
                                         label="Role name"
                                         onChange={onChange}

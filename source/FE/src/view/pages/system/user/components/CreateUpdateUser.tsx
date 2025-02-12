@@ -333,7 +333,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                     rules={{ required: true }}
                                                     render={({ field: { onChange, onBlur, value } }) => (
                                                         <CustomTextField
-                                                            // autoFocus
+                                                            // 
                                                             required
                                                             fullWidth
                                                             label="Email"

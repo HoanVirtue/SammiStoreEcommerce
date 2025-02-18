@@ -12,8 +12,8 @@ using SAMMI.ECOM.Infrastructure;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     [DbContext(typeof(SammiEcommerceContext))]
-    [Migration("20250121153201_update-user-avatar")]
-    partial class updateuseravatar
+    [Migration("20250218200357_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,8 +36,12 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Code")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Code");
+
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -46,11 +50,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -94,13 +97,17 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Code")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Code");
+
                     b.Property<string>("Country")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("Country");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -109,11 +116,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -157,8 +163,12 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Code")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Code");
+
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -167,11 +177,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -216,7 +225,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -225,14 +233,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
                     b.Property<int?>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -273,7 +280,196 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.ToTable("CustomerAddress");
                 });
 
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Discount", b =>
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.DiscountType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Culture")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Culture");
+
+                    b.Property<int?>("DisplayOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("DisplayOrder");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Name");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedDate");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DiscountType");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Event", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("Code");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Culture")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Culture");
+
+                    b.Property<int?>("DisplayOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("DisplayOrder");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("EndDate");
+
+                    b.Property<string>("EventType")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("EventType");
+
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int")
+                        .HasColumnName("ImageId");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Name");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("StartDate");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
+
+                    b.ToTable("Event");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.MyVoucher", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Culture")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Culture");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DisplayOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("DisplayOrder");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsUsed");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedDate");
+
+                    b.Property<int>("VoucherId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("VoucherId");
+
+                    b.ToTable("MyVoucher");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -295,7 +491,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("Code");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -304,7 +499,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
@@ -315,7 +509,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("decimal(65,30)")
                         .HasColumnName("DiscountValue");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -376,201 +570,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Discount");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.DiscountType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("CreatedBy");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreatedDate");
-
-                    b.Property<string>("Culture")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("Culture");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("DisplayOrder");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsActive");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("Name");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("UpdatedBy");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("UpdatedDate");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DiscountType");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Event", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("varchar(256)")
-                        .HasColumnName("Code");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("CreatedBy");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreatedDate");
-
-                    b.Property<string>("Culture")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("Culture");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("DisplayOrder");
-
-                    b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("EndDate");
-
-                    b.Property<string>("EventType")
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)")
-                        .HasColumnName("EventType");
-
-                    b.Property<string>("Image")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("Image");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsActive");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)")
-                        .HasColumnName("Name");
-
-                    b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("StartDate");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("UpdatedBy");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("UpdatedDate");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Event");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.MyVoucher", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("CreatedBy");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreatedDate");
-
-                    b.Property<string>("Culture")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("Culture");
-
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("DisplayOrder");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsActive");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsUsed");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("UpdatedBy");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("UpdatedDate");
-
-                    b.Property<int>("VoucherId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomerId");
-
-                    b.HasIndex("VoucherId");
-
-                    b.ToTable("MyVoucher");
+                    b.ToTable("Voucher");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Message", b =>
@@ -583,7 +583,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -592,14 +591,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -656,7 +654,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -665,11 +662,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -719,8 +715,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreatedBy")
+                    b.Property<string>("Code")
                         .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("Code");
+
+                    b.Property<string>("CreatedBy")
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -729,7 +730,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
@@ -744,7 +744,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<int?>("DiscountId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -798,7 +798,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -807,14 +806,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
                     b.Property<int?>("DiscountId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -869,7 +867,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -878,11 +875,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -939,7 +935,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -948,11 +943,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -996,7 +990,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("Comment");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1005,11 +998,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1063,7 +1055,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("ContactInfo");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1072,11 +1063,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1130,7 +1120,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("Cost");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1139,11 +1128,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1207,7 +1195,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1216,14 +1203,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1264,10 +1250,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Avatar")
-                        .HasMaxLength(68)
-                        .HasColumnType("varchar(68)")
-                        .HasColumnName("Avatar");
+                    b.Property<int?>("AvatarId")
+                        .HasColumnType("int")
+                        .HasColumnName("AvatarId");
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -1276,7 +1261,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("Code");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1285,11 +1269,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1383,6 +1366,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AvatarId");
+
                     b.HasIndex("WardId");
 
                     b.ToTable("Users");
@@ -1404,7 +1389,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("Code");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1413,18 +1397,16 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
-                    b.Property<string>("Image")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("Image");
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int")
+                        .HasColumnName("ImageId");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)")
@@ -1450,7 +1432,75 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ImageId");
+
                     b.ToTable("Brand");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Image", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BrandId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Culture")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Culture");
+
+                    b.Property<int?>("DisplayOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("DisplayOrder");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("ImageUrl");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<string>("PublicId")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .HasColumnName("PublicId");
+
+                    b.Property<string>("TypeImage")
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("TypeImage");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BrandId");
+
+                    b.ToTable("Image");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Product", b =>
@@ -1475,7 +1525,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("Code");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1484,11 +1533,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1517,6 +1565,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<decimal?>("OldPrice")
                         .HasColumnType("decimal(65,30)")
                         .HasColumnName("OldPrice");
+
+                    b.Property<int?>("Status")
+                        .HasColumnType("int")
+                        .HasColumnName("Status");
 
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int")
@@ -1563,7 +1615,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("Code");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1572,11 +1623,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1626,7 +1676,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1635,18 +1684,15 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("ImageUrl");
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)")
@@ -1656,7 +1702,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsDeleted");
 
-                    b.Property<int>("ProductId")
+                    b.Property<int?>("ProductId")
                         .HasColumnType("int");
 
                     b.Property<string>("UpdatedBy")
@@ -1668,6 +1714,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("UpdatedDate");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("ProductId");
 
@@ -1684,7 +1732,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1693,11 +1740,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1711,6 +1757,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsDeleted");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("Note");
 
                     b.Property<string>("Status")
                         .HasMaxLength(50)
@@ -1747,7 +1798,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1756,11 +1806,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1817,7 +1866,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1826,18 +1874,16 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)")
-                        .HasColumnName("ImageUrl");
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int")
+                        .HasColumnName("ImageId");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)")
@@ -1867,6 +1913,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ImageId");
+
                     b.ToTable("Banner");
                 });
 
@@ -1879,8 +1927,12 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Code")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Code");
+
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1889,7 +1941,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
@@ -1898,7 +1949,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("Description");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -1929,7 +1980,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.ToTable("Permission");
                 });
 
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.Role", b =>
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.RefreshToken", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -1939,7 +1990,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -1948,7 +1998,79 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Culture");
+
+                    b.Property<int?>("DisplayOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("DisplayOrder");
+
+                    b.Property<DateTime>("ExpirationDateUtc")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("ExpirationDateUtc");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<bool>("IsExchanged")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsExchanged");
+
+                    b.Property<bool>("IsInvalid")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsInvalid");
+
+                    b.Property<string>("Token")
                         .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)")
+                        .HasColumnName("Token");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedDate");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int")
+                        .HasColumnName("UserId");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RefreshToken");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("Code");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Culture")
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
@@ -1957,7 +2079,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("varchar(255)")
                         .HasColumnName("Description");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -2002,7 +2124,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("Allow");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -2011,11 +2132,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -2030,24 +2150,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<int>("PermissionId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("RoleCreate")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("RoleCreate");
-
-                    b.Property<bool>("RoleDelete")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("RoleDelete");
-
                     b.Property<int>("RoleId")
                         .HasColumnType("int");
-
-                    b.Property<bool>("RoleUpdate")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("RoleUpdate");
-
-                    b.Property<bool>("RoleView")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("RoleView");
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("longtext")
@@ -2076,7 +2180,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -2085,11 +2188,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -2130,7 +2232,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -2139,11 +2240,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -2187,7 +2287,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -2196,11 +2295,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -2253,7 +2351,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("CreatedBy")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("CreatedBy");
 
@@ -2262,11 +2359,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnName("CreatedDate");
 
                     b.Property<string>("Culture")
-                        .IsRequired()
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
-                    b.Property<int>("DisplayOrder")
+                    b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
@@ -2334,28 +2430,54 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("Ward");
                 });
 
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Discount", b =>
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Event", b =>
+                {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Image", "Image")
+                        .WithMany("EventImages")
+                        .HasForeignKey("ImageId");
+
+                    b.Navigation("Image");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.MyVoucher", b =>
+                {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Others.User", "Customer")
+                        .WithMany("MyVouchers")
+                        .HasForeignKey("CustomerId")
+                        .IsRequired();
+
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", "Voucher")
+                        .WithMany("MyVouchers")
+                        .HasForeignKey("VoucherId")
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("Voucher");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", b =>
                 {
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", "Brand")
-                        .WithMany("Discounts")
+                        .WithMany("Vouchers")
                         .HasForeignKey("BrandId");
 
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.ProductCategory", "Category")
-                        .WithMany("Discounts")
+                        .WithMany("Vouchers")
                         .HasForeignKey("CategoryId");
 
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.DiscountType", "DiscountType")
-                        .WithMany("Discounts")
+                        .WithMany("Vouchers")
                         .HasForeignKey("DiscountTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Event", "Event")
-                        .WithMany("Discounts")
+                        .WithMany("Vouchers")
                         .HasForeignKey("EventId");
 
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Product", "Product")
-                        .WithMany("Discounts")
+                        .WithMany("Vouchers")
                         .HasForeignKey("ProductId");
 
                     b.Navigation("Brand");
@@ -2367,23 +2489,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("Event");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.MyVoucher", b =>
-                {
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Others.User", "Customer")
-                        .WithMany("MyVouchers")
-                        .HasForeignKey("CustomerId")
-                        .IsRequired();
-
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Discount", "Voucher")
-                        .WithMany("MyVouchers")
-                        .HasForeignKey("VoucherId")
-                        .IsRequired();
-
-                    b.Navigation("Customer");
-
-                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Message", b =>
@@ -2426,7 +2531,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasForeignKey("CustomerId")
                         .IsRequired();
 
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Discount", "Discount")
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", "Discount")
                         .WithMany("Orders")
                         .HasForeignKey("DiscountId");
 
@@ -2437,7 +2542,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.OrderDetail", b =>
                 {
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Discount", "Discount")
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", "Discount")
                         .WithMany("OrderDetails")
                         .HasForeignKey("DiscountId");
 
@@ -2528,11 +2633,33 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Others.User", b =>
                 {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Image", "Avatar")
+                        .WithMany("UserImages")
+                        .HasForeignKey("AvatarId");
+
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Ward", "Ward")
                         .WithMany("Users")
                         .HasForeignKey("WardId");
 
+                    b.Navigation("Avatar");
+
                     b.Navigation("Ward");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", b =>
+                {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Image", "Image")
+                        .WithMany("BrandImages")
+                        .HasForeignKey("ImageId");
+
+                    b.Navigation("Image");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Image", b =>
+                {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", null)
+                        .WithMany("BrandImages")
+                        .HasForeignKey("BrandId");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Product", b =>
@@ -2561,10 +2688,15 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.ProductImage", b =>
                 {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Image", "Image")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ImageId");
+
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Product", "Product")
                         .WithMany("ProductImages")
-                        .HasForeignKey("ProductId")
-                        .IsRequired();
+                        .HasForeignKey("ProductId");
+
+                    b.Navigation("Image");
 
                     b.Navigation("Product");
                 });
@@ -2601,6 +2733,15 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("PurchaseOrder");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.Banner", b =>
+                {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Image", "Image")
+                        .WithMany("BannerImages")
+                        .HasForeignKey("ImageId");
+
+                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.RolePermission", b =>
@@ -2671,23 +2812,23 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("Users");
                 });
 
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Discount", b =>
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.DiscountType", b =>
+                {
+                    b.Navigation("Vouchers");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Event", b =>
+                {
+                    b.Navigation("Vouchers");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", b =>
                 {
                     b.Navigation("MyVouchers");
 
                     b.Navigation("OrderDetails");
 
                     b.Navigation("Orders");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.DiscountType", b =>
-                {
-                    b.Navigation("Discounts");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Event", b =>
-                {
-                    b.Navigation("Discounts");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Order", b =>
@@ -2738,15 +2879,28 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", b =>
                 {
-                    b.Navigation("Discounts");
+                    b.Navigation("BrandImages");
 
                     b.Navigation("Products");
+
+                    b.Navigation("Vouchers");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Image", b =>
+                {
+                    b.Navigation("BannerImages");
+
+                    b.Navigation("BrandImages");
+
+                    b.Navigation("EventImages");
+
+                    b.Navigation("ProductImages");
+
+                    b.Navigation("UserImages");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Product", b =>
                 {
-                    b.Navigation("Discounts");
-
                     b.Navigation("FavouriteProducts");
 
                     b.Navigation("OrderDetails");
@@ -2756,13 +2910,15 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("PurchaseOrderDetails");
 
                     b.Navigation("Reviews");
+
+                    b.Navigation("Vouchers");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.ProductCategory", b =>
                 {
-                    b.Navigation("Discounts");
-
                     b.Navigation("Products");
+
+                    b.Navigation("Vouchers");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder.PurchaseOrder", b =>

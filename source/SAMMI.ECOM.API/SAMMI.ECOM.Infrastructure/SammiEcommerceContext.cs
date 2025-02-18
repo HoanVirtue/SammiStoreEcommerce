@@ -26,7 +26,7 @@ public partial class SammiEcommerceContext : DbContext
 
     public virtual DbSet<CustomerAddress> CustomerAddresses { get; set; }
 
-    public virtual DbSet<Discount> Discounts { get; set; }
+    public virtual DbSet<Voucher> Vouchers { get; set; }
 
     public virtual DbSet<DiscountType> DiscountTypes { get; set; }
 
@@ -55,6 +55,7 @@ public partial class SammiEcommerceContext : DbContext
     public virtual DbSet<ProductCategory> ProductCategories { get; set; }
 
     public virtual DbSet<Image> Images { get; set; }
+    public virtual DbSet<ProductImage> ProductImages { get; set; }
 
     public virtual DbSet<Province> Provinces { get; set; }
 
@@ -105,7 +106,7 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new BannerEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new BrandEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new CustomerAddressEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new DiscountEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new VoucherEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new DiscountTypeEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new DistrictEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new EventEntityTypeConfiguration());

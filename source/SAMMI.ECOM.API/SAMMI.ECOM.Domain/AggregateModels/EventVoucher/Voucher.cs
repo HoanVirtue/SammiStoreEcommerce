@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 
-[Table("Discount")]
-public partial class Discount : Entity
+[Table("Voucher")]
+public partial class Voucher : Entity
 {
     [Column("Code")]
     [MaxLength(256)]

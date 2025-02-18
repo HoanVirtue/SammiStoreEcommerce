@@ -18,12 +18,13 @@ public partial class Brand : Entity
     [StringLength(100)]
     public string Name { get; set; } = null!;
 
-    [Column("Image")]
-    [StringLength(255)]
-    public string? Image { get; set; }
+    [ForeignKey("Image")]
+    [Column("ImageId")]
+    public int? ImageId { get; set; }
 
-    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
 
+    public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
     public virtual ICollection<Image> BrandImages { get; set; } = new List<Image>();
+    public virtual Image? Image { get; set; }
 }

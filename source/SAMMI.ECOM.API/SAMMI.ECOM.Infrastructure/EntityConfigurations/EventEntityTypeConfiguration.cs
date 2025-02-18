@@ -9,6 +9,12 @@ namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
         public void Configure(EntityTypeBuilder<Event> builder)
         {
             builder.HasKey(x => x.Id);
+
+
+            builder.HasOne(d => d.Image)
+                .WithMany(p => p.EventImages)
+                .HasForeignKey(d => d.ImageId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

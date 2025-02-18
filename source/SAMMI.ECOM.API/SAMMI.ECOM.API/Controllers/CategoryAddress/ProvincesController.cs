@@ -24,6 +24,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         }
 
         [HttpGet]
+        // đây là quyền xem: Xem tỉnh/thành phố, mã code: PROVINCE_VIEW
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
             if (request.Type == RequestType.Grid)
@@ -39,12 +40,14 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         }
 
         [HttpGet("{id}")]
+        // PROVINCE_VIEW
         public async Task<IActionResult> Get(int id)
         {
             return Ok(await _provinceQueries.GetById(id));
         }
 
         [HttpPost]
+        // PROVINCE_CREATE
         public async Task<IActionResult> Post([FromBody] CUProvinceCommand request)
         {
             if (request.Id != 0)
@@ -82,6 +85,30 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
                 return NotFound();
             }
             return Ok(_provinRepository.DeleteAndSave(id));
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteRange([FromBody] List<int> ids)
+        {
+            var actErrorResponse = new ActionResponse<List<string>>();
+            var listError = new Dictionary<int, string>();
+            if (ids == null || ids.Count == 0)
+            {
+                return BadRequest();
+            }
+            foreach (var id in ids)
+            {
+                if (!_provinRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
+                {
+                    listError[id] = $"Không tồn tại tỉnh/thành phố có mã {id}";
+                }
+            }
+            if (listError.Count > 0)
+            {
+                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                return BadRequest(actErrorResponse);
+            }
+            return Ok(_provinRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
     }
 }

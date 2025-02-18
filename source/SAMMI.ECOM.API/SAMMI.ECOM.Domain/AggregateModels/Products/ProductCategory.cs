@@ -24,7 +24,7 @@ public partial class ProductCategory : Entity
 
     public virtual ProductCategory? Parent { get; set; }
 
-    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
+    public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
 
     public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }

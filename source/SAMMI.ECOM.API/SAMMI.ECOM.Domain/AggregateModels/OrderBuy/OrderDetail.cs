@@ -23,7 +23,7 @@ public partial class OrderDetail : Entity
     [ForeignKey("Discount")]
     public int? DiscountId { get; set; }
 
-    public virtual Discount? Discount { get; set; }
+    public virtual Voucher? Discount { get; set; }
 
     public virtual Order Order { get; set; } = null!;
 

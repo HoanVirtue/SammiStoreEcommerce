@@ -3,7 +3,6 @@ using FluentValidation;
 using SAMMI.ECOM.API.Services.MediaResource;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
-using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.Enums;
@@ -84,12 +83,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                     {
                         if (string.IsNullOrEmpty(file.ImageBase64))
                         {
-                            actResponse.AddError("Chuỗi ImageBase64 là bắt buộc");
+                            actResponse.AddError("Chuỗi ImageBase64 không được bỏ trống");
                             return actResponse;
                         }
                         if (file.DisplayOrder == null || file.DisplayOrder == 0)
                         {
-                            actResponse.AddError("Chuỗi ImageBase64 là bắt buộc");
+                            actResponse.AddError("Chuỗi ImageBase64 không được bỏ trống");
                             return actResponse;
                         }
                         string fileName = $"product_{product.Id}_{Guid.NewGuid()}";
@@ -99,18 +98,18 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                             actResponse.AddError("Lỗi upload ảnh lên cloudinary");
                             return actResponse;
                         }
-                        var imageProduct = new Image()
-                        {
-                            ProductId = product.Id,
-                            ImageUrl = urlImage,
-                            PublicId = $"{_config["CloundSettings:ImageProductFolder"]}/{fileName}",
-                            CreatedDate = DateTime.Now,
-                            CreatedBy = _currentUser.UserName,
-                            IsActive = true,
-                            IsDeleted = false,
-                            DisplayOrder = file.DisplayOrder
-                        };
-                        await _imageRepository.CreateAndSave(imageProduct);
+                        //var imageProduct = new Image()
+                        //{
+                        //    ProductId = product.Id,
+                        //    ImageUrl = urlImage,
+                        //    PublicId = $"{_config["CloundSettings:ImageProductFolder"]}/{fileName}",
+                        //    CreatedDate = DateTime.Now,
+                        //    CreatedBy = _currentUser.UserName,
+                        //    IsActive = true,
+                        //    IsDeleted = false,
+                        //    DisplayOrder = file.DisplayOrder
+                        //};
+                        //await _imageRepository.CreateAndSave(imageProduct);
                     }
                     // upload server
                     //var listImage = new List<string>();
@@ -156,11 +155,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         {
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Tên sản phẩm là bắt buộc");
+                .WithMessage("Tên sản phẩm không được bỏ trống");
 
             RuleFor(x => x.Code)
                 .NotEmpty()
-                .WithMessage("Mã sản phẩm là bắt buộc");
+                .WithMessage("Mã sản phẩm không được bỏ trống");
 
             //RuleFor(x => x.ImageFiles)
             //    .NotEmpty().WithMessage("Vui lòng tải lên ít nhất 1 hình ảnh")

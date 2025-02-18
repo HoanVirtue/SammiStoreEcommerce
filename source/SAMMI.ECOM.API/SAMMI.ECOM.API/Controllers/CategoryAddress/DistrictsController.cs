@@ -83,5 +83,29 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             }
             return Ok(_districtRepository.DeleteAndSave(id));
         }
+
+        [HttpDelete]
+        public IActionResult DeleteRange([FromBody] List<int> ids)
+        {
+            var actErrorResponse = new ActionResponse<List<string>>();
+            var listError = new Dictionary<int, string>();
+            if (ids == null || ids.Count == 0)
+            {
+                return BadRequest();
+            }
+            foreach (var id in ids)
+            {
+                if (!_districtRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
+                {
+                    listError[id] = $"Không tồn tại quận/huyện có mã {id}";
+                }
+            }
+            if (listError.Count > 0)
+            {
+                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                return BadRequest(actErrorResponse);
+            }
+            return Ok(_districtRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
+        }
     }
 }

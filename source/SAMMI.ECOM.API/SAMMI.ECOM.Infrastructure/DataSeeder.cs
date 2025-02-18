@@ -39,6 +39,49 @@ namespace SAMMI.ECOM.Infrastructure
     public class DataSeeder
     {
         private readonly SammiEcommerceContext _context;
+        private readonly string[] MANAGER_PERMISSION_CODE = new[]
+        {
+            // Quản lý tài khoản
+            "ACCOUNT_VIEW",
+            "ACCOUNT_UPDATE",
+            "ACCOUNT_CHANGE_PASSWORD",
+            "ACCOUNT_LOGOUT",
+            // Quản lý khách hàng
+            "CUSTOMER_CREATE",
+            "CUSTOMER_UPDATE",
+            "CUSTOMER_DELETE",
+            "CUSTOMER_VIEW",
+            // Quản lý sản phẩm
+            "PRODUCT_CREATE",
+            "PRODUCT_UPDATE",
+            "PRODUCT_DELETE",
+            "PRODUCT_VIEW",
+            // danh mục loại sản phẩm
+            "PRODUCT_CATEGORY_CREATE",
+            "PRODUCT_CATEGORY_UPDATE",
+            "PRODUCT_CATEGORY_DELETE",
+            "PRODUCT_CATEGORY_VIEW",
+            // danh mục thương hiệu
+            "BRAND_CREATE",
+            "BRAND_UPDATE",
+            "BRAND_DELETE",
+            "BRAND_VIEW",
+            // Quản lý nhập hàng
+            "IMPORT_CREATE",
+            "IMPORT_UPDATE_STATUS",
+            "IMPORT_DELETE",
+            "IMPORT_VIEW",
+            // Quản lý đơn hàng
+            "ORDER_VIEW",
+            "ORDER_DETAIL",
+            "ORDER_UPDATE_STATUS",
+            // thông báo
+            "NOTIFICATION_VIEW",
+            "NOTIFICATION_UPDATE",
+            // chat
+            "CHAT_MANAGER"
+        };
+
         public DataSeeder(SammiEcommerceContext context)
         {
             _context = context;
@@ -49,55 +92,55 @@ namespace SAMMI.ECOM.Infrastructure
             var listProvince = new List<SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Province>();
             var listDistrict = new List<SAMMI.ECOM.Domain.AggregateModels.AddressCategory.District>();
             var listWard = new List<SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Ward>();
-            if (!_context.Provinces.Any() && !_context.Districts.Any() && !_context.Wards.Any())
-            {
-                string json = File.ReadAllText(Path.Combine("Resources", "vietnamAddress.json"));
-                var provinces = JsonConvert.DeserializeObject<List<ProvinceSeed>>(json);
 
-                foreach (var province in provinces)
-                {
-                    var pro = new SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Province
-                    {
-                        Id = string.IsNullOrEmpty(province.Id) ? 0 : int.Parse(province.Id),
-                        Name = province.Name ?? "Unknown",
-                    };
-                    if (pro.Id != 0)
-                        await _context.Provinces.AddAsync(pro);
-                    foreach (var district in province.Districts)
-                    {
-                        var districtEntity = new SAMMI.ECOM.Domain.AggregateModels.AddressCategory.District()
-                        {
-                            Id = string.IsNullOrEmpty(district.Id) ? 0 : int.Parse(district.Id),
-                            Name = district.Name ?? "Unknown",
-                            ProvinceId = pro?.Id ?? 0
-                        };
-                        if (districtEntity.Id != 0)
-                            await _context.Districts.AddAsync(districtEntity);
-
-                        foreach (var ward in district.Wards)
-                        {
-                            var wardEntity = new SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Ward
-                            {
-                                Id = string.IsNullOrEmpty(ward.Id) ? 0 : int.Parse(ward.Id),
-                                Name = ward.Name ?? "Unknown",
-                                DistrictId = districtEntity?.Id ?? 0
-                            };
-                            if (wardEntity.Id != 0)
-                                await _context.Wards.AddAsync(wardEntity);
-                        }
-                    }
-                }
-            }
 
             try
             {
-                var duplicateWards = listWard
-                    .GroupBy(w => w.Id)          // Nhóm các phần tử theo Id
-                    .Where(g => g.Count() > 1)   // Chỉ lấy nhóm có nhiều hơn 1 phần tử
-                    .SelectMany(g => g)          // Chuyển nhóm thành danh sách các phần tử trùng lặp
-                .ToList();
-
+                //var duplicateWards = listWard
+                //    .GroupBy(w => w.Id)          // Nhóm các phần tử theo Id
+                //    .Where(g => g.Count() > 1)   // Chỉ lấy nhóm có nhiều hơn 1 phần tử
+                //    .SelectMany(g => g)          // Chuyển nhóm thành danh sách các phần tử trùng lặp
+                //.ToList();
                 await _context.SaveChangesAsync();
+
+                if (!_context.Provinces.Any() && !_context.Districts.Any() && !_context.Wards.Any())
+                {
+                    string json = File.ReadAllText(Path.Combine("Resources", "vietnamAddress.json"));
+                    var provinces = JsonConvert.DeserializeObject<List<ProvinceSeed>>(json);
+
+                    foreach (var province in provinces)
+                    {
+                        var pro = new SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Province
+                        {
+                            Code = string.IsNullOrEmpty(province.Id) ? "" : province.Id,
+                            Name = province.Name ?? "Unknown",
+                        };
+                        await _context.Provinces.AddAsync(pro);
+                        await _context.SaveChangesAsync();
+                        foreach (var district in province.Districts)
+                        {
+                            var districtEntity = new SAMMI.ECOM.Domain.AggregateModels.AddressCategory.District()
+                            {
+                                Code = string.IsNullOrEmpty(district.Id) ? "" : district.Id,
+                                Name = district.Name ?? "Unknown",
+                                ProvinceId = pro?.Id ?? 0
+                            };
+                            await _context.Districts.AddAsync(districtEntity);
+                            await _context.SaveChangesAsync();
+                            foreach (var ward in district.Wards)
+                            {
+                                var wardEntity = new SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Ward
+                                {
+                                    Code = string.IsNullOrEmpty(ward.Id) ? "" : ward.Id,
+                                    Name = ward.Name ?? "Unknown",
+                                    DistrictId = districtEntity?.Id ?? 0
+                                };
+                                await _context.Wards.AddAsync(wardEntity);
+                            }
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -109,30 +152,53 @@ namespace SAMMI.ECOM.Infrastructure
         {
             if (!_context.Users.Any(x => x.Type == TypeUserEnum.Employee.ToString()))
             {
-                User user = new User()
+                List<User> users = new List<User>()
                 {
-                    Code = "NV00001",
-                    IsAdmin = true,
-                    IdentityGuid = Guid.NewGuid().ToString(),
-                    Type = TypeUserEnum.Employee.ToString(),
-                    Phone = "012321232",
-                    FirstName = "ad",
-                    LastName = "min",
-                    FullName = "admin",
-                    WardId = 1,
-                    Username = "admin",
-                    Gender = 1,
-                    Password = "AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==",
-                    IsActive = true,
-                    IsDeleted = false,
-                    IsLock = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
+                    new User()
+                    {
+                        Code = "NV000001",
+                        IsAdmin = true,
+                        IdentityGuid = Guid.NewGuid().ToString(),
+                        Type = TypeUserEnum.Employee.ToString(),
+                        Phone = "012321232",
+                        FirstName = "ad",
+                        LastName = "min",
+                        FullName = "admin",
+                        WardId = 1,
+                        Username = "admin",
+                        Gender = 1,
+                        Password = "AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==",
+                        IsActive = true,
+                        IsDeleted = false,
+                        IsLock = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    },
+                    new User()
+                    {
+                        Code = "NV000002",
+                        IsAdmin = false,
+                        IdentityGuid = Guid.NewGuid().ToString(),
+                        Type = TypeUserEnum.Employee.ToString(),
+                        Phone = "012321443",
+                        FirstName = "employee",
+                        LastName = "employee",
+                        FullName = "employee",
+                        WardId = 1,
+                        Username = "employee",
+                        Gender = 1,
+                        Password = "AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==",
+                        IsActive = true,
+                        IsDeleted = false,
+                        IsLock = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    }
                 };
 
                 try
                 {
-                    await _context.Users.AddAsync(user);
+                    await _context.Users.AddRangeAsync(users);
                     await _context.SaveChangesAsync();
                 }
                 catch (Exception ex)
@@ -146,31 +212,111 @@ namespace SAMMI.ECOM.Infrastructure
         {
             if (!await _context.Permissions.AnyAsync())
             {
-                List<Permission> permissions = new List<Permission>();
-                permissions.Add(new Permission()
+                List<Permission> permissions = new List<Permission>()
                 {
-                    Name = "Quản lý nhân viên",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                permissions.Add(new Permission()
-                {
-                    Name = "Quản lý khách hàng",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                permissions.Add(new Permission()
-                {
-                    Name = "Quản lý phiếu giảm giá",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
+                    // Khách hàng
+                    new Permission() { Code = "CUSTOMER_CREATE", Name = "Thêm mới khách hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_UPDATE", Name = "Cập nhật thông tin khách hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_DELETE", Name = "Xóa khách hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_VIEW", Name = "Xem danh sách khách hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Nhân viên
+                    new Permission() { Code = "EMPLOYEE_CREATE", Name = "Thêm mới nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "EMPLOYEE_UPDATE", Name = "Cập nhật thông tin nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "EMPLOYEE_DELETE", Name = "Xóa nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "EMPLOYEE_VIEW", Name = "Xem danh sách nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Nhà cung cấp
+                    new Permission() { Code = "SUPPLIER_CREATE", Name = "Thêm mới nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "SUPPLIER_UPDATE", Name = "Cập nhật thông tin nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "SUPPLIER_DELETE", Name = "Xóa nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "SUPPLIER_VIEW", Name = "Xem danh sách nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Quản lý tỉnh/thành phố
+                    new Permission() { Code = "PROVINCE_CREATE", Name = "Thêm mới tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PROVINCE_UPDATE", Name = "Cập nhật thông tin tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PROVINCE_DELETE", Name = "Xóa tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PROVINCE_VIEW", Name = "Xem danh sách tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Quản lý quận/huyện
+                    new Permission() { Code = "DISTRICT_CREATE", Name = "Thêm mới quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "DISTRICT_UPDATE", Name = "Cập nhật thông tin quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "DISTRICT_DELETE", Name = "Xóa quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "DISTRICT_VIEW", Name = "Xem danh sách quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Quản lý phường/xã
+                    new Permission() { Code = "WARD_CREATE", Name = "Thêm mới phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "WARD_UPDATE", Name = "Cập nhật thông tin phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "WARD_DELETE", Name = "Xóa phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "WARD_VIEW", Name = "Xem danh sách phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // danh mục phương thức thanh toán
+                    new Permission() { Code = "PAYMENT_METHOD_CREATE", Name = "Thêm mới phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PAYMENT_METHOD_UPDATE", Name = "Cập nhật thông tin phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PAYMENT_METHOD_DELETE", Name = "Xóa phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PAYMENT_METHOD_VIEW", Name = "Xem danh sách phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // danh mục banner
+                    new Permission() { Code = "BANNER_CREATE", Name = "Thêm mới banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "BANNER_UPDATE", Name = "Cập nhật thông tin banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "BANNER_DELETE", Name = "Xóa banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "BANNER_VIEW", Name = "Xem danh sách banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Vai trò & quyền
+                    new Permission() { Code = "ROLE_CREATE", Name = "Thêm mới vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ROLE_UPDATE", Name = "Cập nhật thông tin vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ROLE_DELETE", Name = "Xóa vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ROLE_VIEW", Name = "Xem danh sách vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ROLE_ASSIGN_PERMISSION", Name = "Gán quyền cho vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Phiếu nhập hàng
+                    new Permission() { Code = "IMPORT_CREATE", Name = "Tạo phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "IMPORT_UPDATE_STATUS", Name = "Cập nhật trạng thái phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "IMPORT_DELETE", Name = "Xóa phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "IMPORT_VIEW", Name = "Xem danh sách phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Đơn hàng
+                    new Permission() { Code = "ORDER_VIEW", Name = "Xem danh sách đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ORDER_DETAIL", Name = "Xem chi tiết đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ORDER_UPDATE_STATUS", Name = "Cập nhật trạng thái đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Quản lý danh mục loại sản phẩm
+                    new Permission() { Code = "PRODUCT_CATEGORY_CREATE", Name = "Thêm mới danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PRODUCT_CATEGORY_UPDATE", Name = "Cập nhật thông tin danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PRODUCT_CATEGORY_DELETE", Name = "Xóa danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PRODUCT_CATEGORY_VIEW", Name = "Xem danh sách danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Quản lý thương hiệu
+                    new Permission() { Code = "BRAND_CREATE", Name = "Thêm mới thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "BRAND_UPDATE", Name = "Cập nhật thông tin thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "BRAND_DELETE", Name = "Xóa thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "BRAND_VIEW", Name = "Xem danh sách thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    
+                    // Sản phẩm
+                    new Permission() { Code = "PRODUCT_CREATE", Name = "Thêm mới sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PRODUCT_UPDATE", Name = "Cập nhật thông tin sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PRODUCT_DELETE", Name = "Xóa sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PRODUCT_VIEW", Name = "Xem danh sách sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "PRODUCT_SEARCH", Name = "Tìm kiếm sản phẩm sử dụng Elasticsearch", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Quản lý thông báo hệ thống
+                    new Permission() { Code = "NOTIFICATION_VIEW", Name = "Xem thông báo từ hệ thống", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "NOTIFICATION_UPDATE", Name = "Cập nhật trạng thái thông báo", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    
+                    // Quản lý chat trực tuyến
+                    new Permission() { Code = "CHAT_MANAGER", Name = "Quản lý cuộc trò chuyện trực tuyến", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Thống kê
+                    new Permission() { Code = "REPORT_REVENUE", Name = "Thống kê doanh thu đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "REPORT_STOCK", Name = "Thống kê số lượng tồn kho", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "REPORT_IMPORT", Name = "Thống kê nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Tài khoản & bảo mật
+                    new Permission() { Code = "ACCOUNT_VIEW", Name = "Xem thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ACCOUNT_UPDATE", Name = "Cập nhật thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ACCOUNT_CHANGE_PASSWORD", Name = "Đổi mật khẩu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "ACCOUNT_LOGOUT", Name = "Đăng xuất", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" }
+                };
 
                 try
                 {
@@ -188,23 +334,45 @@ namespace SAMMI.ECOM.Infrastructure
         {
             if (!await _context.Roles.AnyAsync())
             {
-                List<Role> roles = new List<Role>();
-                roles.Add(new Role()
+                List<Role> roles = new List<Role>()
                 {
-                    Name = "Quản lý",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                roles.Add(new Role()
-                {
-                    Name = "Nhân viên",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
+                    new Role()
+                    {
+                        Code = "ADMIN",
+                        Name = "Quản trị viên hệ thống",
+                        IsActive = true,
+                        IsDeleted = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    },
+                    new Role()
+                    {
+                        Code = "MANAGER",
+                        Name = "Quản lý",
+                        IsActive = true,
+                        IsDeleted = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    },
+                    new Role()
+                    {
+                        Code = "EMPLOYEE",
+                        Name = "Nhân viên",
+                        IsActive = true,
+                        IsDeleted = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    },
+                    new Role()
+                    {
+                        Code = "CUSTOMER",
+                        Name = "Khách hàng",
+                        IsActive = true,
+                        IsDeleted = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    }
+                };
 
                 try
                 {
@@ -223,62 +391,40 @@ namespace SAMMI.ECOM.Infrastructure
             if (!await _context.RolePermissions.AnyAsync())
             {
                 List<RolePermission> rolePermissions = new List<RolePermission>();
-                rolePermissions.Add(new RolePermission()
+                List<Permission> permissions = await _context.Permissions.ToListAsync();
+                var roles = await _context.Roles.ToListAsync();
+                foreach (var r in roles)
                 {
-                    RoleId = 1,
-                    PermissionId = 1,
-                    Allow = true,
-                    RoleView = true,
-                    RoleCreate = true,
-                    RoleUpdate = true,
-                    RoleDelete = true,
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                rolePermissions.Add(new RolePermission()
-                {
-                    RoleId = 1,
-                    PermissionId = 2,
-                    Allow = true,
-                    RoleView = true,
-                    RoleCreate = true,
-                    RoleUpdate = true,
-                    RoleDelete = true,
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                rolePermissions.Add(new RolePermission()
-                {
-                    RoleId = 1,
-                    PermissionId = 3,
-                    Allow = true,
-                    RoleView = true,
-                    RoleCreate = true,
-                    RoleUpdate = true,
-                    RoleDelete = true,
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                rolePermissions.Add(new RolePermission()
-                {
-                    RoleId = 2,
-                    PermissionId = 2,
-                    Allow = true,
-                    RoleView = true,
-                    RoleCreate = true,
-                    RoleUpdate = true,
-                    RoleDelete = true,
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
+                    if (r.Code == "ADMIN")
+                    {
+                        rolePermissions.AddRange(permissions.Select(per => new RolePermission()
+                        {
+                            RoleId = r.Id,
+                            PermissionId = per.Id,
+                            Allow = true,
+                            IsActive = true,
+                            IsDeleted = false,
+                            CreatedDate = DateTime.Now,
+                            CreatedBy = "N/A"
+                        }));
+                    }
+                    else if (r.Code == "MANAGER")
+                    {
+                        rolePermissions.AddRange(
+                            permissions
+                            .Where(per => MANAGER_PERMISSION_CODE.Contains(per.Code))
+                            .Select(per => new RolePermission()
+                            {
+                                RoleId = r.Id,
+                                PermissionId = per.Id,
+                                Allow = true,
+                                IsActive = true,
+                                IsDeleted = false,
+                                CreatedDate = DateTime.Now,
+                                CreatedBy = "N/A"
+                            }));
+                    }
+                }
 
                 try
                 {
@@ -297,10 +443,21 @@ namespace SAMMI.ECOM.Infrastructure
             if (!await _context.UserRoles.AnyAsync())
             {
                 List<UserRole> userRoles = new List<UserRole>();
+                List<User> users = await _context.Users.Where(x => x.Code == "NV000001" || x.Code == "NV000002").ToListAsync();
+                var roles = await _context.Roles.ToListAsync();
                 userRoles.Add(new UserRole()
                 {
-                    RoleId = 1,
-                    UserId = 1,
+                    RoleId = roles.FirstOrDefault(x => x.Code == "ADMIN").Id,
+                    UserId = users.FirstOrDefault(x => x.Code == "NV000001").Id,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "Unknown"
+                });
+                userRoles.Add(new UserRole()
+                {
+                    RoleId = roles.FirstOrDefault(x => x.Code == "MANAGER").Id,
+                    UserId = users.FirstOrDefault(x => x.Code == "NV000002").Id,
                     IsActive = true,
                     IsDeleted = false,
                     CreatedDate = DateTime.Now,
@@ -325,105 +482,20 @@ namespace SAMMI.ECOM.Infrastructure
         {
             if (!await _context.Brands.AnyAsync())
             {
-                List<Brand> brands = new List<Brand>();
-                brands.Add(new Brand()
+                List<Brand> brands = new List<Brand>()
                 {
-                    Code = "br00001",
-                    Name = "WHOO",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                brands.Add(new Brand()
-                {
-                    Code = "br00002",
-                    Name = "SK-II",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
+                    new Brand() {Code = "TH000001",Name = "WHOO",IsActive = true,IsDeleted = false,CreatedDate = DateTime.Now,CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000002", Name = "SK-II", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000003", Name = "Estee Lauder", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000004", Name = "Lancome", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000005", Name = "Shiseido", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000006", Name = "Clinique", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000007", Name = "Dior", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000008", Name = "Chanel", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000009", Name = "L'Oreal", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"},
+                    new Brand() {Code = "TH000010", Name = "The Face Shop", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "N/A"}
+                };
 
-                brands.Add(new Brand()
-                {
-                    Code = "br00003",
-                    Name = "Estee Lauder",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                brands.Add(new Brand()
-                {
-                    Code = "br00004",
-                    Name = "Lancome",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                brands.Add(new Brand()
-                {
-                    Code = "br00005",
-                    Name = "Shiseido",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                brands.Add(new Brand()
-                {
-                    Code = "br00006",
-                    Name = "Clinique",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                brands.Add(new Brand()
-                {
-                    Code = "br00007",
-                    Name = "Dior",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                brands.Add(new Brand()
-                {
-                    Code = "br00008",
-                    Name = "Chanel",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                brands.Add(new Brand()
-                {
-                    Code = "br00009",
-                    Name = "L'Oreal",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                brands.Add(new Brand()
-                {
-                    Code = "br00010",
-                    Name = "The Face Shop",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
 
                 try
                 {
@@ -441,89 +513,16 @@ namespace SAMMI.ECOM.Infrastructure
         {
             if (!await _context.ProductCategories.AnyAsync())
             {
-                List<ProductCategory> categories = new List<ProductCategory>();
-                categories.Add(new ProductCategory()
+                List<ProductCategory> categories = new List<ProductCategory>()
                 {
-                    Code = "DM00001",
-                    Name = "Trang điểm",
-                    Level = 1,
-                    ParentId = null,
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                categories.Add(new ProductCategory()
-                {
-                    Code = "DM00002",
-                    Name = "Chăm sóc da",
-                    Level = 1,
-                    ParentId = null,
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                categories.Add(new ProductCategory()
-                {
-                    Code = "DM00003",
-                    Name = "Làm sạch da",
-                    Level = 2,
-                    ParentId = 2, // Thuộc "Chăm sóc da"
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                categories.Add(new ProductCategory()
-                {
-                    Code = "DM00004",
-                    Name = "Dưỡng ẩm",
-                    Level = 2,
-                    ParentId = 2, // Thuộc "Chăm sóc da"
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                categories.Add(new ProductCategory()
-                {
-                    Code = "DM00005",
-                    Name = "Son môi",
-                    Level = 2,
-                    ParentId = 1, // Thuộc "Trang điểm"
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                categories.Add(new ProductCategory()
-                {
-                    Code = "DM00006",
-                    Name = "Kem nền",
-                    Level = 2,
-                    ParentId = 1, // Thuộc "Trang điểm"
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
-                categories.Add(new ProductCategory()
-                {
-                    Code = "DM00007",
-                    Name = "Kem chống nắng",
-                    Level = 2,
-                    ParentId = 2, // Thuộc "Chăm sóc da"
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
+                    new ProductCategory() {Code = "PC000001", Name = "Trang điểm", Level = 1, ParentId = null, IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "Unknown"},
+                    new ProductCategory() {Code = "PC000002", Name = "Chăm sóc da", Level = 1, ParentId = null, IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "Unknown"},
+                    new ProductCategory() {Code = "PC000003", Name = "Làm sạch da", Level = 2, ParentId = 2, IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "Unknown"},
+                    new ProductCategory() {Code = "PC000004", Name = "Dưỡng ẩm", Level = 2, ParentId = 2, IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "Unknown"},
+                    new ProductCategory() {Code = "PC000005", Name = "Son môi", Level = 2, ParentId = 1, IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "Unknown"},
+                    new ProductCategory() {Code = "PC000006", Name = "Kem nền", Level = 2, ParentId = 1, IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "Unknown"},
+                    new ProductCategory() {Code = "PC000007", Name = "Kem chống nắng", Level = 2, ParentId = 2, IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "Unknown"}
+                };
 
                 try
                 {

@@ -4,30 +4,30 @@ using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 
 namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
 {
-    public class DiscountEntityTypeConfiguration : IEntityTypeConfiguration<Discount>
+    public class VoucherEntityTypeConfiguration : IEntityTypeConfiguration<Voucher>
     {
-        public void Configure(EntityTypeBuilder<Discount> builder)
+        public void Configure(EntityTypeBuilder<Voucher> builder)
         {
             builder.HasKey(x => x.Id);
 
             builder.HasOne(d => d.Brand)
-                .WithMany(p => p.Discounts)
+                .WithMany(p => p.Vouchers)
                 .HasForeignKey(d => d.BrandId);
 
             builder.HasOne(d => d.Category)
-                .WithMany(p => p.Discounts)
+                .WithMany(p => p.Vouchers)
                 .HasForeignKey(d => d.CategoryId);
 
             builder.HasOne(d => d.Event)
-                .WithMany(p => p.Discounts)
+                .WithMany(p => p.Vouchers)
                 .HasForeignKey(d => d.EventId);
 
             builder.HasOne(d => d.Product)
-                .WithMany(p => p.Discounts)
+                .WithMany(p => p.Vouchers)
                 .HasForeignKey(d => d.ProductId);
 
             builder.HasOne(d => d.DiscountType)
-                .WithMany(p => p.Discounts)
+                .WithMany(p => p.Vouchers)
                 .HasForeignKey(d => d.DiscountTypeId);
         }
     }

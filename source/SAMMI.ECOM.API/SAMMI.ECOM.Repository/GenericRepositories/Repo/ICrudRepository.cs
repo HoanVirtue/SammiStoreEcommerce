@@ -48,6 +48,8 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
         /// <param name="keys">The key(s) value. If there are multiple keys they must be in the correct order as defined by EF Core</param>
         ActionResponse DeleteAndSave(params object[] keys);
 
+        ActionResponse DeleteRangeAndSave(object[] keys);
+
         /// <summary>
         /// This will find entity class with the given primary key, then call the method you provide before calling the Remove method + SaveChanges.
         /// Your method has access to the database and can handle any relationships, and returns an <see cref="IStatusGeneric"/>. The Remove will 

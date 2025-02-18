@@ -6,6 +6,7 @@ namespace SAMMI.ECOM.Domain.Commands;
 
 public partial class CUWardCommand : IRequest<ActionResponse<WardDTO>>
 {
+    public string Code { get; set; }
     public string Name { get; set; }
     public int? DistrictId { get; set; }
 

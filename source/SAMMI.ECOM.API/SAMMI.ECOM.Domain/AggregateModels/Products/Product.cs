@@ -54,10 +54,10 @@ public partial class Product : Entity
     public virtual Brand? Brand { get; set; }
     public virtual ProductCategory? Category { get; set; }
 
-    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
+    public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
     public virtual ICollection<FavouriteProduct> FavouriteProducts { get; set; } = new List<FavouriteProduct>();
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-    public virtual ICollection<Image> ProductImages { get; set; } = new List<Image>();
+    public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
     public virtual ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; } = new List<PurchaseOrderDetail>();
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

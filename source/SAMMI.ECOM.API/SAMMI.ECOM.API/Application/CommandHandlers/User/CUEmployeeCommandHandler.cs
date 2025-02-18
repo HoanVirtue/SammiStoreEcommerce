@@ -63,7 +63,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
 
             if (request.RoleIds == null || request.RoleIds.Count == 0)
             {
-                actionResponse.AddError("Vai trò của người dùng là bắt buộc");
+                actionResponse.AddError("Vai trò của người dùng không được bỏ trống");
                 return actionResponse;
             }
             #endregion
@@ -209,11 +209,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         {
             RuleFor(x => x.Phone)
                 .NotEmpty()
-                .WithMessage("Điện thoại là bắt buộc");
+                .WithMessage("Điện thoại không được bỏ trống");
 
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .WithMessage("Email là bắt buộc");
+                .WithMessage("Email không được bỏ trống");
         }
     }
 
@@ -223,11 +223,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         {
             RuleFor(x => x.Phone)
                 .NotEmpty()
-                .WithMessage("Điện thoại là bắt buộc");
+                .WithMessage("Điện thoại không được bỏ trống");
 
             RuleFor(x => x.Email)
                 .NotEmpty()
-                .WithMessage("Email là bắt buộc");
+                .WithMessage("Email không được bỏ trống");
         }
     }
 }

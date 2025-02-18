@@ -7,6 +7,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.AddressCategory
     public interface IWardRepository : ICrudRepository<Ward>
     {
         Task<bool> CheckExistName(string name, int? id = 0);
+        Task<bool> CheckExistCode(string code, int? id = 0);
     }
     public class WardRepository : CrudRepository<Ward>, IWardRepository, IDisposable
     {
@@ -22,6 +23,10 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.AddressCategory
             return await _context.Wards.AnyAsync(x => x.Name.ToLower() == name.ToLower() && x.Id != id && x.IsDeleted != true);
         }
 
+        public async Task<bool> CheckExistCode(string code, int? id = 0)
+        {
+            return await _context.Wards.AnyAsync(x => x.Code.ToLower() == code.ToLower() && x.Id != id && x.IsDeleted != true);
+        }
         public void Dispose()
         {
             _disposed = true;

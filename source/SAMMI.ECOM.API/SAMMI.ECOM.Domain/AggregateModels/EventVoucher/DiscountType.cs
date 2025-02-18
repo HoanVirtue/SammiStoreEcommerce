@@ -11,5 +11,5 @@ public partial class DiscountType : Entity
     [MaxLength(100)]
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
+    public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
 }

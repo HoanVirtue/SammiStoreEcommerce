@@ -3,7 +3,6 @@
 import { styled, TextField, TextFieldProps } from "@mui/material"
 
 const CustomTextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => {
-
     return {
         "& .MuiInputLabel-root": {
             transform: "none",
@@ -20,14 +19,14 @@ const CustomTextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => {
                 duration: theme.transitions.duration.shorter
             }),
             "& .MuiInputBase-inputAdornedEnd": {
-                borderRadius: 8,
+                // borderRadius: 8,
             },
             "&:before, &:after": {
                 display: "none"
             },
-            // "&:before": {
-            //     borderBottom: "none !important"
-            // },
+            "&:before": {
+                borderBottom: "none !important"
+            },
             "&:hover:not(.Mui-disabled):before": {
                 borderBottom: "none !important"
             },
@@ -84,8 +83,8 @@ const CustomTextFieldStyled = styled(TextField)<TextFieldProps>(({ theme }) => {
 })
 
 const CustomTextField = (props: TextFieldProps) => {
-    const { size = "small", InputLabelProps, variant = "filled", ...rests } = props
-    return <CustomTextFieldStyled size={size} variant={variant} InputLabelProps={{ ...InputLabelProps, shrink: true }} {...rests} />
+    const { size = "small", InputLabelProps, variant = "outlined", ...rests } = props
+    return <TextField size={size} variant={variant} InputLabelProps={{ ...InputLabelProps}} {...rests} />
 }
 
 export default CustomTextField

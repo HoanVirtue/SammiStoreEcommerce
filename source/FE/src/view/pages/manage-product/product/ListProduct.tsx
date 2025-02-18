@@ -1,7 +1,7 @@
 "use client"
 
 //React
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
@@ -183,7 +183,8 @@ const ListProduct: NextPage<TProps> = () => {
         }
     }
 
-    const columns: GridColDef[] = [
+    const columns: readonly GridColDef[] = useMemo(()=>{
+    return [
         {
             field: 'product_name',
             headerName: t('product_name'),
@@ -197,8 +198,8 @@ const ListProduct: NextPage<TProps> = () => {
             }
         },
         {
-            field: 'category',
-            headerName: t('category'),
+            field: 'product_category',
+            headerName: t('product_category'),
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
@@ -212,8 +213,8 @@ const ListProduct: NextPage<TProps> = () => {
         {
             field: 'price',
             headerName: t('price'),
-            minWidth: 200,
-            maxWidth: 200,
+            minWidth: 150,
+            maxWidth: 150,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
@@ -224,8 +225,8 @@ const ListProduct: NextPage<TProps> = () => {
         {
             field: 'countInStock',
             headerName: t('count_in_stock'),
-            minWidth: 200,
-            maxWidth: 200,
+            minWidth: 100,
+            maxWidth: 100,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
@@ -236,8 +237,8 @@ const ListProduct: NextPage<TProps> = () => {
         {
             field: 'discount',
             headerName: t('discount'),
-            minWidth: 200,
-            maxWidth: 200,
+            minWidth: 100,
+            maxWidth: 100,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
@@ -249,8 +250,8 @@ const ListProduct: NextPage<TProps> = () => {
             field: 'status',
             headerName: t('status'),
             flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
+            minWidth: 140,
+            maxWidth: 140,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
@@ -265,22 +266,22 @@ const ListProduct: NextPage<TProps> = () => {
                 )
             }
         },
-        {
-            field: 'created_at',
-            headerName: t('created_at'),
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{formatDate(row?.createdAt, { dateStyle: "short", timeStyle: "short" })}</Typography>
-                )
-            }
-        },
+        // {
+        //     field: 'created_at',
+        //     headerName: t('created_at'),
+        //     minWidth: 150,
+        //     maxWidth: 150,
+        //     renderCell: (params: GridRenderCellParams) => {
+        //         const { row } = params
+        //         return (
+        //             <Typography>{formatDate(row?.createdAt, { dateStyle: "short", timeStyle: "short" })}</Typography>
+        //         )
+        //     }
+        // },
         {
             field: 'action',
             headerName: t('action'),
-            width: 150,
+            width: 140,
             sortable: false,
             align: "left",
             renderCell: (params: GridRenderCellParams) => {
@@ -305,7 +306,9 @@ const ListProduct: NextPage<TProps> = () => {
                 )
             }
         },
-    ];
+    ] as const
+    }, [t])
+ 
 
     const PaginationComponent = () => {
         return <CustomPagination
@@ -428,7 +431,7 @@ const ListProduct: NextPage<TProps> = () => {
                                     value={selectedCategory}
                                     options={categoryOptions}
                                     onChange={(e) => setSelectedCategory(e.target.value as string[])}
-                                    placeholder={t('product-category')}
+                                    placeholder={t('product_category')}
                                 />
                             </Box>
                             <Box sx={{ width: '200px', }}>

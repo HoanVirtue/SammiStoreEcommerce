@@ -21,23 +21,23 @@ export const VerticalLayoutItems = () => {
     return [
         {
             title: t('dashboard'),
-            icon: 'material-symbols:dashboard-rounded',
+            icon: 'mage:dashboard-bar-notification',
             path: ROUTE_CONFIG.DASHBOARD,
             permission: PERMISSIONS.DASHBOARD
         },
         {
             title: t('system'),
-            icon: 'icon-park-solid:system',
+            icon: 'icon-park-outline:system',
             children: [
                 {
                     title: t('user'),
-                    icon: 'typcn:group',
+                    icon: 'iconoir:user',
                     path: ROUTE_CONFIG.SYSTEM.USER,
                     permission: PERMISSIONS.SYSTEM.USER.VIEW
                 },
                 {
                     title: t('role'),
-                    icon: 'icon-park-solid:permissions',
+                    icon: 'oui:app-users-roles',
                     path: ROUTE_CONFIG.SYSTEM.ROLE,
                     permission: PERMISSIONS.SYSTEM.ROLE.VIEW
                 }
@@ -45,87 +45,85 @@ export const VerticalLayoutItems = () => {
         },
         {
             title: t('manage_order'),
-            // icon: 'solar:cosmetic-bold-duotone',
-            icon: 'material-symbols:orders-rounded',
+            icon: 'lsicon:work-order-info-outline',
             children: [
                 {
                     title: t('order_list'),
-                    icon: 'material-symbols:orders-rounded',
+                    icon: 'lsicon:order-outline',
                     path: ROUTE_CONFIG.MANAGE_ORDER.ORDER,
                     permission: [PERMISSIONS.MANAGE_ORDER.ORDER.VIEW]
                 },
                 {
                     title: t('review_list'),
-                    icon: 'material-symbols-light:reviews',
+                    icon: 'iconoir:page-star',
                     path: ROUTE_CONFIG.MANAGE_ORDER.REVIEW,
                 },
             ]
         },
         {
             title: t('product_manage'),
-            // icon: 'solar:cosmetic-bold-duotone',
-            icon: 'fluent-mdl2:product',
+            icon: 'fluent-mdl2:product-release',
             children: [
                 {
                     title: t('product_list'),
-                    icon: 'fluent-mdl2:product-list',
+                    icon: 'fluent-mdl2:product-catalog',
                     path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT,
                 },
                 {
                     title: t('product_category'),
-                    icon: 'fluent-mdl2:product-list',
+                    icon: 'fluent-mdl2:product-variant',
                     path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT_CATEGORY,
                 },
                 {
                     title: t('brand'),
-                    icon: 'fluent-mdl2:product-list',
+                    icon: 'mynaui:brand-slack',
                     path: ROUTE_CONFIG.MANAGE_PRODUCT.BRAND,
                 },
             ]
         },
         {
             title: t('setting'),
-            icon: 'fluent-mdl2:product',
+            icon: 'weui:setting-outlined',
             children: [
-                // {
-                //     title: t('city'),
-                //     icon: 'fluent-mdl2:product-list',
-                //     path: ROUTE_CONFIG.SETTING.CITY,
-                // },
                 {
                     title: t('delivery_method'),
-                    icon: 'fluent-mdl2:product-list',
+                    icon: 'material-symbols-light:delivery-truck-speed-outline-rounded',
                     path: ROUTE_CONFIG.SETTING.DELIVERY_METHOD,
                 },
                 {
                     title: t('payment_method'),
-                    icon: 'material-symbols:orders-rounded',
+                    icon: 'streamline:payment-10',
                     path: ROUTE_CONFIG.SETTING.PAYMENT_METHOD,
                 },
                 {
                     title: t('banner'),
-                    icon: 'fluent-mdl2:product-list',
+                    icon: 'material-symbols:planner-banner-ad-pt-outline-rounded',
                     path: ROUTE_CONFIG.SETTING.BANNER,
                 },
             ]
         },
         {
             title: t('address'),
-            icon: 'fluent-mdl2:product',
+            icon: 'fluent:location-settings-20-regular',
             children: [
                 {
                     title: t('city'),
-                    icon: 'fluent-mdl2:product-list',
+                    icon: 'healthicons:city-outline',
                     path: ROUTE_CONFIG.ADDRESS.CITY,
                 },
                 {
                     title: t('province'),
-                    icon: 'fluent-mdl2:product-list',
+                    icon: 'healthicons:city-outline',
                     path: ROUTE_CONFIG.ADDRESS.PROVINCE,
                 },
                 {
+                    title: t('district'),
+                    icon: 'fluent:building-home-20-regular',
+                    path: ROUTE_CONFIG.ADDRESS.DISTRICT,
+                },
+                {
                     title: t('ward'),
-                    icon: 'fluent-mdl2:product-list',
+                    icon: 'material-symbols-light:home-work-outline-rounded',
                     path: ROUTE_CONFIG.ADDRESS.WARD,
                 },
             ]

@@ -37,6 +37,7 @@ import FallbackSpinner from 'src/components/fall-back'
 import { resetInitialState } from 'src/stores/auth'
 import { useRouter } from 'next/navigation'
 import { ROUTE_CONFIG } from 'src/configs/route'
+import { useTranslation } from 'react-i18next'
 
 type TProps = {}
 
@@ -61,21 +62,24 @@ const RegisterPage: NextPage<TProps> = () => {
     //Theme
     const theme = useTheme();
 
+    //translation
+    const { t } = useTranslation()
+
     const schema = yup.object().shape({
         // email: yup.string().email().required("Email is required"),
         email: yup
             .string()
-            .required("Email is required")
-            .matches(EMAIL_REG, "The email format is incorrect"),
+            .required(t("required_email"))
+            .matches(EMAIL_REG, t("incorrect_email_format")),
         password: yup
             .string()
-            .required("Password is required")
-            .matches(PASSWORD_REG, "The password format is incorrect"),
+            .required(t("required_password"))
+            .matches(PASSWORD_REG, t("incorrect_password_format")),
         confirmPassword: yup
             .string()
-            .required("Confirm Password is required")
-            .matches(PASSWORD_REG, "The password format is incorrect")
-            .oneOf([yup.ref('password'), ''], 'Passwords dot not match'),
+            .required(t("required_confirm_password"))
+            .matches(PASSWORD_REG, t("incorrect_confirm_password_format"))
+            .oneOf([yup.ref('password'), ''], t('password_not_match')),
     });
 
     const { handleSubmit, control, formState: { errors } } = useForm({
@@ -153,9 +157,9 @@ const RegisterPage: NextPage<TProps> = () => {
                         flexDirection: 'column',
                         alignItems: 'center',
                     }}>
-                        <Typography component="h1" variant="h5">Sign up</Typography>
+                        <Typography component="h1" variant="h5">{t('register')}</Typography>
                         <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
-                            <Box sx={{ mt: 2 }} width={{ md: '18rem', xs: '20rem' }}>
+                            <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                                 <Controller
                                     control={control}
                                     rules={{ required: true }}
@@ -163,11 +167,11 @@ const RegisterPage: NextPage<TProps> = () => {
                                         <CustomTextField
                                             required
                                             fullWidth
-                                            label="Email"
+                                            label={t('email')}
                                             onChange={onChange}
                                             onBlur={onBlur}
                                             value={value}
-                                            placeholder='Enter your email'
+                                            placeholder={t('enter_email')}
                                             error={errors.email ? true : false}
                                             helperText={errors.email?.message}
                                         />
@@ -176,7 +180,7 @@ const RegisterPage: NextPage<TProps> = () => {
                                 />
                                 {/* {errors.email && <Typography>{errors.email.message}</Typography>} */}
                             </Box>
-                            <Box sx={{ mt: 2 }} width={{ md: '18rem', xs: '20rem' }}>
+                            <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                                 <Controller
                                     control={control}
                                     rules={{ required: true }}
@@ -184,11 +188,11 @@ const RegisterPage: NextPage<TProps> = () => {
                                         <CustomTextField
                                             required
                                             fullWidth
-                                            label="Password"
+                                            label={t('password')}
                                             onChange={onChange}
                                             onBlur={onBlur}
                                             value={value}
-                                            placeholder='Enter your password'
+                                            placeholder={t('enter_password')}
                                             helperText={errors.password?.message}
                                             error={errors.password ? true : false}
                                             type={showPassword ? 'text' : 'password'}
@@ -217,7 +221,7 @@ const RegisterPage: NextPage<TProps> = () => {
                                 />
                                 {/* {errors.password && <Typography>{errors.password.message}</Typography>} */}
                             </Box>
-                            <Box sx={{ mt: 2 }} width={{ md: '18rem', xs: '20rem' }}>
+                            <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                                 <Controller
                                     control={control}
                                     name='confirmPassword'
@@ -226,11 +230,11 @@ const RegisterPage: NextPage<TProps> = () => {
                                         <CustomTextField
                                             required
                                             fullWidth
-                                            label="Confirm password"
+                                            label={t('confirm_password')}
                                             onChange={onChange}
                                             onBlur={onBlur}
                                             value={value}
-                                            placeholder='Confirm your password'
+                                            placeholder={t('enter_confirm_password')}
                                             helperText={errors.confirmPassword?.message}
                                             error={errors.confirmPassword ? true : false}
                                             type={showConfirmPassword ? 'text' : 'password'}
@@ -244,7 +248,7 @@ const RegisterPage: NextPage<TProps> = () => {
                                                             edge="end"
                                                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                                                             {
-                                                                showPassword ?
+                                                                showConfirmPassword ?
                                                                     <IconifyIcon icon='material-symbols:visibility-outline' />
                                                                     :
                                                                     <IconifyIcon icon='material-symbols:visibility-off-outline-rounded' />
@@ -256,44 +260,21 @@ const RegisterPage: NextPage<TProps> = () => {
                                         />
                                     )}
                                 />
-                                {/* {errors.password && <Typography>{errors.password.message}</Typography>} */}
                             </Box>
-                            {/* <Box sx={{
-                            mt: 2,
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between'
-                        }}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        name="rememberMe"
-                                        checked={isRemember}
-                                        onChange={(e) => setIsRemember(e.target.checked)}
-                                        color="primary" />
-                                }
-                                label="Remember me" />
-                            <Link href="#">Forgot password?</Link>
-                        </Box> */}
                             <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                Sign up
+                                {t('register')}
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: "4px" }}>
                                 <Typography>
-                                    {"Already have an account?"}
+                                    {t('already_have_an_account')}
                                 </Typography>
                                 <Link
                                     className={`text-[${theme.palette.primary.main}]`}
-
-                                    // className={clsx('text-base',
-                                    //     theme.palette.mode === 'light' 
-                                    //     ? 'text-black'
-                                    //     : 'text-white')}
                                     href="/login">
-                                    {"Sign In"}
+                                    {t('login')}
                                 </Link>
                             </Box>
-                            <Typography sx={{ textAlign: 'center', mt: 2, mb: 2 }}>Or</Typography>
+                            <Typography sx={{ textAlign: 'center', mt: 2, mb: 2 }}>{t('or')}</Typography>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: "10px" }}>
                                 <IconButton sx={{ color: theme.palette.error.main }}
                                     aria-label="Social Icon" onClick={() => console.log('Register with google')}>

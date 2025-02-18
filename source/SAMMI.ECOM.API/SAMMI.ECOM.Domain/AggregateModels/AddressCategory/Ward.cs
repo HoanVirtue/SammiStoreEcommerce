@@ -8,6 +8,9 @@ namespace SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
 [Table("Ward")]
 public partial class Ward : Entity
 {
+    [Column("Code")]
+    [MaxLength(100)]
+    public string? Code { get; set; }
     [Column("Name")]
     [MaxLength(100)]
     public string? Name { get; set; }

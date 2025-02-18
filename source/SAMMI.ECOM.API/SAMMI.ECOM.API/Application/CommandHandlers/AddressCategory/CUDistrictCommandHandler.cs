@@ -24,6 +24,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
         public override async Task<ActionResponse<DistrictDTO>> Handle(CUDistrictCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<DistrictDTO>();
+            if (await _districtRepository.CheckExistCode(request.Code, request.Id))
+            {
+                actResponse.AddError("Mã quận/huyện đã tồn tại");
+                return actResponse;
+            }
             if (await _districtRepository.CheckExistName(request.Name, request.Id))
             {
                 actResponse.AddError("Tên quận/huyện đã tồn tại");
@@ -62,6 +67,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
     {
         public CUDistrictCommandValidator()
         {
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithMessage("Mã quận/huyện là bắt buộc");
+
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .WithMessage("Tên quận/huyện là bắt buộc");

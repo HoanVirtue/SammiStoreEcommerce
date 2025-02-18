@@ -17,6 +17,10 @@ public partial class PurchaseOrder : Entity
     [StringLength(50)]
     public string? Status { get; set; }
 
+    [Column("Note")]
+    [StringLength(500)]
+    public string? Note { get; set; }
+
     public virtual User Employee { get; set; } = null!;
 
     public virtual ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; } = new List<PurchaseOrderDetail>();

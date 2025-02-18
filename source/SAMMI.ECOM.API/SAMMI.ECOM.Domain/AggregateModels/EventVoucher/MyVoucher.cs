@@ -18,5 +18,5 @@ public partial class MyVoucher : Entity
 
     public virtual User Customer { get; set; } = null!;
 
-    public virtual Discount Voucher { get; set; } = null!;
+    public virtual Voucher Voucher { get; set; } = null!;
 }

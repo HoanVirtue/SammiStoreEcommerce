@@ -1,29 +1,17 @@
-﻿using SAMMI.ECOM.Domain.AggregateModels.Others;
-using SAMMI.ECOM.Domain.Seeds;
-using System.ComponentModel.DataAnnotations;
+﻿using SAMMI.ECOM.Domain.Seeds;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SAMMI.ECOM.Domain.AggregateModels.Products;
-
-[Table("Image")]
-public partial class Image : Entity
+namespace SAMMI.ECOM.Domain.AggregateModels.Products
 {
-    [ForeignKey("Product")]
-    public int? ProductId { get; set; }
-    [ForeignKey("Brand")]
-    public int? BrandId { get; set; }
-    [ForeignKey("User")]
-    public int? UserId { get; set; }
+    [Table("ProductImage")]
+    public partial class ProductImage : Entity
+    {
+        [ForeignKey("Product")]
+        public int? ProductId { get; set; }
+        [ForeignKey("ImageId")]
+        public int? ImageId { get; set; }
 
-    [Column("ImageUrl")]
-    [StringLength(255)]
-    public string? ImageUrl { get; set; }
-
-    [Column("PublicId")]
-    [StringLength(255)]
-    public string? PublicId { get; set; }
-
-    public virtual Product Product { get; set; } = null!;
-    public virtual Brand Brand { get; set; } = null!;
-    public virtual User User { get; set; } = null!;
+        public virtual Product Product { get; set; } = null!;
+        public virtual Image Image { get; set; } = null!;
+    }
 }

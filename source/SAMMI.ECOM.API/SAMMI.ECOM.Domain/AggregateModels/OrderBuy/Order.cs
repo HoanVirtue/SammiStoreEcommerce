@@ -10,6 +10,10 @@ namespace SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 [Table("Order")]
 public partial class Order : Entity
 {
+    [Column("Code")]
+    [MaxLength(256)]
+    public string Code { get; set; } = null!;
+
     [ForeignKey("Customer")]
     public int CustomerId { get; set; }
 
@@ -34,7 +38,7 @@ public partial class Order : Entity
 
     public virtual User Customer { get; set; } = null!;
 
-    public virtual Discount? Discount { get; set; }
+    public virtual Voucher? Discount { get; set; }
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 

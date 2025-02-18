@@ -13,6 +13,11 @@ namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
             builder.HasOne(d => d.Ward)
                 .WithMany(p => p.Users)
                 .HasForeignKey(d => d.WardId);
+
+            builder.HasOne(d => d.Avatar)
+                .WithMany(p => p.UserImages)
+                .HasForeignKey(d => d.AvatarId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

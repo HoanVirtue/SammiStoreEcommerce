@@ -21,13 +21,19 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
         public override async Task<ActionResponse<ProvinceDTO>> Handle(CUProvinceCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<ProvinceDTO>();
+
+            if (await _provinRepository.CheckExistCode(request.Code, request.Id))
+            {
+                actResponse.AddError("Mã tỉnh/thành phố đã tồn tại");
+                return actResponse;
+            }
             if (await _provinRepository.CheckExistName(request.Name, request.Id))
             {
                 actResponse.AddError("Tên tỉnh/thành phố đã tồn tại");
                 return actResponse;
             }
 
-            if (!string.IsNullOrEmpty(request.PostalCode) && await _provinRepository.CheckExistCode(request.PostalCode, request.Id))
+            if (!string.IsNullOrEmpty(request.PostalCode) && await _provinRepository.CheckExistPosttalCode(request.PostalCode, request.Id))
             {
                 actResponse.AddError("Mã bưu chính đã tồn tại");
                 return actResponse;
@@ -59,9 +65,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
     {
         public CUProvinceCommandValidator()
         {
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithMessage("Mã tỉnh/thành phố không được bỏ trống");
+
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Tên tỉnh/thành phố là bắt buộc");
+                .WithMessage("Tên tỉnh/thành phố không được bỏ trống");
         }
     }
 }

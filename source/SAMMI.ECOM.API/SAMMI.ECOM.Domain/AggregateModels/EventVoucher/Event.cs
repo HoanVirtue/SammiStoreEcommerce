@@ -1,4 +1,5 @@
-﻿using SAMMI.ECOM.Domain.Seeds;
+﻿using SAMMI.ECOM.Domain.AggregateModels.Products;
+using SAMMI.ECOM.Domain.Seeds;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -25,9 +26,10 @@ public partial class Event : Entity
     [MaxLength(50)]
     public string? EventType { get; set; }
 
-    [Column("Image")]
-    [MaxLength(255)]
-    public string? Image { get; set; }
+    [ForeignKey("Image")]
+    [Column("ImageId")]
+    public int? ImageId { get; set; }
 
-    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
+    public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
+    public virtual Image? Image { get; set; }
 }

@@ -57,14 +57,16 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const SearchField = (props: TSearchField) => {
 
+    
+    const { t } = useTranslation()
+
     //props
-    const { value, onChange, placeholder = "Search…" } = props
+    const { value, onChange, placeholder = t('search') } = props
 
     //state
     const [search, setSearch] = useState(value)
     const debouncedSearch = useDebounce(search, 300)
 
-    const { t } = useTranslation()
 
     useEffect(() => {
         onChange(debouncedSearch)

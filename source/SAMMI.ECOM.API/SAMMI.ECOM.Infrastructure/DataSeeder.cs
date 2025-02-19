@@ -81,7 +81,39 @@ namespace SAMMI.ECOM.Infrastructure
             // chat
             "CHAT_MANAGER"
         };
+        private readonly string[] CUSTOMER_PERMISSION_CODE = new[]
+        {
+            // Tài khoản & bảo mật
+            "CUSTOMER_ACCOUNT_VIEW",
+            "CUSTOMER_ACCOUNT_UPDATE",
+            "CUSTOMER_ACCOUNT_CHANGE_PASSWORD",
+            "CUSTOMER_ACCOUNT_LOGOUT",
 
+            // Sản phẩm
+            "CUSTOMER_PRODUCT_VIEW",
+            "CUSTOMER_PRODUCT_SEARCH",
+            "CUSTOMER_PRODUCT_ADVANCED_SEARCH",
+
+            // Giỏ hàng & Đơn hàng
+            "CUSTOMER_CART_MANAGE",
+            "CUSTOMER_ORDER_PLACE",
+            "CUSTOMER_ORDER_PAYMENT",
+
+            // Theo dõi đơn hàng
+            "CUSTOMER_ORDER_TRACK",
+            "CUSTOMER_ORDER_CANCEL",
+
+            // Thông báo & Thông tin nhận hàng
+            "CUSTOMER_NOTIFICATION_MANAGE",
+            "CUSTOMER_SHIPPING_INFO_MANAGE",
+
+            // Đánh giá & Sản phẩm yêu thích
+            "CUSTOMER_PRODUCT_REVIEW",
+            "CUSTOMER_FAVORITE_PRODUCTS_MANAGE",
+
+            // Voucher
+            "CUSTOMER_VOUCHER_MANAGE"
+        };
         public DataSeeder(SammiEcommerceContext context)
         {
             _context = context;
@@ -315,7 +347,41 @@ namespace SAMMI.ECOM.Infrastructure
                     new Permission() { Code = "ACCOUNT_VIEW", Name = "Xem thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
                     new Permission() { Code = "ACCOUNT_UPDATE", Name = "Cập nhật thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
                     new Permission() { Code = "ACCOUNT_CHANGE_PASSWORD", Name = "Đổi mật khẩu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission() { Code = "ACCOUNT_LOGOUT", Name = "Đăng xuất", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" }
+                    new Permission() { Code = "ACCOUNT_LOGOUT", Name = "Đăng xuất", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                
+                    
+                    /* role khách hàng*/
+
+                    // Tài khoản & bảo mật
+                    new Permission() { Code = "CUSTOMER_ACCOUNT_VIEW", Name = "Khách hàng xem thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_ACCOUNT_UPDATE", Name = "Khách hàng cập nhật thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_ACCOUNT_CHANGE_PASSWORD", Name = "Khách hàng đổi mật khẩu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_ACCOUNT_LOGOUT", Name = "Khách hàng đăng xuất", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    
+                    // Sản phẩm
+                    new Permission() { Code = "CUSTOMER_PRODUCT_VIEW", Name = "Khách hàng xem thông tin sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_PRODUCT_SEARCH", Name = "Khách hàng tìm kiếm sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_PRODUCT_ADVANCED_SEARCH", Name = "Khách hàng tìm kiếm sản phẩm nâng cao", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Giỏ hàng & Đơn hàng
+                    new Permission() { Code = "CUSTOMER_CART_MANAGE", Name = "Khách hàng quản lý giỏ hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_ORDER_PLACE", Name = "Khách hàng đặt hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_ORDER_PAYMENT", Name = "Khách hàng thanh toán đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Theo dõi đơn hàng
+                    new Permission() { Code = "CUSTOMER_ORDER_TRACK", Name = "Khách hàng theo dõi đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_ORDER_CANCEL", Name = "Khách hàng hủy đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Thông báo & Thông tin nhận hàng
+                    new Permission() { Code = "CUSTOMER_NOTIFICATION_MANAGE", Name = "Khách hàng quản lý thông báo", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_SHIPPING_INFO_MANAGE", Name = "Khách hàng quản lý thông tin nhận hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Đánh giá & Sản phẩm yêu thích
+                    new Permission() { Code = "CUSTOMER_PRODUCT_REVIEW", Name = "Khách hàng đánh giá sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission() { Code = "CUSTOMER_FAVORITE_PRODUCTS_MANAGE", Name = "Khách hàng quản lý sản phẩm yêu thích", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Voucher
+                    new Permission() { Code = "CUSTOMER_VOUCHER_MANAGE", Name = "Khách hàng quản lý voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" }
                 };
 
                 try
@@ -413,6 +479,22 @@ namespace SAMMI.ECOM.Infrastructure
                         rolePermissions.AddRange(
                             permissions
                             .Where(per => MANAGER_PERMISSION_CODE.Contains(per.Code))
+                            .Select(per => new RolePermission()
+                            {
+                                RoleId = r.Id,
+                                PermissionId = per.Id,
+                                Allow = true,
+                                IsActive = true,
+                                IsDeleted = false,
+                                CreatedDate = DateTime.Now,
+                                CreatedBy = "N/A"
+                            }));
+                    }
+                    else if (r.Code == "CUSTOMER")
+                    {
+                        rolePermissions.AddRange(
+                            permissions
+                            .Where(per => CUSTOMER_PERMISSION_CODE.Contains(per.Code))
                             .Select(per => new RolePermission()
                             {
                                 RoleId = r.Id,

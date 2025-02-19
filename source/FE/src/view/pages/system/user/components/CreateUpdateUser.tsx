@@ -75,14 +75,14 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
     const dispatch: AppDispatch = useDispatch()
 
     const schema = yup.object().shape({
-        email: yup.string().required("Email is required")
-            .matches(EMAIL_REG, "The email format is incorrect"),
-        password: idUser ? yup.string().nonNullable() : yup.string().required("Password is required")
-            .matches(PASSWORD_REG, "The password format is incorrect"),
-        fullName: yup.string().required("Fullname is required"),
-        phoneNumber: yup.string().required("Phone number is required")
-            .min(9, "The phone number must be at least 9 characters"),
-        role: yup.string().required("Role is required"),
+        email: yup.string().required(t("required_email"))
+            .matches(EMAIL_REG, t('incorrect_email_format')),
+        password: idUser ? yup.string().nonNullable() : yup.string().required(t("required_password"))
+            .matches(PASSWORD_REG, t('incorrect_password_format')),
+        fullName: yup.string().required(t("required_fullname")),
+        phoneNumber: yup.string().required(t('required_phone_number'))
+            .min(9, t('incorrect_phone_format')),
+        role: yup.string().required(t('require_role')),
         city: yup.string().nonNullable(),
         address: yup.string().nonNullable(),
         status: yup.number().nonNullable(),
@@ -336,11 +336,11 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                             // 
                                                             required
                                                             fullWidth
-                                                            label="Email"
+                                                            label={t('email')}
                                                             onChange={onChange}
                                                             onBlur={onBlur}
                                                             value={value}
-                                                            placeholder='Enter your email'
+                                                            placeholder={t('enter_your_email')}
                                                             error={errors.email ? true : false}
                                                             helperText={errors.email?.message}
                                                         />
@@ -357,11 +357,11 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                             <CustomTextField
                                                                 required
                                                                 fullWidth
-                                                                label="Password"
+                                                                label={t("password")}
                                                                 onChange={onChange}
                                                                 onBlur={onBlur}
                                                                 value={value}
-                                                                placeholder='Enter your password'
+                                                                placeholder={t('enter_your_password')}
                                                                 helperText={errors.password?.message}
                                                                 error={errors.password ? true : false}
                                                                 type={showPassword ? 'text' : 'password'}
@@ -402,7 +402,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                 display: "block",
                                                                 color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                             }}>
-                                                                Nhóm vai trò <span style={{
+                                                                {t('role')}<span style={{
                                                                     color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                                 }}>*</span>
                                                             </InputLabel>
@@ -525,7 +525,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                                                                 onBlur={onBlur}
                                                                 value={value}
                                                                 options={cityOptions}
-                                                                placeholder={t('enter_your_city')}
+                                                                placeholder={t('select_your_city')}
                                                                 error={errors.city ? true : false}
                                                             />
                                                             {errors?.city?.message && (
@@ -573,7 +573,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idUser ? t('Update') : t('Create')}
+                                {idUser ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form>

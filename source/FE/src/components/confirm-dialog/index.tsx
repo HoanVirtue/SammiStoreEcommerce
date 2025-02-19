@@ -1,6 +1,7 @@
 import { Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, styled, Typography } from "@mui/material"
 import IconifyIcon from "../Icon"
 import { useTheme } from "@mui/material"
+import { useTranslation } from "react-i18next"
 
 interface TConfirmDialog {
     open: boolean,
@@ -25,6 +26,7 @@ const ConfirmDialog = (props: TConfirmDialog) => {
     //props
     const { open, onClose, title, description, handleConfirm, handleCancel } = props
     const theme = useTheme()
+    const {t} = useTranslation()
 
     return (
         <CustomDialog
@@ -49,9 +51,9 @@ const ConfirmDialog = (props: TConfirmDialog) => {
                 </CustomDialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button color="error" variant="outlined" onClick={handleCancel}>Cancel</Button>
+                <Button color="error" variant="outlined" onClick={handleCancel}>{t('cancel')}</Button>
                 <Button variant="contained" onClick={handleConfirm} >
-                    Confirm
+                    {t('confirm')}
                 </Button>
             </DialogActions>
         </CustomDialog>

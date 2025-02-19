@@ -87,7 +87,7 @@ const ProductCart = (props: TProps) => {
     return (
         <React.Fragment>
             <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-                <Tooltip title={t("Account")}>
+                <Tooltip title={t("cart")}>
                     <IconButton
                         onClick={handleClick}
                         size="small"

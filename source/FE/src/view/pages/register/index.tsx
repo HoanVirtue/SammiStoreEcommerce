@@ -66,7 +66,7 @@ const RegisterPage: NextPage<TProps> = () => {
     const { t } = useTranslation()
 
     const schema = yup.object().shape({
-        // email: yup.string().email().required("Email is required"),
+        // email: yup.string().email().required(t("required_email")),
         email: yup
             .string()
             .required(t("required_email"))

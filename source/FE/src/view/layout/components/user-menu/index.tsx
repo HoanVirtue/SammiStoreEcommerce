@@ -25,6 +25,7 @@ import { ROUTE_CONFIG } from "src/configs/route";
 import { toFullName } from "src/utils";
 import { useSelector } from "react-redux";
 import { RootState } from "src/stores";
+import { Button } from "@mui/material";
 
 type TProps = {}
 
@@ -106,7 +107,7 @@ const UserMenu = (props: TProps) => {
     return (
         <React.Fragment>
             <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-                <Tooltip title={t("Account")}>
+                <Tooltip title={t("account")}>
                     <IconButton
                         onClick={handleClick}
                         size="small"
@@ -211,37 +212,37 @@ const UserMenu = (props: TProps) => {
                 </Box>
                 <Divider />
                 {userPermission.length > 0 && (
-                    <MenuItem onClick={handleNavigateManageSystem}>
-                        <Avatar>
-                            <IconifyIcon icon="ph:user-thin" />
-                        </Avatar>
+                    <MenuItem onClick={handleNavigateManageSystem}
+                        sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <IconifyIcon icon="tdesign:system-setting" />
                         {t("manage_system")}
                     </MenuItem>
                 )}
-                <MenuItem onClick={handleNavigateMyProfile}>
-                    <Avatar>
-                        <IconifyIcon icon="ph:user-thin" />
-                    </Avatar>
+                <MenuItem onClick={handleNavigateMyProfile}
+                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <IconifyIcon icon="streamline:user-profile-focus" />
                     {t("my_profile")}
                 </MenuItem>
-                <MenuItem onClick={handleNavigateMyProduct}>
-                    <Avatar>
-                        <IconifyIcon icon="ph:user-thin" />
-                    </Avatar>
-                    {t("my_product")}
+                <MenuItem onClick={handleNavigateMyProduct}
+                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <IconifyIcon icon="iconoir:favourite-book" />
+                    {t("fav_product")}
                 </MenuItem>
-                <Divider />
-                <MenuItem onClick={handleNavigateChangePassword}>
-                    <Avatar sx={{ backgroundColor: "transparent" }}>
-                        <IconifyIcon icon="mdi:password" />
-                    </Avatar>
+                <MenuItem onClick={handleNavigateChangePassword}
+                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <IconifyIcon icon="tabler:lock-password" />
                     {t("Đổi mật khẩu")}
                 </MenuItem>
-                <MenuItem onClick={logout}>
-                    <Avatar sx={{ backgroundColor: "transparent" }}>
-                        <IconifyIcon icon="material-symbols:logout-rounded" />
-                    </Avatar>
-                    Logout
+                <MenuItem onClick={logout}
+                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <Button fullWidth variant="contained" startIcon={
+                        <IconifyIcon icon="humbleicons:logout" />
+                    }
+                    color="error"
+                    sx={{ borderRadius: "6px" }}
+                    >
+                        {t("logout")}
+                    </Button>
                 </MenuItem>
             </Menu>
         </React.Fragment>

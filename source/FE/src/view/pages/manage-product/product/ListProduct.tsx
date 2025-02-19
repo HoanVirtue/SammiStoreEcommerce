@@ -289,14 +289,14 @@ const ListProduct: NextPage<TProps> = () => {
                 return (
                     <>
                         <GridUpdate
-                            disabled={!UPDATE}
+                            // disabled={!UPDATE}
                             onClick={() => setOpenCreateUpdateProduct({
                                 open: true,
                                 id: String(params.id)
                             })}
                         />
                         <GridDelete
-                            disabled={!DELETE}
+                            // disabled={!DELETE}
                             onClick={() => setOpenDeleteProduct({
                                 open: true,
                                 id: String(params.id)

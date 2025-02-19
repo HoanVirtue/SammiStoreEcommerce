@@ -163,7 +163,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                                 borderRadius: "15px",
                                 py: 5, px: 4
                             }}>
-                            <Grid container item md={12} xs={12} >
+                            <Grid container item md={12} xs={12} spacing={5}>
                                 <Grid item md={12} xs={12} >
                                     <Controller
                                         control={control}

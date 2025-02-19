@@ -83,10 +83,10 @@ const MyProfilePage: NextPage<TProps> = () => {
     const { isLoading, isErrorUpdateMe, messageUpdateMe, isSuccessUpdateMe } = useSelector((state: RootState) => state.auth)
 
     const schema = yup.object().shape({
-        // email: yup.string().email().required("Email is required"),
+        // email: yup.string().email().required(t("required_email")),
         email: yup
             .string()
-            .required("Email is required")
+            .required(t("required_email"))
             .matches(EMAIL_REG, "The email format is incorrect"),
         fullName: yup.string().notRequired(),
         address: yup.string().notRequired(),

@@ -4,7 +4,7 @@ using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
-using SAMMI.ECOM.Infrastructure.Repositories.Brands;
+using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
 {

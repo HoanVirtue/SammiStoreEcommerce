@@ -3,15 +3,15 @@ using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Repositories.Products
 {
-    public interface IImageRepository : ICrudRepository<Image>
+    public interface IProductImageRepository : ICrudRepository<ProductImage>
     {
     }
 
-    public class ImageRepository : CrudRepository<Image>, IImageRepository, IDisposable
+    public class ProductImageRepository : CrudRepository<ProductImage>, IProductImageRepository, IDisposable
     {
         private readonly SammiEcommerceContext _context;
         private bool _disposed;
-        public ImageRepository(SammiEcommerceContext context) : base(context)
+        public ProductImageRepository(SammiEcommerceContext context) : base(context)
         {
             _context = context;
         }

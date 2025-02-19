@@ -4,6 +4,8 @@
     {
         Product,
         Brand,
-        User
+        User,
+        Banner,
+        Event
     }
 }

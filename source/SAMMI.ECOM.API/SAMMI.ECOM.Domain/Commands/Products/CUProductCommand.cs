@@ -17,7 +17,7 @@ namespace SAMMI.ECOM.Domain.Commands.Products
         public int? BrandId { get; set; }
         public int? CategoryId { get; set; }
         public int? Status { get; set; }
-        public List<ProductImageCommand>? Images { get; set; }
+        public List<CreateImageCommand>? Images { get; set; }
 
 
         public int Id { get; set; }

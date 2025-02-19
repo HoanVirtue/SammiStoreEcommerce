@@ -1,14 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MediatR;
 using SAMMI.ECOM.API.Services.MediaResource;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.Enums;
-using SAMMI.ECOM.Infrastructure.Repositories.Brands;
-using SAMMI.ECOM.Infrastructure.Repositories.ProductCategorys;
-using SAMMI.ECOM.Infrastructure.Repositories.ProductImages;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
@@ -22,6 +21,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         private readonly IFileStorageService _fileStoreService;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IConfiguration _config;
+        private readonly IMediator _mediator;
+        private readonly IProductImageRepository _productImageRepository;
         public CUProductCommandHandler(
             IProductRepository productRepository,
             IBrandRepository brandRepository,
@@ -30,6 +31,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             IFileStorageService fileStoreService,
             ICloudinaryService cloudinaryService,
             IConfiguration config,
+            IMediator mediator,
+            IProductImageRepository productImageRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -40,6 +43,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             _fileStoreService = fileStoreService;
             _cloudinaryService = cloudinaryService;
             _config = config;
+            _productImageRepository = productImageRepository;
+            _mediator = mediator;
         }
 
         public override async Task<ActionResponse<ProductDTO>> Handle(CUProductCommand request, CancellationToken cancellationToken)
@@ -79,53 +84,37 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
 
                 if (request.Images != null && request.Images.Count > 0)
                 {
-                    foreach (var file in request.Images)
+                    foreach (var image in request.Images)
                     {
-                        if (string.IsNullOrEmpty(file.ImageBase64))
+                        if (image.DisplayOrder == null || image.DisplayOrder == 0)
                         {
-                            actResponse.AddError("Chuỗi ImageBase64 không được bỏ trống");
+                            actResponse.AddError("Thứ tự hình ảnh phải > 0");
                             return actResponse;
                         }
-                        if (file.DisplayOrder == null || file.DisplayOrder == 0)
+                        image.Value = product.Id;
+                        image.TypeImage = ImageEnum.Product.ToString();
+                        var createImage = await _mediator.Send(image);
+                        if (createImage.IsSuccess)
                         {
-                            actResponse.AddError("Chuỗi ImageBase64 không được bỏ trống");
+                            var createProductImage = new ProductImage()
+                            {
+                                ProductId = product.Id,
+                                ImageId = createImage.Result.Id,
+                                CreatedDate = DateTime.Now,
+                                CreatedBy = "System"
+                            };
+                            actResponse.Combine(await _productImageRepository.CreateAndSave(createProductImage));
+                            if (!actResponse.IsSuccess)
+                            {
+                                return actResponse;
+                            }
+                        }
+                        else
+                        {
+                            actResponse.AddError(createImage.Message);
                             return actResponse;
                         }
-                        string fileName = $"product_{product.Id}_{Guid.NewGuid()}";
-                        string urlImage = await _cloudinaryService.UploadBase64Image(file.ImageBase64, fileName, ImageEnum.Product.ToString());
-                        if (urlImage == null)
-                        {
-                            actResponse.AddError("Lỗi upload ảnh lên cloudinary");
-                            return actResponse;
-                        }
-                        //var imageProduct = new Image()
-                        //{
-                        //    ProductId = product.Id,
-                        //    ImageUrl = urlImage,
-                        //    PublicId = $"{_config["CloundSettings:ImageProductFolder"]}/{fileName}",
-                        //    CreatedDate = DateTime.Now,
-                        //    CreatedBy = _currentUser.UserName,
-                        //    IsActive = true,
-                        //    IsDeleted = false,
-                        //    DisplayOrder = file.DisplayOrder
-                        //};
-                        //await _imageRepository.CreateAndSave(imageProduct);
                     }
-                    // upload server
-                    //var listImage = new List<string>();
-                    //foreach (var file in request.ImageFiles)
-                    //{
-                    //    string urlImage = await _fileStoreService.SaveFileImage(file);
-                    //    if (urlImage != null)
-                    //    {
-                    //        var imageProduct = new ProductImage()
-                    //        {
-                    //            ProductId = product.Id,
-                    //            ImageUrl = urlImage,
-                    //        };
-                    //        await _imageRepository.CreateAndSave(imageProduct);
-                    //    }
-                    //}
                 }
 
                 actResponse.SetResult(_mapper.Map<ProductDTO>(createRes.Result));
@@ -161,24 +150,19 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 .NotEmpty()
                 .WithMessage("Mã sản phẩm không được bỏ trống");
 
-            //RuleFor(x => x.ImageFiles)
-            //    .NotEmpty().WithMessage("Vui lòng tải lên ít nhất 1 hình ảnh")
-            //    .Must(files => files.All(IsValidFile))
-            //    .WithMessage("File tải lên phải là hình ảnh hợp lệ và không quá 5MB");
+            RuleFor(x => x.Images)
+                .NotEmpty()
+                .WithMessage("Danh sách hình ảnh không được bỏ trống")
+                .Must(x => x != null && x.Any())
+                .WithMessage("Phải có ít nhất 1 hình ảnh")
+                .Must(images => images.All(image => IsValidBase64(image.ImageBase64)))
+                .WithMessage("Tất cả hình ảnh phải là chuỗi Base64 hợp lệ.");
         }
 
-        private bool IsValidFile(IFormFile file)
+        public static bool IsValidBase64(string base64)
         {
-            if (file == null || file.Length == 0) return false;
-
-            var extension = Path.GetExtension(file.FileName)?.ToLower();
-            if (!_allowedExtensions.Contains(extension)) return false;
-
-            if (!_allowedMimeTypes.Contains(file.ContentType.ToLower())) return false;
-
-            if (file.Length > MaxFileSize) return false;
-
-            return true;
+            Span<byte> buffer = new Span<byte>(new byte[base64.Length]);
+            return Convert.TryFromBase64String(base64, buffer, out int bytesParsed);
         }
     }
 }

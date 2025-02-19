@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Infrastructure.Queries.ProductCategorys;
-using SAMMI.ECOM.Infrastructure.Repositories.ProductCategorys;
+using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
 namespace SAMMI.ECOM.API.Controllers.ProductCategorys
 {
@@ -81,6 +81,30 @@ namespace SAMMI.ECOM.API.Controllers.ProductCategorys
                 return NotFound();
             }
             return Ok(_categoryRepository.DeleteAndSave(id));
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteRange([FromBody] List<int> ids)
+        {
+            var actErrorResponse = new ActionResponse<List<string>>();
+            var listError = new Dictionary<int, string>();
+            if (ids == null || ids.Count == 0)
+            {
+                return BadRequest();
+            }
+            foreach (var id in ids)
+            {
+                if (!_categoryRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
+                {
+                    listError[id] = $"Không tồn tại danh mục sản phẩm có mã {id}";
+                }
+            }
+            if (listError.Count > 0)
+            {
+                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                return BadRequest(actErrorResponse);
+            }
+            return Ok(_categoryRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
     }
 }

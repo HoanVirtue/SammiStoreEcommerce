@@ -172,5 +172,29 @@ namespace SAMMI.ECOM.API.Controllers
             }
             return Ok(response);
         }
+
+        [HttpDelete]
+        public IActionResult DeleteRange([FromBody] List<int> ids)
+        {
+            var actErrorResponse = new ActionResponse<List<string>>();
+            var listError = new Dictionary<int, string>();
+            if (ids == null || ids.Count == 0)
+            {
+                return BadRequest();
+            }
+            foreach (var id in ids)
+            {
+                if (!_userRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
+                {
+                    listError[id] = $"Không tồn tại người dùng có mã {id}";
+                }
+            }
+            if (listError.Count > 0)
+            {
+                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                return BadRequest(actErrorResponse);
+            }
+            return Ok(_userRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
+        }
     }
 }

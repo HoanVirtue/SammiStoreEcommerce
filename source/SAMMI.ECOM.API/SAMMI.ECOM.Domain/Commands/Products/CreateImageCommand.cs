@@ -1,11 +1,16 @@
-﻿namespace SAMMI.ECOM.Domain.DomainModels.Products
+﻿using MediatR;
+using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.DomainModels.Products;
+
+namespace SAMMI.ECOM.Domain.Commands.Products
 {
-    public class ImageDTO
+    public class CreateImageCommand : IRequest<ActionResponse<ImageDTO>>
     {
         public string? ImageUrl { get; set; }
+        public string ImageBase64 { get; set; }
         public string? PublicId { get; set; }
         public string? TypeImage { get; set; }
-
+        public object? Value { get; set; }
 
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }

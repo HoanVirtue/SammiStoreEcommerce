@@ -33,19 +33,45 @@ namespace SAMMI.ECOM.API.Services.MediaResource
         public async Task<string> UploadBase64Image(string base64Image, string fileName, string type)
         {
             byte[] imageBytes = Convert.FromBase64String(base64Image);
+            var folderMapping = new Dictionary<ImageEnum, string>
+            {
+                { ImageEnum.Product, _configuration["CloundSettings:ImageProductFolder"] },
+                { ImageEnum.Brand, _configuration["CloundSettings:ImageBrandFolder"] },
+                { ImageEnum.User, _configuration["CloundSettings:ImageUserFolder"] },
+                { ImageEnum.Banner, _configuration["CloundSettings:ImageBannerFolder"] },
+                { ImageEnum.Event, _configuration["CloundSettings:ImageEventFolder"] }
+            };
+            if (!Enum.TryParse(type, true, out ImageEnum imageType))
+            {
+                imageType = ImageEnum.Product;
+            }
+            string folder = folderMapping.TryGetValue(imageType, out var mappedFolder)
+                            ? mappedFolder
+                            : _configuration["CloundSettings:ImageProductFolder"];
             using (var stream = new MemoryStream(imageBytes))
             {
                 var uploadParams = new ImageUploadParams()
                 {
                     File = new FileDescription(fileName, stream),
                     PublicId = fileName,
-                    Folder = type == ImageEnum.Product.ToString() ? _configuration["CloundSettings:ImageProductFolder"] :
-                             type == ImageEnum.Brand.ToString() ? _configuration["CloundSettings:ImageBrandFolder"] :
-                             _configuration["CloundSettings:ImageUserFolder"]
+                    Folder = folder
                 };
 
-                var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                return uploadResult != null ? uploadResult.SecureUri.ToString() : null;
+                try
+                {
+                    var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                    if (uploadResult.Error != null)
+                    {
+                        Console.WriteLine("Error upload cloudinary: ", uploadResult.Error.Message);
+                    }
+                    return uploadResult != null && uploadResult.SecureUri != null ? uploadResult.SecureUri.ToString() : null;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error upload cloudinary: ", ex.ToString());
+                }
+
+                return null;
             }
         }
     }

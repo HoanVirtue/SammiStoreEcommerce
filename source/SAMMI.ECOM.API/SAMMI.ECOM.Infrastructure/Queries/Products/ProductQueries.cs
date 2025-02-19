@@ -27,17 +27,18 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
-                    sqlBuilder.Select("t2.Id AS ImageId, t2.ProductId, t2.ImageUrl, t2.DisplayOrder");
+                    sqlBuilder.Select("t3.Id AS ImageId, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
 
-                    sqlBuilder.LeftJoin("Image t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
-                    return conn.QueryAsync<ProductDTO, ProductImageDTO, ProductDTO>(
+                    sqlBuilder.LeftJoin("ProductImage t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Image t3 ON t2.ImageId = t3.Id AND t3.IsDeleted != 1");
+                    return conn.QueryAsync<ProductDTO, ImageDTO, ProductDTO>(
                         sqlTemplate.RawSql,
                         (product, image) =>
                         {
                             if (!productDirectory.TryGetValue(product.Id, out var productEntry))
                             {
                                 productEntry = product;
-                                productEntry.Images = new List<ProductImageDTO>();
+                                productEntry.Images = new List<ImageDTO>();
                                 // format currency
                                 productEntry.OldPrice = Math.Round(productEntry.OldPrice ?? 0, 2);
                                 productEntry.NewPrice = Math.Round(productEntry.NewPrice, 2);
@@ -74,28 +75,26 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
+                    sqlBuilder.Select("t3.Id AS ImageId, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
 
-                    sqlBuilder.Select("t2.Id AS ImageId, t2.ProductId, t2.ImageUrl, t2.DisplayOrder");
-
-                    sqlBuilder.LeftJoin("Image t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
-                    return conn.QueryAsync<ProductDTO, ProductImageDTO, ProductDTO>(
+                    sqlBuilder.LeftJoin("ProductImage t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Image t3 ON t2.ImageId = t3.Id AND t3.IsDeleted != 1");
+                    return conn.QueryAsync<ProductDTO, ImageDTO, ProductDTO>(
                         sqlTemplate.RawSql,
                         (product, image) =>
                         {
                             if (!productDirectory.TryGetValue(product.Id, out var productEntry))
                             {
                                 productEntry = product;
-                                productEntry.Images = new List<ProductImageDTO>();
-
+                                productEntry.Images = new List<ImageDTO>();
                                 // format currency
                                 productEntry.OldPrice = Math.Round(productEntry.OldPrice ?? 0, 2);
                                 productEntry.NewPrice = Math.Round(productEntry.NewPrice, 2);
                                 productDirectory.Add(product.Id, productEntry);
                             }
-
                             if (image != null)
                             {
-                                productEntry.Images ??= new();
+                                product.Images ??= new();
                                 productEntry.Images.Add(image);
                             }
 

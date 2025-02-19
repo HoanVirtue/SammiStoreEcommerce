@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Infrastructure.Queries.Brands;
-using SAMMI.ECOM.Infrastructure.Repositories.Brands;
+using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
 namespace SAMMI.ECOM.API.Controllers.Brands
 {
@@ -80,6 +80,30 @@ namespace SAMMI.ECOM.API.Controllers.Brands
                 return NotFound();
             }
             return Ok(_brandRepository.DeleteAndSave(id));
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteRange([FromBody] List<int> ids)
+        {
+            var actErrorResponse = new ActionResponse<List<string>>();
+            var listError = new Dictionary<int, string>();
+            if (ids == null || ids.Count == 0)
+            {
+                return BadRequest();
+            }
+            foreach (var id in ids)
+            {
+                if (!_brandRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
+                {
+                    listError[id] = $"Không tồn tại thương hiệu có mã {id}";
+                }
+            }
+            if (listError.Count > 0)
+            {
+                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                return BadRequest(actErrorResponse);
+            }
+            return Ok(_brandRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
     }
 }

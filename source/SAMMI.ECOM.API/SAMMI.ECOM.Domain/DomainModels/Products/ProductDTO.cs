@@ -20,7 +20,7 @@
         public int? BrandId { get; set; }
         public int? Status { get; set; }
         public int? CategoryId { get; set; }
-        public List<ProductImageDTO>? Images { get; set; }
+        public List<ImageDTO>? Images { get; set; }
 
 
         public int Id { get; set; }

@@ -1,11 +1,11 @@
-﻿namespace SAMMI.ECOM.Domain.DomainModels.Products
+﻿namespace SAMMI.ECOM.Domain.DomainModels.System
 {
-    public class ImageDTO
+    public class BannerDTO
     {
+        public string Name { get; set; } = null!;
+        public int? ImageId { get; set; }
         public string? ImageUrl { get; set; }
-        public string? PublicId { get; set; }
-        public string? TypeImage { get; set; }
-
+        public int Level { get; set; }
 
         public int Id { get; set; }
         public DateTime CreatedDate { get; set; }

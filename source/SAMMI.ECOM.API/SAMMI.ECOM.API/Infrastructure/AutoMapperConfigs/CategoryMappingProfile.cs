@@ -4,9 +4,11 @@ using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands;
 using SAMMI.ECOM.Domain.Commands.Products;
+using SAMMI.ECOM.Domain.Commands.System;
 using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.CategoryAddress;
 using SAMMI.ECOM.Domain.DomainModels.Products;
+using SAMMI.ECOM.Domain.DomainModels.System;
 
 namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 {
@@ -30,6 +32,13 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<CUProductCommand, Product>();
             CreateMap<Product, ProductDTO>();
 
+            // image
+            CreateMap<CreateImageCommand, Image>();
+            CreateMap<Image, ImageDTO>();
+
+            // banner
+            CreateMap<CUBannerCommand, Banner>();
+            CreateMap<Banner, BannerDTO>();
             //CreateMap<>();
             //CreateMap<>();
             //CreateMap<>();

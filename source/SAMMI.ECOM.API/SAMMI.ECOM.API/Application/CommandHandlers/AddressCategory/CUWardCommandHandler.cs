@@ -69,11 +69,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
         {
             RuleFor(x => x.Code)
                 .NotEmpty()
-                .WithMessage("Mã phường/xã là bắt buộc");
+                .WithMessage("Mã phường/xã không được bỏ trống");
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Tên phường/xã là bắt buộc");
+                .WithMessage("Tên phường/xã không được bỏ trống");
         }
     }
 }

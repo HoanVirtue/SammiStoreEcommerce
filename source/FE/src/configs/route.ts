@@ -31,6 +31,7 @@ export const ROUTE_CONFIG = {
     ADDRESS: {
         CITY: "/address/city",
         PROVINCE: "/address/province",
+        DISTRICT: "/address/district",
         WARD: "/address/ward"
     }
 }

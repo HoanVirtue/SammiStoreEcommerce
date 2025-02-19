@@ -53,7 +53,7 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
     const schema = yup.object().shape({
         name: yup
             .string()
-            .required("Role is required")
+            .required(t('required_role_name'))
     });
 
     const { handleSubmit, control, formState: { errors }, reset } = useForm({
@@ -124,7 +124,7 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idRole ? t('Update role') : t('Create role')}
+                            {idRole ? t('update_role') : t('create_role')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -149,11 +149,11 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
                                         required
 
                                         fullWidth
-                                        label="Role name"
+                                        label={t("role_name")}
                                         onChange={onChange}
                                         onBlur={onBlur}
                                         value={value}
-                                        placeholder='Enter role name'
+                                        placeholder={t("enter_role_name")}
                                         helperText={errors.name?.message}
                                         error={errors.name ? true : false}
                                     />
@@ -163,7 +163,7 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idRole ? t('Update') : t('Create')}
+                                {idRole ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form>

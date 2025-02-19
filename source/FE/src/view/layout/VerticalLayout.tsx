@@ -21,6 +21,8 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     ({ theme, open }) => ({
         "& .MuiDrawer-paper": {
             position: 'relative',
+            marginTop: "64px",
+            paddingTop: "5px",
             whiteSpace: 'nowrap',
             width: drawerWidth,
             transition: theme.transitions.create('width', {
@@ -59,7 +61,7 @@ const VerticalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
             open={open || isHovered}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}>
-            <Toolbar
+            {/* <Toolbar
                 sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -70,7 +72,7 @@ const VerticalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
                     <IconifyIcon icon='iconamoon:arrow-left-2' />
                 </IconButton>
             </Toolbar>
-            <Divider />
+            <Divider /> */}
             <ListVerticalLayout open={open || isHovered} />
         </Drawer>
     )

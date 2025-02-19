@@ -6,6 +6,7 @@ using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
+using System.Data;
 
 namespace SAMMI.ECOM.Infrastructure.Queries
 {
@@ -191,7 +192,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                 AND t1.UserId = @userId
             ",
             new { userId },
-            commandType: System.Data.CommandType.Text));
+            commandType: CommandType.Text));
         }
 
         public async Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null)

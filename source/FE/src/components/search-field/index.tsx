@@ -1,15 +1,17 @@
-import { Box, IconButton, InputBase, Tooltip, useTheme } from "@mui/material"
-import { ModalProps } from "@mui/material"
-import { Modal, styled, Typography } from "@mui/material"
+import { InputBase } from "@mui/material"
+import { styled } from "@mui/material"
 import IconifyIcon from "../Icon"
 import { useTranslation } from "../../../node_modules/react-i18next"
 import { useEffect, useState } from "react"
 import { useDebounce } from "src/hooks/useDebounce"
+import { SxProps } from "@mui/material"
+import { Theme } from "@mui/material"
 
 interface TSearchField {
     value: string,
     onChange: (value: string) => void
     placeholder?: string
+    sx?: SxProps<Theme>;
 }
 
 const Search = styled('div')(({ theme }) => ({
@@ -43,9 +45,8 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     '& .MuiInputBase-input': {
         width: '100%',
         padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
         paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        // transition: theme.transitions.create('width'),
+        transition: theme.transitions.create('width'),
         // [theme.breakpoints.up('sm')]: {
         //     width: '12ch',
         //     '&:focus': {
@@ -57,11 +58,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const SearchField = (props: TSearchField) => {
 
-    
+
     const { t } = useTranslation()
 
     //props
-    const { value, onChange, placeholder = t('search') } = props
+    const { value, onChange, placeholder = t('search'), sx } = props
 
     //state
     const [search, setSearch] = useState(value)
@@ -73,7 +74,7 @@ const SearchField = (props: TSearchField) => {
     }, [debouncedSearch])
 
     return (
-        <Search>
+        <Search sx={sx}>
             <SearchIconWrapper>
                 <IconifyIcon icon="material-symbols-light:search-rounded" />
             </SearchIconWrapper>

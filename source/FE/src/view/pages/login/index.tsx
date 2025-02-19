@@ -56,11 +56,11 @@ const LoginPage: NextPage<TProps> = () => {
     //Theme
     const theme = useTheme();
 
-      //translation
-      const {t} = useTranslation()
+    //translation
+    const { t } = useTranslation()
 
     const schema = yup.object().shape({
-        // email: yup.string().email().required("Email is required"),
+        // email: yup.string().email().required(t("required_email")),
         email: yup
             .string()
             .required(t("required_email"))
@@ -144,11 +144,11 @@ const LoginPage: NextPage<TProps> = () => {
                                     <CustomTextField
                                         required
                                         fullWidth
-                                        label= {t("email")}
+                                        label={t("email")}
                                         onChange={onChange}
                                         onBlur={onBlur}
                                         value={value}
-                                        placeholder= {t("enter_email")}
+                                        placeholder={t("enter_email")}
                                         error={errors.email ? true : false}
                                         helperText={errors.email?.message}
                                     />
@@ -164,11 +164,11 @@ const LoginPage: NextPage<TProps> = () => {
                                     <CustomTextField
                                         required
                                         fullWidth
-                                        label= {t("password")}
+                                        label={t("password")}
                                         onChange={onChange}
                                         onBlur={onBlur}
                                         value={value}
-                                        placeholder= {t("enter_password")}
+                                        placeholder={t("enter_password")}
                                         helperText={errors.password?.message}
                                         error={errors.password ? true : false}
                                         type={showPassword ? 'text' : 'password'}
@@ -215,7 +215,7 @@ const LoginPage: NextPage<TProps> = () => {
                                         onChange={(e) => setIsRemember(e.target.checked)}
                                         color="primary" />
                                 }
-                                label= {t("remember_me")} />
+                                label={t("remember_me")} />
                             <Link href="#">{t("forgot_password")}</Link>
                         </Box>
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>

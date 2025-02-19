@@ -59,8 +59,8 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
     const dispatch: AppDispatch = useDispatch()
 
     const schema = yup.object().shape({
-        name: yup.string().required("Payment method name is required"),
-        type: yup.string().required("Payment method type is required")
+        name: yup.string().required(t("required_payment_method_name")),
+        type: yup.string().required(t("required_payment_method_type"))
     });
 
     const defaultValues: TDefaultValues = {
@@ -199,7 +199,7 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
                                                     display: "block",
                                                     color: errors?.type ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                 }}>
-                                                    Phương thức thanh toán <span style={{
+                                                    {t('payment_method')}<span style={{
                                                         color: errors?.type ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                     }}>*</span>
                                                 </InputLabel>
@@ -209,7 +209,7 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
                                                     onBlur={onBlur}
                                                     value={value}
                                                     options={Object.values(ObjectPaymentMethod)}
-                                                    placeholder={t('Select_payment_method_type')}
+                                                    placeholder={t('select_payment_method_type')}
                                                     error={errors.type ? true : false}
                                                 />
                                                 {!errors?.type?.message && (

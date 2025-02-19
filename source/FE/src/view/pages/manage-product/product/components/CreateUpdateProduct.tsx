@@ -556,7 +556,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 onBlur={onBlur}
                                                                 value={value}
                                                                 options={categoryOptions}
-                                                                placeholder={t('Select_product_category')}
+                                                                placeholder={t('select_product_category')}
                                                                 error={errors.category ? true : false}
                                                             />
                                                             {errors?.category?.message && (
@@ -609,7 +609,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             onBlur={onBlur}
                                                             minDate={new Date()}
                                                             selectedDate={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
-                                                            placeholder={t('Select_discount_start_date')}
+                                                            placeholder={t('select_discount_start_date')}
                                                             error={errors.discountStartDate ? true : false}
                                                             helperText={errors.discountStartDate?.message}
                                                         />
@@ -629,7 +629,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             label={t('discount_end_date')}
                                                             onBlur={onBlur}
                                                             selectedDate={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
-                                                            placeholder={t('Select_discount_end_date')}
+                                                            placeholder={t('select_discount_end_date')}
                                                             error={errors.discountEndDate ? true : false}
                                                             helperText={errors.discountEndDate?.message}
                                                         />
@@ -657,7 +657,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 onBlur={onBlur}
                                                                 value={value}
                                                                 options={cityOptions}
-                                                                placeholder={t('Select_product_location')}
+                                                                placeholder={t('select_product_location')}
                                                                 error={errors.location ? true : false}
                                                             />
                                                             {errors?.location?.message && (
@@ -679,7 +679,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             label={t('description')}
                                                             onBlur={onBlur}
                                                             editorState={value as EditorState}
-                                                            placeholder={t('Enter_your_description')}
+                                                            placeholder={t('enter_your_description')}
                                                             error={errors.description ? true : false}
                                                             helperText={errors.description?.message}
                                                             onEditorStateChange={onChange}
@@ -695,7 +695,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idProduct ? t('Update') : t('Create')}
+                                {idProduct ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form>

@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import CardMedia from '@mui/material/CardMedia';
+import CardMedia, { CardMediaProps } from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import IconifyIcon from 'src/components/Icon';
-import { Box, Button, Rating } from '@mui/material';
+import { Box, Button, Fab, Rating, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TProduct } from 'src/types/product';
 import { hexToRGBA } from 'src/utils/hex-to-rgba';
@@ -19,12 +19,7 @@ import { updateProductToCart } from 'src/stores/order';
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
 import { useAuth } from 'src/hooks/useAuth';
 import { likeProductAsync, unlikeProductAsync } from 'src/stores/product/action';
-
-
-interface ExpandMoreProps extends IconButtonProps {
-    expand: boolean;
-}
-
+import { ButtonGroup } from '@mui/material';
 
 interface TProductCard {
     item: TProduct
@@ -33,9 +28,28 @@ interface TProductCard {
 const StyledCard = styled(Card)(({ theme }) => ({
     position: "relative",
     boxShadow: theme.shadows[8],
+    overflow: "hidden",
     ".MuiCardMedia-root.MuiCardMedia-media": {
         objectFit: "contain"
-    }
+    },
+    "&:hover .button-group": {
+        opacity: 1,
+        visibility: "visible",
+        right: 8,
+        top: 8
+    },
+    "&:hover .card-media": {
+        transform: "scale(1.1)",
+    },
+}));
+
+const ButtonGroupWrapper = styled(Box)(({ theme }) => ({
+    position: "absolute",
+    top: -100,
+    right: -100,
+    opacity: 0,
+    visibility: "hidden",
+    transition: "all 0.3s ease",
 }));
 
 const ProductCard = (props: TProductCard) => {
@@ -116,33 +130,59 @@ const ProductCard = (props: TProductCard) => {
     }, [item])
 
     return (
-        <StyledCard sx={{ width: "100%" }}>
-            <IconButton onClick={() => handleToggleFavoriteProduct(item?._id, Boolean(user && item?.likedBy?.includes(user._id)))}
-                aria-label="add to favorites" sx={{ position: "absolute", top: "8px", right: "8px" }}>
-                {user && item?.likedBy?.includes(user._id) ? (
-                    <IconifyIcon icon="mdi:heart" color={theme.palette.primary.main} />
-                ) : (
-                    <IconifyIcon icon="tabler:heart" color={theme.palette.primary.main} />
-                )}
-            </IconButton>
-            {/* <CardHeader
-                avatar={
-                    <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
-                        R
-                    </Avatar>
-                }
-                title="Shrimp and Chorizo Paella"
-                subheader="September 14, 2016"
-            /> */}
+        <StyledCard sx={{ width: "100%" }} onClick={() => handleNavigateProductDetail(item?.slug)}>
             <CardMedia
+                className="card-media"
                 component="img"
                 height="194"
                 image={item?.image}
                 alt="product image"
+                sx={{
+                    transition: "transform 0.3s ease",
+                    "&:hover": {
+                        transform: "scale(1.1)",
+                    },
+                }}
             />
-            <CardContent sx={{ padding: "8px 12px" }}>
+            <ButtonGroupWrapper className="button-group">
+                <ButtonGroup orientation="vertical" aria-label="Vertical button group"
+                    sx={{
+                        gap: 2,
+                        position: "absolute",
+                        top: 2,
+                        right: 2
+                    }}>
+                    <Tooltip title={t("add_to_cart")}>
+                        <Fab aria-label="add" sx={{ backgroundColor: theme.palette.common.white }}>
+                            <IconButton onClick={() => handleUpdateProductToCart(item)}>
+                                <IconifyIcon color={theme.palette.primary.main}
+                                    icon="bi:cart-plus" fontSize='1.5rem' />
+                            </IconButton>
+                        </Fab>
+                    </Tooltip>
+                    <Tooltip title={t("see_product_detail")}>
+                        <Fab aria-label="see-detail" sx={{ backgroundColor: theme.palette.common.white }}>
+                            <IconButton onClick={() => handleNavigateProductDetail(item?.slug)}>
+                                <IconifyIcon color={theme.palette.primary.main} icon="famicons:eye-outline" fontSize='1.5rem' />
+                            </IconButton>
+                        </Fab>
+                    </Tooltip>
+                    <Tooltip title={t("add_to_wishlist")}>
+                        <Fab aria-label="add-to-fav" sx={{ backgroundColor: theme.palette.common.white }}>
+                            <IconButton onClick={() => handleToggleFavoriteProduct(item?._id, Boolean(user && item?.likedBy?.includes(user._id)))}
+                                aria-label="add to favorites">
+                                {user && item?.likedBy?.includes(user._id) ? (
+                                    <IconifyIcon icon="mdi:heart" color={theme.palette.primary.main} fontSize='1.5rem' />
+                                ) : (
+                                    <IconifyIcon icon="tabler:heart" color={theme.palette.primary.main} fontSize='1.5rem' />
+                                )}
+                            </IconButton>
+                        </Fab>
+                    </Tooltip>
+                </ButtonGroup>
+            </ButtonGroupWrapper>
+            <CardContent sx={{ padding: "8px 12px 0px 12px", pb: "10px !important" }}>
                 <Typography variant="h5"
-                    onClick={() => handleNavigateProductDetail(item?.slug)}
                     sx={{
                         color: theme.palette.primary.main,
                         fontWeight: "bold",
@@ -152,21 +192,30 @@ const ProductCard = (props: TProductCard) => {
                         display: "-webkit-box",
                         "-webkitLineClamp": "2",
                         "-webkitBoxOrient": "vertical",
-                        minHeight: "48px"
+                        minHeight: "48px",
+                        mt: 2
                     }}>
                     {item?.name}
                 </Typography>
+                <Box sx={{ display: "flex", alignItems: "center", gap: "8px", mt: 1, mb: 1 }}>
+                    <Rating defaultValue={item?.averageRating}
+                        precision={0.1}
+                        size='medium'
+                        name='read-only'
+                        sx={{
+                            '& .MuiRating-icon': {
+                                color: 'gold',
+                            },
+                        }} />
+                    <Typography>
+                        {!!item?.totalReviews ? (
+                            <b>{item?.totalReviews} {t("product_reviews")}</b>
+                        ) : (
+                            <span>{t("no_review")}</span>
+                        )}
+                    </Typography>
+                </Box>
                 <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    {item?.discount > 0 && memoCheckExpire && (
-                        <Typography variant="h6" sx={{
-                            color: theme.palette.error.main,
-                            fontWeight: "bold",
-                            textDecoration: "line-through",
-                            fontSize: "14px"
-                        }}>
-                            {formatPrice(item?.price)} VND
-                        </Typography>
-                    )}
                     <Typography variant="h4" sx={{
                         color: theme.palette.primary.main,
                         fontWeight: "bold",
@@ -183,6 +232,16 @@ const ProductCard = (props: TProductCard) => {
                         )}
                     </Typography>
                     {item?.discount > 0 && memoCheckExpire && (
+                        <Typography variant="h6" sx={{
+                            color: theme.palette.error.main,
+                            fontWeight: "bold",
+                            textDecoration: "line-through",
+                            fontSize: "14px"
+                        }}>
+                            {formatPrice(item?.price)} VND
+                        </Typography>
+                    )}
+                    {item?.discount > 0 && memoCheckExpire && (
                         <Box sx={{
                             backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
                             width: "fit-content",
@@ -198,7 +257,10 @@ const ProductCard = (props: TProductCard) => {
                                 fontWeight: "bold",
                                 fontSize: "10px",
                                 lineHeight: "1.3",
-                                whiteSpace: "nowrap"
+                                whiteSpace: "nowrap",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
                             }}>
                                 -{item?.discount}%
                             </Typography>
@@ -222,15 +284,13 @@ const ProductCard = (props: TProductCard) => {
                                 <>{t("product_count_in_stock", { count: item?.countInStock })}</>
                             ) : (
                                 <span>
-                                    Hết hàng
+                                    {t('out_of_stock')}
                                 </span>
                             )}
                         </Typography>
-                        {item?.sold > 0 && (
-                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                <>{t("product_sold", { count: item?.sold })}</>
-                            </Typography>
-                        )}
+                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                            <>{t("product_sold", { count: item?.sold || 0 })}</>
+                        </Typography>
                         {item?.location?.name && (
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
                                 <IconifyIcon icon="carbon:location" width={20} height={20} />
@@ -240,41 +300,8 @@ const ProductCard = (props: TProductCard) => {
                             </Box>
                         )}
                     </Box>
-                    {!!item?.averageRating && (
-                        <Rating defaultValue={item?.averageRating}
-                            precision={0.1}
-                            size='small'
-                            name='read-only' />
-                    )}
-                    <Typography>
-                        {!!item?.totalReviews ? (
-                            <b>{item?.totalReviews} {t("product_reviews")}</b>
-                        ) : (
-                            <span>{t("no_review")}</span>
-                        )}
-                    </Typography>
                 </Box>
             </CardContent>
-            <Box sx={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                padding: "0px 10px",
-                gap: 2
-            }}>
-                <Button fullWidth variant="outlined"
-                    startIcon={<IconifyIcon icon="bx:cart" />}
-                    sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}
-                    onClick={() => handleUpdateProductToCart(item)}
-                >
-                    {t('add_to_cart')}
-                </Button>
-                <Button fullWidth type="submit" variant="contained"
-                    startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
-                    sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                    {t('buy_now')}
-                </Button>
-            </Box>
         </StyledCard>
     )
 }

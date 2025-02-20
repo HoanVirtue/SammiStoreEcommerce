@@ -19,7 +19,7 @@ const Search = styled('div')(({ theme }) => ({
     height: "38px",
     borderRadius: theme.shape.borderRadius,
     backgroundColor: theme.palette.background.paper,
-    border: `1px solid ${theme.palette.customColors.main}`,
+    border: `1px solid ${theme.palette.customColors.borderColor}`,
     marginLeft: "0 !important",
     width: '100%',
     [theme.breakpoints.up('sm')]: {

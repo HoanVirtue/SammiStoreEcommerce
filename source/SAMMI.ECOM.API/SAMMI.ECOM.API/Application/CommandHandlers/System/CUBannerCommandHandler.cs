@@ -3,7 +3,9 @@ using MediatR;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.System;
+using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.DomainModels.System;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 using SAMMI.ECOM.Infrastructure.Repositories.System;
 
@@ -33,63 +35,58 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.System
 
             if (request.Id == 0)
             {
-                if (request.Image == null || string.IsNullOrEmpty(request.Image.ImageBase64))
+                if (request.ImageCommand == null || string.IsNullOrEmpty(request.ImageCommand.ImageBase64))
                 {
                     actResponse.AddError("Hình ảnh banner không được bỏ trống");
                     return actResponse;
                 }
-                request.CreatedDate = DateTime.Now;
-                request.CreatedBy = _currentUser.UserName;
-                var createResponse = await _bannerRepository.CreateAndSave(request);
-                actResponse.Combine(createResponse);
-                if (!actResponse.IsSuccess)
-                {
-                    return actResponse;
-                }
-                var banner = createResponse.Result;
-
-                var imageRes = await _mediator.Send(request.Image);
+                // set value for image
+                request.ImageCommand.TypeImage = ImageEnum.Banner.ToString();
+                request.ImageCommand.Value = "";
+                var imageRes = await _mediator.Send(request.ImageCommand);
                 if (!imageRes.IsSuccess)
                 {
                     actResponse.AddError(imageRes.Message);
                     return actResponse;
                 }
-                banner.ImageId = imageRes.Result.Id;
-                await _bannerRepository.SaveChangeAsync();
-
-                actResponse.SetResult(_mapper.Map<BannerDTO>(banner));
+                request.ImageId = imageRes.Result.Id;
+                request.CreatedDate = DateTime.Now;
+                request.CreatedBy = _currentUser.UserName;
+                var createResponse = await _bannerRepository.CreateAndSave(request);
+                actResponse.Combine(createResponse);
+                actResponse.SetResult(_mapper.Map<BannerDTO>(createResponse.Result));
             }
             else
             {
+                ImageDTO imageDTO = null;
                 if (!_imageRepository.IsExisted(request.ImageId))
                 {
                     actResponse.AddError($"Không tồn tại hình ảnh có mã {request.ImageId}");
                     return actResponse;
                 }
-
-                request.UpdatedDate = DateTime.Now;
-                request.UpdatedBy = _currentUser.UserName;
-
-                var updateRes = await _bannerRepository.UpdateAndSave(request);
-                actResponse.Combine(updateRes);
-                if (!actResponse.IsSuccess)
-                {
-                    return actResponse;
-                }
-
-                var banner = updateRes.Result;
-                if (request.Image != null && !string.IsNullOrEmpty(request.Image.ImageBase64))
+                if (request.ImageCommand != null && !string.IsNullOrEmpty(request.ImageCommand.ImageBase64))
                 {
                     _imageRepository.DeleteAndSave(request.ImageId);
-                    var imageRes = await _mediator.Send(request.Image);
+                    request.ImageCommand.TypeImage = ImageEnum.Banner.ToString();
+                    request.ImageCommand.Value = "";
+                    var imageRes = await _mediator.Send(request.ImageCommand);
                     if (!imageRes.IsSuccess)
                     {
                         actResponse.AddError(imageRes.Message);
                         return actResponse;
                     }
-                    banner.ImageId = imageRes.Result.Id;
-                    await _bannerRepository.SaveChangeAsync();
+                    imageDTO = imageRes.Result;
                 }
+
+                if (imageDTO != null)
+                {
+                    request.ImageId = imageDTO.Id;
+                }
+                request.UpdatedDate = DateTime.Now;
+                request.UpdatedBy = _currentUser.UserName;
+
+                var updateRes = await _bannerRepository.UpdateAndSave(request);
+                actResponse.Combine(updateRes);
                 actResponse.SetResult(_mapper.Map<BannerDTO>(updateRes.Result));
             }
 

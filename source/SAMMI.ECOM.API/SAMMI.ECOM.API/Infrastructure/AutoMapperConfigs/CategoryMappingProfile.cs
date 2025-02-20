@@ -39,6 +39,7 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             // banner
             CreateMap<CUBannerCommand, Banner>();
             CreateMap<Banner, BannerDTO>();
+
             //CreateMap<>();
             //CreateMap<>();
             //CreateMap<>();

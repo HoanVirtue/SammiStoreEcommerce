@@ -17,13 +17,14 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
     return (
         <Box sx={{ display: 'flex' }}>
             <CssBaseline />
-            <HorizontalLayout open={false} toggleDrawer={() => { }} isHideMenu />
+            <HorizontalLayout open={false} toggleDrawer={() => { }} />
             <Box
                 component='main'
                 sx={{
                     backgroundColor:
                         theme => theme.palette.mode === 'light'
-                            ? theme.palette.grey[100]
+                            // ? theme.palette.grey[100]
+                            ? theme.palette.background.paper
                             : theme.palette.grey[900],
                     flexGrow: 1,
                     height: '100vh',
@@ -33,13 +34,14 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
                 <Toolbar />
                 <Container
                     sx={{
-                            m: 4,
-                            width: "calc(100vw - 32px)", 
+                            width: "100vw", 
+                            marginTop: '-4rem',
                             maxWidth: "unset !important",
                             overflow: "auto",
                             maxHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight} - 32px)`,
-                            p: "0 !important",
-                            borderRadius: "15px"
+                            paddingLeft: "0rem !important",
+                            paddingRight: "0rem !important",
+                            // borderRadius: "15px"
                     }}>
                     {children}
                 </Container>

@@ -178,7 +178,6 @@ const RegisterPage: NextPage<TProps> = () => {
                                     )}
                                     name='email'
                                 />
-                                {/* {errors.email && <Typography>{errors.email.message}</Typography>} */}
                             </Box>
                             <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                                 <Controller
@@ -219,7 +218,6 @@ const RegisterPage: NextPage<TProps> = () => {
                                     )}
                                     name='password'
                                 />
-                                {/* {errors.password && <Typography>{errors.password.message}</Typography>} */}
                             </Box>
                             <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                                 <Controller

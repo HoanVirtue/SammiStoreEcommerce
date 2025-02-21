@@ -25,7 +25,7 @@ const StyledProductFilter = styled(Box)<BoxProps>(({ theme }) => ({
     border: `1px solid ${theme.palette.customColors.borderColor}`,
     height: 'fit-content',
     borderRadius: "15px",
-    backgroundColor: theme.palette.customColors.bodyBg
+    backgroundColor: theme.palette.background.paper
 }));
 
 const ProductFilter = (props: TProductFilter) => {

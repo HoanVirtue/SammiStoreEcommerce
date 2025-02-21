@@ -2,6 +2,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using SAMMI.ECOM.API.Infrastructure;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Infrastructure;
@@ -66,6 +67,8 @@ builder.Services
             IssuerSigningKey = tokenOptionSettings!.SigningCredentials.Key
         };
     });
+
+await builder.Services.AddElasticSearch(builder.Configuration);
 
 builder.Services.AddAuthorization();
 var app = builder.Build();

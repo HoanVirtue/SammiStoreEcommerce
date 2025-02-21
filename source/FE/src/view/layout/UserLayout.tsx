@@ -23,10 +23,10 @@ const UserLayout: NextPage<TProps> = ({ children }) => {
         setOpen(!open)
     }
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex'}}>
             <CssBaseline />
-            <VerticalLayout open={open} toggleDrawer={toggleDrawer} />
-            <HorizontalLayout open={open} toggleDrawer={toggleDrawer} />
+            <VerticalLayout open={open} toggleDrawer={toggleDrawer}/>
+            <HorizontalLayout open={open} toggleDrawer={toggleDrawer}  showIcon={true} />
             <Box
                 component='main'
                 sx={{

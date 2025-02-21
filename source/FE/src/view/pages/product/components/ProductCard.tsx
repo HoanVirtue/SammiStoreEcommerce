@@ -38,7 +38,8 @@ const StyledCard = styled(Card)(({ theme }) => ({
         top: 8
     },
     "&:hover": {
-        boxShadow: theme.shadows[10]
+        // boxShadow: theme.shadows[10],
+        border: `2px solid ${theme.palette.customColors.borderColor}`,
     },
 }));
 
@@ -155,10 +156,10 @@ const ProductCard = (props: TProductCard) => {
                 image={item?.image}
                 alt="product image"
                 sx={{
-                    // transition: "transform 0.3s ease",
-                    // "&:hover": {
-                    //     transform: "scale(1.1)",
-                    // },
+                    transition: "transform 0.3s ease",
+                    "&:hover": {
+                        transform: "scale(0.9)",
+                    },
                 }}
             />
             <ButtonGroupWrapper className="button-group">
@@ -260,17 +261,17 @@ const ProductCard = (props: TProductCard) => {
                     )}
                     {item?.discount > 0 && memoCheckExpire && (
                         <Box sx={{
-                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
+                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.99),
                             width: "fit-content",
-                            padding: "2px 4px",
+                            padding: "10px 10px",
                             height: "16px",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            borderRadius: "2px"
+                            borderRadius: "12px"
                         }}>
                             <Typography variant="h6" sx={{
-                                color: theme.palette.error.main,
+                                color: theme.palette.common.white,
                                 fontWeight: "bold",
                                 fontSize: "10px",
                                 lineHeight: "1.3",
@@ -312,7 +313,14 @@ const ProductCard = (props: TProductCard) => {
                                 variant="determinate"
                                 value={soldPercentage}
                                 color={progressColor}
-                                sx={{ height: 18, borderRadius: 6, width: '100%' }}
+                                sx={{
+                                    height: 18, borderRadius: 6, width: '100%',
+                                    backgroundColor: '#fedfe2',
+                                    '& .MuiLinearProgress-bar': {
+                                        backgroundImage: 'linear-gradient(to right, #d82e4d, #ff7f8e)',
+                                        borderRadius: 6,
+                                    }
+                                }}
                             />
                             <Typography variant="body2"
                                 sx={{

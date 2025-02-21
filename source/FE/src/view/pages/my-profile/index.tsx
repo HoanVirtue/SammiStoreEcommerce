@@ -221,7 +221,8 @@ const MyProfilePage: NextPage<TProps> = () => {
         <>
             {loading || isLoading && <Spinner />}
             <Box sx={{
-                paddingLeft: '0.75rem'
+                paddingLeft: '0.75rem',
+                backgroundColor: theme.palette.grey[100],
             }}>
                 <CustomBreadcrumbs items={breadcrumbItems} />
             </Box>

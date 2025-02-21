@@ -24,7 +24,7 @@ const Search = styled('form')(({ theme }) => ({
     height: "38px",
     borderRadius: theme.shape.borderRadius,
     backgroundColor: theme.palette.background.paper,
-    border: `1px solid ${theme.palette.customColors.borderColor}`,
+    border: 'none',
     marginLeft: "0 !important",
     width: '100%',
     maxWidth: "600px",
@@ -62,7 +62,7 @@ const StyledInputBase = styled('input')(({ theme }) => ({
     padding: theme.spacing(1, 1, 1, 0),
     paddingLeft: `calc(1em + ${theme.spacing(2)})`,
     border: 'none',
-    backgroundColor: 'transparent',
+    backgroundColor: theme.palette.grey[100],
     outline: 'none',
     '&::placeholder': {
         color: theme.palette.text.secondary,

@@ -23,13 +23,13 @@ import Link from "next/link";
 import ProductCart from "./components/product-cart";
 import { useTranslation } from "react-i18next";
 import SearchField from "src/components/search-field";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import HomeSearch from "src/components/home-search";
 
 type TProps = {
     open: boolean
     toggleDrawer: () => void
-    isHideMenu?: boolean
+    showIcon?: boolean
 }
 
 const drawerWidth: number = 0
@@ -51,20 +51,13 @@ const AppBar = styled(MuiAppBar, {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
-    // ...(open && {
-    //     marginLeft: drawerWidth,
-    //     width: `calc(100% - ${drawerWidth}px)`,
-    //     transition: theme.transitions.create(['width', 'margin'], {
-    //         easing: theme.transitions.easing.sharp,
-    //         duration: theme.transitions.duration.enteringScreen,
-    //     }),
-    // }),
 }))
 
-const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
+const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) => {
 
     //state
     const [searchBy, setSearchBy] = useState("");
+    const [isScrolled, setIsScrolled] = useState(false);
 
     //hooks
     const { user } = useAuth()
@@ -72,7 +65,23 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
     const theme = useTheme()
     const { t } = useTranslation()
 
-    const isDashboard = router.pathname === "/dashboard";
+
+    useEffect(() => {
+        console.log(" event triggered"); 
+        const handleScroll = () => {
+            console.log("Scroll event triggered"); 
+            if (window.scrollY > 1) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    console.log("fe1", isScrolled)
 
     const handleNavigateLogin = () => {
         if (router.asPath !== '/') {
@@ -88,10 +97,11 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
     }
 
     return (
-        <AppBar position="absolute" open={open}>
-            <Toolbar sx={{ margin: '0 20px', display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }} >
+        <AppBar position="fixed" open={open}
+            sx={{ backgroundColor: isScrolled ? theme.palette.common.white : 'transparent',  transition: 'background-color 0.3s ease' }}>
+            <Toolbar sx={{ margin: '0 auto', display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, width: '100%', paddingLeft: '2rem !important', paddingRight: '2rem !important',  backgroundColor: isScrolled ? 'white' : 'transparent',  transition: 'background-color 0.3s ease'}} >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    {isDashboard && (
+                    {showIcon && (
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -113,7 +123,6 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
                             display: "flex",
                             alignItems: "center",
                         }}>
-                            <IconifyIcon icon='ic:outline-shopify' fontSize='2rem' />
                             <Typography component="h1" variant="h2" color="primary" noWrap
                                 sx={{
                                     display: "flex",

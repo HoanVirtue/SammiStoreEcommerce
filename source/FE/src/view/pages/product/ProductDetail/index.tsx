@@ -41,6 +41,7 @@ import { updateProductToCart } from 'src/stores/order'
 import NoData from 'src/components/no-data'
 import ProductCard from '../components/ProductCard'
 import RelatedProduct from '../components/RelatedProduct'
+import CustomBreadcrumbs from 'src/components/custom-breadcrum'
 
 type TProps = {}
 
@@ -73,6 +74,11 @@ const ProductDetailPage: NextPage<TProps> = () => {
     //Theme
     const theme = useTheme();
 
+    const breadcrumbItems = [
+        { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
+        { label: t('product_detail'), href: '/product' },
+        { label: productData?.name || t('product'), href: `/product/${productId}` }, 
+    ];
 
     //fetch api
     const fetchGetProductDetail = async (slug: string) => {
@@ -153,6 +159,13 @@ const ProductDetailPage: NextPage<TProps> = () => {
     return (
         <>
             {loading && <Spinner />}
+            <Box sx={{
+                paddingLeft: '0.75rem',
+                mb: 2,
+                backgroundColor: theme.palette.grey[100],
+            }}>
+                <CustomBreadcrumbs items={breadcrumbItems} />
+            </Box>
             <Grid container>
                 <Grid container item md={12} xs={12} sx={{
                     backgroundColor: theme.palette.background.paper,
@@ -284,17 +297,17 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     )}
                                     {productData?.discount > 0 && memoCheckExpire && (
                                         <Box sx={{
-                                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
+                                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.99),
                                             width: "fit-content",
-                                            padding: "2px 4px",
+                                            padding: "10px 10px",
                                             height: "16px",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
-                                            borderRadius: "2px"
+                                            borderRadius: "12px"
                                         }}>
                                             <Typography variant="h6" sx={{
-                                                color: theme.palette.error.main,
+                                                color: theme.palette.common.white,
                                                 fontWeight: "bold",
                                                 fontSize: "10px",
                                                 lineHeight: "1.3",

@@ -101,5 +101,11 @@ namespace SAMMI.ECOM.API.Controllers.Products
             }
             return Ok(_productRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
+
+        [HttpGet("get-code-by-last-id")]
+        public async Task<IActionResult> GetCodeByLastId()
+        {
+            return Ok(await _productQueries.GetCodeByLastId());
+        }
     }
 }

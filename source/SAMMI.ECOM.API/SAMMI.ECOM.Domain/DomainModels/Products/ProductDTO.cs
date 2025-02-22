@@ -1,4 +1,6 @@
-﻿namespace SAMMI.ECOM.Domain.DomainModels.Products
+﻿using Nest;
+
+namespace SAMMI.ECOM.Domain.DomainModels.Products
 {
     public class ProductDTO
     {
@@ -18,8 +20,12 @@
         public string? UsageGuide { get; set; }
 
         public int? BrandId { get; set; }
+        public string? BrandCode { get; set; }
+        public string? BrandName { get; set; }
         public int? Status { get; set; }
         public int? CategoryId { get; set; }
+        public string? CategoryCode { get; set; }
+        public string? CategoryName { get; set; }
         public List<ImageDTO>? Images { get; set; }
 
 
@@ -31,5 +37,9 @@
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }
+
+
+        // suggest
+        public CompletionField? Suggest { get; set; }
     }
 }

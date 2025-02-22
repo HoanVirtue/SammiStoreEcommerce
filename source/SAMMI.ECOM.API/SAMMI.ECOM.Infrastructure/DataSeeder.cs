@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.System;
@@ -559,7 +560,6 @@ namespace SAMMI.ECOM.Infrastructure
             }
         }
 
-
         private async Task SeedBrand()
         {
             if (!await _context.Brands.AnyAsync())
@@ -618,6 +618,77 @@ namespace SAMMI.ECOM.Infrastructure
             }
         }
 
+        private async Task SeedDiscountType()
+        {
+            if (await _context.DiscountTypes.AnyAsync())
+            {
+                return;
+            }
+            var listType = new List<DiscountType>()
+            {
+                new DiscountType() { Code = DiscountTypeEnum.Percentage.ToString(), Name = "Giảm giá theo phần trăm", Description = "Giảm giá dựa trên tỷ lệ phần trăm của đơn hàng.", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System"},
+                new DiscountType()
+                {
+                    Code = DiscountTypeEnum.FixedAmount.ToString(),
+                    Name = "Giảm giá số tiền cố định",
+                    Description = "Giảm một số tiền cố định từ tổng giá trị đơn hàng.",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+                new DiscountType()
+                {
+                    Code = DiscountTypeEnum.BuyXGetY.ToString(),
+                    Name = "Mua X tặng Y",
+                    Description = "Mua một số lượng sản phẩm nhất định và nhận quà tặng.",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+                new DiscountType()
+                {
+                    Code = DiscountTypeEnum.FreeShipping.ToString(),
+                    Name = "Miễn phí vận chuyển",
+                    Description = "Giảm toàn bộ phí vận chuyển khi đạt điều kiện.",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+                new DiscountType()
+                {
+                    Code = DiscountTypeEnum.TieredDiscount.ToString(),
+                    Name = "Giảm giá theo cấp bậc",
+                    Description = "Giảm giá theo cấp bậc dựa trên số lượng hoặc giá trị đơn hàng.",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+                new DiscountType()
+                {
+                    Code = DiscountTypeEnum.BundleDiscount.ToString(),
+                    Name = "Giảm giá khi mua combo",
+                    Description = "Giảm giá khi mua theo combo sản phẩm nhất định.",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                }
+            };
+
+            try
+            {
+                await _context.DiscountTypes.AddRangeAsync(listType);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
 
         public async Task SeedAsync()
         {
@@ -629,6 +700,7 @@ namespace SAMMI.ECOM.Infrastructure
             await SeedUserRole();
             await SeedBrand();
             await SeedProductCategory();
+            await SeedDiscountType();
         }
     }
 }

@@ -9,7 +9,7 @@ namespace SAMMI.ECOM.Domain.Commands.System
     {
         public string Name { get; set; } = null!;
         public int? ImageId { get; set; }
-        public CreateImageCommand? Image { get; set; }
+        public CreateImageCommand? ImageCommand { get; set; }
         public int Level { get; set; }
 
         public int Id { get; set; }

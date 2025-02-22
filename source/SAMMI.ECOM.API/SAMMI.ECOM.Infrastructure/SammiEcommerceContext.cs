@@ -29,6 +29,7 @@ public partial class SammiEcommerceContext : DbContext
     public virtual DbSet<Voucher> Vouchers { get; set; }
 
     public virtual DbSet<DiscountType> DiscountTypes { get; set; }
+    public virtual DbSet<VoucherCondition> VoucherConditions { get; set; }
 
     public virtual DbSet<District> Districts { get; set; }
 
@@ -107,6 +108,7 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new BrandEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new CustomerAddressEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new VoucherEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new VoucherConditionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new DiscountTypeEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new DistrictEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new EventEntityTypeConfiguration());

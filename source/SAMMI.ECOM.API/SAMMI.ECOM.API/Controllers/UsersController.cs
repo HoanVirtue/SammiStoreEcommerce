@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.User;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Repositories;
 
@@ -195,6 +196,12 @@ namespace SAMMI.ECOM.API.Controllers
                 return BadRequest(actErrorResponse);
             }
             return Ok(_userRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
+        }
+
+        [HttpGet("get-code-by-last-id")]
+        public async Task<IActionResult> GetCodeByLastIdAsync([FromQuery] CodeEnum type = CodeEnum.Employee)
+        {
+            return Ok(await _usersQueries.GetCodeByLastId(type));
         }
     }
 }

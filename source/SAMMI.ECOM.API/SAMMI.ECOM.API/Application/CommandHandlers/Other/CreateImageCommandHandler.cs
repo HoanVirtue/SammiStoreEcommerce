@@ -43,8 +43,15 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Other
             {
                 imageType = ImageEnum.Product;
             }
+            if (string.IsNullOrEmpty(request.Value?.ToString()) || request.Value == "string")
+            {
+                request.Value = null;
+            }
             typeImage = imageType.ToString().ToLower();
-            fileName = $"{typeImage}_{request.Value}_{Guid.NewGuid()}";
+            if (request.Value != null)
+                fileName = $"{typeImage}_{request.Value}_{Guid.NewGuid()}";
+            else
+                fileName = $"{typeImage}_{Guid.NewGuid()}";
             folder = folderMapping.TryGetValue(imageType, out var mappedFolder)
                         ? mappedFolder
                         : _config["CloundSettings:ImageProductFolder"];

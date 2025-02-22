@@ -3,8 +3,10 @@ using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.GlobalModels.Common;
 using SAMMI.ECOM.Repository.GenericRepositories;
+using SAMMI.ECOM.Utility;
 
 namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
 {
@@ -14,6 +16,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<IEnumerable<SelectionItem>> GetSelectionList(RequestFilterModel? request);
         Task<IEnumerable<EventDTO>> GetAll(RequestFilterModel? filterModel = null);
         Task<EventDTO> GetById(int id);
+        Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Event);
     }
     public class EventQueries : QueryRepository<Event>, IEventQueries
     {
@@ -26,6 +29,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             return WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    sqlBuilder.Select("t2.ImageUrl");
+                    sqlBuilder.LeftJoin("Image t2 ON t1.ImageId = t2.Id AND t2.IsDeleted != 1");
                     return conn.QueryAsync<EventDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, filterModel);
         }
@@ -35,6 +40,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             return await WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    sqlBuilder.Select("t2.ImageUrl");
+                    sqlBuilder.LeftJoin("Image t2 ON t1.ImageId = t2.Id AND t2.IsDeleted != 1");
                     sqlBuilder.Where("t1.Id = @id", new { id });
                     return conn.QueryFirstOrDefaultAsync<EventDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }
@@ -46,6 +53,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             return WithPagingTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    sqlBuilder.Select("t2.ImageUrl");
+                    sqlBuilder.LeftJoin("Image t2 ON t1.ImageId = t2.Id AND t2.IsDeleted != 1");
                     return conn.QueryAsync<EventDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 },
                 filterModel);
@@ -62,6 +71,23 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     return conn.QueryAsync<SelectionItem>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, request
             );
+        }
+
+        public async Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Event)
+        {
+            int idLast = 0;
+            string code = type.GetDescription();
+            idLast = await WithDefaultNoSelectTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("CASE WHEN MAX(t1.Id) IS NOT NULL THEN  MAX(t1.Id) ELSE 0 END");
+                    sqlBuilder.OrderDescBy("t1.Id");
+
+                    return await conn.QueryFirstOrDefaultAsync<int>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
+                );
+
+            return $"{code}{(idLast + 1).ToString("D6")}";
         }
     }
 }

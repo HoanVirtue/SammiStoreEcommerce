@@ -3,8 +3,10 @@ using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.GlobalModels.Common;
 using SAMMI.ECOM.Repository.GenericRepositories;
+using SAMMI.ECOM.Utility;
 
 namespace SAMMI.ECOM.Infrastructure.Queries.Products
 {
@@ -14,6 +16,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
         Task<IEnumerable<SelectionItem>> GetSelectionList(RequestFilterModel? request);
         Task<ProductDTO> GetById(int id);
         Task<IEnumerable<ProductDTO>> GetAll(RequestFilterModel? filterModel = null);
+        Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Product);
     }
     public class ProductQueries : QueryRepository<Product>, IProductQueries
     {
@@ -117,6 +120,23 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                     return conn.QueryAsync<SelectionItem>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, request
             );
+        }
+
+        public async Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Product)
+        {
+            int idLast = 0;
+            string code = type.GetDescription();
+            idLast = await WithDefaultNoSelectTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("CASE WHEN MAX(t1.Id) IS NOT NULL THEN  MAX(t1.Id) ELSE 0 END");
+                    sqlBuilder.OrderDescBy("t1.Id");
+
+                    return await conn.QueryFirstOrDefaultAsync<int>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
+                );
+
+            return $"{code}{(idLast + 1).ToString("D6")}";
         }
     }
 }

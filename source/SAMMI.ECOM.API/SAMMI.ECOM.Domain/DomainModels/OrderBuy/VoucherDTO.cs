@@ -5,13 +5,18 @@
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
         public int? CategoryId { get; set; }
+        public string? CategoryName { get; set; }
         public int? BrandId { get; set; }
+        public string? BrandName { get; set; }
         public int? ProductId { get; set; }
+        public string? ProductName { get; set; }
         public int DiscountTypeId { get; set; }
+        public string? DiscountName { get; set; }
+        public int? EventId { get; set; }
+        public string? EventName { get; set; }
         public decimal DiscountValue { get; set; }
         public int UsageLimit { get; set; }
         public int UsedCount { get; set; }
-        public int? EventId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
 

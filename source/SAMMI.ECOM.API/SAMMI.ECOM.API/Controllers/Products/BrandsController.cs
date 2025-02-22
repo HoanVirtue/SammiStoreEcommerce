@@ -105,5 +105,11 @@ namespace SAMMI.ECOM.API.Controllers.Brands
             }
             return Ok(_brandRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
+
+        [HttpGet("get-code-by-last-id")]
+        public async Task<IActionResult> GetCodeByLastId()
+        {
+            return Ok(await _brandQueries.GetCodeByLastId());
+        }
     }
 }

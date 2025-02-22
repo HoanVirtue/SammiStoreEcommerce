@@ -62,4 +62,5 @@ public partial class Voucher : Entity
     public virtual Product? Product { get; set; }
 
     public virtual DiscountType? DiscountType { get; set; }
+    public virtual ICollection<VoucherCondition> VoucherConditions { get; set; } = new List<VoucherCondition>();
 }

@@ -24,11 +24,18 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         {
             var actResponse = new ActionResponse<EventDTO>();
 
-            //if (await _eventRepository.CheckExistName(request.Name, request.Id))
-            //{
-            //    actResponse.AddError("Tên phương thức thanh toán đã tồn tại");
-            //    return actResponse;
-            //}
+            if (request.StartDate > request.EndDate)
+            {
+                actResponse.AddError("Ngày bắt đầu phải nhỏ hơn ngày kết thúc");
+                return actResponse;
+            }
+
+            if (await _eventRepository.CheckExistCode(request.Code, request.Id))
+            {
+                actResponse.AddError("Mã chương trình khuyến mãi đã tồn tại");
+                return actResponse;
+            }
+
 
             if (request.Id == 0)
             {
@@ -56,9 +63,21 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
     {
         public CUEventCommandValidator()
         {
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithMessage("Mã chương trình khuyến mãi không được bỏ trống");
+
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Tên phương thức thanh toán không được bỏ trống");
+                .WithMessage("Tên chương trình khuyến mãi không được bỏ trống");
+
+            RuleFor(x => x.StartDate)
+                .NotEmpty()
+                .WithMessage("Ngày bắt đầu không được bỏ trống");
+
+            RuleFor(x => x.EndDate)
+                .NotEmpty()
+                .WithMessage("Ngày kết thúc không được bỏ trống");
         }
     }
 }

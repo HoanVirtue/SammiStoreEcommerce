@@ -6,6 +6,7 @@ using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
+using SAMMI.ECOM.Utility;
 using System.Data;
 
 namespace SAMMI.ECOM.Infrastructure.Queries
@@ -26,6 +27,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null);
         Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel);
         Task<SupplierDTO> GetSupplierById(int id);
+
+        Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Employee);
     }
     public class UsersQueries : QueryRepository<User>, IUsersQueries
     {
@@ -223,6 +226,28 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         public async Task<SupplierDTO> GetSupplierById(int id)
         {
             return await GetUserById<SupplierDTO>(id, TypeUserEnum.Supplier);
+        }
+
+        public async Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Employee)
+        {
+            int idLast = 0;
+            if (type != CodeEnum.Employee &&
+                type != CodeEnum.Customer &&
+                type != CodeEnum.Supplier)
+                return null;
+            string code = type.GetDescription();
+            idLast = await WithDefaultNoSelectTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("CASE WHEN MAX(t1.Id) IS NOT NULL THEN  MAX(t1.Id) ELSE 0 END");
+                    sqlBuilder.OrderDescBy("t1.Id");
+
+                    sqlBuilder.Where("t1.Type = @type", new { type = type.ToString() });
+                    return await conn.QueryFirstOrDefaultAsync<int>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
+                );
+
+            return $"{code}{(idLast + 1).ToString("D6")}";
         }
     }
 }

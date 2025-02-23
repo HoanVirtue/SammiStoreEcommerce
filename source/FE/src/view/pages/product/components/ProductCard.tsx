@@ -148,7 +148,7 @@ const ProductCard = (props: TProductCard) => {
     }, [item, t]);
 
     return (
-        <StyledCard sx={{ width: "100%" }} onClick={() => handleNavigateProductDetail(item?.slug)}>
+        <StyledCard sx={{ width: "100%" }}>
             <CardMedia
                 className="card-media"
                 component="img"
@@ -172,7 +172,7 @@ const ProductCard = (props: TProductCard) => {
                     }}>
                     <Tooltip title={t("add_to_cart")}>
                         <Fab aria-label="add" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleUpdateProductToCart(item)}>
+                            <IconButton onClick={() => handleUpdateProductToCart(item)} disabled={item.countInStock === 0}>
                                 <IconifyIcon color={theme.palette.primary.main}
                                     icon="bi:cart-plus" fontSize='1.5rem' />
                             </IconButton>
@@ -200,7 +200,7 @@ const ProductCard = (props: TProductCard) => {
                 </ButtonGroup>
             </ButtonGroupWrapper>
             <CardContent sx={{ padding: "8px 12px 0px 12px", pb: "10px !important" }}>
-                <Typography variant="h5"
+                <Typography variant="h5" onClick={() => handleNavigateProductDetail(item?.slug)}
                     sx={{
                         color: theme.palette.primary.main,
                         fontWeight: "bold",

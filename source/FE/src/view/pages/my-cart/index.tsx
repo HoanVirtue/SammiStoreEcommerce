@@ -67,13 +67,21 @@ const MyCartPage: NextPage<TProps> = () => {
     }, [selectedRow, orderItems])
 
     const memoTotalPrice = useMemo(() => {
-        const total = memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
-            const currentPrice = current.discount > 0 ? (current.price * (100 - current.discount)) / 100 : current.price
-            return result + currentPrice * current.amount
+        const total = memoSelectedProduct?.reduce((result: number, current: TItemOrderProduct) => {
+            const currentPrice = current?.discount > 0 ? (current?.price * (100 - current?.discount)) / 100 : current?.price
+            return result + currentPrice * current?.amount
         }, 0)
         return total
     }, [memoSelectedProduct])
 
+    console.log(router.query.selected)
+
+    useEffect(() => {
+        const selectedProduct = router.query.selected as string
+        if (selectedProduct) {
+            setSelectedRow([selectedProduct])
+        }
+    }, [router.query])
 
     //Handler
     const handleChangeQuantity = (item: TItemOrderProduct, amount: number) => {

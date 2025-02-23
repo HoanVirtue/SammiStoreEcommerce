@@ -225,5 +225,8 @@
     "warning": "Cảnh báo",
     "order_warning": "Cảnh báo sản phẩm mua hàng đang gặp vấn đề",
     "return_home": "Quay lai trang chủ",
+    "create_order_success": "Đặt hàng thành công",
+    "congratulation!": "Chúc mừng!",
+    "opps!": "opps!",
     "no_shipping_address": "Không có thông tin về địa chỉ giao hàng"
 }   

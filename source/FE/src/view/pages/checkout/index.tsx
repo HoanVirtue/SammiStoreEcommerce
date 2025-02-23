@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux'
 //Other
 
 import { useAuth } from 'src/hooks/useAuth'
-import { formatPrice, toFullName } from 'src/utils'
+import { cloneDeep, convertUpdateProductToCart, formatPrice, toFullName } from 'src/utils'
 import { TItemOrderProduct } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
 import NoData from 'src/components/no-data'
@@ -33,11 +33,13 @@ import { FormControl } from '@mui/material'
 import { FormLabel } from '@mui/material'
 import { createOrderAsync } from 'src/stores/order/action'
 import toast from 'react-hot-toast'
-import { resetInitialState } from 'src/stores/order'
+import { resetInitialState, updateProductToCart } from 'src/stores/order'
 import AddressModal from './components/AddressModal'
 import { getAllCities } from 'src/services/city'
 import Spinner from 'src/components/spinner'
 import WarningModal from './components/WarningModal'
+import Swal from 'sweetalert2'
+import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 
 type TProps = {}
 
@@ -190,7 +192,35 @@ const CheckoutPage: NextPage<TProps> = () => {
         }))
     }
 
-    console.log(router.query)
+    const handleChangeQuantity = (items: TItemOrderProduct[]) => {
+        const productCart = getLocalProductFromCart()
+        const parseData = productCart ? JSON.parse(productCart) : {}
+        const objectMap: Record<string, number> = {}
+        items.forEach((item: any) => {
+            objectMap[item.product] = -item.amount
+        })
+        const listOrderItems: TItemOrderProduct[] = []
+
+        orderItems.forEach((order: TItemOrderProduct) => {
+            if (objectMap[order.product]) {
+                listOrderItems.push({               
+                    ...order,
+                    amount: order.amount + objectMap[order.product]
+                })
+            }else{
+                listOrderItems.push(order)
+            }
+        })
+        const filteredProduct =  listOrderItems.filter((items: TItemOrderProduct) => items.amount)
+        if (user) {
+            dispatch(
+                updateProductToCart({
+                    orderItems: filteredProduct
+                })
+            )
+            setLocalProductToCart({ ...parseData, [user?._id]: filteredProduct })
+        }
+    }
 
     useEffect(() => {
         if (!router?.query?.selectedProduct) {
@@ -206,10 +236,29 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     useEffect(() => {
         if (isSuccessCreate) {
-            toast.success(t("create_order_success"))
+            Swal.fire({
+                title: t("congratulation!"),
+                text: t("create_order_success"),
+                icon: "success",
+                confirmButtonText: t("confirm"),
+                background: theme.palette.background.paper,
+                color: theme.palette.customColors.main
+            }).then((result) => {
+                if (result.isConfirmed) {
+
+                }
+            })
+            handleChangeQuantity(memoQueryProduct.selectedProduct)
             dispatch(resetInitialState())
         } else if (isErrorCreate && errorMessageCreate) {
-            toast.error(t(errorMessageCreate))
+            Swal.fire({
+                title: t("opps!"),
+                text: t(errorMessageCreate),
+                icon: "error",
+                confirmButtonText: t("confirm"),
+                background: theme.palette.background.paper,
+                color: theme.palette.customColors.main
+            });
             dispatch(resetInitialState())
         }
     }, [isSuccessCreate, isErrorCreate, errorMessageCreate])

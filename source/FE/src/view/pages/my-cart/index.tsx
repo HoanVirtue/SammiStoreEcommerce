@@ -148,13 +148,17 @@ const MyCartPage: NextPage<TProps> = () => {
     }
 
     const handleNavigateCheckout = () => {
+        const formattedData = JSON.stringify(memoSelectedProduct.map((item: TItemOrderProduct) => ({
+            product: item.product,
+            amount: item.amount
+        })))
         router.push({
             pathname: ROUTE_CONFIG.CHECKOUT,
             query: {
                 totalPrice: memoTotalPrice,
-                selectedProduct: JSON.stringify(memoSelectedProduct)
+                selectedProduct: formattedData
             }
-        }, "checkout")
+        })
     }
 
     return (
@@ -302,7 +306,7 @@ const MyCartPage: NextPage<TProps> = () => {
                             <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
                         </Box>
                     )}
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
+                    <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
                         <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "24px" }}>
                             {t('total_price')}
                         </Typography>

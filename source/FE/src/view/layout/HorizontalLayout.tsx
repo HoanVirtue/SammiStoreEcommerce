@@ -98,8 +98,8 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) =>
 
     return (
         <AppBar position="fixed" open={open}
-            sx={{ backgroundColor: isScrolled ? theme.palette.common.white : 'transparent',  transition: 'background-color 0.3s ease' }}>
-            <Toolbar sx={{ margin: '0 auto', display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, width: '100%', paddingLeft: '2rem !important', paddingRight: '2rem !important',  backgroundColor: isScrolled ? 'white' : 'transparent',  transition: 'background-color 0.3s ease'}} >
+            sx={{transition: 'background-color 0.3s ease' }}>
+            <Toolbar sx={{ margin: '0 auto', display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, width: '100%', paddingLeft: '2rem !important', paddingRight: '2rem !important',  transition: 'background-color 0.3s ease'}} >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
                     {showIcon && (
                         <IconButton

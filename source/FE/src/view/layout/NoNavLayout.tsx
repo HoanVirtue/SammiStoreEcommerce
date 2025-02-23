@@ -35,7 +35,7 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
                 <Container
                     sx={{
                             width: "100vw", 
-                            marginTop: '-4rem',
+                            // marginTop: '-4rem',
                             maxWidth: "unset !important",
                             overflow: "auto",
                             maxHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight} - 32px)`,

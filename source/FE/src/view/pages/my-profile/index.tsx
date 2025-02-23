@@ -206,7 +206,7 @@ const MyProfilePage: NextPage<TProps> = () => {
             lastName: lastName,
             role: data.role,
             address: data.address,
-            // city: data.city,
+            city: data.city,
             phoneNumber: data.phoneNumber,
             avatar
         }))
@@ -471,7 +471,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                         paddingRight: "1.5rem"
                     }}>
                         <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                            Thay đổi
+                            {t('update')}
                         </Button>
                     </Box>
                 </Box>

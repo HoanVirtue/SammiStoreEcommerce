@@ -92,12 +92,12 @@ const MyProfilePage: NextPage<TProps> = () => {
         email: yup
             .string()
             .required(t("required_email"))
-            .matches(EMAIL_REG, "The email format is incorrect"),
+            .matches(EMAIL_REG, t("incorrect_email_format")),
         fullName: yup.string().notRequired(),
         address: yup.string().notRequired(),
         city: yup.string().notRequired(),
-        phoneNumber: yup.string().required("Phone number is required").min(8, "Phone number must be at least 8 characters"),
-        role: isDisableRole ? yup.string().notRequired() : yup.string().required("Role is required"),
+        phoneNumber: yup.string().required(t("required_phone_number")).min(10, t("incorrect_phone_format")),
+        role: isDisableRole ? yup.string().notRequired() : yup.string().required(t("required_role")),
     });
 
     const defaultValues: TDefaultValues = {
@@ -206,7 +206,7 @@ const MyProfilePage: NextPage<TProps> = () => {
             lastName: lastName,
             role: data.role,
             address: data.address,
-            // city: data.city,
+            city: data.city,
             phoneNumber: data.phoneNumber,
             avatar
         }))
@@ -471,7 +471,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                         paddingRight: "1.5rem"
                     }}>
                         <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                            Thay đổi
+                            {t('update')}
                         </Button>
                     </Box>
                 </Box>

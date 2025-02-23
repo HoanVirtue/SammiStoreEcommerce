@@ -58,6 +58,7 @@ const AuthProvider = ({ children }: Props) => {
           .then(async response => {
             setLoading(false)
             setUser({ ...response.data.data })
+
           })
           .catch(() => {
             removeLocalUserData()

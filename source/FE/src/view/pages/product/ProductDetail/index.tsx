@@ -42,6 +42,7 @@ import NoData from 'src/components/no-data'
 import ProductCard from '../components/ProductCard'
 import RelatedProduct from '../components/RelatedProduct'
 import CustomBreadcrumbs from 'src/components/custom-breadcrum'
+import { ROUTE_CONFIG } from 'src/configs/route'
 
 type TProps = {}
 
@@ -77,7 +78,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const breadcrumbItems = [
         { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
         { label: t('product_detail'), href: '/product' },
-        { label: productData?.name || t('product'), href: `/product/${productId}` }, 
+        { label: productData?.name || t('product'), href: `/product/${productId}` },
     ];
 
     //fetch api
@@ -142,6 +143,15 @@ const ProductDetailPage: NextPage<TProps> = () => {
         }
     }
 
+    const handleBuyNow = (item: TProduct) => {
+        handleUpdateProductToCart(item)
+        router.push({
+            pathname: ROUTE_CONFIG.MY_CART,
+            query: {
+                selected: item._id,
+            }
+        }, ROUTE_CONFIG.MY_CART)
+    }
 
     useEffect(() => {
         if (productId) {
@@ -389,12 +399,15 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                 }}>
                                     <Button variant="contained"
                                         color='error'
+                                        disabled={productData?.countInStock === 0}
                                         onClick={() => handleUpdateProductToCart(productData)}
                                         startIcon={<IconifyIcon icon="bx:cart" />}
                                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                                         {t('add_cart')}
                                     </Button>
                                     <Button type="submit" variant="contained"
+                                        disabled={productData?.countInStock === 0}
+                                        onClick={() => handleBuyNow(productData)}
                                         startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
                                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                                         {t('buy_now')}

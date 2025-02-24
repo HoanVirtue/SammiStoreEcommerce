@@ -176,19 +176,19 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     const handlePlaceOrder = () => {
 
-        const totalPrice = memoShippingPrice ? memoQueryProduct?.totalPrice + Number(memoShippingPrice) : memoQueryProduct?.totalPrice
+        const totalPrice = Number(memoShippingPrice) ? Number(memoQueryProduct?.totalPrice) + Number(memoShippingPrice) : Number(memoQueryProduct?.totalPrice)
         dispatch(createOrderAsync({
             orderItems: memoQueryProduct?.selectedProduct as TItemOrderProduct[],
             itemsPrice: memoQueryProduct?.totalPrice,
             paymentMethod: selectedPayment,
             deliveryMethod: selectedDelivery,
-            shippingPrice: memoShippingPrice ? Number(memoShippingPrice) : 0,
+            shippingPrice: Number(memoShippingPrice) ? Number(memoShippingPrice) : 0,
             user: user ? user?._id : '',
             fullName: memoDefaultAddress ? toFullName(memoDefaultAddress?.lastName, memoDefaultAddress?.middleName, memoDefaultAddress?.firstName, i18n.language) : '',
             address: memoDefaultAddress ? memoDefaultAddress?.address : "",
             city: memoDefaultAddress ? memoDefaultAddress?.city : "",
             phone: memoDefaultAddress ? memoDefaultAddress?.phoneNumber : "",
-            totalPrice: totalPrice
+            totalPrice: Number(totalPrice)
         }))
     }
 
@@ -203,15 +203,15 @@ const CheckoutPage: NextPage<TProps> = () => {
 
         orderItems.forEach((order: TItemOrderProduct) => {
             if (objectMap[order.product]) {
-                listOrderItems.push({               
+                listOrderItems.push({
                     ...order,
                     amount: order.amount + objectMap[order.product]
                 })
-            }else{
+            } else {
                 listOrderItems.push(order)
             }
         })
-        const filteredProduct =  listOrderItems.filter((items: TItemOrderProduct) => items.amount)
+        const filteredProduct = listOrderItems.filter((items: TItemOrderProduct) => items.amount)
         if (user) {
             dispatch(
                 updateProductToCart({
@@ -485,7 +485,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 {t('total_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "24px", width: '200px', color: theme.palette.primary.main }}>
-                                {formatPrice(Number(memoQueryProduct.totalPrice) + +memoShippingPrice)} VND
+                                {formatPrice(Number(memoQueryProduct.totalPrice) + Number(memoShippingPrice))} VND
                             </Typography>
                         </Box>
                     </Box>

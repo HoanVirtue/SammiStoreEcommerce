@@ -87,6 +87,11 @@ const UserMenu = (props: TProps) => {
         handleClose()
     }
 
+    const handleNavigateMyOrder = () => {
+        router.push(ROUTE_CONFIG.MY_ORDER)
+        handleClose()
+    }
+
     const handleNavigateChangePassword = () => {
         router.push(ROUTE_CONFIG.CHANGE_PASSWORD)
         handleClose()
@@ -227,6 +232,11 @@ const UserMenu = (props: TProps) => {
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                     <IconifyIcon icon="iconoir:favourite-book" />
                     {t("fav_product")}
+                </MenuItem>
+                <MenuItem onClick={handleNavigateMyOrder}
+                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <IconifyIcon icon="lsicon:work-order-abnormal-outline" />
+                    {t("my_order")}
                 </MenuItem>
                 <MenuItem onClick={handleNavigateChangePassword}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>

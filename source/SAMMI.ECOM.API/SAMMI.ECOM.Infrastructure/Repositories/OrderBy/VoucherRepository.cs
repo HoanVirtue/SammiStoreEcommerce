@@ -94,14 +94,36 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                             }
                         }
                         break;
-                    case ConditionTypeEnum.RequiredQuantity:
-                        break;
-                    case ConditionTypeEnum.AllowedRegions:
-                        break;
-                    case ConditionTypeEnum.TierLevels:
-                        break;
-                    case ConditionTypeEnum.RequiredProducts:
-                        break;
+                        //case ConditionTypeEnum.RequiredQuantity:
+                        //    if (order.TotalQuantity < Convert.ToInt32(condition.ConditionValue))
+                        //        return false;
+                        //    break;
+
+                        //case ConditionTypeEnum.AllowedRegions:
+                        //    var allowedRegions = condition.ConditionValue.Split(',');
+                        //    if (!allowedRegions.Contains(order.ShippingRegion))
+                        //        return false;
+                        //    break;
+
+                        //case ConditionTypeEnum.TierLevels:
+                        //    var tierLevels = JsonConvert.DeserializeObject<List<TierLevel>>(condition.ConditionValue);
+                        //    var applicableDiscount = tierLevels
+                        //        .Where(tl => order.TotalQuantity >= tl.Level)
+                        //        .OrderByDescending(tl => tl.Level)
+                        //        .FirstOrDefault();
+
+                        //    if (applicableDiscount != null)
+                        //    {
+                        //        decimal discountAmount = (order.TotalPrice * applicableDiscount.Discount) / 100;
+                        //        order.DiscountAmount = discountAmount;
+                        //    }
+                        //    break;
+
+                        //case ConditionTypeEnum.RequiredProducts:
+                        //    var requiredProducts = condition.ConditionValue.Split(',').Select(int.Parse);
+                        //    if (!order.Items.Any(item => requiredProducts.Contains(item.ProductId)))
+                        //        return false;
+                        //    break;
                 }
             }
 

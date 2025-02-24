@@ -106,4 +106,5 @@ public partial class User : Entity
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
     public virtual Image? Avatar { get; set; }
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 }

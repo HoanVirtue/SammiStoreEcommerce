@@ -4,20 +4,16 @@ using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 
 namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
 {
-    public class OrderEntityTypeConfiguration : IEntityTypeConfiguration<Order>
+    public class CartEntityTypeConfiguration : IEntityTypeConfiguration<Cart>
     {
-        public void Configure(EntityTypeBuilder<Order> builder)
+        public void Configure(EntityTypeBuilder<Cart> builder)
         {
             builder.HasKey(x => x.Id);
 
             builder.HasOne(d => d.Customer)
-                .WithMany(p => p.Orders)
+                .WithMany(p => p.Carts)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
-
-            builder.HasOne(d => d.Voucher)
-                .WithMany(p => p.Orders)
-                .HasForeignKey(d => d.VoucherId);
         }
     }
 }

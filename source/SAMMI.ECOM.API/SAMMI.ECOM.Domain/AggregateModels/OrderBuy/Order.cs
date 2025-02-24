@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 
-
 [Table("Order")]
 public partial class Order : Entity
 {
@@ -29,8 +28,8 @@ public partial class Order : Entity
     [MaxLength(50)]
     public string? ShippingStatus { get; set; }
 
-    [ForeignKey("Discount")]
-    public int? DiscountId { get; set; }
+    [ForeignKey("Voucher")]
+    public int? VoucherId { get; set; }
 
     [Column("CustomerAddress")]
     [MaxLength(255)]
@@ -38,7 +37,7 @@ public partial class Order : Entity
 
     public virtual User Customer { get; set; } = null!;
 
-    public virtual Voucher? Discount { get; set; }
+    public virtual Voucher? Voucher { get; set; }
 
     public virtual ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 

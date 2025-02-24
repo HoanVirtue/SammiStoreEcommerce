@@ -26,6 +26,8 @@ import { TItemOrderProduct, TOrderItem } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import { cancelOrderAsync } from 'src/stores/order/action'
+import { ORDER_STATUS } from 'src/configs/order'
+import { Chip } from '@mui/material'
 
 
 type TProps = {
@@ -78,6 +80,9 @@ const OrderCard: NextPage<TProps> = (props) => {
                 borderRadius: '15px',
                 width: "100%",
             }}>
+                <Box>
+                    <Typography>{t((ORDER_STATUS as any)[orderData.status].label)}</Typography>
+                </Box>
                 <Divider />
                 <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
                     {orderData?.orderItems.map((item: TItemOrderProduct) => {

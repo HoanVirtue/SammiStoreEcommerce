@@ -1,3 +1,5 @@
+import { t } from 'i18next';
+
 
 export type TParamsGetAllOrders = {
     limit?: number,
@@ -28,4 +30,37 @@ export type TParamsCreateOrder = {
     shippingPrice: number,
     totalPrice: number,
     user: string,
+}
+
+export type TOrderItem = {
+    _id: string,
+    shippingAddress: {
+        fullName: string,
+        address: string,
+        city: string,
+        phone: string,
+    },
+    orderItems: TItemOrderProduct[],
+    paymentMethod: {
+    _id: string,
+    name: string,
+    type: string,
+    },
+    deliveryMethod: {
+        _id: string,
+        name: string,
+        price: string,
+    },
+    itemsPrice: number,
+    shippingPrice: number,
+    totalPrice: number,
+    isPaid: number,
+    isDelivered: number,
+    status: number,
+    user: {
+        _id: string,
+        firstName: string,
+        middleName: string,
+        lastName: string,
+    }
 }

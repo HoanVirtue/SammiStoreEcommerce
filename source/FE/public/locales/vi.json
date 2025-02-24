@@ -229,9 +229,16 @@
     "congratulation!": "Chúc mừng!",
     "opps!": "opps!",
     "my_order": "Đơn hàng của tôi",
-    "viewed_product": "Sản phẩm đã xem",
-    "liked_product": "Sản phẩm yêu thích",
+    "viewed_products": "Sản phẩm đã xem",
+    "liked_products": "Sản phẩm yêu thích",
     "viewed_product_empty": "Không có sản phẩm nào",
     "order_history": "Lịch sử đặt hàng",
-    "no_shipping_address": "Không có thông tin về địa chỉ giao hàng"
+    "no_shipping_address": "Không có thông tin về địa chỉ giao hàng",
+    "buy_again": "Mua lại",
+    "all": "Tất cả",
+    "wait_payment": "Chờ thanh toán",
+    "wait_delivery": "Chờ vận chuyển",
+    "completed": "Hoàn thành",
+    "cancelled": "Đã hủy",
+    "view_detail": "Xem chi tiết"
 }   

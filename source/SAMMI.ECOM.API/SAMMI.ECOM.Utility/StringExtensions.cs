@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -344,6 +345,22 @@ namespace SAMMI.ECOM.Utility
             }
 
             return columnName;
+        }
+
+        public static T DeserializeJson<T>(this string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json, new JsonSerializerSettings
+            {
+                ContractResolver = new DefaultContractResolver
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy() // Chấp nhận chữ thường
+                }
+            });
+        }
+
+        public static string FormatCurrency(this decimal currency)
+        {
+            return currency.ToString("N0") + "đ";
         }
     }
 }

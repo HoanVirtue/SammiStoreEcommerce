@@ -6,9 +6,6 @@
         public string PermissionName { get; set; }
         public int RoleId { get; set; }
         public string RoleName { get; set; }
-        public bool RoleView { get; set; }
-        public bool RoleCreate { get; set; }
-        public bool RoleUpdate { get; set; }
-        public bool RoleDelete { get; set; }
+        public bool Allow { get; set; }
     }
 }

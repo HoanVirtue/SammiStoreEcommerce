@@ -185,7 +185,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                 SELECT
                 t1.UserId,
                 t2.Id AS RoleId, t2.Name AS RoleName,
-                t3.RoleView, t3.RoleCreate, t3.RoleUpdate, t3.RoleDelete,
+                t3.Allow,
                 t4.Id AS PermissionId, t4.Name AS PermissionName
                 FROM userrole t1
                 LEFT JOIN role t2 ON t1.RoleId = t2.Id AND t2.IsDeleted != 1 AND t2.IsActive = 1

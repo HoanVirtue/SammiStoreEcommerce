@@ -55,6 +55,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             // voucher
             CreateMap<CUVoucherCommand, Voucher>();
             CreateMap<Voucher, VoucherDTO>();
+            CreateMap<VoucherConditionCommand, VoucherCondition>();
+            CreateMap<VoucherCondition, VoucherConditionDTO>();
 
             //CreateMap<>();
             //CreateMap<>();

@@ -4,11 +4,15 @@
     {
         public string Code { get; set; } = null!;
         public int CustomerId { get; set; }
+        public string? CustomerName { get; set; }
+        public string? PhoneNumber { get; set; }
         public string? PaymentStatus { get; set; }
         public string? OrderStatus { get; set; }
         public string? ShippingStatus { get; set; }
         public int? DiscountId { get; set; }
         public string? CustomerAddress { get; set; }
+        public decimal? TotalPrice { get; set; }
+        public int? TotalQuantity { get; set; }
 
         public int Id { get; set; }
         public DateTime? CreatedDate { get; set; }

@@ -33,12 +33,13 @@ import { getAllProductCategories } from 'src/services/product-category'
 import SearchField from 'src/components/search-field'
 import ProductFilter from '../product/components/ProductFilter'
 import { getAllCities } from 'src/services/city'
-import city from 'src/stores/city';
 import NoData from 'src/components/no-data'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import toast from 'react-hot-toast'
 import { resetInitialState } from 'src/stores/product'
+import Banner from './components/banner'
+import OutstandingCategory from './components/category'
 
 type TProps = {}
 
@@ -208,10 +209,9 @@ const HomePage: NextPage<TProps> = () => {
         <>
             {loading && <Spinner />}
             <Box sx={{
-                padding: '20px',
                 height: 'fit-content',
             }}>
-                <Box sx={{width: '100%', height: 'fit-content'}}>
+                {/* <Box sx={{width: '100%', height: 'fit-content'}}>
                     <StyledTabs
                         value={selectedProductCategory}
                         onChange={handleChange}
@@ -228,8 +228,10 @@ const HomePage: NextPage<TProps> = () => {
                             )
                         })}
                     </StyledTabs>
-                </Box>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4 }}>
+                </Box> */}
+                <Banner />
+                <OutstandingCategory />
+                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 4 }}>
                     <Box sx={{ width: '300px' }}>
                         <SearchField value={searchBy} placeholder={t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
                     </Box>

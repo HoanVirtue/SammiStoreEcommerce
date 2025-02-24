@@ -41,6 +41,8 @@ import { updateProductToCart } from 'src/stores/order'
 import NoData from 'src/components/no-data'
 import ProductCard from '../components/ProductCard'
 import RelatedProduct from '../components/RelatedProduct'
+import CustomBreadcrumbs from 'src/components/custom-breadcrum'
+import { ROUTE_CONFIG } from 'src/configs/route'
 
 type TProps = {}
 
@@ -73,6 +75,11 @@ const ProductDetailPage: NextPage<TProps> = () => {
     //Theme
     const theme = useTheme();
 
+    const breadcrumbItems = [
+        { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
+        { label: t('product_detail'), href: '/product' },
+        { label: productData?.name || t('product'), href: `/product/${productId}` },
+    ];
 
     //fetch api
     const fetchGetProductDetail = async (slug: string) => {
@@ -136,6 +143,15 @@ const ProductDetailPage: NextPage<TProps> = () => {
         }
     }
 
+    const handleBuyNow = (item: TProduct) => {
+        handleUpdateProductToCart(item)
+        router.push({
+            pathname: ROUTE_CONFIG.MY_CART,
+            query: {
+                selected: item._id,
+            }
+        }, ROUTE_CONFIG.MY_CART)
+    }
 
     useEffect(() => {
         if (productId) {
@@ -153,6 +169,13 @@ const ProductDetailPage: NextPage<TProps> = () => {
     return (
         <>
             {loading && <Spinner />}
+            <Box sx={{
+                paddingLeft: '0.75rem',
+                mb: 2,
+                backgroundColor: theme.palette.grey[100],
+            }}>
+                <CustomBreadcrumbs items={breadcrumbItems} />
+            </Box>
             <Grid container>
                 <Grid container item md={12} xs={12} sx={{
                     backgroundColor: theme.palette.background.paper,
@@ -172,7 +195,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     height={0}
                                 />
                             </Grid>
-                            <Grid item md={7} xs={12}>
+                            <Grid item md={5} xs={12}>
                                 <Box sx={{
                                     display: "flex",
                                     alignItems: "center",
@@ -197,32 +220,37 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     alignItems: "center",
                                     gap: 1
                                 }}>
-                                    {productData?.averageRating > 0 && (
-                                        <Box sx={{
-                                            display: "flex",
-                                            alignItems: "center",
-                                            gap: 1
-                                        }}>
-                                            <Typography variant="h5"
-                                                sx={{
-                                                    color: theme.palette.primary.main,
-                                                    fontWeight: "bold",
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                    display: "-webkit-box",
-                                                    "-webkitLineClamp": "2",
-                                                    "-webkitBoxOrient": "vertical",
-                                                    textDecoration: "underline",
-                                                    fontSize: "16px"
-                                                }}>
-                                                {productData?.averageRating}
-                                            </Typography>
-                                            <Rating defaultValue={productData?.averageRating}
-                                                precision={0.1}
-                                                size='small'
-                                                name='read-only' />
-                                        </Box>
-                                    )}
+                                    <Box sx={{
+                                        display: "flex",
+                                        alignItems: "center",
+                                        gap: 1,
+                                        mt: 1,
+                                        mb: 1
+                                    }}>
+                                        <Typography variant="h5"
+                                            sx={{
+                                                color: theme.palette.primary.main,
+                                                fontWeight: "bold",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                                display: "-webkit-box",
+                                                "-webkitLineClamp": "2",
+                                                "-webkitBoxOrient": "vertical",
+                                                textDecoration: "underline",
+                                                fontSize: "16px"
+                                            }}>
+                                            {productData?.averageRating}
+                                        </Typography>
+                                        <Rating defaultValue={productData?.averageRating}
+                                            precision={0.1}
+                                            size='small'
+                                            name='read-only'
+                                            sx={{
+                                                '& .MuiRating-icon': {
+                                                    color: 'gold',
+                                                },
+                                            }} />
+                                    </Box>
                                     <Typography>
                                         {!!productData?.totalReviews ? (
                                             <span>
@@ -233,12 +261,12 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             <span>{t("no_review")}</span>
                                         )}
                                     </Typography>
-                                    {productData?.sold > 0 && (
-                                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                            <>{t("product_sold", { count: productData?.sold })}</>
-                                        </Typography>
-                                    )}
                                 </Box>
+                                {productData?.sold > 0 && (
+                                    <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                                        <>{t("product_sold", { count: productData?.sold })}</>
+                                    </Typography>
+                                )}
                                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
                                     <IconifyIcon icon="carbon:location" width={20} height={20} />
                                     <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
@@ -247,20 +275,11 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                 </Box>
                                 <Box sx={{
                                     display: "flex", alignItems: "center", gap: 2, mt: 2,
-                                    backgroundColor: theme.palette.customColors.bodyBg,
-                                    padding: "8px",
+                                    backgroundColor: theme.palette.common.white,
+                                    paddingTop: "8px",
+                                    paddingBottom: "8px",
                                     borderRadius: "8px"
                                 }}>
-                                    {productData?.discount > 0 && memoCheckExpire && (
-                                        <Typography variant="h6" sx={{
-                                            color: theme.palette.error.main,
-                                            fontWeight: "bold",
-                                            textDecoration: "line-through",
-                                            fontSize: "18px"
-                                        }}>
-                                            {formatPrice(productData?.price)} VND
-                                        </Typography>
-                                    )}
                                     <Typography variant="h4" sx={{
                                         color: theme.palette.primary.main,
                                         fontWeight: "bold",
@@ -277,18 +296,28 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         )}
                                     </Typography>
                                     {productData?.discount > 0 && memoCheckExpire && (
+                                        <Typography variant="h6" sx={{
+                                            color: theme.palette.error.main,
+                                            fontWeight: "bold",
+                                            textDecoration: "line-through",
+                                            fontSize: "18px"
+                                        }}>
+                                            {formatPrice(productData?.price)} VND
+                                        </Typography>
+                                    )}
+                                    {productData?.discount > 0 && memoCheckExpire && (
                                         <Box sx={{
-                                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
+                                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.99),
                                             width: "fit-content",
-                                            padding: "2px 4px",
+                                            padding: "10px 10px",
                                             height: "16px",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",
-                                            borderRadius: "2px"
+                                            borderRadius: "12px"
                                         }}>
                                             <Typography variant="h6" sx={{
-                                                color: theme.palette.error.main,
+                                                color: theme.palette.common.white,
                                                 fontWeight: "bold",
                                                 fontSize: "10px",
                                                 lineHeight: "1.3",
@@ -299,12 +328,21 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         </Box>
                                     )}
                                 </Box>
-                                <Box sx={{}}>
-                                    <IconButton onClick={() => {
-                                        if (productAmount > 1) {
-                                            setProductAmount((prev) => prev - 1)
-                                        }
-                                    }}>
+                                <Box sx={{
+                                    display: "flex",
+                                    alignItems: 'center',
+                                    gap: 2
+                                }}>
+                                    <Typography>{t('quantity')}:</Typography>
+                                    <IconButton sx={{
+                                        border: `1px solid ${theme.palette.customColors.borderColor}`,
+                                    }}
+                                        onClick={() => {
+                                            if (productAmount > 1) {
+                                                setProductAmount((prev) => prev - 1)
+                                            }
+                                        }}
+                                    >
                                         <IconifyIcon icon="eva:minus-fill" />
                                     </IconButton>
                                     <CustomTextField
@@ -331,30 +369,45 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             },
                                             'input[type=number]': {
                                                 MozAppearance: "textfield"
+                                            },
+                                            input: {
+                                                padding: 0,
+                                                paddingLeft: "12px",
+                                                width: "25px"
+                                            },
+                                            fieldset: {
+                                                border: "none"
                                             }
                                         }} />
-                                    <IconButton onClick={() => {
-                                        if (productAmount < productData?.countInStock) {
-                                            setProductAmount((prev) => prev + 1)
-                                        }
-                                    }}>
+                                    <IconButton sx={{
+                                        border: `1px solid ${theme.palette.customColors.borderColor}`,
+                                    }}
+                                        onClick={() => {
+                                            if (productAmount < productData?.countInStock) {
+                                                setProductAmount((prev) => prev + 1)
+                                            }
+                                        }}>
                                         <IconifyIcon icon="ic:round-plus" />
                                     </IconButton>
                                 </Box>
                                 <Box sx={{
                                     display: "flex",
                                     alignItems: "center",
-                                    padding: "0px 10px",
+                                    padding: 0,
                                     gap: 4,
                                     mt: 4
                                 }}>
-                                    <Button variant="outlined"
+                                    <Button variant="contained"
+                                        color='error'
+                                        disabled={productData?.countInStock === 0}
                                         onClick={() => handleUpdateProductToCart(productData)}
                                         startIcon={<IconifyIcon icon="bx:cart" />}
                                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                                        {t('add_to_cart')}
+                                        {t('add_cart')}
                                     </Button>
                                     <Button type="submit" variant="contained"
+                                        disabled={productData?.countInStock === 0}
+                                        onClick={() => handleBuyNow(productData)}
                                         startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
                                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                                         {t('buy_now')}
@@ -369,6 +422,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                         <Grid container item md={9} xs={12} sx={{
                             backgroundColor: theme.palette.background.paper,
                             borderRadius: "15px",
+                            border: `1px solid ${theme.palette.customColors.borderColor}`,
                             py: 5, px: 4, mt: 6
                         }} >
                             <Box sx={{
@@ -377,7 +431,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                             }}>
                                 <Box sx={{
                                     display: "flex", alignItems: "center", gap: 2, mt: 2,
-                                    backgroundColor: theme.palette.customColors.bodyBg,
+                                    backgroundColor: theme.palette.background.paper,
                                     padding: "8px",
                                     borderRadius: "8px"
                                 }}>
@@ -394,7 +448,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         mt: 4,
                                         padding: 5,
                                         borderRadius: "10px",
-                                        backgroundColor: theme.palette.customColors.bodyBg,
+                                        backgroundColor: theme.palette.background.paper,
                                         color: `rgba(${theme.palette.customColors.main}, 0.42)`,
                                         fontSize: "14px"
                                     }} />
@@ -405,6 +459,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                 width: "100%",
                                 height: "100%",
                                 backgroundColor: theme.palette.background.paper,
+                                border: `1px solid ${theme.palette.customColors.borderColor}`,
                                 borderRadius: "15px",
                                 py: 5, px: 4, mt: 6
                             }}
@@ -412,7 +467,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                             >
                                 <Box sx={{
                                     display: "flex", alignItems: "center", gap: 2, mt: 2,
-                                    backgroundColor: theme.palette.customColors.bodyBg,
+                                    backgroundColor: theme.palette.background.paper,
                                     padding: "8px",
                                     borderRadius: "8px"
                                 }}>
@@ -459,7 +514,6 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                 borderRadius: "15px",
                                 py: 5, px: 4, mt: 6
                             }}>
-
                             </Box>
                         </Grid>
                     </Grid>

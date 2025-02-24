@@ -144,7 +144,7 @@ const ProductCart = (props: TProps) => {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 {orderItems.length > 0 ? (
-                    <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
+                    <Box sx={{ maxHeight: "300px", maxWidth: "300px", overflow: "auto" }}>
                         {orderItems.map((item: TItemOrderProduct) => {
                             return (
                                 <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>
@@ -152,7 +152,7 @@ const ProductCart = (props: TProps) => {
                                     <Box sx={{
 
                                     }}>
-                                        <Typography>{item?.name}</Typography>
+                                        <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.name}</Typography>
                                         <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                             {item?.discount > 0 && (
                                                 <Typography variant="h6" sx={{

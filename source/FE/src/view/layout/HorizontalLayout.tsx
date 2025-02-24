@@ -23,12 +23,13 @@ import Link from "next/link";
 import ProductCart from "./components/product-cart";
 import { useTranslation } from "react-i18next";
 import SearchField from "src/components/search-field";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import HomeSearch from "src/components/home-search";
 
 type TProps = {
     open: boolean
     toggleDrawer: () => void
-    isHideMenu?: boolean
+    showIcon?: boolean
 }
 
 const drawerWidth: number = 0
@@ -50,20 +51,13 @@ const AppBar = styled(MuiAppBar, {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
     }),
-    // ...(open && {
-    //     marginLeft: drawerWidth,
-    //     width: `calc(100% - ${drawerWidth}px)`,
-    //     transition: theme.transitions.create(['width', 'margin'], {
-    //         easing: theme.transitions.easing.sharp,
-    //         duration: theme.transitions.duration.enteringScreen,
-    //     }),
-    // }),
 }))
 
-const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
+const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) => {
 
     //state
     const [searchBy, setSearchBy] = useState("");
+    const [isScrolled, setIsScrolled] = useState(false);
 
     //hooks
     const { user } = useAuth()
@@ -71,7 +65,23 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
     const theme = useTheme()
     const { t } = useTranslation()
 
-    const isDashboard = router.pathname === "/dashboard";
+
+    useEffect(() => {
+        console.log(" event triggered"); 
+        const handleScroll = () => {
+            console.log("Scroll event triggered"); 
+            if (window.scrollY > 1) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
+    console.log("fe1", isScrolled)
 
     const handleNavigateLogin = () => {
         if (router.asPath !== '/') {
@@ -87,10 +97,11 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
     }
 
     return (
-        <AppBar position="absolute" open={open}>
-            <Toolbar sx={{ pr: '30px', margin: '0 20px', display: "flex", alignItems: "center", justifyContent: "space-between" }} >
+        <AppBar position="fixed" open={open}
+            sx={{transition: 'background-color 0.3s ease' }}>
+            <Toolbar sx={{ margin: '0 auto', display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, width: '100%', paddingLeft: '2rem !important', paddingRight: '2rem !important',  transition: 'background-color 0.3s ease'}} >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    {isDashboard && (
+                    {showIcon && (
                         <IconButton
                             edge="start"
                             color="inherit"
@@ -107,29 +118,49 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
                             )}
                         </IconButton>
                     )}
-                    <Typography component="h1" variant="h2" color="primary" noWrap
-                        sx={{
-                            width: "fit-content",
-                            fontWeight: "600",
-                            marginRight: "5rem",
-                            background: 'linear-gradient(90deg, rgba(6,196,235,1) 10%, rgba(175,21,213,1) 90%)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            backgroundClip: 'text',
-                            cursor: "pointer"
+                    <Link href={ROUTE_CONFIG.HOME}>
+                        <Box sx={{
+                            display: "flex",
+                            alignItems: "center",
                         }}>
-                        <Link href={ROUTE_CONFIG.HOME}>Sammi Stores</Link>
-                    </Typography>
+                            <Typography component="h1" variant="h2" color="primary" noWrap
+                                sx={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    width: "fit-content",
+                                    fontWeight: "600",
+                                    background: 'linear-gradient(90deg, rgba(6,196,235,1) 10%, rgba(175,21,213,1) 90%)',
+                                    WebkitBackgroundClip: 'text',
+                                    WebkitTextFillColor: 'transparent',
+                                    backgroundClip: 'text',
+                                    cursor: "pointer"
+                                }}>Sammi Stores</Typography>
+                        </Box>
+                    </Link>
                 </Box>
-                <Box sx={{ display: "flex", alignItems: "center" }}>
-                    {/* <SearchField
-                    sx={{ 
-                        flex: 1, 
-                        marginRight: "20rem"
-                     }}
+                <HomeSearch
+                    sx={{
+                        flex: 1,
+                    }}
                     value={searchBy}
                     placeholder={t("search_by_product_name...")}
-                    onChange={(value: string) => setSearchBy(value)} /> */}
+                    onChange={(value: string) => setSearchBy(value)} />
+                <Box sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: 1
+                }}>
+                    <IconifyIcon fontSize='3rem' icon='line-md:phone-call-loop' />
+                    <Box sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                    }}>
+                        <Typography variant="h6" color='primary'>{t('customer_support')}</Typography>
+                        <Typography variant="h6" color='primary' fontWeight='bold' >0372191612</Typography>
+                    </Box>
+                </Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <ModeToggle />
                     <LanguageDropdown />
                     <ProductCart />

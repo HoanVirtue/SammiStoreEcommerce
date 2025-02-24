@@ -145,7 +145,7 @@ const MyProductPage: NextPage<TProps> = () => {
         <>
             {loading || isLoading && <Spinner />}
             <Box sx={{
-                backgroundColor: theme.palette.background.paper,
+                // backgroundColor: theme.palette.background.paper,
             }}>
                 <Grid container item md={12} xs={12} sx={{
                     borderRadius: "15px",
@@ -169,7 +169,7 @@ const MyProductPage: NextPage<TProps> = () => {
                             })}
                         </StyledTabs>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 4, width: '100%' }}>
-                            <Box sx={{ width: '300px' }}>
+                            <Box sx={{ width: '300px', mb: 2 }}>
                                 <SearchField value={searchBy} placeholder={t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
                             </Box>
                         </Box>

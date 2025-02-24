@@ -6,7 +6,7 @@ import CardContent from '@mui/material/CardContent';
 import IconButton, { IconButtonProps } from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import IconifyIcon from 'src/components/Icon';
-import { Box, Button, Fab, Rating, Tooltip } from '@mui/material';
+import { Box, Button, Fab, LinearProgress, Rating, Tooltip } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TProduct } from 'src/types/product';
 import { hexToRGBA } from 'src/utils/hex-to-rgba';
@@ -27,7 +27,6 @@ interface TProductCard {
 
 const StyledCard = styled(Card)(({ theme }) => ({
     position: "relative",
-    boxShadow: theme.shadows[8],
     overflow: "hidden",
     ".MuiCardMedia-root.MuiCardMedia-media": {
         objectFit: "contain"
@@ -38,8 +37,9 @@ const StyledCard = styled(Card)(({ theme }) => ({
         right: 8,
         top: 8
     },
-    "&:hover .card-media": {
-        transform: "scale(1.1)",
+    "&:hover": {
+        // boxShadow: theme.shadows[10],
+        border: `2px solid ${theme.palette.customColors.borderColor}`,
     },
 }));
 
@@ -129,8 +129,26 @@ const ProductCard = (props: TProductCard) => {
         }
     }, [item])
 
+
+    const soldPercentage = useMemo(() => {
+        if (item.countInStock === 0) return 100;
+        return ((item.sold || 0) / (item.countInStock + (item.sold || 0))) * 100;
+    }, [item]);
+
+    const progressColor = useMemo(() => {
+        if (item.countInStock === 0) return 'error';
+        if (item.countInStock <= 10) return 'warning';
+        return 'primary';
+    }, [item]);
+
+    const statusText = useMemo(() => {
+        if (item.countInStock === 0) return t('out_of_stock');
+        if (item.countInStock <= 10) return t('selling_fast');
+        return t('product_sold', { count: item.sold || 0 });
+    }, [item, t]);
+
     return (
-        <StyledCard sx={{ width: "100%" }} onClick={() => handleNavigateProductDetail(item?.slug)}>
+        <StyledCard sx={{ width: "100%" }}>
             <CardMedia
                 className="card-media"
                 component="img"
@@ -140,7 +158,7 @@ const ProductCard = (props: TProductCard) => {
                 sx={{
                     transition: "transform 0.3s ease",
                     "&:hover": {
-                        transform: "scale(1.1)",
+                        transform: "scale(0.9)",
                     },
                 }}
             />
@@ -154,7 +172,7 @@ const ProductCard = (props: TProductCard) => {
                     }}>
                     <Tooltip title={t("add_to_cart")}>
                         <Fab aria-label="add" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleUpdateProductToCart(item)}>
+                            <IconButton onClick={() => handleUpdateProductToCart(item)} disabled={item.countInStock === 0}>
                                 <IconifyIcon color={theme.palette.primary.main}
                                     icon="bi:cart-plus" fontSize='1.5rem' />
                             </IconButton>
@@ -182,7 +200,7 @@ const ProductCard = (props: TProductCard) => {
                 </ButtonGroup>
             </ButtonGroupWrapper>
             <CardContent sx={{ padding: "8px 12px 0px 12px", pb: "10px !important" }}>
-                <Typography variant="h5"
+                <Typography variant="h5" onClick={() => handleNavigateProductDetail(item?.slug)}
                     sx={{
                         color: theme.palette.primary.main,
                         fontWeight: "bold",
@@ -243,17 +261,17 @@ const ProductCard = (props: TProductCard) => {
                     )}
                     {item?.discount > 0 && memoCheckExpire && (
                         <Box sx={{
-                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.42),
+                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.99),
                             width: "fit-content",
-                            padding: "2px 4px",
+                            padding: "10px 10px",
                             height: "16px",
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
-                            borderRadius: "2px"
+                            borderRadius: "12px"
                         }}>
                             <Typography variant="h6" sx={{
-                                color: theme.palette.error.main,
+                                color: theme.palette.common.white,
                                 fontWeight: "bold",
                                 fontSize: "10px",
                                 lineHeight: "1.3",
@@ -274,6 +292,7 @@ const ProductCard = (props: TProductCard) => {
                 }}>
                     <Box sx={{
                         display: "flex",
+                        width: "100%",
                         flexDirection: "column",
                         gap: "4px",
                         alignItems: "flex-start",
@@ -288,9 +307,35 @@ const ProductCard = (props: TProductCard) => {
                                 </span>
                             )}
                         </Typography>
-                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            <>{t("product_sold", { count: item?.sold || 0 })}</>
-                        </Typography>
+
+                        <Box sx={{ width: "100%", mt: 1, position: 'relative' }}>
+                            <LinearProgress
+                                variant="determinate"
+                                value={soldPercentage}
+                                color={progressColor}
+                                sx={{
+                                    height: 18, borderRadius: 6, width: '100%',
+                                    backgroundColor: '#fedfe2',
+                                    '& .MuiLinearProgress-bar': {
+                                        backgroundImage: 'linear-gradient(to right, #d82e4d, #ff7f8e)',
+                                        borderRadius: 6,
+                                    }
+                                }}
+                            />
+                            <Typography variant="body2"
+                                sx={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    color: progressColor === 'error' ? theme.palette.error.main : progressColor === 'warning' ? theme.palette.warning.main : theme.palette.primary.main,
+                                    textShadow: '0px 0px 2px rgba(255, 255, 255, 0.8)',
+                                    fontWeight: 'bold'
+                                }}>
+                                {statusText}
+                            </Typography>
+                        </Box>
+
                         {item?.location?.name && (
                             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
                                 <IconifyIcon icon="carbon:location" width={20} height={20} />

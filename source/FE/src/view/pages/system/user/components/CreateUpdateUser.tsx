@@ -81,7 +81,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
             .matches(PASSWORD_REG, t('incorrect_password_format')),
         fullName: yup.string().required(t("required_fullname")),
         phoneNumber: yup.string().required(t('required_phone_number'))
-            .min(9, t('incorrect_phone_format')),
+            .min(10, t('incorrect_phone_format')),
         role: yup.string().required(t('require_role')),
         city: yup.string().nonNullable(),
         address: yup.string().nonNullable(),

@@ -228,5 +228,10 @@
     "create_order_success": "Đặt hàng thành công",
     "congratulation!": "Chúc mừng!",
     "opps!": "opps!",
+    "my_order": "Đơn hàng của tôi",
+    "viewed_product": "Sản phẩm đã xem",
+    "liked_product": "Sản phẩm yêu thích",
+    "viewed_product_empty": "Không có sản phẩm nào",
+    "order_history": "Lịch sử đặt hàng",
     "no_shipping_address": "Không có thông tin về địa chỉ giao hàng"
 }   

@@ -1,6 +1,6 @@
 // ** Redux Imports
 import { createSlice } from '@reduxjs/toolkit'
-import { createOrderAsync, serviceName } from './action'
+import { createOrderAsync, getAllOrdersAsync, serviceName } from './action'
 
 // ** Action Imports
 
@@ -10,7 +10,11 @@ const initialState = {
   isErrorCreate: false,
   errorMessageCreate: '',
   typeError: '',
-  orderItems: []
+  orderItems: [],
+  orders: {
+    data: [],
+    total: 0
+  }
 }
 
 export const orderSlice = createSlice({
@@ -30,6 +34,21 @@ export const orderSlice = createSlice({
 
   },
   extraReducers: builder => {
+        //get all Order
+        builder.addCase(getAllOrdersAsync.pending, (state, action) => {
+          state.isLoading = true
+        })
+        builder.addCase(getAllOrdersAsync.fulfilled, (state, action) => {
+          state.isLoading = false
+          state.orders.data = Array.isArray(action?.payload?.data?.orders) ? action?.payload?.data?.orders : [];
+          state.orders.total = action?.payload?.data?.totalCount
+        })
+        builder.addCase(getAllOrdersAsync.rejected, (state, action) => {
+          state.isLoading = false
+          state.orders.data = []
+          state.orders.total = 0
+        })
+
     //create Order
     builder.addCase(createOrderAsync.pending, (state, action) => {
       state.isLoading = true

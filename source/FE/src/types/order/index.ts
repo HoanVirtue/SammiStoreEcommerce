@@ -1,4 +1,10 @@
-import paymentMethod from 'src/stores/payment-method';
+
+export type TParamsGetAllOrders = {
+    limit?: number,
+    page?: number,
+    search?: string,
+    order?: string
+}
 
 export type TItemOrderProduct = {
     name: string,

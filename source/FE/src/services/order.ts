@@ -1,17 +1,26 @@
 import axios from "axios"
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateOrder } from "src/types/order"
+import { TParamsCreateOrder, TParamsGetAllOrders } from "src/types/order"
 
 
-// export const getAllOrders = async (data: {params: TParamsGetAllOrders}) => {
-//     try {
-//         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}`, data)
-//         return res.data
-//     } catch (error) {
-//         return error
-//     }
-// }
+export const getAllOrders = async (data: {params: TParamsGetAllOrders  }) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/me`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+export const getOrderDetail = async (id: string) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/me/${id}`)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
 
 
 export const createOrder = async (data: TParamsCreateOrder) => {

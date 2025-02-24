@@ -34,15 +34,14 @@ export const createOrder = async (data: TParamsCreateOrder) => {
 }
 
 
-// export const updateOrder = async (data: TParamsUpdateOrder) => {
-//     const { id, ...rests } = data
-//     try {
-//         const res = await instance.put(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/${id}`, rests)
-//         return res.data
-//     } catch (error: any) {
-//         return error?.response?.data
-//     }
-// }
+export const cancelOrder = async (id: string) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/me/cancel/${id}`)
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}
 
 
 // export const deleteOrder = async (id: string) => {

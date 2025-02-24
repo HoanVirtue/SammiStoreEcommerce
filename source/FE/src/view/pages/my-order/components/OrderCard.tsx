@@ -1,13 +1,13 @@
 "use client"
 
 //React
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
 
 //MUI
-import { Avatar, Button, Checkbox, Divider, Grid, Tooltip, Typography, useTheme } from '@mui/material'
+import { Avatar, Button, Divider,Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -21,17 +21,14 @@ import { useDispatch, useSelector } from 'react-redux'
 
 //Other
 
-import { useAuth } from 'src/hooks/useAuth'
-import { cloneDeep, convertUpdateProductToCart, formatPrice } from 'src/utils'
+import { formatPrice } from 'src/utils'
 import { TItemOrderProduct, TOrderItem } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
-import CustomTextField from 'src/components/text-field'
-import { updateProductToCart } from 'src/stores/order'
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
-import NoData from 'src/components/no-data'
-import { useRouter } from 'next/router'
-import { ROUTE_CONFIG } from 'src/configs/route'
-import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
+import ConfirmDialog from 'src/components/confirm-dialog'
+import { cancelOrderAsync } from 'src/stores/order/action'
+import { ORDER_STATUS } from 'src/configs/order'
+import { Chip } from '@mui/material'
+
 
 type TProps = {
     orderData: TOrderItem
@@ -43,26 +40,49 @@ const OrderCard: NextPage<TProps> = (props) => {
     const { orderData } = props
 
     //States
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
+    const [openCancelDialog, setOpenCancelDialog] = useState<boolean>(false)
 
     //hooks
-    const { user } = useAuth()
-    const { i18n } = useTranslation();
-    const router = useRouter()
+    const { t } = useTranslation();
+
+    //redux
+    const dispatch: AppDispatch = useDispatch();
+    const {isSuccessCancel } = useSelector((state: RootState) => state.order)
 
     //Theme
     const theme = useTheme();
 
+    const handleConfirm = () => {
+        dispatch(cancelOrderAsync(orderData._id))
+    }
+
+        //cancel order
+        useEffect(() => {
+            if (isSuccessCancel) {
+                setOpenCancelDialog(false)
+            }
+        }, [isSuccessCancel])
+
     return (
         <>
             {/* {loading || isLoading && <Spinner />} */}
+            <ConfirmDialog
+                open={openCancelDialog}
+                onClose={()=>setOpenCancelDialog(false)}
+                handleCancel={()=>setOpenCancelDialog(false)}
+                handleConfirm={handleConfirm}
+                title={t("confirm_cancel_order")}
+                description={t("confirm_cancel_order_description")}
+            />
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 padding: '2rem',
                 borderRadius: '15px',
                 width: "100%",
             }}>
+                <Box>
+                    <Typography>{t((ORDER_STATUS as any)[orderData.status].label)}</Typography>
+                </Box>
                 <Divider />
                 <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
                     {orderData?.orderItems.map((item: TItemOrderProduct) => {
@@ -127,8 +147,17 @@ const OrderCard: NextPage<TProps> = (props) => {
                     gap: 4,
                     mt: 4
                 }}>
+                    {[0, 1].includes(orderData.status) && (
+                        <Button variant="contained"
+                            color='error'
+                            onClick={() => setOpenCancelDialog(true)}
+                            startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                            {t('cancel_order')}
+                        </Button>
+                    )}
                     <Button variant="contained"
-                        color='error'
+                        color='primary'
                         // onClick={() => handleUpdateProductToCart(productData)}
                         startIcon={<IconifyIcon icon="bx:cart" />}
                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
@@ -136,7 +165,7 @@ const OrderCard: NextPage<TProps> = (props) => {
                     </Button>
                     <Button type="submit" variant="outlined"
                         // onClick={() => handleBuyNow(productData)}
-                        startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
+                        startIcon={<IconifyIcon icon="icon-park-outline:view-grid-detail" />}
                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                         {t('view_detail')}
                     </Button>

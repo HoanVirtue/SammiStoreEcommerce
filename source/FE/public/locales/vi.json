@@ -240,5 +240,9 @@
     "wait_delivery": "Chờ vận chuyển",
     "completed": "Hoàn thành",
     "cancelled": "Đã hủy",
+    "cancel_order": "Hủy đơn hàng",
+    "confirm_cancel_order": "Xác nhận hủy đơn hàng",
+    "confirm_cancel_order_description": "Bạn có chắc muốn hủy đơn hàng này không?",
+    "cancel_order_success": "Hủy đơn hàng thành công",
     "view_detail": "Xem chi tiết"
 }   

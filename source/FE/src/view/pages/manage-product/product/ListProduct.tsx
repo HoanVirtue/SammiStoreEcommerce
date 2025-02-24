@@ -337,9 +337,9 @@ const ListProduct: NextPage<TProps> = () => {
             dispatch(resetInitialState())
         } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
             if (openCreateUpdateProduct.id) {
-                toast.error(t(errorMessageCreateUpdate))
+                toast.error(errorMessageCreateUpdate)
             } else {
-                toast.error(t(errorMessageCreateUpdate))
+                toast.error(errorMessageCreateUpdate)
             }
             dispatch(resetInitialState())
         }
@@ -354,7 +354,7 @@ const ListProduct: NextPage<TProps> = () => {
             handleCloseDeleteMultipleDialog()
             setSelectedRow([])
         } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-            toast.error(t("delete_multiple_product_error"))
+            toast.error(errorMessageDeleteMultiple)
             dispatch(resetInitialState())
         }
     }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple])

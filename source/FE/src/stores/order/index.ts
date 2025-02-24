@@ -1,6 +1,6 @@
 // ** Redux Imports
 import { createSlice } from '@reduxjs/toolkit'
-import { createOrderAsync, getAllOrdersAsync, serviceName } from './action'
+import { cancelOrderAsync, createOrderAsync, getAllOrdersAsync, serviceName } from './action'
 
 // ** Action Imports
 
@@ -9,6 +9,9 @@ const initialState = {
   isSuccessCreate: false,
   isErrorCreate: false,
   errorMessageCreate: '',
+  isSuccessCancel: false,
+  isErrorCancel: false,
+  errorMessageCancel: '',
   typeError: '',
   orderItems: [],
   orders: {
@@ -24,30 +27,34 @@ export const orderSlice = createSlice({
     updateProductToCart: (state, action) => {
       state.orderItems = action.payload.orderItems
     },
-    resetInitialState: (state) =>{
+    resetInitialState: (state) => {
       state.isLoading = false
       state.isSuccessCreate = false
       state.isErrorCreate = true
       state.errorMessageCreate = ''
+
+      state.isSuccessCancel = false
+      state.isErrorCancel = true
+      state.errorMessageCancel = ''
       state.typeError = ''
     }
 
   },
   extraReducers: builder => {
-        //get all Order
-        builder.addCase(getAllOrdersAsync.pending, (state, action) => {
-          state.isLoading = true
-        })
-        builder.addCase(getAllOrdersAsync.fulfilled, (state, action) => {
-          state.isLoading = false
-          state.orders.data = Array.isArray(action?.payload?.data?.orders) ? action?.payload?.data?.orders : [];
-          state.orders.total = action?.payload?.data?.totalCount
-        })
-        builder.addCase(getAllOrdersAsync.rejected, (state, action) => {
-          state.isLoading = false
-          state.orders.data = []
-          state.orders.total = 0
-        })
+    //get all Order
+    builder.addCase(getAllOrdersAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(getAllOrdersAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.orders.data = Array.isArray(action?.payload?.data?.orders) ? action?.payload?.data?.orders : [];
+      state.orders.total = action?.payload?.data?.totalCount
+    })
+    builder.addCase(getAllOrdersAsync.rejected, (state, action) => {
+      state.isLoading = false
+      state.orders.data = []
+      state.orders.total = 0
+    })
 
     //create Order
     builder.addCase(createOrderAsync.pending, (state, action) => {
@@ -64,6 +71,23 @@ export const orderSlice = createSlice({
       state.isLoading = false
       state.isErrorCreate = true
       state.errorMessageCreate = action?.error?.message || 'Error creating Order'
+    })
+
+    //cancel Order
+    builder.addCase(cancelOrderAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(cancelOrderAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.isSuccessCancel = !!action.payload?.data?._id
+      state.isErrorCancel = !action.payload?.data?._id
+      state.errorMessageCancel = action.payload?.message
+      state.typeError = action.payload?.typeError
+    })
+    builder.addCase(cancelOrderAsync.rejected, (state, action) => {
+      state.isLoading = false
+      state.isErrorCancel = true
+      state.errorMessageCancel = action?.error?.message || 'Error cancelling Order'
     })
   }
 })

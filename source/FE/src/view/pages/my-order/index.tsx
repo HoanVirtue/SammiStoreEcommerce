@@ -1,13 +1,13 @@
 "use client"
 
 //React
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
 
 //MUI
-import { Avatar, Button, Checkbox, Divider, Grid, IconButton, styled, Tab, Tabs, Tooltip, Typography, useTheme } from '@mui/material'
+import { styled, Tab, Tabs, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -22,15 +22,9 @@ import { useDispatch, useSelector } from 'react-redux'
 //Other
 
 import { useAuth } from 'src/hooks/useAuth'
-import { cloneDeep, convertUpdateProductToCart, formatPrice } from 'src/utils'
-import { TItemOrderProduct, TOrderItem } from 'src/types/order'
-import IconifyIcon from 'src/components/Icon'
-import CustomTextField from 'src/components/text-field'
-import { updateProductToCart } from 'src/stores/order'
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
+import { TOrderItem } from 'src/types/order'
 import NoData from 'src/components/no-data'
 import { useRouter } from 'next/router'
-import { ROUTE_CONFIG } from 'src/configs/route'
 import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
 import { getAllOrdersAsync } from 'src/stores/order/action'
 import OrderCard from './components/OrderCard'
@@ -38,6 +32,8 @@ import CustomPagination from 'src/components/custom-pagination'
 import { TabsProps } from '@mui/material'
 import Spinner from 'src/components/spinner'
 import SearchField from 'src/components/search-field'
+import toast from 'react-hot-toast'
+import { resetInitialState } from 'src/stores/order'
 
 type TProps = {}
 
@@ -72,7 +68,7 @@ const MyOrderPage: NextPage<TProps> = () => {
 
     //Dispatch
     const dispatch: AppDispatch = useDispatch();
-    const { orders, isLoading } = useSelector((state: RootState) => state.order)
+    const { orders, isLoading, isErrorCancel, isSuccessCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
 
     const STATUS_OPTION = [
         {
@@ -118,10 +114,22 @@ const MyOrderPage: NextPage<TProps> = () => {
         handleGetListOrder();
     }, [page, pageSize, selectedStatus, searchBy]);
 
+    //cancel order
+    useEffect(() => {
+        if (isSuccessCancel) {
+            toast.success(t("cancel_order_success"))
+            handleGetListOrder()
+            dispatch(resetInitialState())
+        } else if (isErrorCancel && errorMessageCancel) {
+            toast.error(errorMessageCancel)
+            dispatch(resetInitialState())
+        }
+    }, [isSuccessCancel, isErrorCancel, errorMessageCancel])
+
     return (
         <>
             {isLoading && <Spinner />}
-            <Box sx={{ml: '2rem', mt: '1rem'}}>
+            <Box sx={{ ml: '2rem', mt: '1rem' }}>
                 <StyledTabs
                     value={selectedStatus}
                     onChange={handleChange}

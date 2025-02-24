@@ -234,9 +234,9 @@ const ListProductCategory: NextPage<TProps> = () => {
             dispatch(resetInitialState())
         } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
             if (openCreateUpdateProductCategory.id) {
-                toast.error(t(errorMessageCreateUpdate))
+                toast.error(errorMessageCreateUpdate)
             } else {
-                toast.error(t(errorMessageCreateUpdate))
+                toast.error(errorMessageCreateUpdate)
             }
             dispatch(resetInitialState())
         }
@@ -251,7 +251,7 @@ const ListProductCategory: NextPage<TProps> = () => {
             handleCloseDeleteMultipleDialog()
             setSelectedRow([])
         } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-            toast.error(t("delete_multiple_product_category_error"))
+            toast.error(errorMessageDeleteMultiple)
             dispatch(resetInitialState())
         }
     }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple])
@@ -264,7 +264,7 @@ const ListProductCategory: NextPage<TProps> = () => {
             dispatch(resetInitialState())
             handleCloseDeleteDialog()
         } else if (isErrorDelete && errorMessageDelete) {
-            toast.error(t(errorMessageDelete))
+            toast.error(errorMessageDelete)
             dispatch(resetInitialState())
         }
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete])

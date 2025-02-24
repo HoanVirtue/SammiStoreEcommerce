@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { createOrder, getAllOrders } from "src/services/order";
+import { cancelOrder, createOrder, getAllOrders } from "src/services/order";
 import { TParamsCreateOrder, TParamsGetAllOrders } from "src/types/order";
 
 export const serviceName = 'order'
@@ -11,5 +11,10 @@ export const getAllOrdersAsync = createAsyncThunk(`${serviceName}/get-all-by-me`
 
 export const createOrderAsync = createAsyncThunk(`${serviceName}/create`, async (data: TParamsCreateOrder) => {
     const response = await createOrder(data)
+    return response
+})
+
+export const cancelOrderAsync = createAsyncThunk(`${serviceName}/cancel`, async (id: string) => {
+    const response = await cancelOrder(id)
     return response
 })

@@ -6,6 +6,7 @@ export const serviceName = 'order'
 
 export const getAllOrdersAsync = createAsyncThunk(`${serviceName}/get-all-by-me`, async (data: { params: TParamsGetAllOrders }) => {
     const response = await getAllOrders(data)
+    console.log("re", response)
     return response
 })
 

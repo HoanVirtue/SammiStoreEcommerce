@@ -78,7 +78,8 @@ const ProductCard = (props: TProductCard) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
         const discountItem = item.discountStartDate && item.discountEndDate && isExpired(item?.discountStartDate, item.discountEndDate) ? item.discount : 0
-
+        
+        console.log("productCat", {item})
         const listOrderItems = convertUpdateProductToCart(orderItems, {
             name: item?.name,
             amount: 1,
@@ -88,6 +89,7 @@ const ProductCard = (props: TProductCard) => {
             product: item._id,
             slug: item?.slug
         })
+        console.log("listOrderItems", {listOrderItems})
         if (user?._id) {
             dispatch(
                 updateProductToCart({

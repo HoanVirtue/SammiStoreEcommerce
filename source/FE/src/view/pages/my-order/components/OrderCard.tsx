@@ -1,13 +1,13 @@
 "use client"
 
 //React
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
 
 //MUI
-import { Avatar, Button, Divider,Typography, useTheme } from '@mui/material'
+import { Avatar, Button, Divider, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -21,13 +21,19 @@ import { useDispatch, useSelector } from 'react-redux'
 
 //Other
 
-import { formatPrice } from 'src/utils'
+import { convertUpdateMultipleProductsCard, convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils'
 import { TItemOrderProduct, TOrderItem } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import { cancelOrderAsync } from 'src/stores/order/action'
 import { ORDER_STATUS } from 'src/configs/order'
 import { Chip } from '@mui/material'
+import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
+import { TProduct } from 'src/types/product'
+import { updateProductToCart } from 'src/stores/order'
+import { useAuth } from 'src/hooks/useAuth'
+import { useRouter } from 'next/router'
+import { ROUTE_CONFIG } from 'src/configs/route'
 
 
 type TProps = {
@@ -44,10 +50,12 @@ const OrderCard: NextPage<TProps> = (props) => {
 
     //hooks
     const { t } = useTranslation();
+    const { user } = useAuth()
+    const router = useRouter()
 
     //redux
     const dispatch: AppDispatch = useDispatch();
-    const {isSuccessCancel } = useSelector((state: RootState) => state.order)
+    const { isSuccessCancel, orderItems } = useSelector((state: RootState) => state.order)
 
     //Theme
     const theme = useTheme();
@@ -56,20 +64,55 @@ const OrderCard: NextPage<TProps> = (props) => {
         dispatch(cancelOrderAsync(orderData._id))
     }
 
-        //cancel order
-        useEffect(() => {
-            if (isSuccessCancel) {
-                setOpenCancelDialog(false)
+    const handleUpdateProductToCart = (items: TItemOrderProduct[]) => {
+        const productCart = getLocalProductFromCart()
+        const parseData = productCart ? JSON.parse(productCart) : {}
+        const listOrderItems = convertUpdateMultipleProductsCard(orderItems, items)
+
+
+        if (user?._id) {
+            dispatch(
+                updateProductToCart({
+                    orderItems: listOrderItems
+                })
+            )
+            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
+        }
+    }
+
+    const handleBuyAgain = () => {
+        handleUpdateProductToCart(orderData.orderItems)
+        router.push({
+            pathname: ROUTE_CONFIG.MY_CART,
+            query: {
+                selected: orderData?.orderItems?.map((item: TItemOrderProduct) => item.product)
             }
-        }, [isSuccessCancel])
+        }, ROUTE_CONFIG.MY_CART)
+    }
+
+    const handleNavigateDetail = () => {
+        router.push(`${ROUTE_CONFIG.MY_ORDER}/${orderData._id}`)
+    }
+
+
+    //cancel order
+    useEffect(() => {
+        if (isSuccessCancel) {
+            setOpenCancelDialog(false)
+        }
+    }, [isSuccessCancel])
+
+    const memoDisableBuyAgain = useMemo(()=>{
+        // return orderData.orderItems?.some((item)=> !item.product.countInStock)
+    },[orderData.orderItems])
 
     return (
         <>
             {/* {loading || isLoading && <Spinner />} */}
             <ConfirmDialog
                 open={openCancelDialog}
-                onClose={()=>setOpenCancelDialog(false)}
-                handleCancel={()=>setOpenCancelDialog(false)}
+                onClose={() => setOpenCancelDialog(false)}
+                handleCancel={() => setOpenCancelDialog(false)}
                 handleConfirm={handleConfirm}
                 title={t("confirm_cancel_order")}
                 description={t("confirm_cancel_order_description")}
@@ -80,14 +123,14 @@ const OrderCard: NextPage<TProps> = (props) => {
                 borderRadius: '15px',
                 width: "100%",
             }}>
-                <Box>
-                    <Typography>{t((ORDER_STATUS as any)[orderData.status].label)}</Typography>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, fontWeight: 600 }}>
+                    <Typography sx={{ color: theme.palette.primary.main }}>{t((ORDER_STATUS as any)[orderData.status].label)}</Typography>
                 </Box>
                 <Divider />
                 <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
                     {orderData?.orderItems.map((item: TItemOrderProduct) => {
                         return (
-                            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-start", gap: 3 }}>
+                            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-start", gap: 3 }} key={item.product}>
                                 <Box sx={{ border: `1px solid ${theme.palette.customColors.borderColor}`, height: 'fit-content' }}>
                                     <Avatar src={item?.image} sx={{ width: "80px", height: "80px" }} />
                                 </Box>
@@ -158,13 +201,14 @@ const OrderCard: NextPage<TProps> = (props) => {
                     )}
                     <Button variant="contained"
                         color='primary'
-                        // onClick={() => handleUpdateProductToCart(productData)}
+                        onClick={() => handleBuyAgain()}
+                        // disabled={!orderData?.countInStock}
                         startIcon={<IconifyIcon icon="bx:cart" />}
                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                         {t('buy_again')}
                     </Button>
                     <Button type="submit" variant="outlined"
-                        // onClick={() => handleBuyNow(productData)}
+                        onClick={() => handleNavigateDetail()}
                         startIcon={<IconifyIcon icon="icon-park-outline:view-grid-detail" />}
                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                         {t('view_detail')}

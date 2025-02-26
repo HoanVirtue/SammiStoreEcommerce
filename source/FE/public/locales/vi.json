@@ -75,6 +75,7 @@
     "save": "Lưu",
     "cancel": "Hủy",
     "confirm": "Xác nhận",
+    "cart": "Giỏ hàng",
     "add": "Thêm",
     "edit": "Sửa",
     "enter_email": "Mời bạn nhập email!",
@@ -235,6 +236,8 @@
     "order_history": "Lịch sử đặt hàng",
     "no_shipping_address": "Không có thông tin về địa chỉ giao hàng",
     "buy_again": "Mua lại",
+    "username": "Tên người dùng",
+    "guest_name": "Tên khách hàng",
     "all": "Tất cả",
     "wait_payment": "Chờ thanh toán",
     "wait_delivery": "Chờ vận chuyển",
@@ -244,5 +247,7 @@
     "confirm_cancel_order": "Xác nhận hủy đơn hàng",
     "confirm_cancel_order_description": "Bạn có chắc muốn hủy đơn hàng này không?",
     "cancel_order_success": "Hủy đơn hàng thành công",
+    "upload_product_image": "Tải hình ảnh sản phẩm",
+    "select_all": "Chọn tất cả",
     "view_detail": "Xem chi tiết"
 }   

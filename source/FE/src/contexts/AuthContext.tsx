@@ -58,7 +58,6 @@ const AuthProvider = ({ children }: Props) => {
           .then(async response => {
             setLoading(false)
             setUser({ ...response.data.data })
-
           })
           .catch(() => {
             removeLocalUserData()
@@ -79,19 +78,20 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    loginAuth({ email: params.email, password: params.password })
+    loginAuth({ username: params.username, password: params.password })
       .then(async response => {
         if (params.rememberMe) {
-          setLocalUserData(
-            JSON.stringify(response.data.user),
-            response.data.access_token,
-            response.data.refresh_token)
+          // setLocalUserData(
+          //   JSON.stringify(response.data.user),
+          //   response.data.access_token,
+          //   response.data.refresh_token)
         } else {
-          setTemporaryToken(response.data.access_token)
+          console.log("resss", response)
+          setTemporaryToken(response.result.access_token)
         }
         toast.success('Login success')
         const returnUrl = router.query.returnUrl
-        setUser({ ...response.data.user })
+        // setUser({ ...response.data.user })
         // params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.user)) : null
         const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
         router.replace(redirectURL as string)

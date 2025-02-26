@@ -1,5 +1,5 @@
 export type TLoginAuth = {
-    email: string,
+    username: string,
     password: string
 }
 

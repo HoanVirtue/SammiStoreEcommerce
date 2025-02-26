@@ -254,5 +254,6 @@
     "write_review": "Đánh giá sản phẩm",
     "star": "Số sao",
     "order_has_been_delivered": "Đơn hàng đã được giao thành công",
-    "view_detail": "Xem chi tiết"
+    "view_detail": "Xem chi tiết",
+    "required_username": "Tên người dùng không được bỏ trống"
 }   

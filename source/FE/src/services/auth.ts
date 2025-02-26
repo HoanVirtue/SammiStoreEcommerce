@@ -10,6 +10,7 @@ import { TChangePassword, TLoginAuth, TRegisterAuth } from "src/types/auth"
 export const loginAuth = async (data: TLoginAuth) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.AUTH.INDEX}/login`, data)
+        console.log("log res",res)
         return res.data
     } catch (error) {
         return null

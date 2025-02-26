@@ -22,7 +22,7 @@ import CustomTextField from 'src/components/text-field'
 import IconifyIcon from 'src/components/Icon'
 
 //Configs
-import { EMAIL_REG, PASSWORD_REG } from 'src/configs/regex'
+import { PASSWORD_REG } from 'src/configs/regex'
 
 //Images
 import LoginDark from '/public/images/login-dark.png'
@@ -41,7 +41,7 @@ import { useTranslation } from '../../../../node_modules/react-i18next'
 type TProps = {}
 
 interface IDefaultValues {
-    email: string
+    username: string
     password: string
 }
 
@@ -60,11 +60,9 @@ const LoginPage: NextPage<TProps> = () => {
     const { t } = useTranslation()
 
     const schema = yup.object().shape({
-        // email: yup.string().email().required(t("required_email")),
-        email: yup
+        username: yup
             .string()
-            .required(t("required_email"))
-            .matches(EMAIL_REG, t("incorrect_email_format")),
+            .required(t("required_username")),
         password: yup
             .string()
             .required(t("required_password"))
@@ -73,17 +71,18 @@ const LoginPage: NextPage<TProps> = () => {
 
     const { handleSubmit, control, formState: { errors }, setError } = useForm({
         defaultValues: {
-            email: '',
+            username: '',
             password: ''
         },
         mode: 'onChange',
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = (data: { email: string, password: string }) => {
+    const onSubmit = (data: { username: string, password: string }) => {
         if (!Object.keys(errors)?.length) {
             login({ ...data, rememberMe: isRemember }, (err) => {
-                if (err?.response?.data?.typeError !== "") {
+                console.log(err, "err");
+                if (err?.response?.errors !== "") {
                     toast.error(err?.response?.message)
                 }
             })
@@ -145,16 +144,16 @@ const LoginPage: NextPage<TProps> = () => {
                                     <CustomTextField
                                         required
                                         fullWidth
-                                        label={t("email")}
+                                        label={t("username")}
                                         onChange={onChange}
                                         onBlur={onBlur}
                                         value={value}
-                                        placeholder={t("enter_email")}
-                                        error={errors.email ? true : false}
-                                        helperText={errors.email?.message}
+                                        placeholder={t("enter_username")}
+                                        error={errors.username ? true : false}
+                                        helperText={errors.username?.message}
                                     />
                                 )}
-                                name='email'
+                                name='username'
                             />
                         </Box>
                         <Box sx={{ mt: 4}}  width={{ md: '18rem', xs: '20rem' }}>

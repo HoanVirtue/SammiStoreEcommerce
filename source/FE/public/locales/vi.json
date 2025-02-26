@@ -244,5 +244,7 @@
     "confirm_cancel_order": "Xác nhận hủy đơn hàng",
     "confirm_cancel_order_description": "Bạn có chắc muốn hủy đơn hàng này không?",
     "cancel_order_success": "Hủy đơn hàng thành công",
-    "view_detail": "Xem chi tiết"
+    "view_detail": "Xem chi tiết",
+    "required_username": "Tên người dùng không được bỏ trống",
+    "username": "Tên người dùng"
 }   

@@ -40,6 +40,7 @@ import { ORDER_STATUS } from 'src/configs/order'
 import { getOrderDetail } from 'src/services/order'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
+import city from 'src/stores/city';
 
 type TProps = {}
 
@@ -202,7 +203,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('shipping_address')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.shippingAddress.address}
+                                {orderData?.shippingAddress?.address}{' '}{orderData?.shippingAddress?.city?.name}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
@@ -210,15 +211,15 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('phone_number')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.shippingAddress.phone}
+                                {orderData?.shippingAddress?.phone}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", width: '200px' }}>
-                                {t('guest_name')}
+                                {t('customer_name')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.shippingAddress.fullName}
+                                {orderData?.shippingAddress?.fullName}
                             </Typography>
                         </Box>
                     </Box>

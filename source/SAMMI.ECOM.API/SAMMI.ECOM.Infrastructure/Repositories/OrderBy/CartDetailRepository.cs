@@ -7,6 +7,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface ICartDetailRepository : ICrudRepository<CartDetail>
     {
         Task<CartDetail> GetByCartIdAndProductId(int cartId, int productId);
+        Task<CartDetail> GetByUserIdAndProductId(int userId, int productId);
     }
     public class CartDetailRepository : CrudRepository<CartDetail>, ICartDetailRepository, IDisposable
     {
@@ -25,6 +26,13 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         public async Task<CartDetail> GetByCartIdAndProductId(int cartId, int productId)
         {
             return await _context.CartDetails.SingleOrDefaultAsync(x => x.CartId == cartId && x.ProductId == productId && x.IsDeleted != true);
+        }
+
+        public async Task<CartDetail> GetByUserIdAndProductId(int userId, int productId)
+        {
+            return await _context.CartDetails
+                .Include(x => x.Cart)
+                .SingleOrDefaultAsync(x => x.Cart.CustomerId == userId && x.ProductId == productId && x.IsDeleted != true);
         }
     }
 }

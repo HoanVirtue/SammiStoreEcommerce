@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
@@ -17,8 +18,11 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
     }
     public class CartQueries : QueryRepository<Cart>, ICartQueries
     {
-        public CartQueries(SammiEcommerceContext context) : base(context)
+
+        public CartQueries(SammiEcommerceContext context,
+            UserIdentity identity) : base(context)
         {
+            UserIdentity = identity;
         }
 
         public Task<IEnumerable<CartDTO>> GetAll(RequestFilterModel? filterModel = null)

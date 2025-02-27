@@ -7,6 +7,7 @@ using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Users;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Repositories.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Responses;
@@ -46,14 +47,18 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
                 return ActionResponse<AuthTokenResult>.Failed("The user identifier parameter is not allow null");
             }
 
-            EmployeeDTO? user;
+            UserDTO? user;
             if (!string.IsNullOrWhiteSpace(request.Username))
             {
-                user = _userQueries.FindByUsername(request.Username);
+                user = request.TypeUser == TypeUserEnum.Employee ?
+                        _userQueries.FindByUsername(request.Username) :
+                        _userQueries.FindCustomerByUsername(request.Username);
             }
             else
             {
-                user = _userQueries.FindById(request.UserId!.Value);
+                user = request.TypeUser == TypeUserEnum.Employee ?
+                        _userQueries.FindById(request.UserId!.Value) :
+                        _userQueries.FindCustomerById(request.UserId!.Value);
             }
 
             if (user == null)

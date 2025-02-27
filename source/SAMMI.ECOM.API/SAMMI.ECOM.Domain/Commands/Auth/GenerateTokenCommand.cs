@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.DomainModels.Auth;
+using SAMMI.ECOM.Domain.Enums;
 
 namespace SAMMI.ECOM.Domain.Commands.Auth
 {
@@ -8,6 +9,7 @@ namespace SAMMI.ECOM.Domain.Commands.Auth
     {
         public string? Username { get; set; }
         public int? UserId { get; set; }
+        public TypeUserEnum TypeUser { get; set; }
         public GenerateTokenCommand()
         {
 

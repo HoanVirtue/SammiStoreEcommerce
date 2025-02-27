@@ -5,6 +5,7 @@ using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.Commands.Auth;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.ModelViews;
 using SAMMI.ECOM.I18N.Auths;
 using SAMMI.ECOM.Infrastructure.Repositories;
@@ -54,6 +55,7 @@ namespace SAMMI.ECOM.API.Controllers
                 var genrateTokenResult = await _mediator.Send(new GenerateTokenCommand
                 {
                     Username = request.Username,
+                    TypeUser = request.IsEmployee == true ? TypeUserEnum.Employee : TypeUserEnum.Customer,
                 });
 
                 if (genrateTokenResult.IsSuccess)

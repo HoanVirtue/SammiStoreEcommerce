@@ -9,6 +9,14 @@ namespace SAMMI.ECOM.Domain.Enums
         Supplier
     }
 
+    public enum RoleTypeEnum
+    {
+        ADMIN,
+        MANAGER,
+        EMPLOYEE,
+        CUSTOMER
+    }
+
     public enum CodeEnum
     {
         [Description("KH")]

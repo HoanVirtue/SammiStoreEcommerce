@@ -5,6 +5,7 @@ using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
@@ -15,23 +16,28 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly ICartRepository _cartRepository;
         private readonly ICartDetailRepository _cartDetailRepository;
         private readonly IProductRepository _productRepository;
-
+        private readonly IConfiguration _config;
+        private readonly ICartDetailQueries _detailQueries;
         public CreateCartCommandHandler(
             ICartRepository cartRepository,
             ICartDetailRepository cartDetailRepository,
             IProductRepository productRepository,
+            IConfiguration config,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
             _cartRepository = cartRepository;
             _cartDetailRepository = cartDetailRepository;
             _productRepository = productRepository;
+            _config = config;
         }
+
+        private string GetCartKey(int userId) => $"{_config["RedisOptions:cart_key"]}{userId}";
 
         public override async Task<ActionResponse<CartDetailDTO>> Handle(CreateCartDetailCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<CartDetailDTO>();
-            if (_currentUser.Id == null || request.Id == 0)
+            if (_currentUser.Id == null && request.Id == 0)
             {
                 actResponse.AddError("Vui lòng đăng nhập hệ thống");
                 return actResponse;
@@ -67,6 +73,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
                 var createResponse = await _cartDetailRepository.CreateAndSave(request);
                 actResponse.Combine(createResponse);
+                if (!actResponse.IsSuccess)
+                {
+                    return actResponse;
+                }
+
                 actResponse.SetResult(_mapper.Map<CartDetailDTO>(createResponse.Result));
             }
             else
@@ -77,10 +88,17 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 }
                 else if (request.Operation == OperationTypeEnum.Subtract)
                 {
-                    detail.Quantity -= request.Quantity;
+                    int quantity = detail.Quantity - request.Quantity;
+                    if (quantity < 1)
+                    {
+                        quantity = 1;
+                    }
+                    detail.Quantity = quantity;
                 }
                 else if (request.Operation == OperationTypeEnum.Replace)
                 {
+                    if (request.Quantity < 1)
+                        request.Quantity = 1;
                     detail.Quantity = request.Quantity;
                 }
 
@@ -90,7 +108,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.Combine(updateRes);
                 actResponse.SetResult(_mapper.Map<CartDetailDTO>(updateRes.Result));
             }
-
+            _detailQueries.CacheCart(_currentUser.Id);
             return actResponse;
         }
     }

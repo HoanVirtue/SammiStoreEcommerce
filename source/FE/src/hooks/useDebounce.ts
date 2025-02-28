@@ -1,19 +1,20 @@
 import { useEffect, useState } from "react";
 
-
-const useDebounce = (value: any, delay: number) => {
-    const [debouncedValue, setDebouncedValue] = useState('');
+// Generic type để hỗ trợ cả giá trị đơn và mảng
+const useDebounce = <T>(value: T, delay: number): T => {
+    const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
     useEffect(() => {
-        const timerRef = setTimeout(() =>
-            setDebouncedValue(value)
-        ,delay)
+        const timerRef = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
         return () => {
-            clearTimeout(timerRef)
-        }
-    }, [value]);
+            clearTimeout(timerRef);
+        };
+    }, [value, delay]);
 
     return debouncedValue;
-}
+};
 
-export {useDebounce}
+export { useDebounce };

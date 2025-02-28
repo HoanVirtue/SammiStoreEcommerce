@@ -23,12 +23,12 @@ export const createProvince = async (data: TParamsCreateProvince) => {
 
 
 export const updateProvince = async (data: TParamsUpdateProvince) => {
-    const { id, ...rests } = data
+    // const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/${id}`, rests)
+        const res = await instance.put(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/${data.id}`, data)
         return res.data
     } catch (error: any) {
-        return error?.response?.data
+        return error
     }
 }
 

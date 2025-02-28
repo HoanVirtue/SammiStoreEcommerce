@@ -216,7 +216,7 @@ const UserMenu = (props: TProps) => {
                     </Box>
                 </Box>
                 <Divider />
-                {userPermission.length > 0 && (
+                {!userPermission.length && (
                     <MenuItem onClick={handleNavigateManageSystem}
                         sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                         <IconifyIcon icon="tdesign:system-setting" />

@@ -172,7 +172,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) =>
                         </Badge>
                     </IconButton>
                     {
-                        user
+                        !user
                             ? (<UserMenu />)
                             : (
                                 <Button onClick={handleNavigateLogin}

@@ -20,15 +20,15 @@ export type TParamsGetAllProvinces = {
 export type TParamsCreateProvince = {
     // id: number;
     name?: string;
-    // postalCode?: string;
-    // country?: string;
+    postalCode?: string;
+    code?: string;
 }
 
 export type TParamsUpdateProvince = {
     id: string,
     name?: string,
-    // postalCode?: string,
-    // country?: string
+    postalCode?: string,
+    code?: string
 }
 
 export type TParamsDeleteProvince = {

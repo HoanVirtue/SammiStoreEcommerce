@@ -17,7 +17,7 @@ const GridUpdate = (props: TGridUpdate) => {
     return (
         <Tooltip title="Chỉnh sửa">
             <IconButton onClick={onClick} disabled={disabled}>
-                <IconifyIcon icon="lucide:edit" />
+                <IconifyIcon icon="hugeicons:task-edit-01" />
             </IconButton>
         </Tooltip>
     )

@@ -86,7 +86,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.Select("t3.Name AS ProductName, t3.NewPrice AS Price");
 
                     sqlBuilder.InnerJoin("Cart t2 ON t1.CartId = t2.Id AND t2.IsDeleted != 1");
-                    sqlBuilder.InnerJoin("Product t3 ON t2.ProductId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("Product t3 ON t1.ProductId = t3.Id AND t3.IsDeleted != 1");
                     sqlBuilder.Where("t2.CustomerId = @userId", new { userId = UserIdentity.Id });
 
                     return conn.QueryAsync<CartDetailDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);

@@ -78,6 +78,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
             {
+                await _cartDetailQueries.CacheCart(UserIdentity.Id);
                 return Ok(response);
             }
             return BadRequest(response);
@@ -91,12 +92,12 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 return BadRequest("Không tồn tại sản phẩm trong giỏ hàng");
             }
-            var removeRes = _detailRepository.DeleteAndSave(cartDetail);
+            var removeRes = _detailRepository.DeleteAndSave(cartDetail.Id);
             if (!removeRes.IsSuccess)
             {
                 return BadRequest(removeRes);
             }
-            _cartDetailQueries.CacheCart(UserIdentity.Id);
+            await _cartDetailQueries.CacheCart(UserIdentity.Id);
             return Ok(removeRes);
         }
     }

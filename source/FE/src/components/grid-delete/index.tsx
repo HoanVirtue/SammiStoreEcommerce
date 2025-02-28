@@ -17,7 +17,7 @@ const GridDelete = (props: TGridDelete) => {
     return (
         <Tooltip title="Xóa">
             <IconButton onClick={onClick} disabled={disabled}>
-                <IconifyIcon icon="ic:outline-delete" />
+                <IconifyIcon icon="fluent:delete-48-regular" />
             </IconButton>
         </Tooltip>
     )

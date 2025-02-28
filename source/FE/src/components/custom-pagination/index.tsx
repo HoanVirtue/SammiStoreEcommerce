@@ -21,12 +21,15 @@ const StyledPagination = styled(Pagination)<PaginationProps>(({ theme }) => ({
             flex: 1,
             width: "100% !important"
         }
-    }
+    },
+    "& .MuiPagination-ul": {
+    flexWrap: "nowrap",
+  },
 }))
 
 const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) => {
     const { page, pageSize, rowLength, pageSizeOptions, onChangePagination, isHidden, ...rests } = props
-    
+
     const { t } = useTranslation();
 
     const pageCount = Math.ceil(rowLength / pageSize);
@@ -49,7 +52,7 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
                         <Box>
                             <span>{t('Đang hiển thị ')}</span>
                             <span className='font-bold'>
-                                {page === 1 ? page : 1 + pageSize}
+                                {page === 1 ? page : (page - 1) * pageSize + 1}
                                 {' - '}
                             </span>
                             <span className='font-bold'>
@@ -94,7 +97,13 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
                         })}
                     </Select>
                 </Box>
-                <StyledPagination color='primary' count={pageCount} page={page} onChange={handlePageChange} {...rests} />
+                <StyledPagination color='primary' count={pageCount} page={page}
+                    siblingCount={1}
+                    boundaryCount={1}
+                    showFirstButton
+                    showLastButton
+                    onChange={handlePageChange}
+                    {...rests} />
             </Box>
         </Box>
     );

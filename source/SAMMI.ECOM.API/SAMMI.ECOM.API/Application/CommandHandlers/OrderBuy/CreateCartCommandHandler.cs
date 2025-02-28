@@ -23,6 +23,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             ICartDetailRepository cartDetailRepository,
             IProductRepository productRepository,
             IConfiguration config,
+            ICartDetailQueries detailQueries,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -30,9 +31,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             _cartDetailRepository = cartDetailRepository;
             _productRepository = productRepository;
             _config = config;
+            _detailQueries = detailQueries;
         }
 
-        private string GetCartKey(int userId) => $"{_config["RedisOptions:cart_key"]}{userId}";
 
         public override async Task<ActionResponse<CartDetailDTO>> Handle(CreateCartDetailCommand request, CancellationToken cancellationToken)
         {
@@ -42,7 +43,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.AddError("Vui lòng đăng nhập hệ thống");
                 return actResponse;
             }
-            if (!_productRepository.IsExisted(request.ProductId))
+
+            var productExist = await _productRepository.FindById(request.ProductId);
+            if (productExist == null)
             {
                 actResponse.AddError("Sản phẩm không tồn tại.");
                 return actResponse;
@@ -84,7 +87,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             {
                 if (request.Operation == OperationTypeEnum.Add)
                 {
-                    detail.Quantity += request.Quantity;
+                    int quantity = detail.Quantity + request.Quantity;
+                    if (quantity > productExist.StockQuantity)
+                    {
+                        quantity = productExist.StockQuantity;
+                    }
+                    detail.Quantity = quantity;
                 }
                 else if (request.Operation == OperationTypeEnum.Subtract)
                 {
@@ -97,8 +105,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 }
                 else if (request.Operation == OperationTypeEnum.Replace)
                 {
+                    if (request.Quantity > productExist.StockQuantity)
+                        request.Quantity = productExist.StockQuantity;
                     if (request.Quantity < 1)
                         request.Quantity = 1;
+
                     detail.Quantity = request.Quantity;
                 }
 
@@ -108,7 +119,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.Combine(updateRes);
                 actResponse.SetResult(_mapper.Map<CartDetailDTO>(updateRes.Result));
             }
-            _detailQueries.CacheCart(_currentUser.Id);
+
+
             return actResponse;
         }
     }

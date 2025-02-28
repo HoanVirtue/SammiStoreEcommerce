@@ -75,6 +75,7 @@
     "save": "Lưu",
     "cancel": "Hủy",
     "confirm": "Xác nhận",
+    "cart": "Giỏ hàng",
     "add": "Thêm",
     "edit": "Sửa",
     "enter_email": "Mời bạn nhập email!",
@@ -94,7 +95,8 @@
     "remember_me": "Nhớ mật khẩu",
     "or": "hoặc",
     "name": "Tên",
-    "phone": "Số diện thoại",
+    "fullname": "Họ tên",
+    "phone": "Số điện thoại",
     "fav_product": "Sản phẩm yêu thích",
     "change_product_image": "Thay đổi hình ảnh sản phẩm",
     "no_review": "(0 đánh giá)",
@@ -235,6 +237,8 @@
     "order_history": "Lịch sử đặt hàng",
     "no_shipping_address": "Không có thông tin về địa chỉ giao hàng",
     "buy_again": "Mua lại",
+    "username": "Tên người dùng",
+    "customer_name": "Tên khách hàng",
     "all": "Tất cả",
     "wait_payment": "Chờ thanh toán",
     "wait_delivery": "Chờ vận chuyển",
@@ -258,5 +262,6 @@
     "filters": "Bộ lọc",
     "density": "Mật độ",
     "filter_value": "Thông tin cần lọc",
-    "username": "Tên người dùng"
+    "upload_product_image": "Tải hình ảnh sản phẩm",
+    "select_all": "Chọn tất cả"
 }   

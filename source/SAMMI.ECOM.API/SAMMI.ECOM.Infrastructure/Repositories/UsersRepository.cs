@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
+using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
@@ -16,16 +18,19 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
 
         Task SetPasswordHashAsync(User user, string passwordHash,
             CancellationToken cancellationToken = default(CancellationToken));
-
         Task<User?> FindByUserNameAsync(string userName);
+        Task<UserDTO> GetUserById(int id);
     }
     public class UsersRepository : CrudRepository<User>, IUsersRepository, IDisposable
     {
         private readonly SammiEcommerceContext _context;
+        private readonly IMapper _mapper;
         private bool _disposed;
-        public UsersRepository(SammiEcommerceContext context) : base(context)
+        public UsersRepository(SammiEcommerceContext context,
+            IMapper mapper) : base(context)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public void Dispose()
@@ -134,6 +139,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
                     && !x.IsDeleted);
             }
             return user;
+        }
+
+        public async Task<UserDTO> GetUserById(int id)
+        {
+            return _mapper.Map<UserDTO>(await GetByIdAsync(id));
         }
     }
 }

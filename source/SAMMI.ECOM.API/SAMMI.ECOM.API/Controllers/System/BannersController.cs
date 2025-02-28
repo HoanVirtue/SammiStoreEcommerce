@@ -93,7 +93,7 @@ namespace SAMMI.ECOM.API.Controllers.System
             {
                 if (!_bannerRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
                 {
-                    listError[id] = $"Không tồn tại tỉnh/thành phố có mã {id}";
+                    listError[id] = $"Không tồn tại banner có mã {id}";
                 }
             }
             if (listError.Count > 0)

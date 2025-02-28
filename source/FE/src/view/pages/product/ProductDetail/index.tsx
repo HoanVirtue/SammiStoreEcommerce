@@ -471,15 +471,15 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     padding: "8px",
                                     borderRadius: "8px"
                                 }}>
-                                    <Typography variant="h6" sx={{
+                                    {/* <Typography variant="h6" sx={{
                                         color: `rgba(${theme.palette.customColors.main}, 0.68)`,
                                         fontWeight: "bold",
                                         fontSize: "18px"
                                     }}>
                                         {t("related_products")}
-                                    </Typography>
+                                    </Typography> */}
                                 </Box>
-                                <Box sx={{
+                                {/* <Box sx={{
                                     mt: 4,
                                     padding: 5,
                                 }}>
@@ -499,7 +499,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
                                         </Box>
                                     )}
-                                </Box>
+                                </Box> */}
                             </Box>
                         </Grid>
                         <Grid container item md={8} xs={12} sx={{

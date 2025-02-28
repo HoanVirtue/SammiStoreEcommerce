@@ -40,7 +40,7 @@
 
     public class CustomerDTO : UserDTO
     {
-
+        public int RoleId { get; set; }
     }
 
     public class SupplierDTO : UserDTO

@@ -9,7 +9,7 @@
         public string? PaymentStatus { get; set; }
         public string? OrderStatus { get; set; }
         public string? ShippingStatus { get; set; }
-        public int? DiscountId { get; set; }
+        public int? VoucherId { get; set; }
         public string? CustomerAddress { get; set; }
         public decimal? TotalPrice { get; set; }
         public int? TotalQuantity { get; set; }

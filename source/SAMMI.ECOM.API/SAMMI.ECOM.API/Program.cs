@@ -6,6 +6,8 @@ using SAMMI.ECOM.API.Infrastructure;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Infrastructure;
+using SAMMI.ECOM.Infrastructure.Services.Caching;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -71,6 +73,20 @@ builder.Services
 await builder.Services.AddElasticSearch(builder.Configuration);
 
 builder.Services.AddAuthorization();
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(
+                ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisOptions:ConnectionString")));
+
+try
+{
+    var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisOptions:ConnectionString"));
+    builder.Services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+    builder.Services.AddScoped(typeof(IRedisService<>), typeof(RedisService<>));
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error connect Redis: {ex.Message}");
+}
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");

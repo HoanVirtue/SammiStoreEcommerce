@@ -149,9 +149,7 @@ const ProductCart = (props: TProps) => {
                             return (
                                 <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>
                                     <Avatar src={item?.image} />
-                                    <Box sx={{
-
-                                    }}>
+                                    <Box sx={{ ml: 1 }}>
                                         <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.name}</Typography>
                                         <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                             {item?.discount > 0 && (
@@ -181,6 +179,9 @@ const ProductCart = (props: TProps) => {
                                             </Typography>
                                         </Box>
                                     </Box>
+                                    <Typography sx={{ textWrap: "wrap", fontSize: "13px", fontWeight: 600, ml: 2 }}>
+                                        x{item?.amount}
+                                    </Typography>
                                 </StyledMenuItem>
                             )
                         })}

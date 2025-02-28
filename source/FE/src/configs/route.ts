@@ -19,8 +19,8 @@ export const ROUTE_CONFIG = {
         BRAND: '/manage-product/brand'
     },
     MANAGE_ORDER: {
-        ORDER: "/manage-product/order",
-        REVIEW: "/manage-product/review",
+        ORDER: "/manage-order/order",
+        REVIEW: "/manage-order/review",
     },
     SETTING: {
         PAYMENT_METHOD: "/setting/payment-method",

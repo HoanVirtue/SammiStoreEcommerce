@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands.User;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
+using SAMMI.ECOM.Infrastructure.Repositories.Permission;
 using SAMMI.ECOM.Infrastructure.Services.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Helpers;
 using System.Security.Cryptography;
@@ -17,6 +19,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private readonly IUsersRepository _userRepository;
         private readonly IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> _authService;
         private readonly IWardRepository _wardRepository;
+        private readonly IRoleRepository _roleRepository;
+        private readonly IUserRoleRepository _userRoleRepository;
 
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
@@ -24,11 +28,15 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             IUsersRepository userRepository,
             IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
             IWardRepository wardRepository,
+            IRoleRepository roleRepository,
+            IUserRoleRepository userRoleRepository,
             UserIdentity currentUser, IMapper mapper) : base(currentUser, mapper)
         {
             _authService = authService;
             _userRepository = userRepository;
             _wardRepository = wardRepository;
+            _roleRepository = roleRepository;
+            _userRoleRepository = userRoleRepository;
         }
 
         public override async Task<ActionResponse<CustomerDTO>> Handle(CUCustomerCommand request, CancellationToken cancellationToken)
@@ -92,6 +100,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 //mã hóa thuật toán PBKDF2
                 customer.Password = _authService.EncryptPassword(customer.Password!);
                 await _userRepository.SaveChangeAsync();
+
+                UserRole userRole = new UserRole
+                {
+                    UserId = customer.Id,
+                    RoleId = (await _roleRepository.FindByCode(RoleTypeEnum.CUSTOMER.ToString())).Id
+                };
+                await _userRoleRepository.CreateAndSave(userRole);
 
                 actionResponse.SetResult(_mapper.Map<CustomerDTO>(customer));
             }

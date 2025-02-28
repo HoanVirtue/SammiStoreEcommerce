@@ -1,5 +1,7 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.User;
 using SAMMI.ECOM.Domain.Enums;
@@ -17,11 +19,15 @@ namespace SAMMI.ECOM.API.Controllers
         public UsersController(
             IUsersQueries usersQueries,
             IUsersRepository usersRepository,
+            IMapper mapper,
+            UserIdentity currentUser,
             IMediator mediator,
             ILogger<UsersController> logger) : base(mediator, logger)
         {
             _usersQueries = usersQueries;
             _userRepository = usersRepository;
+            Mapper = mapper;
+            UserIdentity = currentUser;
         }
 
         [HttpGet("employee")]
@@ -202,6 +208,12 @@ namespace SAMMI.ECOM.API.Controllers
         public async Task<IActionResult> GetCodeByLastIdAsync([FromQuery] CodeEnum type = CodeEnum.Employee)
         {
             return Ok(await _usersQueries.GetCodeByLastId(type));
+        }
+
+        [HttpGet("get-current-user")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            return Ok(await _userRepository.GetUserById(UserIdentity.Id));
         }
     }
 }

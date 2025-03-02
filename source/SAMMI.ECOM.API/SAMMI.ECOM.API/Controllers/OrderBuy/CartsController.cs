@@ -46,6 +46,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var cartKey = $"{_config["RedisOptions:cart_key"]}{UserIdentity.Id}";
             if (_redisService != null && _redisService.IsConnected() && _redisService.IsConnected())
             {
+                Console.WriteLine("Redis connected hoan nha");
                 var cachedCart = await _redisService.GetCache<List<CartDetailDTO>>(cartKey);
                 if (cachedCart != null && cachedCart.Count > 0)
                 {

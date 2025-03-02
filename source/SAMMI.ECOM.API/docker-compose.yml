@@ -1,4 +1,4 @@
-version: '3.8'
+# version: '3.8'
 
 services:
   mysql:
@@ -26,6 +26,26 @@ services:
     networks:
       - sammi_network
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: es_sammi
+    restart: always
+    environment:
+    - discovery.type=single-node
+    - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+    - "9200:9200"
+    - "9300:9300"
+    volumes:
+    - es_data:/usr/share/elasticsearch/data
+    networks:
+    - sammi_network
+
   sammi.ecom.api:
     container_name: sammiecomapi
     image: ${DOCKER_REGISTRY-}sammiecomapi
@@ -37,13 +57,22 @@ services:
     depends_on:
       - mysql
       - redis
+      - elasticsearch
     environment:
-      - ConnectionStrings__DefaultConnection=Server=mysql_sammi;Database=sammi_ecommerce;User=root;Password=123456;
+      - ConnectionStrings__DefaultConnection=Server=mysql;Database=sammi_ecommerce;User=root;Password=123456;
+      - RedisConnection=redis:6379,abortConnect=false
+      - ElasticsearchConnection=http://elasticsearch:9200
+    volumes:
+      - dp-keys:/root/.aspnet/DataProtection-Keys
     networks:
       - sammi_network
 
 volumes:
   mysql_data:
+  dp-keys:
+  es_data:
 
 networks:
   sammi_network:
+    driver: bridge
+    

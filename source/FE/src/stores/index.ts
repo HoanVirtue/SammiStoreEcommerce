@@ -9,6 +9,7 @@ import city from 'src/stores/city'
 import deliveryMethod from 'src/stores/delivery-method'
 import paymentMethod from 'src/stores/payment-method'
 import province from 'src/stores/province'
+import district from 'src/stores/district'
 import productCategory from 'src/stores/product-category'
 import product from 'src/stores/product'
 import order from 'src/stores/order'
@@ -23,6 +24,7 @@ export const store = configureStore({
     deliveryMethod,
     paymentMethod,
     province,
+    district,
     productCategory,
     product,
     order,

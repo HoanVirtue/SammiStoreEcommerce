@@ -65,5 +65,12 @@ export const provinceFields: FieldConfig[] = [
     // { value: "createdAt", label: "Created At", type: "date", operators: dateOperators },
 ];
 
+// Định nghĩa fields cho ListDistrictPage
+export const districtFields: FieldConfig[] = [
+    { value: "name", label: "Province Name", type: "string", operators: stringOperators },
+    { value: "code", label: "Province Code", type: "string", operators: stringOperators },
+    { value: "postalCode", label: "Postal Code", type: "string", operators: stringOperators },
+];
+
 
 export const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50, 100];

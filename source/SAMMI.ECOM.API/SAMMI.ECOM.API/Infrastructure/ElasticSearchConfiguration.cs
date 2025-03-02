@@ -25,7 +25,7 @@ namespace SAMMI.ECOM.API.Infrastructure
                 Console.WriteLine("Error connect ElasticSearch: ", pingResponse.DebugInformation);
                 return;
             }
-
+            Console.WriteLine("Elasticsearch connected!!");
             services.AddSingleton<IElasticClient>(client);
             await CreateIndex(client);
         }

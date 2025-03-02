@@ -1,6 +1,7 @@
-using Autofac;
+﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.API.Infrastructure;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
@@ -32,7 +33,7 @@ var serverVersion = new MySqlServerVersion(new Version(9, 2, 0));
 builder.Services.AddDbContext<SammiEcommerceContext>(
     dbContextOptions => dbContextOptions
         .UseMySql(configuration.GetConnectionString("DefaultConnection"), serverVersion)
-        .LogTo(Console.WriteLine, LogLevel.Information)
+        .LogTo(Console.WriteLine, Microsoft.Extensions.Logging.LogLevel.Information)
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
 );
@@ -85,6 +86,8 @@ catch (Exception ex)
     Console.WriteLine($"Error connect Redis: {ex.Message}");
 }
 
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
 
 var app = builder.Build();
 
@@ -94,7 +97,20 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<SammiEcommerceContext>();
     var dataSeed = new DataSeeder(context);
-    //await dataSeed.SeedAsync();
+    if (!context.Database.CanConnect())
+    {
+        // Nếu DB chưa tồn tại, tạo DB và chạy migration
+        Console.WriteLine("Database does not exist. Creating and applying migrations...");
+        context.Database.EnsureCreated(); // Tạo DB nếu chưa có (không áp dụng migration)
+        context.Database.Migrate();       // Áp dụng các migration
+    }
+    else
+    {
+        // Nếu DB đã tồn tại, chỉ áp dụng migration nếu cần
+        Console.WriteLine("Database exists. Applying migrations if pending...");
+        context.Database.Migrate();
+    }
+    await dataSeed.SeedAsync();
 }
 
 // Configure the HTTP request pipeline.
@@ -104,7 +120,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();

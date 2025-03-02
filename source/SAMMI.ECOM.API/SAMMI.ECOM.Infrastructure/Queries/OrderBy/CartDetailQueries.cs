@@ -36,7 +36,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         private string GetCartKey(int userId) => $"{_config["RedisOptions:cart_key"]}{userId}";
         public async Task CacheCart(int userId)
         {
-            if (_redisService == null)
+            if (_redisService == null || !_redisService.IsConnected())
                 return;
 
             await _redisService.RemoveCache(GetCartKey(userId));

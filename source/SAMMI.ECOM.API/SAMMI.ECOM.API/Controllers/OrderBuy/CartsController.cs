@@ -44,7 +44,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         public async Task<IActionResult> GetCart()
         {
             var cartKey = $"{_config["RedisOptions:cart_key"]}{UserIdentity.Id}";
-            if (_redisService != null)
+            if (_redisService != null && _redisService.IsConnected() && _redisService.IsConnected())
             {
                 var cachedCart = await _redisService.GetCache<List<CartDetailDTO>>(cartKey);
                 if (cachedCart != null && cachedCart.Count > 0)
@@ -54,7 +54,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             }
 
             var cartItems = (await _cartDetailQueries.GetMyCart()).ToList();
-            if (cartItems != null && cartItems.Count > 0 && _redisService != null)
+            if (cartItems != null && cartItems.Count > 0 && _redisService != null && _redisService.IsConnected())
             {
                 await _redisService.SetCache(cartKey, cartItems);
             }

@@ -8,11 +8,16 @@ namespace SAMMI.ECOM.Infrastructure.Services.Caching
         Task<T?> GetCache<T>(string key);
         Task SetCache<T>(string key, T data, TimeSpan? expiry = null);
         Task RemoveCache(string key);
+        bool IsConnected();
     }
     public class RedisService<T> : IRedisService<T> where T : class
     {
+        private readonly IConnectionMultiplexer _redis;
         private readonly IDatabase _redisDb;
-        public RedisService(IConnectionMultiplexer redis) { _redisDb = redis.GetDatabase(); }
+        public RedisService(IConnectionMultiplexer redis)
+        {
+            _redis = redis; _redisDb = redis.GetDatabase();
+        }
         public async Task<T?> GetCache<T>(string key)
         {
             var cachedData = await _redisDb.StringGetAsync(key);
@@ -30,6 +35,11 @@ namespace SAMMI.ECOM.Infrastructure.Services.Caching
         public async Task RemoveCache(string key)
         {
             await _redisDb.KeyDeleteAsync(key);
+        }
+
+        public bool IsConnected()
+        {
+            return _redis.IsConnected;
         }
     }
 }

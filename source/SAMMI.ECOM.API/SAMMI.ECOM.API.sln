@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAMMI.ECOM.I18N", "SAMMI.EC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAMMI.ECOM.Utility", "SAMMI.ECOM.Utility\SAMMI.ECOM.Utility.csproj", "{791F1084-71D2-4882-9A6E-6F694198B476}"
 EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{957FFDA1-67D2-458C-8CAB-52221E66AA23}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{791F1084-71D2-4882-9A6E-6F694198B476}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{791F1084-71D2-4882-9A6E-6F694198B476}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{791F1084-71D2-4882-9A6E-6F694198B476}.Release|Any CPU.Build.0 = Release|Any CPU
+		{957FFDA1-67D2-458C-8CAB-52221E66AA23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{957FFDA1-67D2-458C-8CAB-52221E66AA23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{957FFDA1-67D2-458C-8CAB-52221E66AA23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{957FFDA1-67D2-458C-8CAB-52221E66AA23}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

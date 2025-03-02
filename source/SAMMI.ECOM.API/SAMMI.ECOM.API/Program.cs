@@ -28,10 +28,10 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 builder.Services.AddAutoMapper(typeof(Program));
-var serverVersion = new MySqlServerVersion(new Version(8, 0, 2));
+var serverVersion = new MySqlServerVersion(new Version(9, 2, 0));
 builder.Services.AddDbContext<SammiEcommerceContext>(
     dbContextOptions => dbContextOptions
-        .UseMySql(configuration.GetConnectionString("EComConnection"), serverVersion)
+        .UseMySql(configuration.GetConnectionString("DefaultConnection"), serverVersion)
         .LogTo(Console.WriteLine, LogLevel.Information)
         .EnableSensitiveDataLogging()
         .EnableDetailedErrors()
@@ -74,9 +74,6 @@ await builder.Services.AddElasticSearch(builder.Configuration);
 
 builder.Services.AddAuthorization();
 
-builder.Services.AddSingleton<IConnectionMultiplexer>(
-                ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisOptions:ConnectionString")));
-
 try
 {
     var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisOptions:ConnectionString"));
@@ -87,6 +84,8 @@ catch (Exception ex)
 {
     Console.WriteLine($"Error connect Redis: {ex.Message}");
 }
+
+
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
@@ -95,7 +94,7 @@ using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<SammiEcommerceContext>();
     var dataSeed = new DataSeeder(context);
-    await dataSeed.SeedAsync();
+    //await dataSeed.SeedAsync();
 }
 
 // Configure the HTTP request pipeline.

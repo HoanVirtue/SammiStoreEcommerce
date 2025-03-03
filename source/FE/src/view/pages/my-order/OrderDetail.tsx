@@ -146,7 +146,15 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                         startIcon={<IconifyIcon icon='lets-icons:back' />}>
                         {t('back')}
                     </Button>
-                    <Typography sx={{ color: theme.palette.primary.main }}>{t((ORDER_STATUS as any)[orderData?.status]?.label)}</Typography>
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        {orderData?.status === 2 && (
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <IconifyIcon icon='carbon:delivery' />
+                                <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_delivered')}{' | '}</Typography>
+                            </Box>
+                        )}
+                        <Typography sx={{ color: theme.palette.primary.main }}>{t((ORDER_STATUS as any)[orderData?.status]?.label)}</Typography>
+                    </Box>
                 </Box>
                 <Divider />
                 <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
@@ -159,6 +167,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 <Box>
                                     <Box>
                                         <Typography fontSize={"18px"}>{item?.name}</Typography>
+                                        <Button>{t('write_review')}</Button>
                                     </Box>
                                     <Box>
                                         <Typography variant="h6" sx={{

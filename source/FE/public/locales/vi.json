@@ -250,5 +250,8 @@
     "cancel_order_success": "Hủy đơn hàng thành công",
     "upload_product_image": "Tải hình ảnh sản phẩm",
     "select_all": "Chọn tất cả",
+    "content": "Nội dùng",
+    "star": "Số sao",
+    "order_has_been_delivered": "Đơn hàng đã được giao thành công",
     "view_detail": "Xem chi tiết"
 }   

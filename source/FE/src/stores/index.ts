@@ -12,6 +12,7 @@ import province from 'src/stores/province'
 import productCategory from 'src/stores/product-category'
 import product from 'src/stores/product'
 import order from 'src/stores/order'
+import review from 'src/stores/review'
 
 export const store = configureStore({
   reducer: {
@@ -24,7 +25,8 @@ export const store = configureStore({
     province,
     productCategory,
     product,
-    order
+    order,
+    review
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

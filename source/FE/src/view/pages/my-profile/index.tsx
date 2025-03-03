@@ -376,7 +376,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                                         inputProps={{
                                             inputMode: 'numeric',
                                             pattern: '[0-9]*',
-                                            minLength: 8
+                                            minLength: 10
                                         }}
                                         value={value}
                                         placeholder={t('enter_your_phone_number')}

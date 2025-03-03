@@ -133,7 +133,7 @@ const ListProvincePage: NextPage<TProps> = () => {
                 orderBy: orderByField || "createdDate",
                 dir: orderByDir || "asc",
                 paging: true,
-                keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value : "all",
+                keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value || undefined : undefined,
                 propertyFilterModels: [
                     { field: '', operator: '', filterValue: '' }
                 ]

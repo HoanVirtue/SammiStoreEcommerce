@@ -1,5 +1,4 @@
 ﻿using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
-using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.Seeds;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,14 +16,8 @@ public partial class Voucher : Entity
     [MaxLength(100)]
     public string Name { get; set; } = null!;
 
-    [ForeignKey("Category")]
-    public int? CategoryId { get; set; }
-
-    [ForeignKey("Brand")]
-    public int? BrandId { get; set; }
-
-    [ForeignKey("Product")]
-    public int? ProductId { get; set; }
+    [Column("EventId")]
+    public int EventId { get; set; }
 
     [ForeignKey("DiscountType")]
     public int DiscountTypeId { get; set; }
@@ -38,8 +31,6 @@ public partial class Voucher : Entity
     [Column("UsedCount")]
     public int UsedCount { get; set; }
 
-    [Column("EventId")]
-    public int? EventId { get; set; }
 
     [Column("StartDate")]
     public DateTime StartDate { get; set; }
@@ -47,19 +38,13 @@ public partial class Voucher : Entity
     [Column("EndDate")]
     public DateTime EndDate { get; set; }
 
-    public virtual Brand? Brand { get; set; }
-
-    public virtual ProductCategory? Category { get; set; }
-
-    public virtual Event? Event { get; set; }
+    public virtual Event Event { get; set; }
 
     public virtual ICollection<MyVoucher> MyVouchers { get; set; } = new List<MyVoucher>();
 
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
-
-    public virtual Product? Product { get; set; }
 
     public virtual DiscountType? DiscountType { get; set; }
     public virtual ICollection<VoucherCondition> VoucherConditions { get; set; } = new List<VoucherCondition>();

@@ -73,7 +73,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                                  IsActive = gr.Key.IsActive,
                                  IsDeleted = gr.Key.IsDeleted,
                                  DisplayOrder = gr.Key.DisplayOrder,
-                                 TotalPrice = gr.Sum(x => x.t2.Quantity * x.t4.NewPrice),
+                                 TotalPrice = gr.Sum(x => x.t2.Quantity *
+                                    (x.t4.StartDate <= DateTime.Now && x.t4.EndDate >= DateTime.Now ? x.t4.Price * (1 - x.t4.Discount) : x.t4.Price)),
                                  TotalQuantity = gr.Sum(x => x.t2.Quantity)
                              };
 

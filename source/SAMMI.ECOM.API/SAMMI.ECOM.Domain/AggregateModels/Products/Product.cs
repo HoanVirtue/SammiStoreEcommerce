@@ -25,13 +25,13 @@ public partial class Product : Entity
     [Required]
     public int StockQuantity { get; set; }
 
-    [Column("OldPrice")]
-    public decimal? OldPrice { get; set; }
-
-    [Column("NewPrice")]
+    [Column("Price")]
     [Required]
-    [DataType(DataType.Currency)]
-    public decimal NewPrice { get; set; }
+    public decimal Price { get; set; }
+
+    [Column("Discount")]
+    [Required]
+    public decimal? Discount { get; set; }
 
     [Column("Ingredient")]
     public string? Ingredient { get; set; }
@@ -50,6 +50,12 @@ public partial class Product : Entity
 
     [ForeignKey("Category")]
     public int? CategoryId { get; set; }
+
+    [Column("StartDate")]
+    public DateTime? StartDate { get; set; }
+
+    [Column("EndDate")]
+    public DateTime? EndDate { get; set; }
 
     public virtual Brand? Brand { get; set; }
     public virtual ProductCategory? Category { get; set; }

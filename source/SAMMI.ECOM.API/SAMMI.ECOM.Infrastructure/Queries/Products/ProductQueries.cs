@@ -43,8 +43,11 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 productEntry = product;
                                 productEntry.Images = new List<ImageDTO>();
                                 // format currency
-                                productEntry.OldPrice = Math.Round(productEntry.OldPrice ?? 0, 2);
-                                productEntry.NewPrice = Math.Round(productEntry.NewPrice, 2);
+                                //productEntry.Price = Math.Round(productEntry.Price ?? 0, 2);
+                                if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
+                                    productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
+                                else
+                                    productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productDirectory.Add(product.Id, productEntry);
                             }
                             if (image != null)
@@ -91,8 +94,10 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 productEntry = product;
                                 productEntry.Images = new List<ImageDTO>();
                                 // format currency
-                                productEntry.OldPrice = Math.Round(productEntry.OldPrice ?? 0, 2);
-                                productEntry.NewPrice = Math.Round(productEntry.NewPrice, 2);
+                                if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
+                                    productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
+                                else
+                                    productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productDirectory.Add(product.Id, productEntry);
                             }
                             if (image != null)

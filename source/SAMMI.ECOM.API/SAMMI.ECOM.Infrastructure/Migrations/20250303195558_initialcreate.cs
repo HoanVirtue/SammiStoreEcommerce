@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class initialcreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,7 +21,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    Description = table.Column<string>(type: "varchar(500)", maxLength: 500, nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -453,14 +455,16 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     StockQuantity = table.Column<int>(type: "int", nullable: false),
-                    OldPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    NewPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     Ingredient = table.Column<string>(type: "longtext", nullable: true),
                     Uses = table.Column<string>(type: "longtext", nullable: true),
                     UsageGuide = table.Column<string>(type: "longtext", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: true),
                     BrandId = table.Column<int>(type: "int", nullable: true),
                     CategoryId = table.Column<int>(type: "int", nullable: true),
+                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -603,16 +607,16 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    CategoryId = table.Column<int>(type: "int", nullable: true),
-                    BrandId = table.Column<int>(type: "int", nullable: true),
-                    ProductId = table.Column<int>(type: "int", nullable: true),
+                    EventId = table.Column<int>(type: "int", nullable: false),
                     DiscountTypeId = table.Column<int>(type: "int", nullable: false),
                     DiscountValue = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     UsageLimit = table.Column<int>(type: "int", nullable: false),
                     UsedCount = table.Column<int>(type: "int", nullable: false),
-                    EventId = table.Column<int>(type: "int", nullable: true),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    BrandId = table.Column<int>(type: "int", nullable: true),
+                    ProductCategoryId = table.Column<int>(type: "int", nullable: true),
+                    ProductId = table.Column<int>(type: "int", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -640,16 +644,43 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         name: "FK_Voucher_Event_EventId",
                         column: x => x.EventId,
                         principalTable: "Event",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Voucher_ProductCategory_CategoryId",
-                        column: x => x.CategoryId,
+                        name: "FK_Voucher_ProductCategory_ProductCategoryId",
+                        column: x => x.ProductCategoryId,
                         principalTable: "ProductCategory",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Voucher_Product_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Product",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cart",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cart", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Cart_Users_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Users",
                         principalColumn: "Id");
                 });
 
@@ -898,7 +929,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     PaymentStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     OrderStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     ShippingStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    DiscountId = table.Column<int>(type: "int", nullable: true),
+                    VoucherId = table.Column<int>(type: "int", nullable: true),
                     CustomerAddress = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -918,9 +949,71 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         principalTable: "Users",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Order_Voucher_DiscountId",
-                        column: x => x.DiscountId,
+                        name: "FK_Order_Voucher_VoucherId",
+                        column: x => x.VoucherId,
                         principalTable: "Voucher",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "VoucherCondition",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    ConditionType = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    ConditionValue = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_VoucherCondition", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_VoucherCondition_Voucher_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Voucher",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CartDetail",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CartId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CartDetail", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CartDetail_Cart_CartId",
+                        column: x => x.CartId,
+                        principalTable: "Cart",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_CartDetail_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
                         principalColumn: "Id");
                 });
 
@@ -1116,6 +1209,21 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "ImageId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Cart_CustomerId",
+                table: "Cart",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CartDetail_CartId",
+                table: "CartDetail",
+                column: "CartId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CartDetail_ProductId",
+                table: "CartDetail",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_CustomerAddress_CustomerId",
                 table: "CustomerAddress",
                 column: "CustomerId");
@@ -1186,9 +1294,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order_DiscountId",
+                name: "IX_Order_VoucherId",
                 table: "Order",
-                column: "DiscountId");
+                column: "VoucherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_DiscountId",
@@ -1326,11 +1434,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "BrandId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Voucher_CategoryId",
-                table: "Voucher",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Voucher_DiscountTypeId",
                 table: "Voucher",
                 column: "DiscountTypeId");
@@ -1341,9 +1444,19 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Voucher_ProductCategoryId",
+                table: "Voucher",
+                column: "ProductCategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Voucher_ProductId",
                 table: "Voucher",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_VoucherCondition_VoucherId",
+                table: "VoucherCondition",
+                column: "VoucherId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ward_DistrictId",
@@ -1374,6 +1487,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Banner");
+
+            migrationBuilder.DropTable(
+                name: "CartDetail");
 
             migrationBuilder.DropTable(
                 name: "CustomerAddress");
@@ -1419,6 +1535,12 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "UserRole");
+
+            migrationBuilder.DropTable(
+                name: "VoucherCondition");
+
+            migrationBuilder.DropTable(
+                name: "Cart");
 
             migrationBuilder.DropTable(
                 name: "PaymentMethod");

@@ -25,7 +25,7 @@ import { useTranslation } from "react-i18next"
 //redux
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "src/stores"
-import { updateReviewAsync } from "src/stores/review/action";
+import { updateMyReviewAsync, updateReviewAsync } from "src/stores/review/action";
 import CustomTextArea from "src/components/text-area";
 
 interface TUpdateReview {
@@ -83,7 +83,7 @@ const UpdateReview = (props: TUpdateReview) => {
         if (!Object.keys(errors)?.length) {
             //update
             if (idReview) {
-                dispatch(updateReviewAsync({
+                dispatch(updateMyReviewAsync({
                     id: idReview,
                     content: data?.content,
                     star: +data?.star,

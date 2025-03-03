@@ -23,24 +23,19 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { useAuth } from 'src/hooks/useAuth'
 import { TItemOrderProduct, TOrderItem } from 'src/types/order'
-import NoData from 'src/components/no-data'
 import { useRouter } from 'next/router'
-import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
-import { getAllOrdersAsync } from 'src/stores/order/action'
-import OrderCard from './components/OrderCard'
-import CustomPagination from 'src/components/custom-pagination'
 import { TabsProps } from '@mui/material'
 import Spinner from 'src/components/spinner'
-import SearchField from 'src/components/search-field'
 import toast from 'react-hot-toast'
 import { resetInitialState, updateProductToCart } from 'src/stores/order'
+import { resetInitialState as resetReview } from 'src/stores/review'
 import IconifyIcon from 'src/components/Icon'
 import { convertUpdateMultipleProductsCard, formatPrice } from 'src/utils'
 import { ORDER_STATUS } from 'src/configs/order'
 import { getOrderDetail } from 'src/services/order'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
-import city from 'src/stores/city';
+import WriteReviewModal from './components/WriteReviewModal'
 
 type TProps = {}
 
@@ -63,6 +58,11 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
 
     const [orderData, setOrderData] = useState<TOrderItem>({} as any)
     const [isLoading, setIsLoading] = useState(false)
+    const [openReview, setOpenReview] = useState({
+        open: false,
+        userId: "",
+        productId: ""
+    })
 
     //hooks
     const { user } = useAuth()
@@ -76,6 +76,8 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
     //Dispatch
     const dispatch: AppDispatch = useDispatch();
     const { isSuccessCancel, orderItems, isErrorCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
+
+    const { isSuccessCreate, isErrorCreate, errorMessageCreate, isLoading: reviewLoading } = useSelector((state: RootState) => state.review)
 
     const orderId = router.query.orderId as string
 
@@ -131,10 +133,28 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
         }
     }, [isSuccessCancel, isErrorCancel, errorMessageCancel])
 
+    useEffect(() => {
+        if (isSuccessCreate) {
+            toast.success(t("create_review_success"))
+            handleGetOrderDetail()
+            dispatch(resetReview())
+            setOpenReview({ open: false, userId: "", productId: "" })
+        } else if (isErrorCreate && errorMessageCreate) {
+            toast.error(errorMessageCreate)
+            dispatch(resetReview())
+        }
+    }, [isSuccessCreate, isErrorCreate, errorMessageCreate])
+
 
     return (
         <>
             {isLoading && <Spinner />}
+            <WriteReviewModal
+                open={openReview.open}
+                productId={openReview.productId}
+                userId={openReview.userId}
+                onClose={() => setOpenReview({ open: false, userId: "", productId: "" })}
+            />
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 padding: '2rem',
@@ -165,9 +185,20 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                     <Avatar src={item?.image} sx={{ width: "80px", height: "80px" }} />
                                 </Box>
                                 <Box>
-                                    <Box>
+                                    <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 3 }}>
                                         <Typography fontSize={"18px"}>{item?.name}</Typography>
-                                        <Button>{t('write_review')}</Button>
+                                        {orderData?.status === +ORDER_STATUS[2].value && (
+                                            <Button variant="outlined"
+                                                color='primary'
+                                                onClick={() => setOpenReview({
+                                                    open: true,
+                                                    productId: item?.product,
+                                                    userId: user ? user?._id : ''
+                                                })}
+                                                sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                                                {t('write_review')}
+                                            </Button>
+                                        )}
                                     </Box>
                                     <Box>
                                         <Typography variant="h6" sx={{
@@ -267,7 +298,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                     gap: 4,
                     mt: 4
                 }}>
-                    <Button variant="contained"
+                    <Button variant="outlined"
                         color='primary'
                         onClick={() => handleBuyAgain()}
                         // disabled={!orderData?.countInStock}

@@ -5,7 +5,7 @@ import { TParamsCreateReview, TParamsDeleteMultipleReviews, TParamsGetAllReviews
 
 export const getAllReviews = async (data: {params: TParamsGetAllReviews  }) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/me`, data)
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}`, data)
         return res.data
     } catch (error) {
         return error
@@ -89,8 +89,9 @@ export const updateReview = async (data: TParamsUpdateReview) => {
 }
 
 export const updateMyReview = async (data: TParamsUpdateReview) => {
+    const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/me`, data)
+        const res = await instance.put(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/me/${id}`, rests)
         return res.data
     } catch (error: any) {
         return error?.response?.data

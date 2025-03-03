@@ -32,7 +32,7 @@ import Image from 'next/image'
 import { Typography } from '@mui/material'
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
 import IconifyIcon from 'src/components/Icon'
-import { convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils'
+import { convertUpdateProductToCart, formatFilter, formatPrice, isExpired } from 'src/utils'
 import CustomTextField from 'src/components/text-field'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
@@ -43,17 +43,15 @@ import ProductCard from '../components/ProductCard'
 import RelatedProduct from '../components/RelatedProduct'
 import CustomBreadcrumbs from 'src/components/custom-breadcrum'
 import { ROUTE_CONFIG } from 'src/configs/route'
+import { getAllReviews } from 'src/services/review'
+import { TReviewItem } from 'src/types/review'
+import ReviewCard from '../components/ReviewCard'
+import toast from 'react-hot-toast'
+import { resetInitialState } from 'src/stores/review'
 
 type TProps = {}
 
-interface IDefaultValues {
-    email: string
-    address: string
-    city: string
-    phoneNumber: string
-    role: string
-    fullName: string
-}
+
 const ProductDetailPage: NextPage<TProps> = () => {
     //States
     const [loading, setLoading] = useState<boolean>(false)
@@ -63,15 +61,18 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const [listRelatedProduct, setListRelatedProduct] = useState<TProduct[]>([])
 
     const [productAmount, setProductAmount] = useState<number>(1)
+    const [listReview, setListReview] = useState<TReviewItem[]>([])
 
     //hooks
     const { user } = useAuth()
     const { i18n } = useTranslation();
 
-    //redux
-    const { orderItems } = useSelector((state: RootState) => state.order)
-    const dispatch: AppDispatch = useDispatch();
 
+    //Redux
+    const { orderItems } = useSelector((state: RootState) => state.order)
+    const { reviews, isSuccessUpdate, isErrorUpdate, isLoading,
+        errorMessageUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.review)
+    const dispatch: AppDispatch = useDispatch();
     //Theme
     const theme = useTheme();
 
@@ -80,6 +81,10 @@ const ProductDetailPage: NextPage<TProps> = () => {
         { label: t('product_detail'), href: '/product' },
         { label: productData?.name || t('product'), href: `/product/${productId}` },
     ];
+
+    const roundedAverageRating = productData?.averageRating 
+    ? parseFloat(Number(productData.averageRating).toFixed(1)) 
+    : 0;
 
     //fetch api
     const fetchGetProductDetail = async (slug: string) => {
@@ -105,6 +110,25 @@ const ProductDetailPage: NextPage<TProps> = () => {
                 const data = response?.data
                 if (data) {
                     setListRelatedProduct(data.products)
+                }
+            })
+            .catch(() => {
+                setLoading(false)
+            })
+    }
+
+    const fetchGetAllReviews = async (id: string) => {
+        setLoading(true)
+        await getAllReviews({
+            params: {
+                limit: -1, page: -1, order: 'createAt desc', isPublic: true, ...formatFilter({ productId: id })
+            }
+        })
+            .then(async response => {
+                setLoading(false)
+                const data = response?.data?.reviews
+                if (data) {
+                    setListReview(data)
                 }
             })
             .catch(() => {
@@ -160,11 +184,44 @@ const ProductDetailPage: NextPage<TProps> = () => {
         }
     }, [productId])
 
+    useEffect(() => {
+        if (productData._id) {
+            fetchGetAllReviews(productData._id)
+        }
+    }, [productData._id])
+
+    /// update Review
+    useEffect(() => {
+        if (isSuccessUpdate) {
+            toast.success(t("update_review_success"))
+            fetchGetAllReviews(productData._id)
+            dispatch(resetInitialState())
+        } else if (isErrorUpdate && errorMessageUpdate && typeError) {
+            toast.error(t("update_review_error"))
+            dispatch(resetInitialState())
+        }
+    }, [isSuccessUpdate, isErrorUpdate, errorMessageUpdate, typeError])
+
+
+    //delete Review
+    useEffect(() => {
+        if (isSuccessDelete) {
+            toast.success(t("delete_review_success"))
+            fetchGetAllReviews(productData._id)
+            dispatch(resetInitialState())
+        } else if (isErrorDelete && errorMessageDelete) {
+            toast.error(errorMessageDelete)
+            dispatch(resetInitialState())
+        }
+    }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
+
     const memoCheckExpire = React.useMemo(() => {
         if (productData.discountStartDate && productData.discountEndDate) {
             return isExpired(productData.discountStartDate, productData.discountEndDate);
         }
     }, [productData])
+
+
 
     return (
         <>
@@ -239,22 +296,14 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                                 textDecoration: "underline",
                                                 fontSize: "16px"
                                             }}>
-                                            {productData?.averageRating}
+                                            {roundedAverageRating}
                                         </Typography>
-                                        <Rating defaultValue={productData?.averageRating}
-                                            precision={0.1}
-                                            size='small'
-                                            name='read-only'
-                                            sx={{
-                                                '& .MuiRating-icon': {
-                                                    color: 'gold',
-                                                },
-                                            }} />
+                                        <Rating name="half-rating" value={roundedAverageRating} precision={0.1} />
                                     </Box>
                                     <Typography>
                                         {!!productData?.totalReviews ? (
                                             <span>
-                                                {productData?.totalReviews}
+                                                {productData?.totalReviews}{' '}
                                                 {t("review")}
                                             </span>
                                         ) : (
@@ -419,19 +468,17 @@ const ProductDetailPage: NextPage<TProps> = () => {
                 </Grid>
                 <Grid container md={12} xs={12} mt={6}>
                     <Grid container>
-                        <Grid container item md={9} xs={12} sx={{
-                            backgroundColor: theme.palette.background.paper,
-                            borderRadius: "15px",
-                            border: `1px solid ${theme.palette.customColors.borderColor}`,
+                        <Grid container item md={12} xs={12} sx={{
+                            // borderRadius: "15px",
+                            // border: `1px solid ${theme.palette.customColors.borderColor}`,
                             py: 5, px: 4, mt: 6
                         }} >
                             <Box sx={{
-                                width: "100%",
-                                height: "100%",
+                                borderRadius: "15px",
+                                backgroundColor: theme.palette.background.paper,
                             }}>
                                 <Box sx={{
                                     display: "flex", alignItems: "center", gap: 2, mt: 2,
-                                    backgroundColor: theme.palette.background.paper,
                                     padding: "8px",
                                     borderRadius: "8px"
                                 }}>
@@ -453,8 +500,30 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         fontSize: "14px"
                                     }} />
                             </Box>
+                            <Box sx={{
+                                backgroundColor: theme.palette.background.paper,
+                                borderRadius: "15px",
+                                py: 5, px: 4, mt: 6
+                            }}>
+                                <Typography variant="h6" sx={{
+                                    color: theme.palette.customColors.main,
+                                    fontWeight: "bold",
+                                    fontSize: "18px"
+                                }}>{t('review_product')} <b style={{ color: theme.palette.primary.main }}>{listReview.length}</b> {t('rating')}</Typography>
+                                <Grid container spacing={8} mt={1}>
+                                    {
+                                        listReview?.map((review: TReviewItem) => {
+                                            return (
+                                                <Grid item key={review._id} md={12} xs={12}>
+                                                    <ReviewCard item={review} />
+                                                </Grid>
+                                            )
+                                        })
+                                    }
+                                </Grid>
+                            </Box>
                         </Grid>
-                        <Grid container item md={3} xs={12}>
+                        <Grid container item md={12} xs={12}>
                             <Box sx={{
                                 width: "100%",
                                 height: "100%",
@@ -500,20 +569,6 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         </Box>
                                     )}
                                 </Box> */}
-                            </Box>
-                        </Grid>
-                        <Grid container item md={8} xs={12} sx={{
-                            backgroundColor: theme.palette.background.paper,
-                            borderRadius: "15px",
-                            py: 5, px: 4, mt: 6
-                        }} >
-                            <Box sx={{
-                                width: "100%",
-                                height: "100%",
-                                backgroundColor: theme.palette.background.paper,
-                                borderRadius: "15px",
-                                py: 5, px: 4, mt: 6
-                            }}>
                             </Box>
                         </Grid>
                     </Grid>

@@ -25,33 +25,28 @@ import { useTranslation } from "react-i18next"
 //redux
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "src/stores"
-import { updateReviewAsync } from "src/stores/review/action";
 import CustomTextArea from "src/components/text-area";
+import { createReviewAsync } from "src/stores/review/action";
 
-interface TUpdateReview {
+interface TWriteReviewModal {
     open: boolean
     onClose: () => void
-    idReview?: string
+    productId?: string
+    userId?: string
 }
 
 type TDefaultValues = {
     content: string,
-    star: number,
+    star: number
 }
 
-const UpdateReview = (props: TUpdateReview) => {
+const WriteReviewModal = (props: TWriteReviewModal) => {
 
     //state
     const [loading, setLoading] = useState(false)
-    const [productImage, setProductImage] = useState("")
-    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
-    const [paymentOptions, setPaymentOptions] = useState<{ label: string, value: string }[]>([])
-    const [deliveryOptions, setDeliveryOptions] = useState<{ label: string, value: string, price: string }[]>([])
-    const [selectedPayment, setSelectedPayment] = useState<string>('')
-    const [selectedDelivery, setSelectedDelivery] = useState<string>('')
 
     //props
-    const { open, onClose, idReview } = props
+    const { open, onClose, userId, productId } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -69,7 +64,7 @@ const UpdateReview = (props: TUpdateReview) => {
 
     const defaultValues: TDefaultValues = {
         content: '',
-        star: 0,
+        star: 0
     }
 
     const { handleSubmit, getValues, setError, clearErrors, control, formState: { errors }, reset } = useForm<TDefaultValues>({
@@ -81,12 +76,13 @@ const UpdateReview = (props: TUpdateReview) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            //update
-            if (idReview) {
-                dispatch(updateReviewAsync({
-                    id: idReview,
+            //update 
+            if (productId && userId) {
+                dispatch(createReviewAsync({
+                    product: productId,
+                    user: userId,
                     content: data?.content,
-                    star: +data?.star,
+                    star: data?.star,
                 }))
             }
         }
@@ -94,33 +90,13 @@ const UpdateReview = (props: TUpdateReview) => {
 
     //handler
 
-    const fetchReviewDetail = async (id: string) => {
-        setLoading(true)
-        await getReviewDetail(id).then((res) => {
-            const data = res?.data
-            if (data) {
-                reset({
-                    star: data?.star,
-                    content: data?.content,
-                })
-            }
-            setLoading(false)
-        }).catch((e) => {
-            setLoading(false)
-        })
-    }
-
     useEffect(() => {
         if (!open) {
             reset({
                 ...defaultValues
             })
-        } else {
-            if (idReview && open) {
-                fetchReviewDetail(idReview)
-            }
         }
-    }, [open, idReview])
+    }, [open])
 
     return (
         <>
@@ -177,7 +153,7 @@ const UpdateReview = (props: TUpdateReview) => {
                                                 <Controller
                                                     control={control}
                                                     render={({ field: { onChange, onBlur, value } }) => (
-                                                        <Rating name="rating" defaultValue={0} value={+value} onChange={(e: any) => {
+                                                        <Rating name="rating" defaultValue={0} value={+value} onChange={(e: any)=>{
                                                             onChange(e.target.value)
                                                         }} precision={0.1} />
                                                     )}
@@ -211,7 +187,7 @@ const UpdateReview = (props: TUpdateReview) => {
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {t('update')}
+                                {t('confirm')}
                             </Button>
                         </Box>
                     </form>
@@ -221,4 +197,4 @@ const UpdateReview = (props: TUpdateReview) => {
     )
 }
 
-export default UpdateReview
+export default WriteReviewModal

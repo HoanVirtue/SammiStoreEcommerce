@@ -145,7 +145,7 @@ const ListReviewPage: NextPage<TProps> = () => {
                 const { row } = params
                 const fullName = toFullName(row?.user?.lastName || '', row?.user?.middleName || '', row?.user?.firstName || '', i18n.language)
                 return (
-                  <Typography sx={{textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%'}}>{fullName}</Typography>
+                    <Typography sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%' }}>{fullName}</Typography>
                 )
             }
         },
@@ -158,7 +158,7 @@ const ListReviewPage: NextPage<TProps> = () => {
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography sx={{textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%'}}>
+                    <Typography sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%' }}>
                         <Tooltip title={row?.product?.name}>
                             {row?.product?.name}
                         </Tooltip>
@@ -175,7 +175,7 @@ const ListReviewPage: NextPage<TProps> = () => {
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography sx={{textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%'}}>
+                    <Typography sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%' }}>
                         <Tooltip title={row?.content}>
                             {row?.content}
                         </Tooltip>
@@ -246,28 +246,16 @@ const ListReviewPage: NextPage<TProps> = () => {
 
 
 
-    /// create Review
+    /// update Review
     useEffect(() => {
         if (isSuccessUpdate) {
-            if (!openUpdateReview.id) {
-                toast.success(t("create_review_success"))
-            } else {
-                toast.success(t("update_review_success"))
-            }
+            toast.success(t("update_review_success"))
             handleGetListReview()
             handleCloseUpdateReview()
             dispatch(resetInitialState())
         } else if (isErrorUpdate && errorMessageUpdate && typeError) {
-            const errConfig = OBJECT_TYPE_ERROR[typeError]
-            if (errConfig) {
-                toast.error(t(errConfig))
-            } else {
-                if (openUpdateReview.id) {
-                    toast.error(t("update_review_error"))
-                } else {
-                    toast.error(t("create_review_error"))
-                }
-            }
+
+            toast.error(t("update_review_error"))
             dispatch(resetInitialState())
         }
     }, [isSuccessUpdate, isErrorUpdate, errorMessageUpdate, typeError])
@@ -294,10 +282,10 @@ const ListReviewPage: NextPage<TProps> = () => {
                 onClose={handleCloseDeleteDialog}
                 handleCancel={handleCloseDeleteDialog}
                 handleConfirm={handleDeleteReview}
-                title={"Xác nhận xóa đơn hàng"}
-                description={"Bạn có chắc xóa đơn hàng này không?"}
+                title={"Xác nhận xóa đánh giá"}
+                description={"Bạn có chắc xóa đánh giá này không?"}
             />
-            
+
             <UpdateReview
                 idReview={openUpdateReview.id}
                 open={openUpdateReview.open}
@@ -353,7 +341,7 @@ const ListReviewPage: NextPage<TProps> = () => {
                         }}
                         disableColumnFilter
                         disableColumnMenu
-         
+
                         sx={{
                             ".selected-row": {
                                 backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,

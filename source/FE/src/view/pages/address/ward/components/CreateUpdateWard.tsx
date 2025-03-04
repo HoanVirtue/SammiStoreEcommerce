@@ -17,40 +17,40 @@ import Spinner from "src/components/spinner"
 import CustomTextField from "src/components/text-field"
 
 //services
-import { getDistrictDetail } from "src/services/district"
+import { getWardDetail } from "src/services/ward"
 
 //translation
 import { useTranslation } from "react-i18next"
 //redux
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "src/stores"
-import { createDistrictAsync, updateDistrictAsync } from "src/stores/district/action"
+import { createWardAsync, updateWardAsync } from "src/stores/ward/action"
 import { InputLabel } from "@mui/material";
 import CustomSelect from "src/components/custom-select";
 import { FormHelperText } from "@mui/material";
-import { getAllProvinces } from "src/services/province";
+import { getAllDistricts } from "src/services/district";
 
-interface TCreateUpdateDistrict {
+interface TCreateUpdateWard {
     open: boolean
     onClose: () => void
-    idDistrict?: string
+    idWard?: string
 }
 
 type TDefaultValues = {
     name: string,
     code: string,
-    provinceId: string,
-    provinceName: string,
+    districtId: string,
+    districtName: string,
 }
 
-const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
+const CreateUpdateWard = (props: TCreateUpdateWard) => {
 
     //state
     const [loading, setLoading] = useState(false)
-    const [provinceOptions, setProvinceOptions] = useState<{ label: string, value: string }[]>([])
+    const [districtOptions, setDistrictOptions] = useState<{ label: string, value: string }[]>([])
 
     //props
-    const { open, onClose, idDistrict } = props
+    const { open, onClose, idWard } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -62,17 +62,17 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
     const dispatch: AppDispatch = useDispatch()
 
     const schema = yup.object().shape({
-        name: yup.string().required(t('required_district_name')),
-        code: yup.string().required(t('required_district_code')),
-        provinceId: yup.string().required(t('require_province_id')),
-        provinceName: yup.string().required(t('require_province_name')),
+        name: yup.string().required(t('required_ward_name')),
+        code: yup.string().required(t('required_ward_code')),
+        districtId: yup.string().required(t('require_district_id')),
+        districtName: yup.string().required(t('require_district_name')),
     });
 
     const defaultValues: TDefaultValues = {
         name: '',
         code: '',
-        provinceId: '',
-        provinceName: ''
+        districtId: '',
+        districtName: ''
     }
 
     const { handleSubmit, control, formState: { errors }, reset, setValue } = useForm({
@@ -84,31 +84,31 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (idDistrict) {
+            if (idWard) {
                 //update
-                dispatch(updateDistrictAsync({
+                dispatch(updateWardAsync({
                     name: data?.name,
                     code: data?.code,
-                    provinceId: data?.provinceId,
-                    provinceName: data?.provinceName,
-                    id: idDistrict,
+                    districtId: data?.districtId,
+                    districtName: data?.districtName,
+                    id: idWard,
                 }))
             } else {
                 //create
-                dispatch(createDistrictAsync({
+                dispatch(createWardAsync({
                     name: data?.name,
                     code: data?.code,
-                    provinceId: data?.provinceId,
-                    provinceName: data?.provinceName,
+                    districtId: data?.districtId,
+                    districtName: data?.districtName,
                 }))
             }
         }
     }
 
 
-    const fetchAllProvince = async () => {
+    const fetchAllDistrict = async () => {
         setLoading(true)
-        await getAllProvinces({
+        await getAllDistricts({
             params: {
                 take: -1,
                 skip: 0,
@@ -121,7 +121,7 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
         }).then((res) => {
             const data = res?.result?.subset
             if (data) {
-                setProvinceOptions(data?.map((item: { name: string, id: string }) => ({
+                setDistrictOptions(data?.map((item: { name: string, id: string }) => ({
                     label: item.name,
                     value: item.id
                 })))
@@ -133,16 +133,16 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
     }
 
 
-    const fetchDetailDistrict = async (id: string) => {
+    const fetchDetailWard = async (id: string) => {
         setLoading(true)
-        await getDistrictDetail(id).then((res) => {
+        await getWardDetail(id).then((res) => {
             const data = res?.result
             if (data) {
                 reset({
                     name: data?.name,
                     code: data?.code,
-                    provinceId: data?.provinceId,
-                    provinceName: data?.provinceName
+                    districtId: data?.districtId,
+                    districtName: data?.districtName
                 })
             }
             setLoading(false)
@@ -152,7 +152,7 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
     }
 
     useEffect(() => {
-        fetchAllProvince()
+        fetchAllDistrict()
     }, [])
 
     useEffect(() => {
@@ -161,11 +161,11 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                 ...defaultValues
             })
         } else {
-            if (idDistrict && open) {
-                fetchDetailDistrict(idDistrict)
+            if (idWard && open) {
+                fetchDetailWard(idWard)
             }
         }
-    }, [open, idDistrict])
+    }, [open, idWard])
 
 
     return (
@@ -189,7 +189,7 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idDistrict ? t('update_district') : t('create_district')}
+                            {idWard ? t('update_ward') : t('create_ward')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -218,11 +218,11 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                                             <CustomTextField
                                                 fullWidth
                                                 required
-                                                label={t('district_name')}
+                                                label={t('ward_name')}
                                                 onChange={onChange}
                                                 onBlur={onBlur}
                                                 value={value}
-                                                placeholder={t('enter_district_name')}
+                                                placeholder={t('enter_ward_name')}
                                                 error={errors.name ? true : false}
                                                 helperText={errors.name?.message}
                                             />
@@ -237,11 +237,11 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                                             <CustomTextField
                                                 fullWidth
                                                 required
-                                                label={t('district_code')}
+                                                label={t('ward_code')}
                                                 onChange={onChange}
                                                 onBlur={onBlur}
                                                 value={value}
-                                                placeholder={t('enter_district_code')}
+                                                placeholder={t('enter_ward_code')}
                                                 error={errors.code ? true : false}
                                                 helperText={errors.code?.message}
                                             />
@@ -257,22 +257,22 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                                                 fullWidth
                                                 required
                                                 disabled
-                                                label={t('province_id')}
+                                                label={t('district_id')}
                                                 onChange={onChange}
                                                 onBlur={onBlur}
                                                 value={value}
-                                                placeholder={t('enter_province_id')}
-                                                error={errors.provinceId ? true : false}
-                                                helperText={errors.provinceId?.message}
+                                                placeholder={t('enter_district_id')}
+                                                error={errors.districtId ? true : false}
+                                                helperText={errors.districtId?.message}
                                             />
                                         )}
-                                        name='provinceId'
+                                        name='districtId'
                                     />
                                 </Grid>
                                 <Grid item md={12} xs={12} >
                                     <Controller
                                         control={control}
-                                        name='provinceName'
+                                        name='districtName'
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <Box sx={{
                                                 mt: -5
@@ -281,34 +281,34 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                                                     fontSize: "13px",
                                                     mb: "4px",
                                                     display: "block",
-                                                    color: errors?.provinceName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                    color: errors?.districtName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                 }}>
-                                                    {t('province_name')}
+                                                    {t('district_name')}
                                                 </InputLabel>
                                                 <CustomSelect
                                                     fullWidth
                                                     onChange={(e) => {
-                                                        const selectedProvince = provinceOptions.find(opt => opt.value === e.target.value);
-                                                        console.log("id", selectedProvince);
-                                                        if (selectedProvince) {
-                                                            onChange(selectedProvince.value);
-                                                            setValue('provinceId', selectedProvince.value);
+                                                        const selectedDistrict = districtOptions.find(opt => opt.value === e.target.value);
+                                                        console.log("id", selectedDistrict);
+                                                        if (selectedDistrict) {
+                                                            onChange(selectedDistrict.value);
+                                                            setValue('districtId', selectedDistrict.value);
                                                         } else {
                                                             onChange('');
-                                                            setValue('provinceId', '');
+                                                            setValue('districtId', '');
                                                         }
                                                     }}
                                                     onBlur={onBlur}
                                                     value={value || ''}
-                                                    options={provinceOptions}
-                                                    placeholder={t('enter_your_province_name')}
-                                                    error={errors.provinceName ? true : false}
+                                                    options={districtOptions}
+                                                    placeholder={t('enter_your_district_name')}
+                                                    error={errors.districtName ? true : false}
                                                 />
-                                                {errors?.provinceName?.message && (
+                                                {errors?.districtName?.message && (
                                                     <FormHelperText sx={{
-                                                        color: !errors?.provinceName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                        color: !errors?.districtName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                     }}>
-                                                        {errors?.provinceName?.message}
+                                                        {errors?.districtName?.message}
                                                     </FormHelperText>
                                                 )}
                                             </Box>
@@ -319,7 +319,7 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idDistrict ? t('update') : t('create')}
+                                {idWard ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form >
@@ -329,4 +329,4 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
     )
 }
 
-export default CreateUpdateDistrict
+export default CreateUpdateWard

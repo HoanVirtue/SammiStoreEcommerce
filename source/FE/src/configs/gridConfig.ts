@@ -1,3 +1,5 @@
+import { get } from "http";
+import i18n from "./i18n";
 
 type Operator = {
     value: string;
@@ -12,64 +14,68 @@ type FieldConfig = {
 };
 
 
-const stringOperators: Operator[] = [
-    { value: "contains", label: "Contains" },
-    { value: "doesnotcontain", label: "Does Not Contain" },
-    { value: "eq", label: "Equal" },
-    { value: "neq", label: "Not Equal" },
-    { value: "startswith", label: "Starts With" },
-    { value: "endswith", label: "Ends With" },
-    { value: "isnull", label: "Is Null" },
-    { value: "isnotnull", label: "Is Not Null" },
-    { value: "isempty", label: "Is Empty" },
-    { value: "isnotempty", label: "Is Not Empty" },
+const getStringOperators = (): Operator[] => [
+    { value: "contains", label: i18n.t("contains") },
+    { value: "doesnotcontain", label: i18n.t("does_not_contain") },
+    { value: "eq", label: i18n.t("equal") },
+    { value: "neq", label: i18n.t("not_equal") },
+    { value: "startswith", label: i18n.t("starts_with") },
+    { value: "endswith", label: i18n.t("ends_with") },
+    { value: "isnull", label: i18n.t("is_null") },
+    { value: "isnotnull", label: i18n.t("is_not_null") },
+    { value: "isempty", label: i18n.t("is_empty") },
+    { value: "isnotempty", label: i18n.t("is_not_empty") },
 ];
 
-const numberOperators: Operator[] = [
-    { value: "eq", label: "Equal" },
-    { value: "neq", label: "Not Equal" },
-    { value: "gt", label: "Greater Than" },
-    { value: "gte", label: "Greater Than or Equal" },
-    { value: "lt", label: "Less Than" },
-    { value: "lte", label: "Less Than or Equal" },
-    { value: "isnull", label: "Is Null" },
-    { value: "isnotnull", label: "Is Not Null" },
+const getNumberOperators = (): Operator[] => [
+    { value: "eq", label: i18n.t("equal") },
+    { value: "neq", label: i18n.t("not_equal") },
+    { value: "gt", label: i18n.t("greater_than") },
+    { value: "gte", label: i18n.t("greater_than_or_equal") },
+    { value: "lt", label: i18n.t("less_than") },
+    { value: "lte", label: i18n.t("less_than_or_equal") },
+    { value: "isnull", label: i18n.t("is_null") },
+    { value: "isnotnull", label: i18n.t("is_not_null") },
 ];
 
-const booleanOperators: Operator[] = [
-    { value: "eq", label: "Equal" },
-    { value: "neq", label: "Not Equal" },
-    { value: "isnull", label: "Is Null" },
-    { value: "isnotnull", label: "Is Not Null" },
+const getBooleanOperators = (): Operator[] => [
+    { value: "eq", label: i18n.t("equal") },
+    { value: "neq", label: i18n.t("not_equal") },
+    { value: "isnull", label: i18n.t("is_null") },
+    { value: "isnotnull", label: i18n.t("is_not_null") },
 ];
 
-const dateOperators: Operator[] = [
-    { value: "eq", label: "Equal" },
-    { value: "neq", label: "Not Equal" },
-    { value: "gt", label: "Greater Than" },
-    { value: "gte", label: "Greater Than or Equal" },
-    { value: "lt", label: "Less Than" },
-    { value: "lte", label: "Less Than or Equal" },
-    { value: "isnull", label: "Is Null" },
-    { value: "isnotnull", label: "Is Not Null" },
+const getDateOperators = (): Operator[] => [
+    { value: "eq", label: i18n.t("equal") },
+    { value: "neq", label: i18n.t("not_equal") },
+    { value: "gt", label: i18n.t("greater_than") },
+    { value: "gte", label: i18n.t("greater_than_or_equal") },
+    { value: "lt", label: i18n.t("less_than") },
+    { value: "lte", label: i18n.t("less_than_or_equal") },
+    { value: "isnull", label: i18n.t("is_null") },
+    { value: "isnotnull", label: i18n.t("is_not_null") },
 ];
 
-// Định nghĩa fields cho ListProvincePage
-export const provinceFields: FieldConfig[] = [
-    { value: "name", label: "Province Name", type: "string", operators: stringOperators },
-    { value: "code", label: "Province Code", type: "string", operators: stringOperators },
-    { value: "postalCode", label: "Postal Code", type: "string", operators: stringOperators },
-    // Thêm các field khác nếu cần, ví dụ:
-    // { value: "active", label: "Active", type: "boolean", operators: booleanOperators },
-    // { value: "population", label: "Population", type: "number", operators: numberOperators },
-    // { value: "createdAt", label: "Created At", type: "date", operators: dateOperators },
-];
 
 // Định nghĩa fields cho ListDistrictPage
-export const districtFields: FieldConfig[] = [
-    { value: "name", label: "Province Name", type: "string", operators: stringOperators },
-    { value: "code", label: "Province Code", type: "string", operators: stringOperators },
-    { value: "postalCode", label: "Postal Code", type: "string", operators: stringOperators },
+export const getProvinceFields = (): FieldConfig[] => [
+    { value: "name", label: i18n.t("province_name"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("province_code"), type: "string", operators: getStringOperators() },
+    { value: "postalCode", label: i18n.t("postal_code"), type: "string", operators: getStringOperators() },
+];
+
+export const getDistrictFields = (): FieldConfig[] => [
+    { value: "name", label: i18n.t("district_name"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("district_code"), type: "string", operators: getStringOperators() },
+    { value: "provinceId", label: i18n.t("province_id"), type: "string", operators: getStringOperators() },
+    { value: "provinceName", label: i18n.t("province_name"), type: "string", operators: getStringOperators() },
+];
+
+export const getWardFields = (): FieldConfig[] => [
+    { value: "name", label: i18n.t("ward_name"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("ward_code"), type: "string", operators: getStringOperators() },
+    { value: "districtId", label: i18n.t("district_id"), type: "string", operators: getStringOperators() },
+    { value: "districtName", label: i18n.t("district_name"), type: "string", operators: getStringOperators() },
 ];
 
 

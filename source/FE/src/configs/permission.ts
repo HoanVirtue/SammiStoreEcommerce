@@ -52,16 +52,23 @@ export const PERMISSIONS: any = {
         UPDATE: "SETTING.DELIVERY_METHOD.UPDATE",
         DELETE: "SETTING.DELIVERY_METHOD.DELETE",
       },
-      CITY: {
-        CREATE: "CITY.CREATE",
-        UPDATE: "CITY.UPDATE",
-        DELETE: "CITY.DELETE",
-      },
+    },
+    ADDRESS: {
       PROVINCE: {
-        CREATE: "PROVINCE.CREATE",
-        UPDATE: "PROVINCE.UPDATE",
-        DELETE: "PROVINCE.DELETE",
-      }
+        CREATE: "ADDRESS.PROVINCE.CREATE",
+        UPDATE: "ADDRESS.PROVINCE.UPDATE",
+        DELETE: "ADDRESS.PROVINCE.DELETE",
+      },
+      DISTRICT: {
+        CREATE: "ADDRESS.DISTRICT.CREATE",
+        UPDATE: "ADDRESS.DISTRICT.UPDATE",
+        DELETE: "ADDRESS.DISTRICT.DELETE",
+      },
+      WARD: {
+        CREATE: "ADDRESS.WARD.CREATE",
+        UPDATE: "ADDRESS.WARD.UPDATE",
+        DELETE: "ADDRESS.WARD.DELETE",
+      },
     },
   };
 

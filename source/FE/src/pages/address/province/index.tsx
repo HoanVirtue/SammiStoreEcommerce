@@ -13,4 +13,4 @@ const Province: NextPage<TProps> = () => {
 
 export default Province
 
-Province.permission = [PERMISSIONS.SETTING.PROVINCE.VIEW]
+Province.permission = [PERMISSIONS.ADDRESS.PROVINCE.VIEW]

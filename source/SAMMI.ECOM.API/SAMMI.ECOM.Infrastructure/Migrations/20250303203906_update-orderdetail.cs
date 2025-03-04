@@ -5,24 +5,22 @@
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class addcart : Migration
+    public partial class updateorderdetail : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_Order_Voucher_DiscountId",
-                table: "Order");
+                name: "FK_OrderDetail_Voucher_DiscountId",
+                table: "OrderDetail");
 
-            migrationBuilder.RenameColumn(
+            migrationBuilder.DropIndex(
+                name: "IX_OrderDetail_DiscountId",
+                table: "OrderDetail");
+
+            migrationBuilder.DropColumn(
                 name: "DiscountId",
-                table: "Order",
-                newName: "VoucherId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_Order_DiscountId",
-                table: "Order",
-                newName: "IX_Order_VoucherId");
+                table: "OrderDetail");
 
             migrationBuilder.AlterTable(
                 name: "Ward")
@@ -158,6 +156,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.AlterTable(
                 name: "CustomerAddress")
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterTable(
+                name: "CartDetail")
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterTable(
+                name: "Cart")
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterTable(
@@ -2015,6 +2021,66 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "UpdatedBy",
+                table: "CartDetail",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Culture",
+                table: "CartDetail",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "CreatedBy",
+                table: "CartDetail",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "UpdatedBy",
+                table: "Cart",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Culture",
+                table: "Cart",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "CreatedBy",
+                table: "Cart",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "UpdatedBy",
                 table: "Brand",
                 type: "longtext",
                 nullable: true,
@@ -2105,32 +2171,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldType: "longtext",
                 oldNullable: true)
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Order_Voucher_VoucherId",
-                table: "Order",
-                column: "VoucherId",
-                principalTable: "Voucher",
-                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Order_Voucher_VoucherId",
-                table: "Order");
-
-            migrationBuilder.RenameColumn(
-                name: "VoucherId",
-                table: "Order",
-                newName: "DiscountId");
-
-            migrationBuilder.RenameIndex(
-                name: "IX_Order_VoucherId",
-                table: "Order",
-                newName: "IX_Order_DiscountId");
-
             migrationBuilder.AlterTable(
                 name: "Ward")
                 .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
@@ -2265,6 +2310,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.AlterTable(
                 name: "CustomerAddress")
+                .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterTable(
+                name: "CartDetail")
+                .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterTable(
+                name: "Cart")
                 .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterTable(
@@ -3587,6 +3640,12 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldType: "longtext",
                 oldNullable: true);
 
+            migrationBuilder.AddColumn<int>(
+                name: "DiscountId",
+                table: "OrderDetail",
+                type: "int",
+                nullable: true);
+
             migrationBuilder.AlterColumn<string>(
                 name: "UpdatedBy",
                 table: "Order",
@@ -4122,6 +4181,66 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.AlterColumn<string>(
                 name: "UpdatedBy",
+                table: "CartDetail",
+                type: "longtext",
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Culture",
+                table: "CartDetail",
+                type: "longtext",
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "CreatedBy",
+                table: "CartDetail",
+                type: "longtext",
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "UpdatedBy",
+                table: "Cart",
+                type: "longtext",
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Culture",
+                table: "Cart",
+                type: "longtext",
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "CreatedBy",
+                table: "Cart",
+                type: "longtext",
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "UpdatedBy",
                 table: "Brand",
                 type: "longtext",
                 nullable: true,
@@ -4213,9 +4332,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldType: "longtext",
                 oldNullable: true);
 
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetail_DiscountId",
+                table: "OrderDetail",
+                column: "DiscountId");
+
             migrationBuilder.AddForeignKey(
-                name: "FK_Order_Voucher_DiscountId",
-                table: "Order",
+                name: "FK_OrderDetail_Voucher_DiscountId",
+                table: "OrderDetail",
                 column: "DiscountId",
                 principalTable: "Voucher",
                 principalColumn: "Id");

@@ -12,8 +12,8 @@ using SAMMI.ECOM.Infrastructure;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     [DbContext(typeof(SammiEcommerceContext))]
-    [Migration("20250222213551_add-tbl-vouchercondition")]
-    partial class addtblvouchercondition
+    [Migration("20250303195558_initialcreate")]
+    partial class initialcreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -492,9 +492,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<int?>("BrandId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(256)
@@ -528,7 +525,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("EndDate");
 
-                    b.Property<int?>("EventId")
+                    b.Property<int>("EventId")
                         .HasColumnType("int")
                         .HasColumnName("EventId");
 
@@ -545,6 +542,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("Name");
+
+                    b.Property<int?>("ProductCategoryId")
+                        .HasColumnType("int");
 
                     b.Property<int?>("ProductId")
                         .HasColumnType("int");
@@ -573,11 +573,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     b.HasIndex("BrandId");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("DiscountTypeId");
 
                     b.HasIndex("EventId");
+
+                    b.HasIndex("ProductCategoryId");
 
                     b.HasIndex("ProductId");
 
@@ -643,6 +643,117 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.HasIndex("VoucherId");
 
                     b.ToTable("VoucherCondition");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Cart", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Culture")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Culture");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("DisplayOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("DisplayOrder");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.ToTable("Cart");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.CartDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("Id");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CartId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("CreatedBy");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("CreatedDate");
+
+                    b.Property<string>("Culture")
+                        .HasColumnType("longtext")
+                        .HasColumnName("Culture");
+
+                    b.Property<int?>("DisplayOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("DisplayOrder");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsActive");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsDeleted");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int")
+                        .HasColumnName("Quantity");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("longtext")
+                        .HasColumnName("UpdatedBy");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("UpdatedDate");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("CartDetail");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Message", b =>
@@ -813,9 +924,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("DiscountId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
@@ -851,11 +959,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("datetime(6)")
                         .HasColumnName("UpdatedDate");
 
+                    b.Property<int?>("VoucherId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("DiscountId");
+                    b.HasIndex("VoucherId");
 
                     b.ToTable("Order");
                 });
@@ -1608,9 +1719,18 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
 
+                    b.Property<decimal?>("Discount")
+                        .IsRequired()
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("Discount");
+
                     b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
+
+                    b.Property<DateTime?>("EndDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("EndDate");
 
                     b.Property<string>("Ingredient")
                         .HasColumnType("longtext")
@@ -1630,13 +1750,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("Name");
 
-                    b.Property<decimal>("NewPrice")
+                    b.Property<decimal>("Price")
                         .HasColumnType("decimal(65,30)")
-                        .HasColumnName("NewPrice");
+                        .HasColumnName("Price");
 
-                    b.Property<decimal?>("OldPrice")
-                        .HasColumnType("decimal(65,30)")
-                        .HasColumnName("OldPrice");
+                    b.Property<DateTime?>("StartDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("StartDate");
 
                     b.Property<int?>("Status")
                         .HasColumnType("int")
@@ -2530,13 +2650,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", b =>
                 {
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", "Brand")
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", null)
                         .WithMany("Vouchers")
                         .HasForeignKey("BrandId");
-
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.ProductCategory", "Category")
-                        .WithMany("Vouchers")
-                        .HasForeignKey("CategoryId");
 
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.DiscountType", "DiscountType")
                         .WithMany("Vouchers")
@@ -2546,21 +2662,21 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Event", "Event")
                         .WithMany("Vouchers")
-                        .HasForeignKey("EventId");
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Product", "Product")
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.ProductCategory", null)
+                        .WithMany("Vouchers")
+                        .HasForeignKey("ProductCategoryId");
+
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Product", null)
                         .WithMany("Vouchers")
                         .HasForeignKey("ProductId");
-
-                    b.Navigation("Brand");
-
-                    b.Navigation("Category");
 
                     b.Navigation("DiscountType");
 
                     b.Navigation("Event");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.VoucherCondition", b =>
@@ -2568,9 +2684,37 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", "Voucher")
                         .WithMany("VoucherConditions")
                         .HasForeignKey("VoucherId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Voucher");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Cart", b =>
+                {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Others.User", "Customer")
+                        .WithMany("Carts")
+                        .HasForeignKey("CustomerId")
+                        .IsRequired();
+
+                    b.Navigation("Customer");
+                });
+
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.CartDetail", b =>
+                {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Cart", "Cart")
+                        .WithMany("CartDetails")
+                        .HasForeignKey("CartId")
+                        .IsRequired();
+
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Product", "Product")
+                        .WithMany("CartDetails")
+                        .HasForeignKey("ProductId")
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Message", b =>
@@ -2613,13 +2757,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasForeignKey("CustomerId")
                         .IsRequired();
 
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", "Discount")
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.EventVoucher.Voucher", "Voucher")
                         .WithMany("Orders")
-                        .HasForeignKey("DiscountId");
+                        .HasForeignKey("VoucherId");
 
                     b.Navigation("Customer");
 
-                    b.Navigation("Discount");
+                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.OrderDetail", b =>
@@ -2915,6 +3059,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("VoucherConditions");
                 });
 
+            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Cart", b =>
+                {
+                    b.Navigation("CartDetails");
+                });
+
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Order", b =>
                 {
                     b.Navigation("Notifications");
@@ -2938,6 +3087,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Others.User", b =>
                 {
+                    b.Navigation("Carts");
+
                     b.Navigation("CustomerAddresses");
 
                     b.Navigation("FavouriteProducts");
@@ -2985,6 +3136,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Product", b =>
                 {
+                    b.Navigation("CartDetails");
+
                     b.Navigation("FavouriteProducts");
 
                     b.Navigation("OrderDetails");

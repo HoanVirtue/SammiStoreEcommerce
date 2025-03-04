@@ -30,7 +30,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
-                    sqlBuilder.Select("t3.Id AS ImageId, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
+                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
 
                     sqlBuilder.LeftJoin("ProductImage t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Image t3 ON t2.ImageId = t3.Id AND t3.IsDeleted != 1");
@@ -43,21 +43,23 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 productEntry = product;
                                 productEntry.Images = new List<ImageDTO>();
                                 // format currency
-                                productEntry.OldPrice = Math.Round(productEntry.OldPrice ?? 0, 2);
-                                productEntry.NewPrice = Math.Round(productEntry.NewPrice, 2);
+                                if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
+                                    productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
+                                else
+                                    productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productDirectory.Add(product.Id, productEntry);
                             }
                             if (image != null)
                             {
-                                product.Images ??= new();
+                                productEntry.Images ??= new();
                                 productEntry.Images.Add(image);
                             }
 
                             return productEntry;
                         },
                         sqlTemplate.Parameters,
-                        splitOn: "ImageId");
-                }, filterModel
+                        splitOn: "Id");
+                }
             );
         }
 
@@ -78,7 +80,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
-                    sqlBuilder.Select("t3.Id AS ImageId, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
+                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
 
                     sqlBuilder.LeftJoin("ProductImage t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Image t3 ON t2.ImageId = t3.Id AND t3.IsDeleted != 1");
@@ -91,8 +93,10 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 productEntry = product;
                                 productEntry.Images = new List<ImageDTO>();
                                 // format currency
-                                productEntry.OldPrice = Math.Round(productEntry.OldPrice ?? 0, 2);
-                                productEntry.NewPrice = Math.Round(productEntry.NewPrice, 2);
+                                if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
+                                    productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
+                                else
+                                    productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productDirectory.Add(product.Id, productEntry);
                             }
                             if (image != null)
@@ -104,7 +108,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                             return productEntry;
                         },
                         sqlTemplate.Parameters,
-                        splitOn: "ImageId");
+                        splitOn: "Id");
                 },
                 filterModel);
         }

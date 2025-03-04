@@ -639,16 +639,6 @@ namespace SAMMI.ECOM.Infrastructure
                 },
                 new DiscountType()
                 {
-                    Code = DiscountTypeEnum.BuyXGetY.ToString(),
-                    Name = "Mua X tặng Y",
-                    Description = "Mua một số lượng sản phẩm nhất định và nhận quà tặng.",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "System"
-                },
-                new DiscountType()
-                {
                     Code = DiscountTypeEnum.FreeShipping.ToString(),
                     Name = "Miễn phí vận chuyển",
                     Description = "Giảm toàn bộ phí vận chuyển khi đạt điều kiện.",

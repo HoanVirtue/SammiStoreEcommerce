@@ -1,14 +1,12 @@
 ﻿namespace SAMMI.ECOM.Domain.Commands.OrderBuy
 {
-    public class CUOrderCommand
+    public class OrderDetailCommand
     {
-        public string Code { get; set; } = null!;
-        public int CustomerId { get; set; }
-        public string? PaymentStatus { get; set; }
-        public string? OrderStatus { get; set; }
-        public string? ShippingStatus { get; set; }
-        public int? DiscountId { get; set; }
-        public string? CustomerAddress { get; set; }
+        public int OrderId { get; set; }
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
+        public decimal? Tax { get; set; }
+        public decimal? Amount { get; set; }
 
         public int Id { get; set; }
         public DateTime? CreatedDate { get; set; }

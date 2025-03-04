@@ -1,4 +1,5 @@
-﻿using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
+﻿using SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
+using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.Seeds;
 using System.ComponentModel.DataAnnotations;
@@ -31,6 +32,9 @@ public partial class Order : Entity
     [ForeignKey("Voucher")]
     public int? VoucherId { get; set; }
 
+    [ForeignKey("Ward")]
+    public int? WardId { get; set; }
+
     [Column("CustomerAddress")]
     [MaxLength(255)]
     public string? CustomerAddress { get; set; }
@@ -46,4 +50,6 @@ public partial class Order : Entity
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
     public virtual ICollection<ShippingInfo> ShippingInfos { get; set; } = new List<ShippingInfo>();
+    public virtual Ward? Ward { get; set; }
+
 }

@@ -24,16 +24,16 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         [JsonProperty("level")]
         public int Level { get; set; } // Cấp bậc
         [JsonProperty("discount")]
-        public string Discount { get; set; } // Giảm giá tương ứng
+        public decimal Discount { get; set; } // Giảm giá tương ứng
     }
 
     public class AllowedRegionCommand
     {
-        public string RegionCode { get; set; }
+        public string RegionId { get; set; }
     }
 
     public class RequiredProductCommand
     {
-        public string ProductCode { get; set; }
+        public string ProductId { get; set; }
     }
 }

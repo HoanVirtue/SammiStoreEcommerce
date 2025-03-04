@@ -27,7 +27,6 @@ namespace SAMMI.ECOM.Domain.Enums
     {
         Percentage,       // Giảm giá theo %
         FixedAmount,      // Giảm giá số tiền cố định
-        BuyXGetY,        // Mua X tặng Y
         FreeShipping,    // Miễn phí vận chuyển
         TieredDiscount,  // Giảm theo cấp bậc
         BundleDiscount   // Giảm giá khi mua theo combo

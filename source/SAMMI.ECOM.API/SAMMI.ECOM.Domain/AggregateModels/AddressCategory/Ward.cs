@@ -1,4 +1,5 @@
-﻿using SAMMI.ECOM.Domain.AggregateModels.Others;
+﻿using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
+using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.Seeds;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -24,4 +25,5 @@ public partial class Ward : Entity
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 
     public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

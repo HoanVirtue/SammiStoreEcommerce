@@ -42,8 +42,6 @@ public partial class Voucher : Entity
 
     public virtual ICollection<MyVoucher> MyVouchers { get; set; } = new List<MyVoucher>();
 
-    public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 
     public virtual DiscountType? DiscountType { get; set; }

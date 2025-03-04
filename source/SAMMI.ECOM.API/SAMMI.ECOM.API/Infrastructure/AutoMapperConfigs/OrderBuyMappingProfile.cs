@@ -11,6 +11,11 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
         {
             CreateMap<CreateCartDetailCommand, CartDetail>();
             CreateMap<CartDetail, CartDetailDTO>();
+
+            CreateMap<CreateOrderCommand, Order>();
+            CreateMap<Order, OrderDTO>();
+
+            CreateMap<OrderDetailCommand, OrderDetail>();
         }
     }
 }

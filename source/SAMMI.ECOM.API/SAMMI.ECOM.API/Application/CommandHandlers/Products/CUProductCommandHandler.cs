@@ -68,6 +68,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 return actResponse;
             }
 
+            request.Discount = 1 > request.Discount ? request.Discount : request.Discount / 100;
             if (request.Id == 0)
             {
                 request.CreatedDate = DateTime.Now;
@@ -149,6 +150,26 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             RuleFor(x => x.Code)
                 .NotEmpty()
                 .WithMessage("Mã sản phẩm không được bỏ trống");
+
+            RuleFor(x => x.Discount)
+                .Must(x => x.HasValue && x.Value != 0 && x.Value > 0)
+                .When(x => x.Discount.HasValue && x.Discount != 0)
+                .DependentRules(() =>
+                {
+                    RuleFor(x => x.StartDate)
+                        .NotEmpty()
+                        .WithMessage("Ngày bắt đầu không được để trống khi có giảm gía")
+                        .Must(x => x.HasValue && x > DateTime.Now)
+                        .WithMessage("Ngày bắt đầu phải lớn hơn ngày hiện tại");
+
+                    RuleFor(x => x.EndDate)
+                        .NotEmpty()
+                        .WithMessage("Ngày kết thúc không được để trống khi có giảm gía")
+                        .Must(x => x.HasValue && x > DateTime.Now)
+                        .WithMessage("Ngày kết thúc phải lớn ngày hiện tại")
+                        .GreaterThanOrEqualTo(x => x.StartDate)
+                        .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu");
+                });
 
             RuleFor(x => x.Images)
                 .NotEmpty()

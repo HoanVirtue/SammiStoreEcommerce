@@ -18,6 +18,10 @@ namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
             builder.HasOne(d => d.Voucher)
                 .WithMany(p => p.Orders)
                 .HasForeignKey(d => d.VoucherId);
+
+            builder.HasOne(d => d.Ward)
+                .WithMany(p => p.Orders)
+                .HasForeignKey(d => d.WardId);
         }
     }
 }

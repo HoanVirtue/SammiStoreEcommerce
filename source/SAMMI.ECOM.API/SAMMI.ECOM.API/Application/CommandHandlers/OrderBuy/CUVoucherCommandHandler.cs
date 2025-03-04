@@ -25,7 +25,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         {
             { DiscountTypeEnum.Percentage, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue, ConditionTypeEnum.MaxDiscountAmount } },
             { DiscountTypeEnum.FixedAmount, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue } },
-            { DiscountTypeEnum.BuyXGetY, new List<ConditionTypeEnum> { ConditionTypeEnum.RequiredQuantity } },
             { DiscountTypeEnum.FreeShipping, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue, ConditionTypeEnum.AllowedRegions } },
             { DiscountTypeEnum.TieredDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.TierLevels } },
             { DiscountTypeEnum.BundleDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.RequiredProducts } }
@@ -179,7 +178,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 {
                     case ConditionTypeEnum.AllowedRegions:
                         var regions = c.ConditionType.ToString().DeserializeJson<List<AllowedRegionCommand>>();
-                        string regionFormated = string.Join(",", regions.Select(r => r.RegionCode));
+                        string regionFormated = string.Join(",", regions.Select(r => r.RegionId));
 
                         vCondi.ConditionValue = regionFormated;
                         break;
@@ -191,7 +190,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                         break;
                     case ConditionTypeEnum.RequiredProducts:
                         var products = c.ConditionType.ToString().DeserializeJson<List<RequiredProductCommand>>();
-                        string productFormated = string.Join(",", products.Select(r => r.ProductCode));
+                        string productFormated = string.Join(",", products.Select(r => r.ProductId));
 
                         vCondi.ConditionValue = productFormated;
                         break;

@@ -10,6 +10,7 @@ import deliveryMethod from 'src/stores/delivery-method'
 import paymentMethod from 'src/stores/payment-method'
 import province from 'src/stores/province'
 import district from 'src/stores/district'
+import ward from 'src/stores/ward'
 import productCategory from 'src/stores/product-category'
 import product from 'src/stores/product'
 import order from 'src/stores/order'
@@ -28,7 +29,8 @@ export const store = configureStore({
     productCategory,
     product,
     order,
-    review
+    review,
+    ward
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

@@ -23,7 +23,7 @@ import { AppDispatch, RootState } from "src/stores";
 import { useTranslation } from "react-i18next";
 
 // Configs
-import { getProvinceFields, PAGE_SIZE_OPTIONS } from "src/configs/gridConfig";
+import {getWardFields, PAGE_SIZE_OPTIONS } from "src/configs/gridConfig";
 
 // Components
 import CustomDataGrid from "src/components/custom-data-grid";
@@ -31,7 +31,6 @@ import CustomPagination from "src/components/custom-pagination";
 import GridUpdate from "src/components/grid-update";
 import GridDelete from "src/components/grid-delete";
 import GridCreate from "src/components/grid-create";
-import CreateUpdateProvince from "./components/CreateUpdateProvince";
 import Spinner from "src/components/spinner";
 import ConfirmDialog from "src/components/confirm-dialog";
 import TableHeader from "src/components/table-header";
@@ -47,14 +46,16 @@ import { usePermission } from "src/hooks/usePermission";
 
 // Redux Actions
 import {
-    deleteMultipleProvincesAsync,
-    deleteProvinceAsync,
-    getAllProvincesAsync,
-} from "src/stores/province/action";
+    deleteMultipleWardsAsync,
+    deleteWardAsync,
+    getAllWardsAsync,
+} from "src/stores/ward/action";
 
-import { resetInitialState } from 'src/stores/province'
+import { resetInitialState } from 'src/stores/ward'
 import AdminFilter from "src/components/admin-filter";
 import { useDebounce } from "src/hooks/useDebounce";
+import CreateUpdateWard from "./components/CreateUpdateWard";
+
 
 type TProps = {};
 
@@ -65,19 +66,20 @@ type TFilter = {
     logic?: string;
 };
 
-const ListProvincePage: NextPage<TProps> = () => {
+const ListWardPage: NextPage<TProps> = () => {
     // States
     const [page, setPage] = useState<number>(1);
     const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
-    const [openCreateUpdateProvince, setOpenCreateUpdateProvince] = useState<{
+    const [loading, setLoading] = useState<boolean>(false)
+    const [openCreateUpdateWard, setOpenCreateUpdateWard] = useState<{
         open: boolean;
         id: string;
     }>({ open: false, id: "" });
-    const [openDeleteProvince, setOpenDeleteProvince] = useState<{
+    const [openDeleteWard, setOpenDeleteWard] = useState<{
         open: boolean;
         id: string;
     }>({ open: false, id: "" });
-    const [openDeleteMultipleProvince, setOpenDeleteMultipleProvince] =
+    const [openDeleteMultipleWard, setOpenDeleteMultipleWard] =
         useState<boolean>(false);
 
     const [sortBy, setSortBy] = useState<string>("createdDate asc");
@@ -88,9 +90,10 @@ const ListProvincePage: NextPage<TProps> = () => {
 
     // Translation
     const { t } = useTranslation();
+    const WardFields = getWardFields();
 
     // Hooks
-    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("ADDRESS.PROVINCE", [
+    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("ADDRESS.WARD", [
         "CREATE",
         "UPDATE",
         "DELETE",
@@ -99,7 +102,7 @@ const ListProvincePage: NextPage<TProps> = () => {
 
     // Redux
     const {
-        provinces,
+        wards,
         isSuccessCreateUpdate,
         isErrorCreateUpdate,
         isLoading,
@@ -110,16 +113,14 @@ const ListProvincePage: NextPage<TProps> = () => {
         isSuccessDeleteMultiple,
         isErrorDeleteMultiple,
         errorMessageDeleteMultiple,
-    } = useSelector((state: RootState) => state.province);
+    } = useSelector((state: RootState) => state.ward);
     const dispatch = useDispatch<AppDispatch>();
 
     // Theme
     const theme = useTheme();
 
-    const provinceFields = getProvinceFields()
-
     // API Call
-    const handleGetListProvince = () => {
+    const handleGetListWard = () => {
         const [orderByField, orderByDir] = sortBy.split(" ");
         const validFilters = debouncedFilters.filter(
             (f) => f.field && f.operator && (f.value || ["isnull", "isnotnull", "isempty", "isnotempty"].includes(f.operator))
@@ -138,7 +139,7 @@ const ListProvincePage: NextPage<TProps> = () => {
                 keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value || "''" : "''",
             },
         };
-        dispatch(getAllProvincesAsync(query));
+        dispatch(getAllWardsAsync(query));
     };
 
     // Handlers
@@ -150,38 +151,38 @@ const ListProvincePage: NextPage<TProps> = () => {
     const handleSort = (sort: GridSortModel) => {
         const sortOption = sort[0];
         if (sortOption) {
-            const field = sortOption.field === "province_name" ? "name" :
-                sortOption.field === "province_code" ? "code" :
-                    sortOption.field === "postal_code" ? "postalCode" : sortOption.field;
+            const field = sortOption.field === "ward_name" ? "name" :
+                sortOption.field === "ward_code" ? "code" :
+                    sortOption.field === "district_name" ? "districtName" : sortOption.field;
             setSortBy(`${field} ${sortOption.sort}`);
         } else {
             setSortBy("createdDate asc");
         }
     };
 
-    const handleCloseCreateUpdateProvince = () => {
-        setOpenCreateUpdateProvince({ open: false, id: "" });
+    const handleCloseCreateUpdateWard = () => {
+        setOpenCreateUpdateWard({ open: false, id: "" });
     };
 
     const handleCloseDeleteDialog = () => {
-        setOpenDeleteProvince({ open: false, id: "" });
+        setOpenDeleteWard({ open: false, id: "" });
     };
 
     const handleCloseDeleteMultipleDialog = () => {
-        setOpenDeleteMultipleProvince(false);
+        setOpenDeleteMultipleWard(false);
     };
 
-    const handleDeleteProvince = () => {
-        dispatch(deleteProvinceAsync(openDeleteProvince.id));
+    const handleDeleteWard = () => {
+        dispatch(deleteWardAsync(openDeleteWard.id));
     };
 
-    const handleDeleteMultipleProvince = () => {
-        dispatch(deleteMultipleProvincesAsync({ provinceIds: selectedRow }));
+    const handleDeleteMultipleWard = () => {
+        dispatch(deleteMultipleWardsAsync({ wardIds: selectedRow }));
     };
 
     const handleAction = (action: string) => {
         if (action === "delete") {
-            setOpenDeleteMultipleProvince(true);
+            setOpenDeleteMultipleWard(true);
         }
     };
 
@@ -192,8 +193,8 @@ const ListProvincePage: NextPage<TProps> = () => {
     // Columns Definition
     const columns: GridColDef[] = [
         {
-            field: "province_name",
-            headerName: t("province_name"),
+            field: "ward_name",
+            headerName: t("ward_name"),
             flex: 1,
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => (
@@ -201,8 +202,8 @@ const ListProvincePage: NextPage<TProps> = () => {
             ),
         },
         {
-            field: "province_code",
-            headerName: t("province_code"),
+            field: "ward_code",
+            headerName: t("ward_code"),
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => (
@@ -210,12 +211,21 @@ const ListProvincePage: NextPage<TProps> = () => {
             ),
         },
         {
-            field: "postal_code",
-            headerName: t("postal_code"),
+            field: "district_name",
+            headerName: t("district_name"),
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => (
-                <Typography>{params.row.postalCode}</Typography>
+                <Typography>{params.row.districtName}</Typography>
+            ),
+        },
+        {
+            field: "district_code",
+            headerName: t("district_code"),
+            minWidth: 200,
+            maxWidth: 200,
+            renderCell: (params: GridRenderCellParams) => (
+                <Typography>{params?.row?.districtId}</Typography>
             ),
         },
         {
@@ -225,11 +235,11 @@ const ListProvincePage: NextPage<TProps> = () => {
             sortable: false,
             align: "left",
             renderCell: (params: GridRenderCellParams) => (
-                <>  
+                <>
                     <GridUpdate
                         // disabled={!UPDATE}
                         onClick={() =>
-                            setOpenCreateUpdateProvince({
+                            setOpenCreateUpdateWard({
                                 open: true,
                                 id: String(params.row.id),
                             })
@@ -238,7 +248,7 @@ const ListProvincePage: NextPage<TProps> = () => {
                     <GridDelete
                         // disabled={!DELETE}
                         onClick={() =>
-                            setOpenDeleteProvince({ open: true, id: String(params.row.id) })
+                            setOpenDeleteWard({ open: true, id: String(params.row.id) })
                         }
                     />
                 </>
@@ -253,24 +263,25 @@ const ListProvincePage: NextPage<TProps> = () => {
             pageSizeOptions={PAGE_SIZE_OPTIONS}
             onChangePagination={handleOnChangePagination}
             page={page}
-            rowLength={provinces.total}
+            rowLength={wards.total}
         />
     );
 
     // Effects
     useEffect(() => {
-        handleGetListProvince();
+        handleGetListWard();
     }, [sortBy, page, pageSize, debouncedFilters]);
+
 
     useEffect(() => {
         if (isSuccessCreateUpdate) {
             toast.success(
-                openCreateUpdateProvince.id
-                    ? t("update_province_success")
-                    : t("create_province_success")
+                openCreateUpdateWard.id
+                    ? t("update_ward_success")
+                    : t("create_ward_success")
             );
-            handleGetListProvince();
-            handleCloseCreateUpdateProvince();
+            handleGetListWard();
+            handleCloseCreateUpdateWard();
             dispatch(resetInitialState());
         } else if (isErrorCreateUpdate && errorMessageCreateUpdate) {
             toast.error(errorMessageCreateUpdate);
@@ -280,21 +291,21 @@ const ListProvincePage: NextPage<TProps> = () => {
 
     useEffect(() => {
         if (isSuccessDeleteMultiple) {
-            toast.success(t("delete_multiple_province_success"));
-            handleGetListProvince();
+            toast.success(t("delete_multiple_ward_success"));
+            handleGetListWard();
             dispatch(resetInitialState());
             handleCloseDeleteMultipleDialog();
             setSelectedRow([]);
         } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-            toast.error(t("delete_multiple_province_error"));
+            toast.error(t("delete_multiple_ward_error"));
             dispatch(resetInitialState());
         }
     }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple]);
 
     useEffect(() => {
         if (isSuccessDelete) {
-            toast.success(t("delete_province_success"));
-            handleGetListProvince();
+            toast.success(t("delete_ward_success"));
+            handleGetListWard();
             dispatch(resetInitialState());
             handleCloseDeleteDialog();
         } else if (isErrorDelete && errorMessageDelete) {
@@ -307,25 +318,25 @@ const ListProvincePage: NextPage<TProps> = () => {
         <>
             {isLoading && <Spinner />}
             <ConfirmDialog
-                open={openDeleteProvince.open}
+                open={openDeleteWard.open}
                 onClose={handleCloseDeleteDialog}
                 handleCancel={handleCloseDeleteDialog}
-                handleConfirm={handleDeleteProvince}
-                title={t("confirm_delete_province")}
-                description={t("are_you_sure_delete_province")}
+                handleConfirm={handleDeleteWard}
+                title={t("confirm_delete_ward")}
+                description={t("are_you_sure_delete_ward")}
             />
             <ConfirmDialog
-                open={openDeleteMultipleProvince}
+                open={openDeleteMultipleWard}
                 onClose={handleCloseDeleteMultipleDialog}
                 handleCancel={handleCloseDeleteMultipleDialog}
-                handleConfirm={handleDeleteMultipleProvince}
-                title={t("confirm_delete_multiple_provinces")}
-                description={t("are_you_sure_delete_multiple_provinces")}
+                handleConfirm={handleDeleteMultipleWard}
+                title={t("confirm_delete_multiple_wards")}
+                description={t("are_you_sure_delete_multiple_wards")}
             />
-            <CreateUpdateProvince
-                idProvince={openCreateUpdateProvince.id}
-                open={openCreateUpdateProvince.open}
-                onClose={handleCloseCreateUpdateProvince}
+            <CreateUpdateWard
+                idWard={openCreateUpdateWard.id}
+                open={openCreateUpdateWard.open}
+                onClose={handleCloseCreateUpdateWard}
             />
             <Box
                 sx={{
@@ -348,7 +359,7 @@ const ListProvincePage: NextPage<TProps> = () => {
                         >
                             <GridCreate
                                 onClick={() =>
-                                    setOpenCreateUpdateProvince({ open: true, id: "" })
+                                    setOpenCreateUpdateWard({ open: true, id: "" })
                                 }
                             />
                         </Box>
@@ -364,7 +375,7 @@ const ListProvincePage: NextPage<TProps> = () => {
                         />
                     )}
                     <CustomDataGrid
-                        rows={provinces.data}
+                        rows={wards.data}
                         columns={columns}
                         checkboxSelection
                         getRowId={(row) => row.id}
@@ -375,7 +386,7 @@ const ListProvincePage: NextPage<TProps> = () => {
                         onSortModelChange={handleSort}
                         slots={{ pagination: PaginationComponent, toolbar: AdminFilter }}
                         slotProps={{
-                            toolbar: { fields: provinceFields, onFilterChange: handleFilterChange },
+                            toolbar: { fields: WardFields, onFilterChange: handleFilterChange },
                         }}
                         disableColumnFilter
                         disableColumnMenu
@@ -419,4 +430,4 @@ const ListProvincePage: NextPage<TProps> = () => {
     );
 };
 
-export default ListProvincePage;
+export default ListWardPage;

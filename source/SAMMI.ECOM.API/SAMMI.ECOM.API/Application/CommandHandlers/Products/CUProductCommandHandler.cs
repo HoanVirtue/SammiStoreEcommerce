@@ -152,24 +152,39 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 .WithMessage("Mã sản phẩm không được bỏ trống");
 
             RuleFor(x => x.Discount)
-                .Must(x => x.HasValue && x.Value != 0 && x.Value > 0)
-                .When(x => x.Discount.HasValue && x.Discount != 0)
-                .DependentRules(() =>
-                {
-                    RuleFor(x => x.StartDate)
-                        .NotEmpty()
-                        .WithMessage("Ngày bắt đầu không được để trống khi có giảm gía")
-                        .Must(x => x.HasValue && x > DateTime.Now)
-                        .WithMessage("Ngày bắt đầu phải lớn hơn ngày hiện tại");
+                .GreaterThan(0)
+                .WithMessage("Giảm giá phải lớn hơn 0 nếu có ngày bắt đầu và ngày kết thúc")
+                .When(x => x.StartDate.HasValue && x.EndDate.HasValue);
 
-                    RuleFor(x => x.EndDate)
-                        .NotEmpty()
-                        .WithMessage("Ngày kết thúc không được để trống khi có giảm gía")
-                        .Must(x => x.HasValue && x > DateTime.Now)
-                        .WithMessage("Ngày kết thúc phải lớn ngày hiện tại")
-                        .GreaterThanOrEqualTo(x => x.StartDate)
-                        .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu");
-                });
+            RuleFor(x => x.StartDate)
+                .NotEmpty()
+                .WithMessage("Phải nhập ngày bắt đầu nếu đã nhập ngày kết thúc hoặc có giảm giá")
+                .When(x => x.EndDate.HasValue || (x.Discount.HasValue && x.Discount > 0));
+
+            RuleFor(x => x.EndDate)
+                .NotEmpty()
+                .WithMessage("Phải nhập ngày kết thúc nếu đã nhập ngày bắt đầu hoặc có giảm giá")
+                .When(x => x.StartDate.HasValue || (x.Discount.HasValue && x.Discount > 0));
+
+            RuleFor(x => x.EndDate)
+                .GreaterThanOrEqualTo(x => x.StartDate)
+                .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu")
+                .When(x => x.StartDate.HasValue);
+
+
+            RuleFor(x => x.StartDate)
+                .NotEmpty()
+                .WithMessage("Ngày bắt đầu không được để trống khi có giảm giá")
+                .Must(x => x.HasValue && x > DateTime.Now)
+                .WithMessage("Ngày bắt đầu phải lớn hơn ngày hiện tại")
+                .When(x => x.Discount.HasValue && x.Discount > 0);
+
+            RuleFor(x => x.EndDate)
+                .NotEmpty()
+                .WithMessage("Ngày kết thúc không được để trống khi có giảm giá")
+                .Must(x => x.HasValue && x > DateTime.Now)
+                .WithMessage("Ngày kết thúc phải lớn hơn ngày hiện tại")
+                .When(x => x.Discount.HasValue && x.Discount > 0);
 
             RuleFor(x => x.Images)
                 .NotEmpty()

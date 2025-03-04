@@ -40,6 +40,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                         {
                             if (!productDirectory.TryGetValue(product.Id, out var productEntry))
                             {
+                                Console.WriteLine("ProductId: " + product.Id);
                                 productEntry = product;
                                 productEntry.Images = new List<ImageDTO>();
                                 // format currency
@@ -51,7 +52,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                             }
                             if (image != null)
                             {
-                                productEntry.Images ??= new();
+                                Console.WriteLine("ImageId: " + image.Id);
+                                product.Images ??= new();
                                 productEntry.Images.Add(image);
                             }
 

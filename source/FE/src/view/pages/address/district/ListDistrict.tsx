@@ -23,7 +23,7 @@ import { AppDispatch, RootState } from "src/stores";
 import { useTranslation } from "react-i18next";
 
 // Configs
-import { districtFields, PAGE_SIZE_OPTIONS, } from "src/configs/gridConfig";
+import {getDistrictFields, PAGE_SIZE_OPTIONS } from "src/configs/gridConfig";
 
 // Components
 import CustomDataGrid from "src/components/custom-data-grid";
@@ -55,6 +55,8 @@ import {
 import { resetInitialState } from 'src/stores/district'
 import AdminFilter from "src/components/admin-filter";
 import { useDebounce } from "src/hooks/useDebounce";
+import province from 'src/stores/province';
+import { getAllProvinces } from "src/services/province";
 
 type TProps = {};
 
@@ -69,6 +71,7 @@ const ListDistrictPage: NextPage<TProps> = () => {
     // States
     const [page, setPage] = useState<number>(1);
     const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
+    const [loading, setLoading] = useState<boolean>(false)
     const [openCreateUpdateDistrict, setOpenCreateUpdateDistrict] = useState<{
         open: boolean;
         id: string;
@@ -88,9 +91,10 @@ const ListDistrictPage: NextPage<TProps> = () => {
 
     // Translation
     const { t } = useTranslation();
+    const districtFields = getDistrictFields();
 
     // Hooks
-    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("SETTING.DISTRICT", [
+    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("ADDRESS.DISTRICT", [
         "CREATE",
         "UPDATE",
         "DELETE",
@@ -133,10 +137,7 @@ const ListDistrictPage: NextPage<TProps> = () => {
                 orderBy: orderByField || "createdDate",
                 dir: orderByDir || "asc",
                 paging: true,
-                keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value : "all",
-                propertyFilterModels: [
-                    { field: '', operator: '', filterValue: '' }
-                ]
+                keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value || "''" : "''",
             },
         };
         dispatch(getAllDistrictsAsync(query));
@@ -220,12 +221,12 @@ const ListDistrictPage: NextPage<TProps> = () => {
             ),
         },
         {
-            field: "province_id",
-            headerName: t("province_id"),
+            field: "province_code",
+            headerName: t("province_code"),
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => (
-                <Typography>{params.row.provinceId}</Typography>
+                <Typography>{params?.row?.provinceId}</Typography>
             ),
         },
         {
@@ -235,7 +236,7 @@ const ListDistrictPage: NextPage<TProps> = () => {
             sortable: false,
             align: "left",
             renderCell: (params: GridRenderCellParams) => (
-                <>  
+                <>
                     <GridUpdate
                         // disabled={!UPDATE}
                         onClick={() =>
@@ -271,6 +272,7 @@ const ListDistrictPage: NextPage<TProps> = () => {
     useEffect(() => {
         handleGetListDistrict();
     }, [sortBy, page, pageSize, debouncedFilters]);
+
 
     useEffect(() => {
         if (isSuccessCreateUpdate) {

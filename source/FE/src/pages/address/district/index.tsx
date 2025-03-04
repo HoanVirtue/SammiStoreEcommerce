@@ -13,4 +13,4 @@ const District: NextPage<TProps> = () => {
 
 export default District
 
-// District.permission = [PERMISSIONS.SETTING.DISTRICT.VIEW]
+District.permission = [PERMISSIONS.ADDRESS.DISTRICT.VIEW]

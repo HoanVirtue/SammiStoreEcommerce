@@ -52,7 +52,7 @@ export const API_ENDPOINT = {
       INDEX: `${BASE_URL}/products`,
     },
     PRODUCT_CATEGORY: {
-      INDEX: `${BASE_URL}/product-types`,
+      INDEX: `${BASE_URL}/product-category`,
     },
     BRAND: {
       INDEX: `${BASE_URL}/brands`,

@@ -29,6 +29,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Brands
             return WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    sqlBuilder.Select("t2.ImageUrl");
+                    sqlBuilder.LeftJoin("Image t2 ON t1.ImageId = t2.Id AND t2.IsDeleted != 1");
                     return conn.QueryAsync<BrandDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, filterModel
             );
@@ -50,7 +52,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Brands
             return WithPagingTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-
+                    sqlBuilder.Select("t2.ImageUrl");
+                    sqlBuilder.LeftJoin("Image t2 ON t1.ImageId = t2.Id AND t2.IsDeleted != 1");
                     return conn.QueryAsync<BrandDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 },
                 filterModel);

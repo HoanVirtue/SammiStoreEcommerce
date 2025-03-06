@@ -143,6 +143,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
         }
     }, [open, idBrand, reset]);
 
+
     return (
         <>
             {loading && <Spinner />}

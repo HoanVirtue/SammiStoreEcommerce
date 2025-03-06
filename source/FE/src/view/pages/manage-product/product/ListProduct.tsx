@@ -1,58 +1,21 @@
-"use client"
+"use client";
 
-//React
-import React, { useEffect, useMemo, useState } from 'react'
-
-//Next
-import { NextPage } from 'next'
-
-//MUI
-import { Chip, ChipProps, Grid, styled, Typography, useTheme } from '@mui/material'
-import { Box } from '@mui/material'
-import { GridColDef, GridRenderCellParams, GridRowSelectionModel, GridSortModel } from '@mui/x-data-grid'
-
-//redux
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from 'src/stores'
-
-//translation
-import { useTranslation } from 'react-i18next'
-
-//configs
-import { getProductFields, PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
-
-//components
-import CustomDataGrid from 'src/components/custom-data-grid'
-import CustomPagination from 'src/components/custom-pagination'
-import GridUpdate from 'src/components/grid-update'
-import GridDelete from 'src/components/grid-delete'
-import GridCreate from 'src/components/grid-create'
-import SearchField from 'src/components/search-field'
-import CreateUpdateProduct from './components/CreateUpdateProduct'
-import Spinner from 'src/components/spinner'
-
-//toast
-import toast from 'react-hot-toast'
-import ConfirmDialog from 'src/components/confirm-dialog'
-
-//utils
-import { hexToRGBA } from 'src/utils/hex-to-rgba'
-import { formatDate, formatFilter } from 'src/utils'
-
-import { usePermission } from 'src/hooks/usePermission'
-import { deleteMultipleProductsAsync, deleteProductAsync, getAllProductsAsync } from 'src/stores/product/action'
-import { resetInitialState } from 'src/stores/delivery-method'
-import TableHeader from 'src/components/table-header'
-import CustomSelect from 'src/components/custom-select'
-import { OBJECT_PRODUCT_STATUS } from 'src/configs/product'
-import { getAllProductCategories } from '../../../../services/product-category';
-import { formatPrice } from '../../../../utils/index';
-import { TFilter } from 'src/configs/filter'
-import { useDebounce } from 'src/hooks/useDebounce'
-import AdminFilter from 'src/components/admin-filter'
-import { TParamsGetAllProductCategories } from 'src/types/product-category'
-
-type TProps = {}
+import { NextPage } from "next";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { useTranslation } from "react-i18next";
+import { Chip, ChipProps, styled, Typography } from "@mui/material";
+import { getProductFields } from "src/configs/gridConfig";
+import CreateUpdateProduct from "./components/CreateUpdateProduct";
+import {
+    deleteMultipleProductsAsync,
+    deleteProductAsync,
+    getAllProductsAsync,
+} from "src/stores/product/action";
+import { resetInitialState } from "src/stores/product";
+import { RootState } from "src/stores";
+import AdminPage from "src/components/admin-page";
+import { useMemo } from "react";
+import { formatPrice } from "src/utils";
 
 const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
     backgroundColor: "#28c76f29",
@@ -70,128 +33,10 @@ const StyledPrivateProduct = styled(Chip)<ChipProps>(({ theme }) => ({
     fontWeight: 600
 }))
 
-const ListProduct: NextPage<TProps> = () => {
-    //States
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-    const [openCreateUpdateProduct, setOpenCreateUpdateProduct] = useState({
-        open: false,
-        id: ""
-    });
-    const [openDeleteProduct, setOpenDeleteProduct] = useState({
-        open: false,
-        id: ""
-    });
+const ListProductPage: NextPage = () => {
+    const { t } = useTranslation();
 
-    const [openDeleteMultipleProducts, setOpenDeleteMultipleProducts] = useState(false);
-
-    const [searchBy, setSearchBy] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [selectedRow, setSelectedRow] = useState<string[]>([]);
-
-    const [filterBy, setFilterBy] = useState<Record<string, string | string[]>>({});
-
-    const [sortBy, setSortBy] = useState<string>("createdDate asc");
-    const [filters, setFilters] = useState<TFilter[]>([]);
-
-    const debouncedFilters = useDebounce(filters, 500);
-    const PRODUCT_STATUS = OBJECT_PRODUCT_STATUS()
-
-    //Translation
-    const { t, i18n } = useTranslation();
-    const productFields = getProductFields()
-
-    //hooks
-    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("MANAGE_PRODUCT.PRODUCT", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
-
-
-    //Redux
-    const { products, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
-        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError, isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple } = useSelector((state: RootState) => state.product)
-    const dispatch: AppDispatch = useDispatch();
-
-    //Theme
-    const theme = useTheme();
-
-    //api 
-    const handleGetListProduct = () => {
-        const [orderByField, orderByDir] = sortBy.split(" ");
-        const validFilters = debouncedFilters.filter(
-            (f) => f.field && f.operator && (f.value || ["isnull", "isnotnull", "isempty", "isnotempty"].includes(f.operator))
-        );
-        const filterString = validFilters.length > 0
-            ? validFilters.map((f) => `${f.field}::${f.value}::${f.operator}`).join("|")
-            : "";
-        const query = {
-            params: {
-                filters: filterString,
-                take: pageSize,
-                skip: (page - 1) * pageSize,
-                orderBy: orderByField || "createdDate",
-                dir: orderByDir || "asc",
-                paging: true,
-                keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value || "''" : "''",
-            },
-        };
-        dispatch(getAllProductsAsync(query));
-    }
-
-    //handlers
-    const handleOnChangePagination = (page: number, pageSize: number) => {
-        setPage(page)
-        setPageSize(pageSize)
-    }
-
-    const handleSort = (sort: GridSortModel) => {
-        const sortOption = sort[0]
-        if (sortOption) {
-            setSortBy(`${sortOption.field} ${sortOption.sort}`)
-        } else {
-            setSortBy("createdDate asc")
-        }
-    }
-
-    const handleCloseCreateUpdateProduct = () => {
-        setOpenCreateUpdateProduct({
-            open: false,
-            id: ""
-        })
-    }
-
-    const handleCloseDeleteDialog = () => {
-        setOpenDeleteProduct({
-            open: false,
-            id: ""
-        })
-    }
-
-    const handleCloseDeleteMultipleDialog = () => {
-        setOpenDeleteMultipleProducts(false)
-    }
-
-    const handleDeleteProduct = () => {
-        dispatch(deleteProductAsync(openDeleteProduct.id))
-    }
-
-    const handleDeleteMultipleProduct = () => {
-        dispatch(deleteMultipleProductsAsync({
-            productIds: selectedRow
-        }))
-    }
-
-    const handleAction = (action: string) => {
-        switch (action) {
-            case "delete": {
-                setOpenDeleteMultipleProducts(true)
-            }
-        }
-    }
-
-    const handleFilterChange = (newFilters: TFilter[]) => {
-        setFilters(newFilters);
-    };
-
-    const columns: readonly GridColDef[] = useMemo(() => {
+    const columns: GridColDef[] = useMemo(() => {
         return [
             {
                 field: 'product_name',
@@ -200,9 +45,20 @@ const ListProduct: NextPage<TProps> = () => {
                 minWidth: 200,
                 renderCell: (params: GridRenderCellParams) => {
                     const { row } = params
-                    console.log("row", {row})
                     return (
                         <Typography>{row?.name}</Typography>
+                    )
+                }
+            },
+            {
+                field: 'brand',
+                headerName: t('brand'),
+                minWidth: 200,
+                maxWidth: 200,
+                renderCell: (params: GridRenderCellParams) => {
+                    const { row } = params
+                    return (
+                        <Typography>{row?.brandName}</Typography>
                     )
                 }
             },
@@ -286,197 +142,32 @@ const ListProduct: NextPage<TProps> = () => {
             //         )
             //     }
             // },
-            {
-                field: 'action',
-                headerName: t('action'),
-                width: 140,
-                sortable: false,
-                align: "left",
-                renderCell: (params: GridRenderCellParams) => {
-                    const { row } = params
-                    return (
-                        <>
-                            <GridUpdate
-                                // disabled={!UPDATE}
-                                onClick={() => setOpenCreateUpdateProduct({
-                                    open: true,
-                                    id: String(params.id)
-                                })}
-                            />
-                            <GridDelete
-                                // disabled={!DELETE}
-                                onClick={() => setOpenDeleteProduct({
-                                    open: true,
-                                    id: String(params.id)
-                                })}
-                            />
-                        </>
-                    )
-                }
-            },
         ] as const
     }, [t])
-
-
-    const PaginationComponent = () => {
-        return <CustomPagination
-            pageSize={pageSize}
-            pageSizeOptions={PAGE_SIZE_OPTIONS}
-            onChangePagination={handleOnChangePagination}
-            page={page}
-            rowLength={products.total}
-        />
-    };
-
-    useEffect(() => {
-        handleGetListProduct();
-    }, [sortBy, searchBy, page, pageSize, filterBy]);
-
-    /// create update Product
-    useEffect(() => {
-        if (isSuccessCreateUpdate) {
-            if (!openCreateUpdateProduct.id) {
-                toast.success(t("create_product_success"))
-            } else {
-                toast.success(t("update_product_success"))
-            }
-            handleGetListProduct()
-            handleCloseCreateUpdateProduct()
-            dispatch(resetInitialState())
-        } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
-            if (openCreateUpdateProduct.id) {
-                toast.error(errorMessageCreateUpdate)
-            } else {
-                toast.error(errorMessageCreateUpdate)
-            }
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate, typeError])
-
-    //delete multiple Products
-    useEffect(() => {
-        if (isSuccessDeleteMultiple) {
-            toast.success(t("delete_multiple_product_success"))
-            handleGetListProduct()
-            dispatch(resetInitialState())
-            handleCloseDeleteMultipleDialog()
-            setSelectedRow([])
-        } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-            toast.error(errorMessageDeleteMultiple)
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple])
-
-    //delete Product
-    useEffect(() => {
-        if (isSuccessDelete) {
-            toast.success(t("delete_product_success"))
-            handleGetListProduct()
-            dispatch(resetInitialState())
-            handleCloseDeleteDialog()
-        } else if (isErrorDelete && errorMessageDelete) {
-            toast.error(t(errorMessageDelete))
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
-
     return (
-        <>
-            {(loading || isLoading) && <Spinner />}
-            <ConfirmDialog
-                open={openDeleteProduct.open}
-                onClose={handleCloseDeleteDialog}
-                handleCancel={handleCloseDeleteDialog}
-                handleConfirm={handleDeleteProduct}
-                title={"Xác nhận xóa sản phẩm"}
-                description={"Bạn có chắc xóa sản phẩm này không?"}
-            />
-            <ConfirmDialog
-                open={openDeleteMultipleProducts}
-                onClose={handleCloseDeleteMultipleDialog}
-                handleCancel={handleCloseDeleteMultipleDialog}
-                handleConfirm={handleDeleteMultipleProduct}
-                title={"Xác nhận xóa nhiều sản phẩm"}
-                description={"Bạn có chắc xóa các sản phẩm này không?"}
-            />
-            <CreateUpdateProduct
-                idProduct={openCreateUpdateProduct.id}
-                open={openCreateUpdateProduct.open}
-                onClose={handleCloseCreateUpdateProduct}
-            />
+        <AdminPage
+            entityName="product"
+            columns={columns}
+            fields={getProductFields()}
+            reduxSelector={(state: RootState) => ({
+                data: state.product.products.data,
+                total: state.product.products.total,
+                ...state.product,
+            })}
+            fetchAction={getAllProductsAsync}
+            deleteAction={deleteProductAsync}
+            deleteMultipleAction={deleteMultipleProductsAsync as unknown as (ids: { [key: string]: string[] }) => any}
+            resetAction={resetInitialState}
+            CreateUpdateComponent={CreateUpdateProduct}
+            permissionKey="MANAGE_PRODUCT.PRODUCT"
+            fieldMapping={{
+                "product_name": "name",
+                "province_name": "provinceName",
+                "province_code": "provinceCode",
+            }}
+            noDataText="no_data_product"
+        />
+    );
+};
 
-            <Box sx={{
-                backgroundColor: theme.palette.background.paper,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '20px',
-                height: 'fit-content',
-            }}>
-                <Grid container sx={{ width: '100%', height: '100%' }}>
-                    {!selectedRow?.length && (
-                        <Box sx={{
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                            alignItems: 'center',
-                            mb: 4,
-                            gap: 4,
-                            width: '100%'
-                        }}>
-                            <GridCreate onClick={() => {
-                                setOpenCreateUpdateProduct({ open: true, id: "" })
-                            }}
-                            />
-                        </Box>
-                    )}
-                    {selectedRow.length > 0 && (
-                        <TableHeader
-                            selectedRowNumber={selectedRow?.length}
-                            onClear={() => setSelectedRow([])}
-                            actions={
-                                [{
-                                    label: t("delete"),
-                                    value: "delete",
-                                    // disabled: !DELETE
-                                }]
-                            }
-                            handleAction={handleAction}
-                        />
-                    )}
-                    <CustomDataGrid
-                        rows={products.data}
-                        columns={columns}
-                        checkboxSelection
-                        getRowId={(row) => row.id}
-                        disableRowSelectionOnClick
-                        autoHeight
-                        sortingOrder={['desc', 'asc']}
-                        sortingMode='server'
-                        onSortModelChange={handleSort}
-                        slots={{
-                            pagination: PaginationComponent,
-                            toolbar: AdminFilter
-                        }}
-                        slotProps={{
-                            toolbar: { fields: productFields, onFilterChange: handleFilterChange },
-                        }}
-                        disableColumnFilter
-                        disableColumnMenu
-                        sx={{
-                            ".selected-row": {
-                                backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
-                                color: `${theme.palette.primary.main} !important`
-                            }
-                        }}
-                        onRowSelectionModelChange={(row: GridRowSelectionModel) => {
-                            setSelectedRow(row as string[])
-                        }}
-                        rowSelectionModel={selectedRow}
-                    />
-                </Grid>
-            </Box >
-        </>
-    )
-}
-
-export default ListProduct
+export default ListProductPage;

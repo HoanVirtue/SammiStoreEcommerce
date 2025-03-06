@@ -38,11 +38,13 @@ import { getProductDetail } from "src/services/product";
 import { getAllCities } from "src/services/city";
 import { ProductImage, TParamsCreateProduct } from "src/types/product";
 import { TParamsGetAllProductCategories } from "src/types/product-category";
+import { getAllBrands } from "src/services/brand";
+import { TParamsGetAllBrands } from "src/types/brand";
 
 interface TCreateUpdateProduct {
     open: boolean
     onClose: () => void
-    idProduct?: string
+    id?: string
 }
 
 type TDefaultValues = {
@@ -66,28 +68,18 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     //state
     const [loading, setLoading] = useState(false)
     const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>([])
+    const [brandOptions, setBrandOptions] = useState<{ label: string, value: string }[]>([])
 
     const [productImages, setProductImages] = useState<ProductImage[]>([]);
 
     //props
-    const { open, onClose, idProduct } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
 
     //theme
     const theme = useTheme()
-
-    const brandOption = [
-        {
-            label: '9',
-            value: '9'
-        },
-        {
-            label: 'Brand 2',
-            value: 'b2'
-        },
-    ]
 
     //redux
     const dispatch: AppDispatch = useDispatch()
@@ -212,8 +204,8 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             endDate: data.endDate ? data.endDate.toISOString() : new Date().toISOString(),
             images: productImages,
         }
-        if (idProduct) {
-            dispatch(updateProductAsync({ id: idProduct, ...payload }));
+        if (id) {
+            dispatch(updateProductAsync({ id: id, ...payload }));
         } else {
             dispatch(createProductAsync(payload));
         }
@@ -241,7 +233,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         setLoading(true);
         try {
             const res = await getProductDetail(id);
-            const data = res?.data;
+            const data = res?.result;
             if (data) {
                 reset({
                     code: data.code,
@@ -294,6 +286,32 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         })
     }
 
+    const fetchAllBrands = async () => {
+        setLoading(true)
+        await getAllBrands({
+            params: {
+                take: -1,
+                skip: 0,
+                filters: '',
+                orderBy: 'createdDate',
+                dir: 'asc',
+                paging: false,
+                keywords: "''",
+            } as TParamsGetAllBrands,
+        }).then((res) => {
+            const data = res?.result?.subset
+            if (data) {
+                setBrandOptions(data?.map((item: { name: string, id: string }) => ({
+                    label: item.name,
+                    value: item.id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
+    }
+
 
     useEffect(() => {
         if (!open) {
@@ -302,14 +320,15 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             })
             setProductImages([])
         } else {
-            if (idProduct && open) {
-                fetchDetailProduct(idProduct)
+            if (id && open) {
+                fetchDetailProduct(id)
             }
         }
-    }, [open, idProduct])
+    }, [open, id])
 
     useEffect(() => {
         fetchAllCategories()
+        fetchAllBrands()
     }, [])
 
     return (
@@ -333,7 +352,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idProduct ? t('update_product') : t('create_product')}
+                            {id ? t('update_product') : t('create_product')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -684,8 +703,8 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 onChange={onChange}
                                                                 onBlur={onBlur}
                                                                 value={value}
-                                                                options={brandOption}
-                                                                placeholder={t('select_product_category')}
+                                                                options={brandOptions}
+                                                                placeholder={t('select_brand')}
                                                                 error={errors.brandId ? true : false}
                                                             />
                                                             {errors?.brandId?.message && (
@@ -758,9 +777,10 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                 </Grid>
                             </Grid>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3 }}>
+                            <Button variant="outlined" sx={{ mt: 3, mb: 2, ml: 2, py: 1.5 }} onClick={onClose}>{t('cancel')}</Button>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idProduct ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form>

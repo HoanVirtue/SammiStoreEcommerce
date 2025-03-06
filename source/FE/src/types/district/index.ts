@@ -20,17 +20,17 @@ export type TParamsGetAllDistricts = {
 export type TParamsCreateDistrict = {
     // id: number;
     name?: string;
+    code?: string;
     provinceName?: string;
     provinceId?: string,
-    code?: string;
 }
 
 export type TParamsUpdateDistrict = {
     id: string,
     name?: string,
+    code?: string
     provinceName?: string,
     provinceId?: string,
-    code?: string
 }
 
 export type TParamsDeleteDistrict = {

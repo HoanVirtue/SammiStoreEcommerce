@@ -6,7 +6,7 @@ import React, { ReactElement } from 'react'
 import BlankLayout from 'src/view/layout/BlankLayout'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
 import RegisterPage from 'src/view/pages/register'
-import UserPage from 'src/view/pages/user'
+import UserPage from 'src/view/pages/user-exam'
 
 
 type TProps = {}

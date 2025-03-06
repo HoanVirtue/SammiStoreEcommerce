@@ -22,6 +22,17 @@ export const API_ENDPOINT = {
       INDEX: `${BASE_URL}/users`,
     },
   },
+  USER: {
+    EMPLOYEE: {
+      INDEX: `${BASE_URL}/users/employee`,
+    },
+    CUSTOMER: {
+      INDEX: `${BASE_URL}/users/customer`,
+    },
+    SUPPLIER: {
+      INDEX: `${BASE_URL}/users/supplier`,
+    },
+  },
   SETTING: {
     PAYMENT_METHOD: {
       INDEX: `${BASE_URL}/payment-type`,

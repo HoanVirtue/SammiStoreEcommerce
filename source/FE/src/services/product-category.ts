@@ -24,9 +24,9 @@ export const createProductCategory = async (data: TParamsCreateProductCategory) 
 
 
 export const updateProductCategory = async (data: TParamsUpdateProductCategory) => {
-    const { id, ...rests } = data
+    // const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/${id}`, rests)
+        const res = await instance.put(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/${data.id}`, data)
         return res.data
     } catch (error: any) {
         return error?.response?.data

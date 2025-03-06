@@ -1,0 +1,46 @@
+export type TParamsGetAllEmployees = {
+    skip?: number;
+    take?: number;
+    filters?: string;
+    orderBy?: string;
+    dir?: string;
+    type?: number | (1 | 2 | 3 | 4 | 5 | 6)
+    paging?: boolean;
+    restrictOrderBy?: boolean;
+    keywords?: string;
+}
+
+export type TParamsCreateEmployee = {
+    isAdmin: boolean;
+    roleIds: number[];
+    code: string;
+    identityGuid: string;
+    type: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    email: string | null;
+    phone: string;
+    streetAddress: string | null;
+    wardId: number;
+    wardName: string;
+    districtId: number;
+    districtName: string;
+    provinceId: number;
+    provinceName: string;
+    username: string;
+    gender: number;
+}
+
+export interface TParamsUpdateEmployee extends TParamsCreateEmployee {
+    id: number
+}
+
+export type TParamsDeleteEmployee = {
+    name: string,
+    id: string,
+}
+
+export type TParamsDeleteMultipleEmployees = {
+    employeeIds: string[],
+}

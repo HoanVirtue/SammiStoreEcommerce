@@ -23,7 +23,7 @@ export const VerticalLayoutItems = () => {
             title: t('dashboard'),
             icon: 'mage:dashboard-bar-notification',
             path: ROUTE_CONFIG.DASHBOARD,
-            permission: PERMISSIONS.DASHBOARD
+            // permission: PERMISSIONS.DASHBOARD
         },
         {
             title: t('system'),
@@ -33,13 +33,34 @@ export const VerticalLayoutItems = () => {
                     title: t('user'),
                     icon: 'iconoir:user',
                     path: ROUTE_CONFIG.SYSTEM.USER,
-                    permission: PERMISSIONS.SYSTEM.USER.VIEW
+                    // permission: PERMISSIONS.SYSTEM.USER.VIEW
                 },
                 {
                     title: t('role'),
                     icon: 'oui:app-users-roles',
                     path: ROUTE_CONFIG.SYSTEM.ROLE,
-                    permission: PERMISSIONS.SYSTEM.ROLE.VIEW
+                    // permission: PERMISSIONS.SYSTEM.ROLE.VIEW
+                }
+            ]
+        },
+        {
+            title: t('user'),
+            icon: 'iconoir:user',
+            children: [
+                {
+                    title: t('employee'),
+                    icon: 'clarity:employee-group-line',
+                    path: ROUTE_CONFIG.USER.EMPLOYEE,
+                },
+                {
+                    title: t('customer'),
+                    icon: 'ix:customer',
+                    path: ROUTE_CONFIG.USER.CUSTOMER,
+                },
+                {
+                    title: t('supplier'),
+                    icon: 'carbon:scis-transparent-supply',
+                    path: ROUTE_CONFIG.USER.SUPPLIER,
                 }
             ]
         },
@@ -107,11 +128,11 @@ export const VerticalLayoutItems = () => {
             title: t('address'),
             icon: 'fluent:location-settings-20-regular',
             children: [
-                {
-                    title: t('city'),
-                    icon: 'healthicons:city-outline',
-                    path: ROUTE_CONFIG.ADDRESS.CITY,
-                },
+                // {
+                //     title: t('city'),
+                //     icon: 'healthicons:city-outline',
+                //     path: ROUTE_CONFIG.ADDRESS.CITY,
+                // },
                 {
                     title: t('province'),
                     icon: 'healthicons:city-outline',

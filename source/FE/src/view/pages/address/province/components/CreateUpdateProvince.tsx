@@ -29,7 +29,7 @@ import { createProvinceAsync, updateProvinceAsync } from "src/stores/province/ac
 interface TCreateUpdateProvince {
     open: boolean
     onClose: () => void
-    idProvince?: string
+    id?: string
 }
 
 type TDefaultValues = {
@@ -44,7 +44,7 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
     const [loading, setLoading] = useState(false)
 
     //props
-    const { open, onClose, idProvince } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -58,7 +58,7 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
     const schema = yup.object().shape({
         name: yup.string().required(t('required_province_name')),
         code: yup.string().required(t('required_province_code')),
-        postalCode: yup.string().required(t('required_postal_province'))
+        postalCode: yup.string().required(t('required_postal_code'))
     });
 
     const defaultValues: TDefaultValues = {
@@ -76,13 +76,13 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (idProvince) {
+            if (id) {
                 //update
                 dispatch(updateProvinceAsync({
                     name: data?.name,
                     code: data?.code,
                     postalCode: data?.postalCode,
-                    id: idProvince,
+                    id: id,
                 }))
             } else {
                 //create
@@ -119,11 +119,11 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                 ...defaultValues
             })
         } else {
-            if (idProvince && open) {
-                fetchDetailProvince(idProvince)
+            if (id && open) {
+                fetchDetailProvince(id)
             }
         }
-    }, [open, idProvince])
+    }, [open, id])
 
     return (
         <>
@@ -146,7 +146,7 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idProvince ? t('update_province') : t('create_province')}
+                            {id ? t('update_province') : t('create_province')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -227,9 +227,10 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                                 </Grid>
                             </Grid>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3 }}>
+                            <Button variant="outlined" sx={{ mt: 3, mb: 2, ml: 2, py: 1.5 }} onClick={onClose}>{t('cancel')}</Button>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idProvince ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form >

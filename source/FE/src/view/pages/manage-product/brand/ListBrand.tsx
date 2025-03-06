@@ -1,96 +1,118 @@
-"use client"
+"use client";
 
-//React
-import React, { useEffect, useState } from 'react'
+// React
+import React, { useEffect, useState } from "react";
 
-//Next
-import { NextPage } from 'next'
+// Next.js
+import { NextPage } from "next";
 
-//MUI
-import { Grid, Typography, useTheme } from '@mui/material'
-import { Box } from '@mui/material'
-import { GridColDef, GridRenderCellParams, GridRowSelectionModel, GridSortModel } from '@mui/x-data-grid'
+// MUI
+import { Box, Grid, Typography, useTheme } from "@mui/material";
+import {
+    GridColDef,
+    GridRenderCellParams,
+    GridRowSelectionModel,
+    GridSortModel,
+} from "@mui/x-data-grid";
 
-//redux
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from 'src/stores'
+// Redux
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "src/stores";
 
-//translation
-import { useTranslation } from 'react-i18next'
+// Translation
+import { useTranslation } from "react-i18next";
 
-//configs
-import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
+// Configs
+import { getBrandFields, PAGE_SIZE_OPTIONS } from "src/configs/gridConfig";
 
-//components
-import CustomDataGrid from 'src/components/custom-data-grid'
-import CustomPagination from 'src/components/custom-pagination'
-import GridUpdate from 'src/components/grid-update'
-import GridDelete from 'src/components/grid-delete'
-import GridCreate from 'src/components/grid-create'
-import SearchField from 'src/components/search-field'
-import CreateUpdateBrand from './components/CreateUpdateBrand'
-import Spinner from 'src/components/spinner'
+// Components
+import CustomDataGrid from "src/components/custom-data-grid";
+import CustomPagination from "src/components/custom-pagination";
+import GridUpdate from "src/components/grid-update";
+import GridDelete from "src/components/grid-delete";
+import GridCreate from "src/components/grid-create";
+import CreateUpdateBrand from "./components/CreateUpdateBrand";
+import Spinner from "src/components/spinner";
+import ConfirmDialog from "src/components/confirm-dialog";
+import TableHeader from "src/components/table-header";
 
-//toast
-import toast from 'react-hot-toast'
-import ConfirmDialog from 'src/components/confirm-dialog'
-import { OBJECT_TYPE_ERROR } from 'src/configs/error'
+// Toast
+import toast from "react-hot-toast";
 
-//utils
-import { hexToRGBA } from 'src/utils/hex-to-rgba'
+// Utils
+import { hexToRGBA } from "src/utils/hex-to-rgba";
 
+// Hooks
+import { usePermission } from "src/hooks/usePermission";
 
-import { usePermission } from 'src/hooks/usePermission'
-import { deleteMultipleBrandsAsync, deleteBrandAsync, getAllBrandsAsync } from 'src/stores/brand/action'
-import { resetInitialState } from 'src/stores/delivery-method'
-import TableHeader from 'src/components/table-header'
-import { formatDate } from 'src/utils'
-import { TFilter } from 'src/configs/filter'
-import { useDebounce } from 'src/hooks/useDebounce'
+// Redux Actions
+import {
+    deleteMultipleBrandsAsync,
+    deleteBrandAsync,
+    getAllBrandsAsync,
+} from "src/stores/brand/action";
 
-type TProps = {}
+import { resetInitialState } from 'src/stores/brand'
+import AdminFilter from "src/components/admin-filter";
+import { useDebounce } from "src/hooks/useDebounce";
+import { TFilter } from "src/configs/filter";
 
-const ListBrand: NextPage<TProps> = () => {
-    //States
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-    const [openCreateUpdateBrand, setOpenCreateUpdateBrand] = useState({
-        open: false,
-        id: ""
-    });
-    const [openDeleteBrand, setOpenDeleteBrand] = useState({
-        open: false,
-        id: ""
-    });
+type TProps = {};
 
-    const [openDeleteMultipleBrands, setOpenDeleteMultipleBrands] = useState(false);
-
-
-    const [searchBy, setSearchBy] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [selectedRow, setSelectedRow] = useState<string[]>([]);
+const ListBrandPage: NextPage<TProps> = () => {
+    // States
+    const [page, setPage] = useState<number>(1);
+    const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
+    const [openCreateUpdateBrand, setOpenCreateUpdateBrand] = useState<{
+        open: boolean;
+        id: string;
+    }>({ open: false, id: "" });
+    const [openDeleteBrand, setOpenDeleteBrand] = useState<{
+        open: boolean;
+        id: string;
+    }>({ open: false, id: "" });
+    const [openDeleteMultipleBrand, setOpenDeleteMultipleBrand] =
+        useState<boolean>(false);
 
     const [sortBy, setSortBy] = useState<string>("createdDate asc");
     const [filters, setFilters] = useState<TFilter[]>([]);
 
     const debouncedFilters = useDebounce(filters, 500);
+    const [selectedRow, setSelectedRow] = useState<string[]>([]);
 
-    //Translation
-    const { t, i18n } = useTranslation();
+    // Translation
+    const { t } = useTranslation();
 
-    //hooks
-    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("MANAGE_PRODUCT.brand", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
+    // Hooks
+    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("MANAGE_PRODUCT.BRAND", [
+        "CREATE",
+        "UPDATE",
+        "DELETE",
+        "VIEW",
+    ]);
 
+    // Redux
+    const {
+        brands,
+        isSuccessCreateUpdate,
+        isErrorCreateUpdate,
+        isLoading,
+        errorMessageCreateUpdate,
+        isSuccessDelete,
+        isErrorDelete,
+        errorMessageDelete,
+        isSuccessDeleteMultiple,
+        isErrorDeleteMultiple,
+        errorMessageDeleteMultiple,
+    } = useSelector((state: RootState) => state.brand);
+    const dispatch = useDispatch<AppDispatch>();
 
-    //Redux
-    const { brands, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
-        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError, isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple } = useSelector((state: RootState) => state.brand)
-    const dispatch: AppDispatch = useDispatch();
-
-    //Theme
+    // Theme
     const theme = useTheme();
 
-    //api 
+    const brandFields = getBrandFields()
+
+    // API Call
     const handleGetListBrand = () => {
         const [orderByField, orderByDir] = sortBy.split(" ");
         const validFilters = debouncedFilters.filter(
@@ -111,252 +133,220 @@ const ListBrand: NextPage<TProps> = () => {
             },
         };
         dispatch(getAllBrandsAsync(query));
-    }
+    };
 
-    //handlers
-    const handleOnChangePagination = (page: number, pageSize: number) => {
-        setPage(page)
-        setPageSize(pageSize)
-    }
+    // Handlers
+    const handleOnChangePagination = (newPage: number, newPageSize: number) => {
+        setPage(newPage);
+        setPageSize(newPageSize);
+    };
 
     const handleSort = (sort: GridSortModel) => {
-        const sortOption = sort[0]
+        const sortOption = sort[0];
         if (sortOption) {
-            setSortBy(`${sortOption.field} ${sortOption.sort}`)
+            const field = sortOption.field === "brand_name" ? "name" :
+                sortOption.field === "brand_code" ? "code" :
+                    sortOption.field === "postal_code" ? "postalCode" : sortOption.field;
+            setSortBy(`${field} ${sortOption.sort}`);
         } else {
-            setSortBy("createdDate asc")
+            setSortBy("createdDate asc");
         }
-    }
+    };
 
     const handleCloseCreateUpdateBrand = () => {
-        setOpenCreateUpdateBrand({
-            open: false,
-            id: ""
-        })
-    }
+        setOpenCreateUpdateBrand({ open: false, id: "" });
+    };
 
     const handleCloseDeleteDialog = () => {
-        setOpenDeleteBrand({
-            open: false,
-            id: ""
-        })
-    }
+        setOpenDeleteBrand({ open: false, id: "" });
+    };
 
     const handleCloseDeleteMultipleDialog = () => {
-        setOpenDeleteMultipleBrands(false)
-    }
+        setOpenDeleteMultipleBrand(false);
+    };
 
     const handleDeleteBrand = () => {
-        dispatch(deleteBrandAsync(openDeleteBrand.id))
-    }
+        dispatch(deleteBrandAsync(openDeleteBrand.id));
+    };
 
     const handleDeleteMultipleBrand = () => {
-        dispatch(deleteMultipleBrandsAsync({
-            brandIds: selectedRow
-        }))
-    }
+        dispatch(deleteMultipleBrandsAsync({ brandIds: selectedRow }));
+    };
 
     const handleAction = (action: string) => {
-        switch (action) {
-            case "delete": {
-                setOpenDeleteMultipleBrands(true)
-            }
+        if (action === "delete") {
+            setOpenDeleteMultipleBrand(true);
         }
-    }
+    };
 
+    const handleFilterChange = (newFilters: TFilter[]) => {
+        setFilters(newFilters);
+    };
+
+    // Columns Definition
     const columns: GridColDef[] = [
         {
-            field: 'brand_name',
-            headerName: t('brand_name'),
+            field: "brand_name",
+            headerName: t("brand_name"),
             flex: 1,
             minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.name}</Typography>
-                )
-            }
+            renderCell: (params: GridRenderCellParams) => (
+                <Typography>{params.row.name}</Typography>
+            ),
         },
-        // {
-        //     field: 'slug',
-        //     headerName: t('slug'),
-        //     minWidth: 200,
-        //     maxWidth: 200,
-        //     renderCell: (params: GridRenderCellParams) => {
-        //         const { row } = params
-        //         return (
-        //             <Typography>{row?.slug}</Typography>
-        //         )
-        //     }
-        // },
         {
-            field: 'created_at',
-            headerName: t('created_at'),
+            field: "brand_code",
+            headerName: t("brand_code"),
             minWidth: 200,
             maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{formatDate(row?.createdDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
-                )
-            }
+            renderCell: (params: GridRenderCellParams) => (
+                <Typography>{params.row.code}</Typography>
+            ),
         },
         {
-            field: 'action',
-            headerName: t('action'),
+            field: "action",
+            headerName: t("action"),
             width: 150,
             sortable: false,
             align: "left",
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <>
-                        <GridUpdate
-                            // disabled={!UPDATE}
-                            onClick={() => setOpenCreateUpdateBrand({
+            renderCell: (params: GridRenderCellParams) => (
+                <>  
+                    <GridUpdate
+                        // disabled={!UPDATE}
+                        onClick={() =>
+                            setOpenCreateUpdateBrand({
                                 open: true,
-                                id: String(params.id)
-                            })}
-                        />
-                        <GridDelete
-                            // disabled={!DELETE}
-                            onClick={() => setOpenDeleteBrand({
-                                open: true,
-                                id: String(params.id)
-                            })}
-                        />
-                    </>
-                )
-            }
+                                id: String(params.row.id),
+                            })
+                        }
+                    />
+                    <GridDelete
+                        // disabled={!DELETE}
+                        onClick={() =>
+                            setOpenDeleteBrand({ open: true, id: String(params.row.id) })
+                        }
+                    />
+                </>
+            ),
         },
     ];
 
-    const PaginationComponent = () => {
-        return <CustomPagination
+    // Pagination Component
+    const PaginationComponent = () => (
+        <CustomPagination
             pageSize={pageSize}
             pageSizeOptions={PAGE_SIZE_OPTIONS}
             onChangePagination={handleOnChangePagination}
             page={page}
             rowLength={brands.total}
         />
-    };
+    );
 
+    // Effects
     useEffect(() => {
         handleGetListBrand();
-    }, [sortBy, searchBy, page, pageSize]);
+    }, [sortBy, page, pageSize, debouncedFilters]);
 
-    /// create update Brand
     useEffect(() => {
         if (isSuccessCreateUpdate) {
-            if (!openCreateUpdateBrand.id) {
-                toast.success(t("create_brand_success"))
-            } else {
-                toast.success(t("update_brand_success"))
-            }
-            handleGetListBrand()
-            handleCloseCreateUpdateBrand()
-            dispatch(resetInitialState())
-        } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
-            if (openCreateUpdateBrand.id) {
-                toast.error(errorMessageCreateUpdate)
-            } else {
-                toast.error(errorMessageCreateUpdate)
-            }
-            dispatch(resetInitialState())
+            toast.success(
+                openCreateUpdateBrand.id
+                    ? t("update_brand_success")
+                    : t("create_brand_success")
+            );
+            handleGetListBrand();
+            handleCloseCreateUpdateBrand();
+            dispatch(resetInitialState());
+        } else if (isErrorCreateUpdate && errorMessageCreateUpdate) {
+            toast.error(errorMessageCreateUpdate);
+            dispatch(resetInitialState());
         }
-    }, [isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate, typeError])
+    }, [isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate]);
 
-    //delete multiple Brands
     useEffect(() => {
         if (isSuccessDeleteMultiple) {
-            toast.success(t("delete_multiple_brand_success"))
-            handleGetListBrand()
-            dispatch(resetInitialState())
-            handleCloseDeleteMultipleDialog()
-            setSelectedRow([])
+            toast.success(t("delete_multiple_brand_success"));
+            handleGetListBrand();
+            dispatch(resetInitialState());
+            handleCloseDeleteMultipleDialog();
+            setSelectedRow([]);
         } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-            toast.error(errorMessageDeleteMultiple)
-            dispatch(resetInitialState())
+            toast.error(t("delete_multiple_brand_error"));
+            dispatch(resetInitialState());
         }
-    }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple])
+    }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple]);
 
-    //delete Brand
     useEffect(() => {
         if (isSuccessDelete) {
-            toast.success(t("delete_brand_success"))
-            handleGetListBrand()
-            dispatch(resetInitialState())
-            handleCloseDeleteDialog()
+            toast.success(t("delete_brand_success"));
+            handleGetListBrand();
+            dispatch(resetInitialState());
+            handleCloseDeleteDialog();
         } else if (isErrorDelete && errorMessageDelete) {
-            toast.error(errorMessageDelete)
-            dispatch(resetInitialState())
+            toast.error(errorMessageDelete);
+            dispatch(resetInitialState());
         }
-    }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
+    }, [isSuccessDelete, isErrorDelete, errorMessageDelete]);
 
     return (
-        <>{loading && <Spinner />}
+        <>
+            {isLoading && <Spinner />}
             <ConfirmDialog
                 open={openDeleteBrand.open}
                 onClose={handleCloseDeleteDialog}
                 handleCancel={handleCloseDeleteDialog}
                 handleConfirm={handleDeleteBrand}
-                title={"Xác nhận xóa thương hiệu"}
-                description={"Bạn có chắc xóa thương hiệu này không?"}
+                title={t("confirm_delete_Brand")}
+                description={t("are_you_sure_delete_Brand")}
             />
             <ConfirmDialog
-                open={openDeleteMultipleBrands}
+                open={openDeleteMultipleBrand}
                 onClose={handleCloseDeleteMultipleDialog}
                 handleCancel={handleCloseDeleteMultipleDialog}
                 handleConfirm={handleDeleteMultipleBrand}
-                title={"Xác nhận xóa nhiều loại sản phẩm"}
-                description={"Bạn có chắc xóa các loại sản phẩm này không?"}
+                title={t("confirm_delete_multiple_Brands")}
+                description={t("are_you_sure_delete_multiple_Brands")}
             />
             <CreateUpdateBrand
                 idBrand={openCreateUpdateBrand.id}
                 open={openCreateUpdateBrand.open}
                 onClose={handleCloseCreateUpdateBrand}
             />
-            {isLoading && <Spinner />}
-            <Box sx={{
-                backgroundColor: theme.palette.background.paper,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '20px',
-                height: 'fit-content',
-            }}>
-                <Grid container sx={{ width: '100%', height: '100%' }}>
-                    {!selectedRow?.length && (
-                        <Box sx={{
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                            alignItems: 'center',
-                            mb: 4,
-                            gap: 4,
-                            width: '100%'
-                        }}>
-                            <Box sx={{
-                                width: '200px',
-                            }}>
-                                <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
-                            </Box>
-                            <GridCreate onClick={() => {
-                                setOpenCreateUpdateBrand({ open: true, id: "" })
+            <Box
+                sx={{
+                    backgroundColor: theme.palette.background.paper,
+                    padding: "20px",
+                    minHeight: "100vh",
+                }}
+            >
+                <Grid container>
+                    {!selectedRow.length && (
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "flex-end",
+                                alignItems: "center",
+                                mb: 4,
+                                gap: 4,
+                                width: "100%",
                             }}
+                        >
+                            <GridCreate
+                                onClick={() =>
+                                    setOpenCreateUpdateBrand({ open: true, id: "" })
+                                }
                             />
                         </Box>
                     )}
                     {selectedRow.length > 0 && (
                         <TableHeader
-                            selectedRowNumber={selectedRow?.length}
+                            selectedRowNumber={selectedRow.length}
                             onClear={() => setSelectedRow([])}
-                            actions={
-                                [{
-                                    label: t("delete"),
-                                    value: "delete",
-                                    // disabled: !DELETE
-                                }]
-                            }
+                            actions={[
+                                { label: t("delete"), value: "delete",
+                                    //  disabled: !DELETE 
+                                    },
+                            ]}
                             handleAction={handleAction}
                         />
                     )}
@@ -367,29 +357,53 @@ const ListBrand: NextPage<TProps> = () => {
                         getRowId={(row) => row.id}
                         disableRowSelectionOnClick
                         autoHeight
-                        sortingOrder={['desc', 'asc']}
-                        sortingMode='server'
+                        sortingOrder={["desc", "asc"]}
+                        sortingMode="server"
                         onSortModelChange={handleSort}
-                        slots={{
-                            pagination: PaginationComponent
+                        slots={{ pagination: PaginationComponent, toolbar: AdminFilter }}
+                        slotProps={{
+                            toolbar: { fields: brandFields, onFilterChange: handleFilterChange },
                         }}
                         disableColumnFilter
                         disableColumnMenu
                         sx={{
                             ".selected-row": {
-                                backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
-                                color: `${theme.palette.primary.main} !important`
-                            }
+                                backgroundColor: `${hexToRGBA(
+                                    theme.palette.primary.main,
+                                    0.08
+                                )} !important`,
+                                color: `${theme.palette.primary.main} !important`,
+                            },
+                            "& .MuiDataGrid-root": {
+                                border: `1px solid ${theme.palette.divider}`,
+                            },
+                            "& .MuiDataGrid-columnHeaders": {
+                                backgroundColor: theme.palette.grey[100],
+                                borderBottom: `1px solid ${theme.palette.divider}`,
+                            },
+                            "& .MuiDataGrid-row:hover": {
+                                backgroundColor: theme.palette.action.hover,
+                            },
+                            "& .MuiDataGrid-row.Mui-selected": {
+                                backgroundColor: `${hexToRGBA(
+                                    theme.palette.primary.main,
+                                    0.08
+                                )} !important`,
+                                color: `${theme.palette.primary.main} !important`,
+                            },
+                            "& .MuiDataGrid-cell": {
+                                borderBottom: `1px solid ${theme.palette.divider}`,
+                            },
                         }}
-                        onRowSelectionModelChange={(row: GridRowSelectionModel) => {
+                        onRowSelectionModelChange={(row: GridRowSelectionModel) =>
                             setSelectedRow(row as string[])
-                        }}
+                        }
                         rowSelectionModel={selectedRow}
                     />
                 </Grid>
-            </Box >
+            </Box>
         </>
-    )
-}
+    );
+};
 
-export default ListBrand
+export default ListBrandPage;

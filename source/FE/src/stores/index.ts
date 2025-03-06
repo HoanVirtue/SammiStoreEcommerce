@@ -15,6 +15,7 @@ import productCategory from 'src/stores/product-category'
 import product from 'src/stores/product'
 import order from 'src/stores/order'
 import review from 'src/stores/review'
+import brand from 'src/stores/brand'
 
 export const store = configureStore({
   reducer: {
@@ -30,7 +31,8 @@ export const store = configureStore({
     product,
     order,
     review,
-    ward
+    ward,
+    brand
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

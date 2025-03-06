@@ -78,5 +78,10 @@ export const getWardFields = (): FieldConfig[] => [
     { value: "districtName", label: i18n.t("district_name"), type: "string", operators: getStringOperators() },
 ];
 
+export const getProductFields = (): FieldConfig[] => [
+    { value: "name", label: i18n.t("product_name"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("product_code"), type: "string", operators: getStringOperators() },
+];
+
 
 export const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50, 100];

@@ -33,7 +33,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 
 
             //product
-            CreateMap<CUProductCommand, Product>();
+            CreateMap<CreateProductCommand, Product>();
+            CreateMap<UpdateProductCommand, Product>();
             CreateMap<Product, ProductDTO>();
 
             // image

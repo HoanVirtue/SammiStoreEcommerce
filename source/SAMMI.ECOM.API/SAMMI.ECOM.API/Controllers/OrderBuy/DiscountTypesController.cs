@@ -6,7 +6,7 @@ using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 
 namespace SAMMI.ECOM.API.Controllers.OrderBuy
 {
-    [Route("api/[controller]")]
+    [Route("api/discount-type")]
     [ApiController]
     public class DiscountTypesController : CustomBaseController
     {

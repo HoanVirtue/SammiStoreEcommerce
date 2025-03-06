@@ -4,7 +4,7 @@ using SAMMI.ECOM.Domain.DomainModels.Products;
 
 namespace SAMMI.ECOM.Domain.Commands.Products
 {
-    public class CUProductCommand : IRequest<ActionResponse<ProductDTO>>
+    public class ProductCommand : IRequest<ActionResponse<ProductDTO>>
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
@@ -19,7 +19,6 @@ namespace SAMMI.ECOM.Domain.Commands.Products
         public int? Status { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public List<CreateImageCommand>? Images { get; set; }
 
 
         public int Id { get; set; }
@@ -30,6 +29,16 @@ namespace SAMMI.ECOM.Domain.Commands.Products
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }
+    }
+    public class CreateProductCommand : ProductCommand
+    {
+        public List<CreateImageCommand>? Images { get; set; }
+    }
+
+    public class UpdateProductCommand : ProductCommand
+    {
+        public List<ImageDTO>? ExistImages { get; set; }
+        public List<CreateImageCommand>? NewImages { get; set; }
     }
 }
 

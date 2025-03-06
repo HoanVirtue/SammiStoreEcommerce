@@ -7,7 +7,7 @@ using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
 namespace SAMMI.ECOM.API.Controllers.ProductCategorys
 {
-    [Route("product-category")]
+    [Route("api/product-category")]
     public class ProductCategorysController : CustomBaseController
     {
         private readonly IProductCategoryQueries _categoryQueries;

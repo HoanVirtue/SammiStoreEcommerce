@@ -13,6 +13,11 @@ export const ROUTE_CONFIG = {
         ROLE: "/system/role",
         USER: "/system/user",
     },
+    USER: {
+        EMPLOYEE: "/user/employee",
+        CUSTOMER: "/user/customer",
+        SUPPLIER: "/user/supplier"
+    },
     MANAGE_PRODUCT: {
         PRODUCT: "/manage-product/product",
         PRODUCT_CATEGORY: "/manage-product/product-category",

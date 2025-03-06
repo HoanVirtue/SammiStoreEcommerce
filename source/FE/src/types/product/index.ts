@@ -71,8 +71,23 @@ export type TParamsCreateProduct = {
     images: ProductImage[];
 };
 
-export interface TParamsUpdateProduct extends TParamsCreateProduct {
-    id: string
+export interface TParamsUpdateProduct{
+    id: string,
+    code: string;
+    name: string;
+    stockQuantity: number;
+    price: number;
+    discount?: number;
+    ingredient: string;
+    uses: string;
+    usageGuide: string;
+    brandId: number;
+    categoryId: number;
+    status: number;
+    startDate?: string;
+    endDate?: string;
+    existImages?: ProductImage[];
+    newImages?: ProductImage[];
 };
 
 // export type TParamsUpdateProduct = {

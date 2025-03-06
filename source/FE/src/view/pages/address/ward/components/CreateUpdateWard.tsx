@@ -33,7 +33,7 @@ import { getAllDistricts } from "src/services/district";
 interface TCreateUpdateWard {
     open: boolean
     onClose: () => void
-    idWard?: string
+    id?: string
 }
 
 type TDefaultValues = {
@@ -50,7 +50,7 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
     const [districtOptions, setDistrictOptions] = useState<{ label: string, value: string }[]>([])
 
     //props
-    const { open, onClose, idWard } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -64,8 +64,8 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
     const schema = yup.object().shape({
         name: yup.string().required(t('required_ward_name')),
         code: yup.string().required(t('required_ward_code')),
-        districtId: yup.string().required(t('require_district_id')),
-        districtName: yup.string().required(t('require_district_name')),
+        districtId: yup.string().required(t('required_district_id')),
+        districtName: yup.string().required(t('required_district_name')),
     });
 
     const defaultValues: TDefaultValues = {
@@ -84,14 +84,14 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (idWard) {
+            if (id) {
                 //update
                 dispatch(updateWardAsync({
                     name: data?.name,
                     code: data?.code,
                     districtId: data?.districtId,
                     districtName: data?.districtName,
-                    id: idWard,
+                    id: id,
                 }))
             } else {
                 //create
@@ -161,11 +161,11 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
                 ...defaultValues
             })
         } else {
-            if (idWard && open) {
-                fetchDetailWard(idWard)
+            if (id && open) {
+                fetchDetailWard(id)
             }
         }
-    }, [open, idWard])
+    }, [open, id])
 
 
     return (
@@ -189,7 +189,7 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idWard ? t('update_ward') : t('create_ward')}
+                            {id ? t('update_ward') : t('create_ward')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -301,12 +301,12 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
                                                     onBlur={onBlur}
                                                     value={value || ''}
                                                     options={districtOptions}
-                                                    placeholder={t('enter_your_district_name')}
+                                                    placeholder={t('enter_district_name')}
                                                     error={errors.districtName ? true : false}
                                                 />
                                                 {errors?.districtName?.message && (
                                                     <FormHelperText sx={{
-                                                        color: !errors?.districtName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                        color: errors?.districtName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                     }}>
                                                         {errors?.districtName?.message}
                                                     </FormHelperText>
@@ -317,9 +317,10 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
                                 </Grid>
                             </Grid>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3 }}>
+                            <Button variant="outlined" sx={{ mt: 3, mb: 2, ml: 2, py: 1.5 }} onClick={onClose}>{t('cancel')}</Button>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idWard ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form >

@@ -30,18 +30,26 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
-                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
+                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder AS ImageDisplayOrder");
+                    sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
+                    sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
 
                     sqlBuilder.LeftJoin("ProductImage t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Image t3 ON t2.ImageId = t3.Id AND t3.IsDeleted != 1");
-                    return conn.QueryAsync<ProductDTO, ImageDTO, ProductDTO>(
+                    sqlBuilder.LeftJoin("ProductCategory t4 ON t1.CategoryId = t4.Id AND t4.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Brand t5 ON t1.BrandId = t5.Id AND t5.IsDeleted != 1");
+                    return conn.QueryAsync<ProductDTO, ImageDTO, string?, string?, string?, string?, ProductDTO>(
                         sqlTemplate.RawSql,
-                        (product, image) =>
+                        (product, image, categoryCode, categoryName, brandCode, brandName) =>
                         {
+                            //Console.WriteLine($"Category: {category?.CategoryCode}, Brand: {brand?.BrandCode}");
                             if (!productDirectory.TryGetValue(product.Id, out var productEntry))
                             {
-                                Console.WriteLine("ProductId: " + product.Id);
                                 productEntry = product;
+                                productEntry.CategoryCode = categoryCode;
+                                productEntry.CategoryName = categoryName;
+                                productEntry.BrandCode = brandCode;
+                                productEntry.BrandName = brandName;
                                 productEntry.Images = new List<ImageDTO>();
                                 // format currency
                                 if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
@@ -50,17 +58,16 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productDirectory.Add(product.Id, productEntry);
                             }
-                            if (image != null)
+                            if (image != null && productEntry.Images.All(i => i.Id != image.Id))
                             {
-                                Console.WriteLine("ImageId: " + image.Id);
-                                product.Images ??= new();
+                                productEntry.Images ??= new();
                                 productEntry.Images.Add(image);
                             }
 
                             return productEntry;
                         },
                         sqlTemplate.Parameters,
-                        splitOn: "Id");
+                        splitOn: "Id,Id,CategoryCode,CategoryName,BrandCode,BrandName");
                 }
             );
         }
@@ -68,10 +75,49 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
         public async Task<ProductDTO> GetById(int id)
         {
             return await WithDefaultTemplateAsync(
-                (conn, sqlBuilder, sqlTemplate) =>
+                async (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    var productDirectory = new Dictionary<int, ProductDTO>();
+                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder AS ImageDisplayOrder");
+                    sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
+                    sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
+
+                    sqlBuilder.LeftJoin("ProductImage t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Image t3 ON t2.ImageId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("ProductCategory t4 ON t1.CategoryId = t4.Id AND t4.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Brand t5 ON t1.BrandId = t5.Id AND t5.IsDeleted != 1");
+
                     sqlBuilder.Where("t1.Id = @id", new { id });
-                    return conn.QueryFirstOrDefaultAsync<ProductDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                    var products = await conn.QueryAsync<ProductDTO, ImageDTO, string?, string?, string?, string?, ProductDTO>(
+                        sqlTemplate.RawSql,
+                        (product, image, categoryCode, categoryName, brandCode, brandName) =>
+                        {
+                            if (!productDirectory.TryGetValue(product.Id, out var productEntry))
+                            {
+                                productEntry = product;
+                                productEntry.CategoryCode = categoryCode;
+                                productEntry.CategoryName = categoryName;
+                                productEntry.BrandCode = brandCode;
+                                productEntry.BrandName = brandName;
+                                productEntry.Images = new List<ImageDTO>();
+                                // format currency
+                                if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
+                                    productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
+                                else
+                                    productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
+                                productDirectory.Add(product.Id, productEntry);
+                            }
+                            if (image != null && productEntry.Images.All(i => i.Id != image.Id))
+                            {
+                                productEntry.Images ??= new();
+                                productEntry.Images.Add(image);
+                            }
+
+                            return productEntry;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "Id,Id,CategoryCode,CategoryName,BrandCode,BrandName");
+                    return products.FirstOrDefault();
                 }
             );
         }
@@ -82,17 +128,26 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
-                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
+                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder AS ImageDisplayOrder");
+                    sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
+                    sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
 
                     sqlBuilder.LeftJoin("ProductImage t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Image t3 ON t2.ImageId = t3.Id AND t3.IsDeleted != 1");
-                    return conn.QueryAsync<ProductDTO, ImageDTO, ProductDTO>(
+                    sqlBuilder.LeftJoin("ProductCategory t4 ON t1.CategoryId = t4.Id AND t4.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Brand t5 ON t1.BrandId = t5.Id AND t5.IsDeleted != 1");
+                    return conn.QueryAsync<ProductDTO, ImageDTO, string?, string?, string?, string?, ProductDTO>(
                         sqlTemplate.RawSql,
-                        (product, image) =>
+                        (product, image, categoryCode, categoryName, brandCode, brandName) =>
                         {
+                            //Console.WriteLine($"Category: {category?.CategoryCode}, Brand: {brand?.BrandCode}");
                             if (!productDirectory.TryGetValue(product.Id, out var productEntry))
                             {
                                 productEntry = product;
+                                productEntry.CategoryCode = categoryCode;
+                                productEntry.CategoryName = categoryName;
+                                productEntry.BrandCode = brandCode;
+                                productEntry.BrandName = brandName;
                                 productEntry.Images = new List<ImageDTO>();
                                 // format currency
                                 if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
@@ -101,16 +156,16 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productDirectory.Add(product.Id, productEntry);
                             }
-                            if (image != null)
+                            if (image != null && productEntry.Images.All(i => i.Id != image.Id))
                             {
-                                product.Images ??= new();
+                                productEntry.Images ??= new();
                                 productEntry.Images.Add(image);
                             }
 
                             return productEntry;
                         },
                         sqlTemplate.Parameters,
-                        splitOn: "Id");
+                        splitOn: "Id,Id,CategoryCode,CategoryName,BrandCode,BrandName");
                 },
                 filterModel);
         }

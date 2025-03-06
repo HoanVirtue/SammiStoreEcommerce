@@ -38,7 +38,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CUProductCommand request)
+        public async Task<IActionResult> Post([FromBody] CreateProductCommand request)
         {
             if (request.Id != 0)
             {
@@ -53,11 +53,15 @@ namespace SAMMI.ECOM.API.Controllers.Products
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CUProductCommand request)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateProductCommand request)
         {
             if ((id == 0 || request.Id == 0) || id != request.Id)
             {
                 return BadRequest();
+            }
+            if (!_productRepository.IsExisted(id))
+            {
+                return BadRequest("Sản phẩm không tồn tại");
             }
 
             var response = await _mediator.Send(request);

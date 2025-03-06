@@ -7,7 +7,7 @@ using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 
 namespace SAMMI.ECOM.API.Controllers.OrderBuy
 {
-    [Route("api/[controller]")]
+    [Route("api/payment-method")]
     [ApiController]
     public class PaymentMethodsController : CustomBaseController
     {

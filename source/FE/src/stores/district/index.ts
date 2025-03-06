@@ -3,21 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
 import { createDistrictAsync, deleteMultipleDistrictsAsync, deleteDistrictAsync, getAllDistrictsAsync, serviceName, updateDistrictAsync } from './action'
-
-interface DistrictPayload {
-  result?: {
-    subset?: any[];
-    id?: string;
-    errorMessage?: string;
-    totalItemCount?: number;
-  };
-  message?: string;
-  isSuccess?: boolean;
-  errors?: {
-    memberName: string,
-    errorMessage: string
-  }
-}
+import { ReduxPayload } from 'src/types/payload'
 
 const initialState = {
   isLoading: false,
@@ -91,7 +77,7 @@ export const districtSlice = createSlice({
       state.typeError = action.payload?.errors
     })
     builder.addCase(createDistrictAsync.rejected, (state, action) => {
-      const payload = action.payload as DistrictPayload;
+      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
       state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating District'
@@ -108,7 +94,7 @@ export const districtSlice = createSlice({
       state.typeError = action.payload?.errors
     })
     builder.addCase(updateDistrictAsync.rejected, (state, action) => {
-      const payload = action.payload as DistrictPayload;
+      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
       state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating District'

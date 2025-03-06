@@ -1,4 +1,4 @@
-export type TParamsGetAllProductCategories = {
+export type TParamsGetAllBrands = {
     skip?: number;
     take?: number;
     filters?: string;
@@ -10,27 +10,25 @@ export type TParamsGetAllProductCategories = {
     keywords?: string;
 }
 
-export type TParamsCreateProductCategory = {
+export type TParamsCreateBrand = {
     code: string,
     name: string,
-    parentId?: number,
-    level?: number,
+    image: string,
     // slug: string
 }
 
-export type TParamsUpdateProductCategory = {
+export type TParamsUpdateBrand = {
     id: string,
     code: string,
     name: string,
-    parentId?: number,
-    level?: number,
+    image: string,
     // slug: string
 }
 
-export type TParamsDeleteProductCategory = {
+export type TParamsDeleteBrand = {
     id: string,
 }
 
-export type TParamsDeleteMultipleProductCategories = {
-    productCategoryIds: string[],
+export type TParamsDeleteMultipleBrands = {
+    brandIds: string[],
 }

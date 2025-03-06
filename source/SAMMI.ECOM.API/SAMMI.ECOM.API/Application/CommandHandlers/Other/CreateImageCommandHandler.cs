@@ -81,7 +81,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Other
         {
             RuleFor(x => x.ImageBase64)
                 .NotEmpty()
-                .WithMessage("ImageBase64 không được bỏ trống");
+                .WithMessage("ImageBase64 không được bỏ trống")
+                .Must(x => IsValidBase64(x))
+                .WithMessage("Hình ảnh phải là chuỗi Base64 hợp lệ.");
 
             RuleFor(x => x.PublicId)
                 .NotEmpty()
@@ -90,6 +92,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Other
             RuleFor(x => x.TypeImage)
                 .NotEmpty()
                 .WithMessage("Loại hình ảnh không được bỏ trống");
+        }
+
+        private static bool IsValidBase64(string base64)
+        {
+            Span<byte> buffer = new Span<byte>(new byte[base64.Length]);
+            return Convert.TryFromBase64String(base64, buffer, out int bytesParsed);
         }
     }
 }

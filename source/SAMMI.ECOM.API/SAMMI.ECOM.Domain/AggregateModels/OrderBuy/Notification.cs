@@ -8,9 +8,13 @@ namespace SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 [Table("Notification")]
 public partial class Notification : Entity
 {
-    [Column("Name")]
-    [MaxLength(100)]
-    public string Name { get; set; } = null!;
+    [Column("Title")]
+    [MaxLength(255)]
+    public string Title { get; set; } = null!;
+
+    [Column("Content")]
+    [MaxLength(int.MaxValue)]
+    public string Content { get; set; } = null!;
 
     [ForeignKey("Receiver")]
     public int ReceiverId { get; set; }

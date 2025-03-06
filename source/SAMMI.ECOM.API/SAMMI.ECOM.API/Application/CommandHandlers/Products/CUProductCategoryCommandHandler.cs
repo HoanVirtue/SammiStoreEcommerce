@@ -32,8 +32,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 actResponse.AddError("Tên danh mục sản phẩm đã tồn tại");
                 return actResponse;
             }
-
-            if (!_categoryRespository.IsExisted(request.Id))
+            request.ParentId = request.ParentId == 0 ? null : request.ParentId;
+            if (request.ParentId != null && !_categoryRespository.IsExisted(request.ParentId))
             {
                 actResponse.AddError("Danh mục cha không tồn tại");
                 return actResponse;

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using MediatR;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
@@ -59,9 +60,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.System
             else
             {
                 ImageDTO imageDTO = null;
-                if (!_imageRepository.IsExisted(request.ImageId))
+                var banner = await _bannerRepository.GetByIdAsync(request.Id);
+                if (banner.ImageId != request.ImageId)
                 {
-                    actResponse.AddError($"Không tồn tại hình ảnh có mã {request.ImageId}");
+                    actResponse.AddError("Không được thay đổi ImageId");
                     return actResponse;
                 }
                 if (request.ImageCommand != null && !string.IsNullOrEmpty(request.ImageCommand.ImageBase64))
@@ -69,6 +71,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.System
                     _imageRepository.DeleteAndSave(request.ImageId);
                     request.ImageCommand.TypeImage = ImageEnum.Banner.ToString();
                     request.ImageCommand.Value = "";
+                    request.ImageCommand.Id = 0;
                     var imageRes = await _mediator.Send(request.ImageCommand);
                     if (!imageRes.IsSuccess)
                     {
@@ -91,6 +94,16 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.System
             }
 
             return actResponse;
+        }
+    }
+
+    public class CUBannerCommandValidator : AbstractValidator<CUBannerCommand>
+    {
+        public CUBannerCommandValidator()
+        {
+            RuleFor(x => x.Level)
+                .Must(x => x > 0)
+                .WithMessage("Vị trí/Cấp độ phải lớn hơn 0");
         }
     }
 }

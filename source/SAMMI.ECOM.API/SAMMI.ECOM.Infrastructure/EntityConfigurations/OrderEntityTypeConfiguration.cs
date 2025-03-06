@@ -22,6 +22,11 @@ namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
             builder.HasOne(d => d.Ward)
                 .WithMany(p => p.Orders)
                 .HasForeignKey(d => d.WardId);
+
+            builder.HasOne(d => d.ShippingCompany)
+                .WithMany(p => p.Orders)
+                .HasForeignKey(d => d.ShippingCompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

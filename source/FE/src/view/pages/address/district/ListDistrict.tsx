@@ -57,15 +57,9 @@ import AdminFilter from "src/components/admin-filter";
 import { useDebounce } from "src/hooks/useDebounce";
 import province from 'src/stores/province';
 import { getAllProvinces } from "src/services/province";
+import { TFilter } from "src/configs/filter";
 
 type TProps = {};
-
-type TFilter = {
-    field: string;
-    operator: string;
-    value: string;
-    logic?: string;
-};
 
 const ListDistrictPage: NextPage<TProps> = () => {
     // States

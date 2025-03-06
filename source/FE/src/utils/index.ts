@@ -9,13 +9,14 @@ export const toFullName = (lastName: string, middleName: string, firstName: stri
     return `${firstName ? firstName : ''} ${middleName ? middleName : ''} ${lastName ? lastName : ''}`.trim()
 }
 
-export const convertBase64 = (file: File) =>
-    new Promise((resolve, reject) => {
+export const convertBase64 = (file: File): Promise<string> =>{
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result)
+        reader.onload = () => resolve(reader.result as string)
         reader.onerror = (error) => reject(error)
     })
+}
 
 
 export const separationFullname = (fullName: string, language: string) => {

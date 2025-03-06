@@ -76,8 +76,6 @@ public partial class SammiEcommerceContext : DbContext
 
     public virtual DbSet<ShippingCompany> ShippingCompanies { get; set; }
 
-    public virtual DbSet<ShippingInfo> ShippingInfos { get; set; }
-
     public virtual DbSet<SysAction> SysActions { get; set; }
 
     public virtual DbSet<SysFunction> SysFunctions { get; set; }
@@ -133,7 +131,6 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new RoleEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RolePermissionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new ShippingCompanyEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new ShippingInfoEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new SysActionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new SysFunctionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new SysLogEntityTypeConfiguration());

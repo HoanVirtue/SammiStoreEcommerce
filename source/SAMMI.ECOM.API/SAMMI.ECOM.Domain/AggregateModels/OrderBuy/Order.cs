@@ -39,6 +39,26 @@ public partial class Order : Entity
     [MaxLength(255)]
     public string? CustomerAddress { get; set; }
 
+    [Column("ShippingMethod")]
+    [MaxLength(100)]
+    public string? ShippingMethod { get; set; }
+
+    [Column("CostShip")]
+    public decimal? CostShip { get; set; }
+
+    [Column("TrackingNumber")]
+    [MaxLength(100)]
+    public string? TrackingNumber { get; set; }
+
+    [Column("EstimatedDeliveryDate")]
+    public DateTime? EstimatedDeliveryDate { get; set; }
+
+    [Column("ActualDeliveryDate")]
+    public DateTime? ActualDeliveryDate { get; set; }
+
+    [ForeignKey("ShippingCompany")]
+    public int? ShippingCompanyId { get; set; }
+
     public virtual User Customer { get; set; } = null!;
 
     public virtual Voucher? Voucher { get; set; }
@@ -49,7 +69,7 @@ public partial class Order : Entity
 
     public virtual ICollection<Payment> Payments { get; set; } = new List<Payment>();
 
-    public virtual ICollection<ShippingInfo> ShippingInfos { get; set; } = new List<ShippingInfo>();
     public virtual Ward? Ward { get; set; }
+    public virtual ShippingCompany? ShippingCompany { get; set; } = null!;
 
 }

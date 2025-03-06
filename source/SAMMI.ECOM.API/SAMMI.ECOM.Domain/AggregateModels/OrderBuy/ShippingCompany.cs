@@ -20,5 +20,5 @@ public partial class ShippingCompany : Entity
     [MaxLength(255)]
     public string? Website { get; set; }
 
-    public virtual ICollection<ShippingInfo> ShippingInfos { get; set; } = new List<ShippingInfo>();
+    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

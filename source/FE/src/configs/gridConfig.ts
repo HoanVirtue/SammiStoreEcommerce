@@ -81,6 +81,17 @@ export const getWardFields = (): FieldConfig[] => [
 export const getProductFields = (): FieldConfig[] => [
     { value: "name", label: i18n.t("product_name"), type: "string", operators: getStringOperators() },
     { value: "code", label: i18n.t("product_code"), type: "string", operators: getStringOperators() },
+    { value: "brandName", label: i18n.t("brand"), type: "string", operators: getStringOperators() },    
+    { value: "categoryName", label: i18n.t("category"), type: "string", operators: getStringOperators() },
+    { value: "price", label: i18n.t("price"), type: "string", operators: getStringOperators() },
+    { value: "stockQuantity", label: i18n.t("stock_quantity"), type: "string", operators: getStringOperators() },
+    { value: "discount", label: i18n.t("discount"), type: "string", operators: getStringOperators() },
+    { value: "status", label: i18n.t("status"), type: "string", operators: getStringOperators() },
+];
+
+export const getBrandFields = (): FieldConfig[] => [
+    { value: "name", label: i18n.t("brand_name"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("brand_code"), type: "string", operators: getStringOperators() },
 ];
 
 

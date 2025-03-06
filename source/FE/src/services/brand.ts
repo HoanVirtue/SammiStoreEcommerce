@@ -23,9 +23,9 @@ export const createBrand = async (data: TParamsCreateBrand) => {
 
 
 export const updateBrand = async (data: TParamsUpdateBrand) => {
-    const { id, ...rests } = data
+    // const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}/${id}`, rests)
+        const res = await instance.put(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}/${data.id}`, data)
         return res.data
     } catch (error: any) {
         return error?.response?.data

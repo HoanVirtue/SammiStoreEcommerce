@@ -33,7 +33,7 @@ import { getAllProvinces } from "src/services/province";
 interface TCreateUpdateDistrict {
     open: boolean
     onClose: () => void
-    idDistrict?: string
+    id?: string
 }
 
 type TDefaultValues = {
@@ -50,7 +50,7 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
     const [provinceOptions, setProvinceOptions] = useState<{ label: string, value: string }[]>([])
 
     //props
-    const { open, onClose, idDistrict } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -64,8 +64,8 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
     const schema = yup.object().shape({
         name: yup.string().required(t('required_district_name')),
         code: yup.string().required(t('required_district_code')),
-        provinceId: yup.string().required(t('require_province_id')),
-        provinceName: yup.string().required(t('require_province_name')),
+        provinceId: yup.string().required(t('required_province_id')),
+        provinceName: yup.string().required(t('required_province_name')),
     });
 
     const defaultValues: TDefaultValues = {
@@ -84,14 +84,14 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (idDistrict) {
+            if (id) {
                 //update
                 dispatch(updateDistrictAsync({
                     name: data?.name,
                     code: data?.code,
                     provinceId: data?.provinceId,
                     provinceName: data?.provinceName,
-                    id: idDistrict,
+                    id: id,
                 }))
             } else {
                 //create
@@ -161,11 +161,11 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                 ...defaultValues
             })
         } else {
-            if (idDistrict && open) {
-                fetchDetailDistrict(idDistrict)
+            if (id && open) {
+                fetchDetailDistrict(id)
             }
         }
-    }, [open, idDistrict])
+    }, [open, id])
 
 
     return (
@@ -189,7 +189,7 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idDistrict ? t('update_district') : t('create_district')}
+                            {id ? t('update_district') : t('create_district')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -301,12 +301,12 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                                                     onBlur={onBlur}
                                                     value={value || ''}
                                                     options={provinceOptions}
-                                                    placeholder={t('enter_your_province_name')}
+                                                    placeholder={t('enter_province_name')}
                                                     error={errors.provinceName ? true : false}
                                                 />
                                                 {errors?.provinceName?.message && (
                                                     <FormHelperText sx={{
-                                                        color: !errors?.provinceName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                        color: errors?.provinceName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                                     }}>
                                                         {errors?.provinceName?.message}
                                                     </FormHelperText>
@@ -317,9 +317,10 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                                 </Grid>
                             </Grid>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3 }}>
+                            <Button variant="outlined" sx={{ mt: 3, mb: 2, ml: 2, py: 1.5 }} onClick={onClose}>{t('cancel')}</Button>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idDistrict ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form >

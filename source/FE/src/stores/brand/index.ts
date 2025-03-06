@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
-import { createProductCategoryAsync, deleteMultipleProductCategoriesAsync, deleteProductCategoryAsync, getAllProductCategoriesAsync, serviceName, updateProductCategoryAsync } from './action'
+import { createBrandAsync, deleteMultipleBrandsAsync, deleteBrandAsync, getAllBrandsAsync, serviceName, updateBrandAsync } from './action'
 import { ReduxPayload } from 'src/types/payload'
 
 const initialState = {
@@ -21,13 +21,13 @@ const initialState = {
   isErrorDeleteMultiple: false,
   errorMessageDeleteMultiple: '',
 
-  productCategories: {
+  brands: {
     data: [],
     total: 0
   }
 }
 
-export const productCategorySlice = createSlice({
+export const BrandSlice = createSlice({
   name: serviceName,
   initialState,
   reducers: {
@@ -50,93 +50,93 @@ export const productCategorySlice = createSlice({
   },
   extraReducers: builder => {
 
-    //get all ProductCategory
-    builder.addCase(getAllProductCategoriesAsync.pending, (state, action) => {
+    //get all Brand
+    builder.addCase(getAllBrandsAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(getAllProductCategoriesAsync.fulfilled, (state, action) => {
+    builder.addCase(getAllBrandsAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.productCategories.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
-      state.productCategories.total = action?.payload?.result?.totalItemCount
+      state.brands.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
+      state.brands.total = action?.payload?.result?.totalItemCount
     })
-    builder.addCase(getAllProductCategoriesAsync.rejected, (state, action) => {
+    builder.addCase(getAllBrandsAsync.rejected, (state, action) => {
       state.isLoading = false
-      state.productCategories.data = []
-      state.productCategories.total = 0
+      state.brands.data = []
+      state.brands.total = 0
     })
 
-    //create ProductCategory
-    builder.addCase(createProductCategoryAsync.pending, (state, action) => {
+    //create Brand
+    builder.addCase(createBrandAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(createProductCategoryAsync.fulfilled, (state, action) => {
+    builder.addCase(createBrandAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
-    builder.addCase(createProductCategoryAsync.rejected, (state, action) => {
+    builder.addCase(createBrandAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating ProductCategory'
+      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating Brand'
     })
 
-    //update ProductCategory
-    builder.addCase(updateProductCategoryAsync.pending, (state, action) => {
+    //update Brand
+    builder.addCase(updateBrandAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(updateProductCategoryAsync.fulfilled, (state, action) => {
+    builder.addCase(updateBrandAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
-    builder.addCase(updateProductCategoryAsync.rejected, (state, action) => {
+    builder.addCase(updateBrandAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating ProductCategory'
+      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating Brand'
     })
 
-    //delete ProductCategory
-    builder.addCase(deleteProductCategoryAsync.pending, (state, action) => {
+    //delete Brand
+    builder.addCase(deleteBrandAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(deleteProductCategoryAsync.fulfilled, (state, action) => {
+    builder.addCase(deleteBrandAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.isSuccessDelete = !!action.payload?.isSuccess
       state.isErrorDelete = !action.payload?.isSuccess
       state.errorMessageDelete = action.payload?.message
       state.typeError = action.payload?.typeError
     })
-    builder.addCase(deleteProductCategoryAsync.rejected, (state, action) => {
+    builder.addCase(deleteBrandAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isErrorDelete = true
-      state.errorMessageDelete = action?.error.message || 'Error deleting ProductCategory'
+      state.errorMessageDelete = action?.error.message || 'Error deleting Brand'
     })
 
-    //delete multiple ProductCategory
-    builder.addCase(deleteMultipleProductCategoriesAsync.pending, (state, action) => {
+    //delete multiple Brand
+    builder.addCase(deleteMultipleBrandsAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(deleteMultipleProductCategoriesAsync.fulfilled, (state, action) => {
+    builder.addCase(deleteMultipleBrandsAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.isSuccessDeleteMultiple = !!action.payload?.data
       state.isErrorDeleteMultiple = !action.payload?.data
       state.errorMessageDeleteMultiple = action.payload?.message
       state.typeError = action.payload?.typeError
     })
-    builder.addCase(deleteMultipleProductCategoriesAsync.rejected, (state, action) => {
+    builder.addCase(deleteMultipleBrandsAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorDeleteMultiple = true
-      state.errorMessageDeleteMultiple = payload?.errors?.errorMessage || 'Error deleting ProductCategory'
+      state.errorMessageDeleteMultiple = payload?.errors?.errorMessage || 'Error deleting Brand'
     })
   }
 })
 
-export const { resetInitialState } = productCategorySlice.actions
-export default productCategorySlice.reducer
+export const { resetInitialState } = BrandSlice.actions
+export default BrandSlice.reducer

@@ -68,7 +68,7 @@ export const VerticalLayoutItems = () => {
                     title: t('product_list'),
                     icon: 'fluent-mdl2:product-catalog',
                     path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT,
-                    permission: PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW
+                    // permission: PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW
                 },
                 {
                     title: t('product_category'),

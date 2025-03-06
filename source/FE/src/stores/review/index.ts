@@ -95,8 +95,8 @@ export const reviewSlice = createSlice({
     })
     builder.addCase(createReviewAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreate = !!action.payload?.data?._id
-      state.isErrorCreate = !action.payload?.data?._id
+      state.isSuccessCreate = !!action.payload?.isSuccess
+      state.isErrorCreate = !action.payload?.isSuccess
       state.errorMessageCreate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -113,8 +113,8 @@ export const reviewSlice = createSlice({
     })
     builder.addCase(updateReviewAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessUpdate = !!action.payload?.data?._id
-      state.isErrorUpdate = !action.payload?.data?._id
+      state.isSuccessUpdate = !!action.payload?.isSuccess
+      state.isErrorUpdate = !action.payload?.isSuccess
       state.errorMessageUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -130,8 +130,8 @@ export const reviewSlice = createSlice({
     })
     builder.addCase(updateMyReviewAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessMyUpdate = !!action.payload?.data?._id
-      state.isErrorMyUpdate = !action.payload?.data?._id
+      state.isSuccessMyUpdate = !!action.payload?.isSuccess
+      state.isErrorMyUpdate = !action.payload?.isSuccess
       state.errorMessageMyUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -147,8 +147,8 @@ export const reviewSlice = createSlice({
     })
     builder.addCase(deleteReviewAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessDelete = !!action.payload?.data?._id
-      state.isErrorDelete = !action.payload?.data?._id
+      state.isSuccessDelete = !!action.payload?.isSuccess
+      state.isErrorDelete = !action.payload?.isSuccess
       state.errorMessageDelete = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -164,8 +164,8 @@ export const reviewSlice = createSlice({
     })
     builder.addCase(deleteMyReviewAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessMyDelete = !!action.payload?.data?._id
-      state.isErrorMyDelete = !action.payload?.data?._id
+      state.isSuccessMyDelete = !!action.payload?.isSuccess
+      state.isErrorMyDelete = !action.payload?.isSuccess
       state.errorMessageMyDelete = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -181,8 +181,8 @@ export const reviewSlice = createSlice({
     })
     builder.addCase(deleteMultipleReviewAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessMultipleDelete = !!action.payload?.data?._id
-      state.isErrorMultipleDelete = !action.payload?.data?._id
+      state.isSuccessMultipleDelete = !!action.payload?.isSuccess
+      state.isErrorMultipleDelete = !action.payload?.isSuccess
       state.errorMessageMultipleDelete = action.payload?.message
       state.typeError = action.payload?.typeError
     })

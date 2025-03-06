@@ -82,8 +82,8 @@ export const orderSlice = createSlice({
     })
     builder.addCase(createOrderAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreate = !!action.payload?.data?._id
-      state.isErrorCreate = !action.payload?.data?._id
+      state.isSuccessCreate = !!action.payload?.isSuccess
+      state.isErrorCreate = !action.payload?.isSuccess
       state.errorMessageCreate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -99,8 +99,8 @@ export const orderSlice = createSlice({
     })
     builder.addCase(cancelOrderAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCancel = !!action.payload?.data?._id
-      state.isErrorCancel = !action.payload?.data?._id
+      state.isSuccessCancel = !!action.payload?.isSuccess
+      state.isErrorCancel = !action.payload?.isSuccess
       state.errorMessageCancel = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -131,8 +131,8 @@ export const orderSlice = createSlice({
     })
     builder.addCase(updateOrderAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessUpdate = !!action.payload?.data?._id
-      state.isErrorUpdate = !action.payload?.data?._id
+      state.isSuccessUpdate = !!action.payload?.isSuccess
+      state.isErrorUpdate = !action.payload?.isSuccess
       state.errorMessageUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -148,8 +148,8 @@ export const orderSlice = createSlice({
     })
     builder.addCase(deleteOrderAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessDelete = !!action.payload?.data?._id
-      state.isErrorDelete = !action.payload?.data?._id
+      state.isSuccessDelete = !!action.payload?.isSuccess
+      state.isErrorDelete = !action.payload?.isSuccess
       state.errorMessageDelete = action.payload?.message
       state.typeError = action.payload?.typeError
     })

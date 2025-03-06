@@ -19,7 +19,7 @@ import { AppDispatch, RootState } from 'src/stores'
 import { useTranslation } from 'react-i18next'
 
 //configs
-import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
+import { getProductFields, PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
 
 //components
 import CustomDataGrid from 'src/components/custom-data-grid'
@@ -47,6 +47,10 @@ import CustomSelect from 'src/components/custom-select'
 import { OBJECT_PRODUCT_STATUS } from 'src/configs/product'
 import { getAllProductCategories } from '../../../../services/product-category';
 import { formatPrice } from '../../../../utils/index';
+import { TFilter } from 'src/configs/filter'
+import { useDebounce } from 'src/hooks/useDebounce'
+import AdminFilter from 'src/components/admin-filter'
+import { TParamsGetAllProductCategories } from 'src/types/product-category'
 
 type TProps = {}
 
@@ -81,22 +85,21 @@ const ListProduct: NextPage<TProps> = () => {
 
     const [openDeleteMultipleProducts, setOpenDeleteMultipleProducts] = useState(false);
 
-    const [sortBy, setSortBy] = useState("createdAt asc");
     const [searchBy, setSearchBy] = useState("");
     const [loading, setLoading] = useState(false);
     const [selectedRow, setSelectedRow] = useState<string[]>([]);
 
-    const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>([])
-    const [selectedCategory, setSelectedCategory] = useState<string[]>([]);
-    const [statusOptions, setStatusOptions] = useState<{ label: string, value: string }[]>([])
-    const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
     const [filterBy, setFilterBy] = useState<Record<string, string | string[]>>({});
 
-    const PRODUCT_STATUS = OBJECT_PRODUCT_STATUS()
+    const [sortBy, setSortBy] = useState<string>("createdDate asc");
+    const [filters, setFilters] = useState<TFilter[]>([]);
 
+    const debouncedFilters = useDebounce(filters, 500);
+    const PRODUCT_STATUS = OBJECT_PRODUCT_STATUS()
 
     //Translation
     const { t, i18n } = useTranslation();
+    const productFields = getProductFields()
 
     //hooks
     const { VIEW, CREATE, UPDATE, DELETE } = usePermission("MANAGE_PRODUCT.PRODUCT", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
@@ -112,24 +115,25 @@ const ListProduct: NextPage<TProps> = () => {
 
     //api 
     const handleGetListProduct = () => {
-        const query = { params: { limit: pageSize, page: page, search: searchBy, order: sortBy, ...formatFilter(filterBy) } }
+        const [orderByField, orderByDir] = sortBy.split(" ");
+        const validFilters = debouncedFilters.filter(
+            (f) => f.field && f.operator && (f.value || ["isnull", "isnotnull", "isempty", "isnotempty"].includes(f.operator))
+        );
+        const filterString = validFilters.length > 0
+            ? validFilters.map((f) => `${f.field}::${f.value}::${f.operator}`).join("|")
+            : "";
+        const query = {
+            params: {
+                filters: filterString,
+                take: pageSize,
+                skip: (page - 1) * pageSize,
+                orderBy: orderByField || "createdDate",
+                dir: orderByDir || "asc",
+                paging: true,
+                keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value || "''" : "''",
+            },
+        };
         dispatch(getAllProductsAsync(query));
-    }
-
-    const fetchAllCategories = async () => {
-        setLoading(true)
-        await getAllProductCategories({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.productTypes
-            if (data) {
-                setCategoryOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
     }
 
     //handlers
@@ -143,7 +147,7 @@ const ListProduct: NextPage<TProps> = () => {
         if (sortOption) {
             setSortBy(`${sortOption.field} ${sortOption.sort}`)
         } else {
-            setSortBy("createdAt asc")
+            setSortBy("createdDate asc")
         }
     }
 
@@ -183,132 +187,136 @@ const ListProduct: NextPage<TProps> = () => {
         }
     }
 
-    const columns: readonly GridColDef[] = useMemo(()=>{
-    return [
-        {
-            field: 'product_name',
-            headerName: t('product_name'),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.name}</Typography>
-                )
-            }
-        },
-        {
-            field: 'product_category',
-            headerName: t('product_category'),
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    // <Typography>{row?.type?.name}</Typography>
-                    <Typography>{row?.type}</Typography>
-                )
-            }
-        },
-        {
-            field: 'price',
-            headerName: t('price'),
-            minWidth: 150,
-            maxWidth: 150,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{`${formatPrice(row?.price)} VND`}</Typography>
-                )
-            }
-        },
-        {
-            field: 'countInStock',
-            headerName: t('count_in_stock'),
-            minWidth: 100,
-            maxWidth: 100,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.countInStock}</Typography>
-                )
-            }
-        },
-        {
-            field: 'discount',
-            headerName: t('discount'),
-            minWidth: 100,
-            maxWidth: 100,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.discount}</Typography>
-                )
-            }
-        },
-        {
-            field: 'status',
-            headerName: t('status'),
-            flex: 1,
-            minWidth: 140,
-            maxWidth: 140,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <>
-                        {row?.status ? (
-                            <StyledPublicProduct label={t('public')} />
-                        ) : (
-                            <StyledPrivateProduct label={t('private')} />
-                        )
-                        }
-                    </>
-                )
-            }
-        },
-        // {
-        //     field: 'created_at',
-        //     headerName: t('created_at'),
-        //     minWidth: 150,
-        //     maxWidth: 150,
-        //     renderCell: (params: GridRenderCellParams) => {
-        //         const { row } = params
-        //         return (
-        //             <Typography>{formatDate(row?.createdAt, { dateStyle: "short", timeStyle: "short" })}</Typography>
-        //         )
-        //     }
-        // },
-        {
-            field: 'action',
-            headerName: t('action'),
-            width: 140,
-            sortable: false,
-            align: "left",
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <>
-                        <GridUpdate
-                            // disabled={!UPDATE}
-                            onClick={() => setOpenCreateUpdateProduct({
-                                open: true,
-                                id: String(params.id)
-                            })}
-                        />
-                        <GridDelete
-                            // disabled={!DELETE}
-                            onClick={() => setOpenDeleteProduct({
-                                open: true,
-                                id: String(params.id)
-                            })}
-                        />
-                    </>
-                )
-            }
-        },
-    ] as const
+    const handleFilterChange = (newFilters: TFilter[]) => {
+        setFilters(newFilters);
+    };
+
+    const columns: readonly GridColDef[] = useMemo(() => {
+        return [
+            {
+                field: 'product_name',
+                headerName: t('product_name'),
+                flex: 1,
+                minWidth: 200,
+                renderCell: (params: GridRenderCellParams) => {
+                    const { row } = params
+                    console.log("row", {row})
+                    return (
+                        <Typography>{row?.name}</Typography>
+                    )
+                }
+            },
+            {
+                field: 'product_category',
+                headerName: t('product_category'),
+                minWidth: 200,
+                maxWidth: 200,
+                renderCell: (params: GridRenderCellParams) => {
+                    const { row } = params
+                    return (
+                        <Typography>{row?.categoryName}</Typography>
+                    )
+                }
+            },
+            {
+                field: 'price',
+                headerName: t('price'),
+                minWidth: 150,
+                maxWidth: 150,
+                renderCell: (params: GridRenderCellParams) => {
+                    const { row } = params
+                    return (
+                        <Typography>{`${formatPrice(row?.price)} VND`}</Typography>
+                    )
+                }
+            },
+            {
+                field: 'stockQuantity',
+                headerName: t('stock_quantity'),
+                minWidth: 100,
+                maxWidth: 100,
+                renderCell: (params: GridRenderCellParams) => {
+                    const { row } = params
+                    return (
+                        <Typography>{row?.stockQuantity}</Typography>
+                    )
+                }
+            },
+            {
+                field: 'discount',
+                headerName: t('discount'),
+                minWidth: 100,
+                maxWidth: 100,
+                renderCell: (params: GridRenderCellParams) => {
+                    const { row } = params
+                    return (
+                        <Typography>{row?.discount}</Typography>
+                    )
+                }
+            },
+            {
+                field: 'status',
+                headerName: t('status'),
+                flex: 1,
+                minWidth: 140,
+                maxWidth: 140,
+                renderCell: (params: GridRenderCellParams) => {
+                    const { row } = params
+                    return (
+                        <>
+                            {row?.status ? (
+                                <StyledPublicProduct label={t('public')} />
+                            ) : (
+                                <StyledPrivateProduct label={t('private')} />
+                            )
+                            }
+                        </>
+                    )
+                }
+            },
+            // {
+            //     field: 'created_at',
+            //     headerName: t('created_at'),
+            //     minWidth: 150,
+            //     maxWidth: 150,
+            //     renderCell: (params: GridRenderCellParams) => {
+            //         const { row } = params
+            //         return (
+            //             <Typography>{formatDate(row?.createdAt, { dateStyle: "short", timeStyle: "short" })}</Typography>
+            //         )
+            //     }
+            // },
+            {
+                field: 'action',
+                headerName: t('action'),
+                width: 140,
+                sortable: false,
+                align: "left",
+                renderCell: (params: GridRenderCellParams) => {
+                    const { row } = params
+                    return (
+                        <>
+                            <GridUpdate
+                                // disabled={!UPDATE}
+                                onClick={() => setOpenCreateUpdateProduct({
+                                    open: true,
+                                    id: String(params.id)
+                                })}
+                            />
+                            <GridDelete
+                                // disabled={!DELETE}
+                                onClick={() => setOpenDeleteProduct({
+                                    open: true,
+                                    id: String(params.id)
+                                })}
+                            />
+                        </>
+                    )
+                }
+            },
+        ] as const
     }, [t])
- 
+
 
     const PaginationComponent = () => {
         return <CustomPagination
@@ -372,15 +380,6 @@ const ListProduct: NextPage<TProps> = () => {
         }
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
 
-    useEffect(() => {
-        fetchAllCategories()
-    }, [])
-
-
-    useEffect(() => {
-        setFilterBy({ productType: selectedCategory, status: selectedStatus });
-    }, [selectedCategory, selectedStatus]);
-
     return (
         <>
             {(loading || isLoading) && <Spinner />}
@@ -424,27 +423,6 @@ const ListProduct: NextPage<TProps> = () => {
                             gap: 4,
                             width: '100%'
                         }}>
-                            <Box sx={{ width: '200px', }}>
-                                <CustomSelect
-                                    fullWidth
-                                    multiple
-                                    value={selectedCategory}
-                                    options={categoryOptions}
-                                    onChange={(e) => setSelectedCategory(e.target.value as string[])}
-                                    placeholder={t('product_category')}
-                                />
-                            </Box>
-                            <Box sx={{ width: '200px', }}>
-                                <CustomSelect
-                                    fullWidth
-                                    multiple
-                                    value={selectedStatus}
-                                    options={Object.values(PRODUCT_STATUS)}
-                                    onChange={(e) => setSelectedStatus(e.target.value as string[])}
-                                    placeholder={t('status')}
-                                />
-                            </Box>
-                            <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
                             <GridCreate onClick={() => {
                                 setOpenCreateUpdateProduct({ open: true, id: "" })
                             }}
@@ -459,7 +437,7 @@ const ListProduct: NextPage<TProps> = () => {
                                 [{
                                     label: t("delete"),
                                     value: "delete",
-                                    disabled: !DELETE
+                                    // disabled: !DELETE
                                 }]
                             }
                             handleAction={handleAction}
@@ -469,14 +447,18 @@ const ListProduct: NextPage<TProps> = () => {
                         rows={products.data}
                         columns={columns}
                         checkboxSelection
-                        getRowId={(row) => row._id}
+                        getRowId={(row) => row.id}
                         disableRowSelectionOnClick
                         autoHeight
                         sortingOrder={['desc', 'asc']}
                         sortingMode='server'
                         onSortModelChange={handleSort}
                         slots={{
-                            pagination: PaginationComponent
+                            pagination: PaginationComponent,
+                            toolbar: AdminFilter
+                        }}
+                        slotProps={{
+                            toolbar: { fields: productFields, onFilterChange: handleFilterChange },
                         }}
                         disableColumnFilter
                         disableColumnMenu

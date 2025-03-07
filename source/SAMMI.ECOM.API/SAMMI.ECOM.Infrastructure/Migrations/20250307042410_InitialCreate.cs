@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initialcreate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -930,7 +930,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     OrderStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     ShippingStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     VoucherId = table.Column<int>(type: "int", nullable: true),
+                    WardId = table.Column<int>(type: "int", nullable: true),
                     CustomerAddress = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    ShippingMethod = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    CostShip = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
+                    TrackingNumber = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    EstimatedDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    ActualDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    ShippingCompanyId = table.Column<int>(type: "int", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -944,6 +951,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Order", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Order_ShippingCompany_ShippingCompanyId",
+                        column: x => x.ShippingCompanyId,
+                        principalTable: "ShippingCompany",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Order_Users_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Users",
@@ -952,6 +964,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         name: "FK_Order_Voucher_VoucherId",
                         column: x => x.VoucherId,
                         principalTable: "Voucher",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Order_Ward_WardId",
+                        column: x => x.WardId,
+                        principalTable: "Ward",
                         principalColumn: "Id");
                 });
 
@@ -1058,7 +1075,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    Title = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
+                    Content = table.Column<string>(type: "longtext", maxLength: 2147483647, nullable: false),
                     ReceiverId = table.Column<int>(type: "int", nullable: false),
                     OrderId = table.Column<int>(type: "int", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
@@ -1095,7 +1113,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Tax = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    DiscountId = table.Column<int>(type: "int", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -1117,11 +1134,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         name: "FK_OrderDetail_Product_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Product",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_OrderDetail_Voucher_DiscountId",
-                        column: x => x.DiscountId,
-                        principalTable: "Voucher",
                         principalColumn: "Id");
                 });
 
@@ -1157,44 +1169,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         name: "FK_Payment_PaymentMethod_PaymentMethodId",
                         column: x => x.PaymentMethodId,
                         principalTable: "PaymentMethod",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ShippingInfo",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
-                    ShippingCompanyId = table.Column<int>(type: "int", nullable: false),
-                    ShippingMethod = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    Cost = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    TrackingNumber = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    ShippingStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    EstimatedDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    ActualDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ShippingInfo", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ShippingInfo_Order_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Order",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_ShippingInfo_ShippingCompany_ShippingCompanyId",
-                        column: x => x.ShippingCompanyId,
-                        principalTable: "ShippingCompany",
                         principalColumn: "Id");
                 });
 
@@ -1294,14 +1268,19 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Order_ShippingCompanyId",
+                table: "Order",
+                column: "ShippingCompanyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Order_VoucherId",
                 table: "Order",
                 column: "VoucherId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_OrderDetail_DiscountId",
-                table: "OrderDetail",
-                column: "DiscountId");
+                name: "IX_Order_WardId",
+                table: "Order",
+                column: "WardId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_OrderId",
@@ -1387,16 +1366,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "IX_RolePermission_RoleId",
                 table: "RolePermission",
                 column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ShippingInfo_OrderId",
-                table: "ShippingInfo",
-                column: "OrderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ShippingInfo_ShippingCompanyId",
-                table: "ShippingInfo",
-                column: "ShippingCompanyId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SysLog_ActionId",
@@ -1528,9 +1497,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "RolePermission");
 
             migrationBuilder.DropTable(
-                name: "ShippingInfo");
-
-            migrationBuilder.DropTable(
                 name: "SysLog");
 
             migrationBuilder.DropTable(
@@ -1543,6 +1509,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "Cart");
 
             migrationBuilder.DropTable(
+                name: "Order");
+
+            migrationBuilder.DropTable(
                 name: "PaymentMethod");
 
             migrationBuilder.DropTable(
@@ -1550,12 +1519,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Permission");
-
-            migrationBuilder.DropTable(
-                name: "Order");
-
-            migrationBuilder.DropTable(
-                name: "ShippingCompany");
 
             migrationBuilder.DropTable(
                 name: "SysAction");
@@ -1567,13 +1530,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "Role");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "ShippingCompany");
 
             migrationBuilder.DropTable(
                 name: "Voucher");
 
             migrationBuilder.DropTable(
-                name: "Ward");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "DiscountType");
@@ -1585,10 +1548,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "Product");
 
             migrationBuilder.DropTable(
-                name: "District");
+                name: "Ward");
 
             migrationBuilder.DropTable(
                 name: "ProductCategory");
+
+            migrationBuilder.DropTable(
+                name: "District");
 
             migrationBuilder.DropTable(
                 name: "Province");

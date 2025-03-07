@@ -1,172 +1,26 @@
-"use client"
+"use client";
 
-//React
-import React, { useEffect, useState } from 'react'
+import { NextPage } from "next";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { useTranslation } from "react-i18next";
+import { Typography } from "@mui/material";
+import { getProductCategoryFields } from "src/configs/gridConfig";
+import CreateUpdateProductCategory from "./components/CreateUpdateProductCategory";
+import {
+    deleteMultipleProductCategoriesAsync,
+    deleteProductCategoryAsync,
+    getAllProductCategoriesAsync,
+} from "src/stores/product-category/action";
+import { resetInitialState } from "src/stores/product-category";
+import { RootState } from "src/stores";
+import AdminPage from "src/components/admin-page";
 
-//Next
-import { NextPage } from 'next'
-
-//MUI
-import { Grid, Typography, useTheme } from '@mui/material'
-import { Box } from '@mui/material'
-import { GridColDef, GridRenderCellParams, GridRowSelectionModel, GridSortModel } from '@mui/x-data-grid'
-
-//redux
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from 'src/stores'
-
-//translation
-import { useTranslation } from 'react-i18next'
-
-//configs
-import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
-
-//components
-import CustomDataGrid from 'src/components/custom-data-grid'
-import CustomPagination from 'src/components/custom-pagination'
-import GridUpdate from 'src/components/grid-update'
-import GridDelete from 'src/components/grid-delete'
-import GridCreate from 'src/components/grid-create'
-import SearchField from 'src/components/search-field'
-import CreateUpdateProductCategory from './components/CreateUpdateProductCategory'
-import Spinner from 'src/components/spinner'
-
-//toast
-import toast from 'react-hot-toast'
-import ConfirmDialog from 'src/components/confirm-dialog'
-import { OBJECT_TYPE_ERROR } from 'src/configs/error'
-
-//utils
-import { hexToRGBA } from 'src/utils/hex-to-rgba'
-
-
-import { usePermission } from 'src/hooks/usePermission'
-import { deleteMultipleProductCategoriesAsync, deleteProductCategoryAsync, getAllProductCategoriesAsync } from 'src/stores/product-category/action'
-import { resetInitialState } from 'src/stores/delivery-method'
-import TableHeader from 'src/components/table-header'
-import { formatDate } from 'src/utils'
-import { TFilter } from 'src/configs/filter'
-import { useDebounce } from 'src/hooks/useDebounce'
-
-type TProps = {}
-
-const ListProductCategory: NextPage<TProps> = () => {
-    //States
-    const [page, setPage] = useState(1);
-    const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-    const [openCreateUpdateProductCategory, setOpenCreateUpdateProductCategory] = useState({
-        open: false,
-        id: ""
-    });
-    const [openDeleteProductCategory, setOpenDeleteProductCategory] = useState({
-        open: false,
-        id: ""
-    });
-
-    const [openDeleteMultipleProductCategories, setOpenDeleteMultipleProductCategories] = useState(false);
-
-
-    const [searchBy, setSearchBy] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [selectedRow, setSelectedRow] = useState<string[]>([]);
-
-    const [sortBy, setSortBy] = useState<string>("createdDate asc");
-    const [filters, setFilters] = useState<TFilter[]>([]);
-
-    const debouncedFilters = useDebounce(filters, 500);
-
-    //Translation
-    const { t, i18n } = useTranslation();
-
-    //hooks
-    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("MANAGE_PRODUCT.PRODUCT_CATEGORY", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
-
-
-    //Redux
-    const { productCategories, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
-        errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError, isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple } = useSelector((state: RootState) => state.productCategory)
-    const dispatch: AppDispatch = useDispatch();
-
-    //Theme
-    const theme = useTheme();
-
-    //api 
-    const handleGetListProductCategory = () => {
-        const [orderByField, orderByDir] = sortBy.split(" ");
-        const validFilters = debouncedFilters.filter(
-            (f) => f.field && f.operator && (f.value || ["isnull", "isnotnull", "isempty", "isnotempty"].includes(f.operator))
-        );
-        const filterString = validFilters.length > 0
-            ? validFilters.map((f) => `${f.field}::${f.value}::${f.operator}`).join("|")
-            : "";
-        const query = {
-            params: {
-                filters: filterString,
-                take: pageSize,
-                skip: (page - 1) * pageSize,
-                orderBy: orderByField || "createdDate",
-                dir: orderByDir || "asc",
-                paging: true,
-                keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value || "''" : "''",
-            },
-        };
-        dispatch(getAllProductCategoriesAsync(query));
-    }
-
-    //handlers
-    const handleOnChangePagination = (page: number, pageSize: number) => {
-        setPage(page)
-        setPageSize(pageSize)
-    }
-
-    const handleSort = (sort: GridSortModel) => {
-        const sortOption = sort[0]
-        if (sortOption) {
-            setSortBy(`${sortOption.field} ${sortOption.sort}`)
-        } else {
-            setSortBy("createdDate asc")
-        }
-    }
-
-    const handleCloseCreateUpdateProductCategory = () => {
-        setOpenCreateUpdateProductCategory({
-            open: false,
-            id: ""
-        })
-    }
-
-    const handleCloseDeleteDialog = () => {
-        setOpenDeleteProductCategory({
-            open: false,
-            id: ""
-        })
-    }
-
-    const handleCloseDeleteMultipleDialog = () => {
-        setOpenDeleteMultipleProductCategories(false)
-    }
-
-    const handleDeleteProductCategory = () => {
-        dispatch(deleteProductCategoryAsync(openDeleteProductCategory.id))
-    }
-
-    const handleDeleteMultipleProductCategory = () => {
-        dispatch(deleteMultipleProductCategoriesAsync({
-            productCategoryIds: selectedRow
-        }))
-    }
-
-    const handleAction = (action: string) => {
-        switch (action) {
-            case "delete": {
-                setOpenDeleteMultipleProductCategories(true)
-            }
-        }
-    }
+const ListProductCategoryPage: NextPage = () => {
+    const { t } = useTranslation();
 
     const columns: GridColDef[] = [
         {
-            field: 'product_category_code',
+            field: 'code',
             headerName: t('product_category_code'),
             flex: 1,
             minWidth: 200,
@@ -178,7 +32,7 @@ const ListProductCategory: NextPage<TProps> = () => {
             }
         },
         {
-            field: 'product_category_name',
+            field: 'name',
             headerName: t('product_category_name'),
             flex: 1,
             minWidth: 200,
@@ -190,20 +44,20 @@ const ListProductCategory: NextPage<TProps> = () => {
             }
         },
         {
-            field: 'parent_id',
-            headerName: t('parent_id'),
+            field: 'parentName',
+            headerName: t('parent_name'),
             flex: 1,
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{row?.parentId}</Typography>
+                    <Typography>{row?.parentName}</Typography>
                 )
             }
         },
         {
             field: 'level',
-            headerName: t('level'),
+            headerName: t('category_level'),
             flex: 1,
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
@@ -225,195 +79,33 @@ const ListProductCategory: NextPage<TProps> = () => {
         //         )
         //     }
         // },
-        {
-            field: 'action',
-            headerName: t('action'),
-            width: 150,
-            sortable: false,
-            align: "left",
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <>
-                        <GridUpdate
-                            // disabled={!UPDATE}
-                            onClick={() => setOpenCreateUpdateProductCategory({
-                                open: true,
-                                id: String(params.id)
-                            })}
-                        />
-                        <GridDelete
-                            // disabled={!DELETE}
-                            onClick={() => setOpenDeleteProductCategory({
-                                open: true,
-                                id: String(params.id)
-                            })}
-                        />
-                    </>
-                )
-            }
-        },
     ];
 
-    const PaginationComponent = () => {
-        return <CustomPagination
-            pageSize={pageSize}
-            pageSizeOptions={PAGE_SIZE_OPTIONS}
-            onChangePagination={handleOnChangePagination}
-            page={page}
-            rowLength={productCategories.total}
-        />
-    };
-
-    useEffect(() => {
-        handleGetListProductCategory();
-    }, [sortBy, searchBy, page, pageSize]);
-
-    /// create update ProductCategory
-    useEffect(() => {
-        if (isSuccessCreateUpdate) {
-            if (!openCreateUpdateProductCategory.id) {
-                toast.success(t("create_product_category_success"))
-            } else {
-                toast.success(t("update_product_category_success"))
-            }
-            handleGetListProductCategory()
-            handleCloseCreateUpdateProductCategory()
-            dispatch(resetInitialState())
-        } else if (isErrorCreateUpdate && errorMessageCreateUpdate && typeError) {
-            if (openCreateUpdateProductCategory.id) {
-                toast.error(errorMessageCreateUpdate)
-            } else {
-                toast.error(errorMessageCreateUpdate)
-            }
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate, typeError])
-
-    //delete multiple ProductCategories
-    useEffect(() => {
-        if (isSuccessDeleteMultiple) {
-            toast.success(t("delete_multiple_product_category_success"))
-            handleGetListProductCategory()
-            dispatch(resetInitialState())
-            handleCloseDeleteMultipleDialog()
-            setSelectedRow([])
-        } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-            toast.error(errorMessageDeleteMultiple)
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple])
-
-    //delete ProductCategory
-    useEffect(() => {
-        if (isSuccessDelete) {
-            toast.success(t("delete_product_category_success"))
-            handleGetListProductCategory()
-            dispatch(resetInitialState())
-            handleCloseDeleteDialog()
-        } else if (isErrorDelete && errorMessageDelete) {
-            toast.error(errorMessageDelete)
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
-
     return (
-        <>{loading && <Spinner />}
-            <ConfirmDialog
-                open={openDeleteProductCategory.open}
-                onClose={handleCloseDeleteDialog}
-                handleCancel={handleCloseDeleteDialog}
-                handleConfirm={handleDeleteProductCategory}
-                title={"Xác nhận xóa loại sản phẩm"}
-                description={"Bạn có chắc xóa loại sản phẩm này không?"}
-            />
-            <ConfirmDialog
-                open={openDeleteMultipleProductCategories}
-                onClose={handleCloseDeleteMultipleDialog}
-                handleCancel={handleCloseDeleteMultipleDialog}
-                handleConfirm={handleDeleteMultipleProductCategory}
-                title={"Xác nhận xóa nhiều loại sản phẩm"}
-                description={"Bạn có chắc xóa các loại sản phẩm này không?"}
-            />
-            <CreateUpdateProductCategory
-                idProductCategory={openCreateUpdateProductCategory.id}
-                open={openCreateUpdateProductCategory.open}
-                onClose={handleCloseCreateUpdateProductCategory}
-            />
-            {isLoading && <Spinner />}
-            <Box sx={{
-                backgroundColor: theme.palette.background.paper,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '20px',
-                height: 'fit-content',
-            }}>
-                <Grid container sx={{ width: '100%', height: '100%' }}>
-                    {!selectedRow?.length && (
-                        <Box sx={{
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                            alignItems: 'center',
-                            mb: 4,
-                            gap: 4,
-                            width: '100%'
-                        }}>
-                            <Box sx={{
-                                width: '200px',
-                            }}>
-                                <SearchField value={searchBy} onChange={(value: string) => setSearchBy(value)} />
-                            </Box>
-                            <GridCreate onClick={() => {
-                                setOpenCreateUpdateProductCategory({ open: true, id: "" })
-                            }}
-                            />
-                        </Box>
-                    )}
-                    {selectedRow.length > 0 && (
-                        <TableHeader
-                            selectedRowNumber={selectedRow?.length}
-                            onClear={() => setSelectedRow([])}
-                            actions={
-                                [{
-                                    label: t("delete"),
-                                    value: "delete",
-                                    // disabled: !DELETE
-                                }]
-                            }
-                            handleAction={handleAction}
-                        />
-                    )}
-                    <CustomDataGrid
-                        rows={productCategories.data}
-                        columns={columns}
-                        checkboxSelection
-                        getRowId={(row) => row.id}
-                        disableRowSelectionOnClick
-                        autoHeight
-                        sortingOrder={['desc', 'asc']}
-                        sortingMode='server'
-                        onSortModelChange={handleSort}
-                        slots={{
-                            pagination: PaginationComponent
-                        }}
-                        disableColumnFilter
-                        disableColumnMenu
-                        sx={{
-                            ".selected-row": {
-                                backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
-                                color: `${theme.palette.primary.main} !important`
-                            }
-                        }}
-                        onRowSelectionModelChange={(row: GridRowSelectionModel) => {
-                            setSelectedRow(row as string[])
-                        }}
-                        rowSelectionModel={selectedRow}
-                    />
-                </Grid>
-            </Box >
-        </>
-    )
-}
+        <AdminPage
+            entityName="product_category"
+            columns={columns}
+            fields={getProductCategoryFields()}
+            reduxSelector={(state: RootState) => ({
+                data: state.productCategory.productCategories.data,
+                total: state.productCategory.productCategories.total,
+                ...state.productCategory,
+            })}
+            fetchAction={getAllProductCategoriesAsync}
+            deleteAction={deleteProductCategoryAsync}
+            deleteMultipleAction={deleteMultipleProductCategoriesAsync as unknown as (ids: { [key: string]: string[] }) => any}
+            resetAction={resetInitialState}
+            CreateUpdateComponent={CreateUpdateProductCategory}
+            permissionKey="ADDRESS.productCategory"
+            fieldMapping={{
+                "ProductCategory_name": "name",
+                "ProductCategory_code": "code",
+                "province_name": "provinceName",
+                "province_code": "provinceCode",
+            }}
+            noDataText="no_data_ProductCategory"
+        />
+    );
+};
 
-export default ListProductCategory
+export default ListProductCategoryPage;

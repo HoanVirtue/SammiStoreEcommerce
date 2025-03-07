@@ -45,7 +45,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             {
                 if (request.ImageCommand != null && !string.IsNullOrEmpty(request.ImageCommand.ImageBase64))
                 {
-                    request.ImageCommand.TypeImage = ImageEnum.Banner.ToString();
+                    request.ImageCommand.TypeImage = ImageEnum.Brand.ToString();
                     request.ImageCommand.Value = "";
                     var imageRes = await _mediator.Send(request.ImageCommand);
                     if (!imageRes.IsSuccess)

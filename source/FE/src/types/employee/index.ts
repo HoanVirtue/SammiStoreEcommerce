@@ -11,7 +11,6 @@ export type TParamsGetAllEmployees = {
 }
 
 export type TParamsCreateEmployee = {
-    isAdmin: boolean;
     roleIds: number[];
     code: string;
     identityGuid: string;
@@ -33,7 +32,7 @@ export type TParamsCreateEmployee = {
 }
 
 export interface TParamsUpdateEmployee extends TParamsCreateEmployee {
-    id: number
+    id: string
 }
 
 export type TParamsDeleteEmployee = {

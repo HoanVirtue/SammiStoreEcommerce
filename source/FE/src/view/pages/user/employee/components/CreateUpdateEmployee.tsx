@@ -39,18 +39,28 @@ import { getAllCities } from "src/services/city";
 interface TCreateUpdateEmployee {
     open: boolean
     onClose: () => void
-    idEmployee?: string
+    id?: string
 }
 
 type TDefaultValues = {
-    fullName: string,
-    email: string,
-    password?: string,
-    phoneNumber: string,
-    role: string,
-    city?: string,
-    address?: string,
-    status?: number
+    roleIds: number[];
+    code: string;
+    identityGuid: string;
+    type: string;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    email: string | null;
+    phone: string;
+    streetAddress: string | null;
+    wardId: number;
+    wardName: string;
+    districtId: number;
+    districtName: string;
+    provinceId: number;
+    provinceName: string;
+    username: string;
+    gender: number;
 }
 
 const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
@@ -63,7 +73,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     const [showPassword, setShowPassword] = useState(false)
 
     //props
-    const { open, onClose, idEmployee } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -77,7 +87,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     const schema = yup.object().shape({
         email: yup.string().required(t("required_email"))
             .matches(EMAIL_REG, t('incorrect_email_format')),
-        password: idEmployee ? yup.string().nonNullable() : yup.string().required(t("required_password"))
+        password: id ? yup.string().nonNullable() : yup.string().required(t("required_password"))
             .matches(PASSWORD_REG, t('incorrect_password_format')),
         fullName: yup.string().required(t("required_fullname")),
         phoneNumber: yup.string().required(t('required_phone_number'))
@@ -89,14 +99,24 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     });
 
     const defaultValues: TDefaultValues = {
+        roleIds: [],
+        code: '',
+        identityGuid: '',
+        type: '',
+        firstName: '',
+        lastName: '',
         fullName: '',
         email: '',
-        password: '',
-        role: '',
-        phoneNumber: '',
-        address: '',
-        status: 1,
-        city: '',
+        phone: '',
+        streetAddress: '',
+        wardId: 0,
+        wardName: '',
+        districtId: 0,
+        districtName: '',
+        provinceId: 0,
+        provinceName: '',
+        username: '',
+        gender: 0,
     }
 
     const { handleSubmit, control, formState: { errors }, reset } = useForm({
@@ -109,7 +129,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     const onSubmit = (data: TDefaultValues) => {
         const { firstName, middleName, lastName } = separationFullname(data.fullName, i18n.language)
         if (!Object.keys(errors)?.length) {
-            if (idEmployee) {
+            if (id) {
                 //update
                 dispatch(updateEmployeeAsync({
                     firstName, middleName, lastName,
@@ -119,7 +139,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                     address: data?.address,
                     city: data?.city,
                     avatar: avatar,
-                    id: idEmployee,
+                    id: id,
                     status: data?.status ? 1 : 0,
                 }))
             } else {
@@ -208,11 +228,11 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
             setAvatar("")
             setShowPassword(false)
         } else {
-            if (idEmployee && open) {
-                fetchDetailEmployee(idEmployee)
+            if (id && open) {
+                fetchDetailEmployee(id)
             }
         }
-    }, [open, idEmployee])
+    }, [open, id])
 
     useEffect(() => {
         fetchAllRoles()
@@ -240,7 +260,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idEmployee ? t('update_Employee') : t('create_Employee')}
+                            {id ? t('update_Employee') : t('create_Employee')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -348,7 +368,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                                     name='email'
                                                 />
                                             </Grid>
-                                            {!idEmployee && (
+                                            {!id && (
                                                 <Grid item md={6} xs={12} >
                                                     <Controller
                                                         control={control}
@@ -427,7 +447,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                                     name='role'
                                                 />
                                             </Grid>
-                                            {idEmployee && (
+                                            {id && (
                                                 <Grid item md={6} xs={12} >
                                                     <Controller
                                                         control={control}
@@ -573,7 +593,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idEmployee ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form>

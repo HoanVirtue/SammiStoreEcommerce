@@ -1,5 +1,5 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import { createEmployee, deleteEmployee, deleteMultipleEmployees, getAllEmployees, updateEmployee } from "src/services/Employee";
+import { createEmployee, deleteEmployee, deleteMultipleEmployees, getAllEmployees, updateEmployee } from "src/services/employee";
 
 //service
 import { TParamsCreateEmployee, TParamsDeleteMultipleEmployees, TParamsGetAllEmployees, TParamsUpdateEmployee } from "src/types/employee";

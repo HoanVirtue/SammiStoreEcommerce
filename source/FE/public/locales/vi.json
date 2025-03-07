@@ -343,5 +343,12 @@
     "product_code": "Mã sản phẩm",
     "delete_ward_success": "Xóa phường/xã thành công",
     "district_id": "Mã Quận/huyện",
+    "ward_id": "Mã Phường/xã",
+    "product_id": "Mã Sản phẩm",
+    "employee_code": "Mã nhân viên",
+    "employee_name": "Tên nhân viên",
+    "gender": "Giới tính",
+    "date_of_birth": "Ngày sinh",
+
     "province_id": "Mã Tỉnh/Thành phố"
 }

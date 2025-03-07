@@ -38,6 +38,7 @@ export type TParamsGetAllProducts = {
 // }
 
 export type TProduct = {
+    id: string;
     code: string;
     name: string;
     stockQuantity: number;
@@ -49,8 +50,8 @@ export type TProduct = {
     brandId: number;
     categoryId: number;
     status: number;
-    startDate?: string;
-    endDate?: string;
+    startDate?: Date | null;
+    endDate?: Date | null;
     images: ProductImage[];
 }
 

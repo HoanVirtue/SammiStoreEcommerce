@@ -7,7 +7,7 @@ import React, { Fragment, useEffect, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Avatar, Button, Divider, FormControlLabel, Grid, Radio, RadioGroup, Typography, useTheme } from '@mui/material'
+import { Avatar, Button, Divider, FormControlLabel, Grid, IconButton, Radio, RadioGroup, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -231,6 +231,10 @@ const CheckoutPage: NextPage<TProps> = () => {
         })
     }
 
+    const handleGoBack = () => {
+        router.back()
+    }
+
     const handleChangeQuantity = (items: TItemOrderProduct[]) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
@@ -307,6 +311,19 @@ const CheckoutPage: NextPage<TProps> = () => {
             {loading || (isLoading && <Spinner />)}
             <WarningModal open={openWarning} onClose={() => setOpenWarning(false)} />
             <AddressModal open={openAddressModal} onClose={() => setOpenAddressModal(false)} />
+            <Box sx={{ mb: 2 }}>
+                <IconButton
+                    onClick={handleGoBack}
+                    sx={{
+                        color: theme.palette.primary.main,
+                        '&:hover': {
+                            backgroundColor: `${theme.palette.primary.main}10`
+                        }
+                    }}
+                >
+                    <IconifyIcon icon="material-symbols:arrow-back" width={24} height={24} />
+                </IconButton>
+            </Box>
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 display: 'flex',

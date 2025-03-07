@@ -25,12 +25,15 @@ export const API_ENDPOINT = {
   USER: {
     EMPLOYEE: {
       INDEX: `${BASE_URL}/users/employee`,
+      DELETE: `${BASE_URL}/users`,
     },
     CUSTOMER: {
       INDEX: `${BASE_URL}/users/customer`,
+      DELETE: `${BASE_URL}/users`,
     },
     SUPPLIER: {
       INDEX: `${BASE_URL}/users/supplier`,
+      DELETE: `${BASE_URL}/users`,
     },
   },
   SETTING: {

@@ -1,4 +1,4 @@
-export type TParamsGetAllEmployees = {
+export type TParamsGetAllCustomers = {
     skip?: number;
     take?: number;
     filters?: string;
@@ -10,7 +10,7 @@ export type TParamsGetAllEmployees = {
     keywords?: string;
 }
 
-export type TParamsCreateEmployee = {
+export type TParamsCreateCustomer = {
     roleIds: number[];
     code: string;
     identityGuid: string;
@@ -29,15 +29,15 @@ export type TParamsCreateEmployee = {
     securityStamp: string;
 }
 
-export interface TParamsUpdateEmployee extends TParamsCreateEmployee {
+export interface TParamsUpdateCustomer extends TParamsCreateCustomer {
     id: string
 }
 
-export type TParamsDeleteEmployee = {
+export type TParamsDeleteCustomer = {
     name: string,
     id: string,
 }
 
-export type TParamsDeleteMultipleEmployees = {
-    employeeIds: string[],
+export type TParamsDeleteMultipleCustomers = {
+    customerIds: string[],
 }

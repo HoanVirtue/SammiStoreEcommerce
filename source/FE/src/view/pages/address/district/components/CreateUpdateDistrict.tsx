@@ -289,7 +289,6 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
                                                     fullWidth
                                                     onChange={(e) => {
                                                         const selectedProvince = provinceOptions.find(opt => opt.value === e.target.value);
-                                                        console.log("id", selectedProvince);
                                                         if (selectedProvince) {
                                                             onChange(selectedProvince.value);
                                                             setValue('provinceId', selectedProvince.value);

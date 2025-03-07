@@ -55,7 +55,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Other
             folder = folderMapping.TryGetValue(imageType, out var mappedFolder)
                         ? mappedFolder
                         : _config["CloundSettings:ImageProductFolder"];
-            urlImage = await _cloudinaryService.UploadBase64Image(request.ImageBase64, fileName, ImageEnum.Product.ToString());
+            urlImage = await _cloudinaryService.UploadBase64Image(request.ImageBase64, fileName, imageType.ToString());
             if (urlImage == null)
             {
                 actResponse.AddError("Lỗi upload ảnh lên cloudinary");

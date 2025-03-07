@@ -12,8 +12,8 @@ using SAMMI.ECOM.Infrastructure;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     [DbContext(typeof(SammiEcommerceContext))]
-    [Migration("20250306162910_remove-shipinfo_change-notifi")]
-    partial class removeshipinfo_changenotifi
+    [Migration("20250307042410_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

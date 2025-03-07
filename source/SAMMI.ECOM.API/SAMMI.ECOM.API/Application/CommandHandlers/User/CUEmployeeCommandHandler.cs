@@ -21,11 +21,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private readonly IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> _authService;
         private readonly IWardRepository _wardRepository;
         private readonly IUserRoleRepository _userRoleRepository;
+        private readonly IRoleRepository _roleRepository;
         public CreateEmployeeCommandHandler(
             IUsersRepository userRepository,
             IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
             IWardRepository wardRepository,
             IUserRoleRepository userRoleRepository,
+            IRoleRepository roleRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -33,6 +35,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             _userRepository = userRepository;
             _wardRepository = wardRepository;
             _userRoleRepository = userRoleRepository;
+            _roleRepository = roleRepository;
         }
 
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
@@ -108,6 +111,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             // add role và send password email(nếu có)
             if (actionResponse.IsSuccess && request.RoleIds != null && request.RoleIds.Count > 0)
             {
+                if (!request.RoleIds.All(x => _roleRepository.IsExisted(x)))
+                {
+                    actionResponse.AddError("Mã vai trò không tồn tại");
+                    return actionResponse;
+                }
                 foreach (var rId in request.RoleIds)
                 {
                     UserRole userRole = new UserRole
@@ -115,8 +123,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                         UserId = employee.Id,
                         RoleId = rId
                     };
-                    await _userRoleRepository.CreateAndSave(userRole);
+                    _userRoleRepository.Create(userRole);
                 }
+                await _userRoleRepository.SaveChangeAsync();
             }
 
 

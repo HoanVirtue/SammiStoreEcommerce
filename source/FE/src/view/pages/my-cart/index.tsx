@@ -146,7 +146,8 @@ const MyCartPage: NextPage<TProps> = () => {
                 display: 'flex',
                 alignItems: 'center',
                 padding: '40px',
-                borderRadius: '15px'
+                borderRadius: '15px',
+                width: 'fit-content !important',
             }}>
                 <Grid container>
                     {orderItems.length > 0 ? (
@@ -203,7 +204,7 @@ const MyCartPage: NextPage<TProps> = () => {
                     ) : (
                         <Box sx={{
                             padding: "20px",
-                            width: "100%",
+                            width: "fit-content !important",
                         }}>
                             <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
                         </Box>

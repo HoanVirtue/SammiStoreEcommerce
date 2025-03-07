@@ -25,7 +25,7 @@ export const createEmployee = async (data: TParamsCreateEmployee) => {
 export const updateEmployee = async (data: TParamsUpdateEmployee) => {
     const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.USER.EMPLOYEE.INDEX}/${id}`, rests)
+        const res = await instance.put(`${API_ENDPOINT.USER.EMPLOYEE.INDEX}/${data.id}`, data)
         return res.data
     } catch (error: any) {
         return error?.response?.data
@@ -35,7 +35,7 @@ export const updateEmployee = async (data: TParamsUpdateEmployee) => {
 
 export const deleteEmployee = async (id: string) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.USER.EMPLOYEE.INDEX}/${id}`)
+        const res = await instance.delete(`${API_ENDPOINT.USER.EMPLOYEE.DELETE}/${id}`)
         return res.data
     } catch (error: any) {
         return error?.response?.data

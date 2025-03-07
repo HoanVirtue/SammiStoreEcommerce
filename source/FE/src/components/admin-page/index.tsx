@@ -51,7 +51,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   permissionKey,
   fieldMapping = {},
   noDataText,
-  
+
 }) => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
@@ -214,7 +214,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
     ),
   };
 
-  const allColumns = [...columns, actionColumn];
+  const allColumns = [actionColumn, ...columns];
 
   return (
     <>

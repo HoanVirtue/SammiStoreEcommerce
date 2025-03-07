@@ -196,7 +196,7 @@ const ProductCart = (props: TProps) => {
                 ) : (
                     <Box sx={{
                         padding: "20px",
-                        width: "100px",
+                        width: "fit-content",
                     }}>
                         <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
                     </Box>

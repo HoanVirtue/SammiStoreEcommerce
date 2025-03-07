@@ -13,7 +13,8 @@ export type TParamsGetAllProductCategories = {
 export type TParamsCreateProductCategory = {
     code: string,
     name: string,
-    parentId?: number,
+    parentId?: string,
+    parentName?: string,
     level?: number,
     // slug: string
 }
@@ -22,7 +23,8 @@ export type TParamsUpdateProductCategory = {
     id: string,
     code: string,
     name: string,
-    parentId?: number,
+    parentId?: string,
+    parentName?: string,
     level?: number,
     // slug: string
 }

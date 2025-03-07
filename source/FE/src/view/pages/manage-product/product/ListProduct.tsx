@@ -106,7 +106,7 @@ const ListProductPage: NextPage = () => {
                 renderCell: (params: GridRenderCellParams) => {
                     const { row } = params
                     return (
-                        <Typography>{row?.discount}</Typography>
+                        <Typography>{row?.discount * 100}</Typography>
                     )
                 }
             },

@@ -77,19 +77,17 @@ const ProductCard = (props: TProductCard) => {
     const handleUpdateProductToCart = (item: TProduct) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
-        const discountItem = item.discountStartDate && item.discountEndDate && isExpired(item?.discountStartDate, item.discountEndDate) ? item.discount : 0
+        const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
         
-        console.log("productCat", {item})
         const listOrderItems = convertUpdateProductToCart(orderItems, {
             name: item?.name,
             amount: 1,
-            image: item?.image,
+            images: item?.images,
             price: item?.price,
-            discount: discountItem,
-            product: item._id,
-            slug: item?.slug
+            discount: discountItem || 0,
+            product: item.id,
+            // slug: item?.slug
         })
-        console.log("listOrderItems", {listOrderItems})
         if (user?._id) {
             dispatch(
                 updateProductToCart({
@@ -126,26 +124,26 @@ const ProductCard = (props: TProductCard) => {
 
 
     const memoCheckExpire = useMemo(() => {
-        if (item.discountStartDate && item.discountEndDate) {
-            return isExpired(item.discountStartDate, item.discountEndDate);
+        if (item.startDate && item.endDate) {
+            return isExpired(item.startDate, item.endDate);
         }
     }, [item])
 
 
     const soldPercentage = useMemo(() => {
-        if (item.countInStock === 0) return 100;
-        return ((item.sold || 0) / (item.countInStock + (item.sold || 0))) * 100;
+        if (item.stockQuantity === 0) return 100;
+        return ((item.sold || 0) / (item.stockQuantity + (item.sold || 0))) * 100;
     }, [item]);
 
     const progressColor = useMemo(() => {
-        if (item.countInStock === 0) return 'error';
-        if (item.countInStock <= 10) return 'warning';
+        if (item.stockQuantity === 0) return 'error';
+        if (item.stockQuantity <= 10) return 'warning';
         return 'primary';
     }, [item]);
 
     const statusText = useMemo(() => {
-        if (item.countInStock === 0) return t('out_of_stock');
-        if (item.countInStock <= 10) return t('selling_fast');
+        if (item.stockQuantity === 0) return t('out_of_stock');
+        if (item.stockQuantity <= 10) return t('selling_fast');
         return t('product_sold', { count: item.sold || 0 });
     }, [item, t]);
 
@@ -155,7 +153,7 @@ const ProductCard = (props: TProductCard) => {
                 className="card-media"
                 component="img"
                 height="194"
-                image={item?.image}
+                image={item?.images}
                 alt="product image"
                 sx={{
                     transition: "transform 0.3s ease",
@@ -174,7 +172,7 @@ const ProductCard = (props: TProductCard) => {
                     }}>
                     <Tooltip title={t("add_to_cart")}>
                         <Fab aria-label="add" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleUpdateProductToCart(item)} disabled={item.countInStock === 0}>
+                            <IconButton onClick={() => handleUpdateProductToCart(item)} disabled={item.stockQuantity === 0}>
                                 <IconifyIcon color={theme.palette.primary.main}
                                     icon="bi:cart-plus" fontSize='1.5rem' />
                             </IconButton>
@@ -301,8 +299,8 @@ const ProductCard = (props: TProductCard) => {
                         justifyContent: "center"
                     }}>
                         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            {item?.countInStock > 0 ? (
-                                <>{t("product_count_in_stock", { count: item?.countInStock })}</>
+                            {item?.stockQuantity > 0 ? (
+                                <>{t("product_count_in_stock", { count: item?.stockQuantity })}</>
                             ) : (
                                 <span>
                                     {t('out_of_stock')}

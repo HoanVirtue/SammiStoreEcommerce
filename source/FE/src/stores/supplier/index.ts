@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
-import { createEmployeeAsync, deleteMultipleEmployeesAsync, deleteEmployeeAsync, getAllEmployeesAsync, serviceName, updateEmployeeAsync } from './action'
+import { createSupplierAsync, deleteMultipleSuppliersAsync, deleteSupplierAsync, getAllSuppliersAsync, serviceName, updateSupplierAsync } from './action'
 import { ReduxPayload } from 'src/types/payload'
 
 const initialState = {
@@ -21,13 +21,13 @@ const initialState = {
   isErrorDeleteMultiple: false,
   errorMessageDeleteMultiple: '',
 
-  employees: {
+  suppliers: {
     data: [],
     total: 0
   }
 }
 
-export const employeeSlice = createSlice({
+export const SupplierSlice = createSlice({
   name: serviceName,
   initialState,
   reducers: {
@@ -50,94 +50,94 @@ export const employeeSlice = createSlice({
   },
   extraReducers: builder => {
 
-    //get all Employees
-    builder.addCase(getAllEmployeesAsync.pending, (state, action) => {
+    //get all Suppliers
+    builder.addCase(getAllSuppliersAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(getAllEmployeesAsync.fulfilled, (state, action) => {
+    builder.addCase(getAllSuppliersAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.employees.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
-      state.employees.total = action?.payload?.data?.totalItemCount
+      state.suppliers.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
+      state.suppliers.total = action?.payload?.data?.totalItemCount
     })
-    builder.addCase(getAllEmployeesAsync.rejected, (state, action) => {
+    builder.addCase(getAllSuppliersAsync.rejected, (state, action) => {
       state.isLoading = false
-      state.employees.data = []
-      state.employees.total = 0
+      state.suppliers.data = []
+      state.suppliers.total = 0
     })
 
-    //create Employee
-    builder.addCase(createEmployeeAsync.pending, (state, action) => {
+    //create Supplier
+    builder.addCase(createSupplierAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(createEmployeeAsync.fulfilled, (state, action) => {
+    builder.addCase(createSupplierAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
-    builder.addCase(createEmployeeAsync.rejected, (state, action) => {
+    builder.addCase(createSupplierAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating Employee'
+      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating Supplier'
     })
 
-    //update Employee
-    builder.addCase(updateEmployeeAsync.pending, (state, action) => {
+    //update Supplier
+    builder.addCase(updateSupplierAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(updateEmployeeAsync.fulfilled, (state, action) => {
+    builder.addCase(updateSupplierAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
-    builder.addCase(updateEmployeeAsync.rejected, (state, action) => {
+    builder.addCase(updateSupplierAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating Employee'
+      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating Supplier'
     })
 
-    //delete Employee
-    builder.addCase(deleteEmployeeAsync.pending, (state, action) => {
+    //delete Supplier
+    builder.addCase(deleteSupplierAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(deleteEmployeeAsync.fulfilled, (state, action) => {
+    builder.addCase(deleteSupplierAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.isSuccessDelete = !!action.payload?.isSuccess
       state.isErrorDelete = !action.payload?.isSuccess
       state.errorMessageDelete = action.payload?.message
       state.typeError = action.payload?.typeError
     })
-    builder.addCase(deleteEmployeeAsync.rejected, (state, action) => {
+    builder.addCase(deleteSupplierAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isErrorDelete = true
-      state.errorMessageDelete = action?.error.message || 'Error deleting Employee'
+      state.errorMessageDelete = action?.error.message || 'Error deleting Supplier'
     })
 
-    //delete multiple Employee
-    builder.addCase(deleteMultipleEmployeesAsync.pending, (state, action) => {
+    //delete multiple Supplier
+    builder.addCase(deleteMultipleSuppliersAsync.pending, (state, action) => {
       state.isLoading = true
     })
-    builder.addCase(deleteMultipleEmployeesAsync.fulfilled, (state, action) => {
+    builder.addCase(deleteMultipleSuppliersAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.isSuccessDeleteMultiple = !!action.payload?.isSuccess
       state.isErrorDeleteMultiple = !action.payload?.isSuccess
       state.errorMessageDeleteMultiple = action.payload?.message
       state.typeError = action.payload?.typeError
     })
-    builder.addCase(deleteMultipleEmployeesAsync.rejected, (state, action) => {
+    builder.addCase(deleteMultipleSuppliersAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorDeleteMultiple = true
-      state.errorMessageDeleteMultiple = payload?.errors?.errorMessage || 'Error deleting Employee'
+      state.errorMessageDeleteMultiple = payload?.errors?.errorMessage || 'Error deleting Supplier'
     })
 
   }
 })
 
-export const { resetInitialState } = employeeSlice.actions
-export default employeeSlice.reducer
+export const { resetInitialState } = SupplierSlice.actions
+export default SupplierSlice.reducer

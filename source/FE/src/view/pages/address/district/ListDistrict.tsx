@@ -20,28 +20,28 @@ const ListDistrictPage: NextPage = () => {
 
     const columns: GridColDef[] = [
         {
-            field: "district_name",
+            field: "name",
             headerName: t("district_name"),
             flex: 1,
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>,
         },
         {
-            field: "district_code",
+            field: "code",
             headerName: t("district_code"),
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
         },
         {
-            field: "province_name",
+            field: "provinceId",
             headerName: t("province_name"),
             flex: 1,
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => <Typography>{params.row.provinceName}</Typography>,
         },
         {
-            field: "province_code",
+            field: "provinceCode",
             headerName: t("province_code"),
             minWidth: 200,
             maxWidth: 200,

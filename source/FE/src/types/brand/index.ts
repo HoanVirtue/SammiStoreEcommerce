@@ -13,7 +13,14 @@ export type TParamsGetAllBrands = {
 export type TParamsCreateBrand = {
     code: string,
     name: string,
-    image: string,
+    imageCommand: {
+        imageUrl?: string,
+        imageBase64: string,
+        publicId?: string,
+        typeImage?: string,
+        value?: string,
+        displayOrder?: string,
+    }
     // slug: string
 }
 
@@ -21,7 +28,14 @@ export type TParamsUpdateBrand = {
     id: string,
     code: string,
     name: string,
-    image: string,
+    imageCommand: {
+        imageUrl?: string,
+        imageBase64: string,
+        publicId?: string,
+        typeImage?: string,
+        value?: string,
+        displayOrder?: string,
+    }
     // slug: string
 }
 

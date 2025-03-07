@@ -15,19 +15,19 @@ type TProps = {
 
 const NoData = (props: TProps) => {
 
-    
+
     // ** Hook
     const theme = useTheme()
-    const {t} = useTranslation()
-    
+    const { t } = useTranslation()
+
     //Props
-    const {imageWidth = "100px", imageHeight = "100px", textNodata = t('no_data')} = props
+    const { imageWidth = "100px", imageHeight = "100px", textNodata = t('no_data') } = props
 
     return (
         <Box
             sx={{
                 height: '100%',
-                width: '100%',
+                width: 'fit-content !important',
                 display: 'flex',
                 alignItems: 'center',
                 flexDirection: 'column',
@@ -36,10 +36,10 @@ const NoData = (props: TProps) => {
         >
             <Image src={NoDataImg}
                 alt={"no-data"}
-                style={{ width: imageWidth, height: imageHeight, objectFit: 'cover' }}
+                style={{ width: imageWidth, height: imageHeight, objectFit: 'cover', maxWidth: '100%', textAlign: 'center', }}
                 width={0}
                 height={0} />
-                <Typography sx={{whiteSpace: "nowrap", mt: 2}}>{textNodata}</Typography>
+            <Typography sx={{ whiteSpace: "wrap", mt: 2, wordWrap: 'break-word', overflowWrap: 'break-word' }}>{textNodata}</Typography>
         </Box>
     )
 }

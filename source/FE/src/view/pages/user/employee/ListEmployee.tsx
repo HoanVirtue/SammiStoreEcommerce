@@ -83,7 +83,7 @@ const ListEmployeePage: NextPage = () => {
       fieldMapping={{
         "employee_name": "name",
         "employee_code": "code",
-        "postal_code": "postalCode",
+        "full_name": "fullName",
       }}
       noDataText="no_data_employee"
     />

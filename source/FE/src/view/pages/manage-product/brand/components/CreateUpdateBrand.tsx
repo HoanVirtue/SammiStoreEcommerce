@@ -1,5 +1,5 @@
 //react
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 
 //form
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -39,7 +39,14 @@ interface TCreateUpdateBrand {
 type TDefaultValues = {
     name: string,
     code: string,
-    image: string,
+    imageCommand: {
+        imageUrl?: string,
+        imageBase64: string,
+        publicId?: string,
+        typeImage?: string,
+        value?: string,
+        displayOrder?: string,
+    }
 }
 
 const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
@@ -47,6 +54,8 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
     //state
     const [loading, setLoading] = useState(false)
     const [previewImage, setPreviewImage] = useState<string>("");
+    const [isImageLoaded, setIsImageLoaded] = useState(false);
+    const imageRef = useRef<HTMLImageElement>(null);
 
     //props
     const { open, onClose, idBrand } = props
@@ -63,13 +72,22 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
     const schema = yup.object().shape({
         name: yup.string().required(t("required_brand_name")),
         code: yup.string().required(t("required_brand_code")),
-        image: yup.string().required(t("required_brand_image")),
+        imageCommand: yup.object().shape({
+            imageBase64: yup.string().required(t("required_brand_image")),
+        }).required(t("required_brand_image")),
     });
 
     const defaultValues: TDefaultValues = {
         name: '',
         code: '',
-        image: ''
+        imageCommand: {
+            imageUrl: '',
+            imageBase64: '',
+            publicId: '',
+            typeImage: '',
+            value: '',
+            displayOrder: '',
+        }
     }
 
     const { handleSubmit, getValues, control, setValue, formState: { errors }, reset } = useForm({
@@ -86,7 +104,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                 dispatch(updateBrandAsync({
                     name: data?.name,
                     code: data?.code,
-                    image: data?.image,
+                    imageCommand: data?.imageCommand,
                     id: idBrand,
                     // slug: data?.slug
                 }))
@@ -95,7 +113,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                 dispatch(createBrandAsync({
                     name: data?.name,
                     code: data?.code,
-                    image: data?.image,
+                    imageCommand: data?.imageCommand,
                 }))
             }
         }
@@ -105,26 +123,52 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
     const handleUploadImage = async (file: File) => {
         const base64WithPrefix = await convertBase64(file);
         const base64 = base64WithPrefix.split(",")[1];
-        setValue("image", base64, { shouldValidate: true });
+        const imageObject = {
+            imageUrl: '',
+            imageBase64: base64,
+            publicId: "''",
+            typeImage: file.type,
+            value: '',
+            displayOrder: 0,
+        };
+        setValue("imageCommand", imageObject, { shouldValidate: true });
         setPreviewImage(base64WithPrefix);
     };
 
     const fetchDetailBrand = async (id: string) => {
+        setIsImageLoaded(false);
         setLoading(true);
         try {
             const res = await getBrandDetail(id);
             const data = res?.result;
             if (data) {
+                const imageObject = {
+                    imageUrl: data.imageUrl || '',
+                    imageBase64: data.imageBase64 || '',
+                    publicId: data.publicId || "''",
+                    typeImage: data.typeImage || '',
+                    value: data.value || '',
+                    displayOrder: data.displayOrder || '',
+                };
+
                 reset({
                     name: data.name || "",
                     code: data.code || "",
-                    image: data.image || "",
+                    imageCommand: imageObject,
                 });
-                setPreviewImage(
-                    data.image && data.image.startsWith("data:")
-                        ? data.image
-                        : `data:image/jpeg;base64,${data.image}`
-                );
+
+
+                let imageToPreview = '';
+                if (data.imageBase64) {
+
+                    imageToPreview = data.imageBase64.startsWith("data:")
+                        ? data.imageBase64
+                        : `data:${data.typeImage || 'image/jpeg'};base64,${data.imageBase64}`;
+                } else if (data.imageUrl) {
+                    imageToPreview = data.imageUrl;
+                }
+                setPreviewImage(imageToPreview);
+
             }
         } catch (e) {
             console.error("Error fetching brand detail:", e);
@@ -134,14 +178,19 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
     };
 
 
+    const handleImageLoad = () => {
+        setIsImageLoaded(true);
+    };
+
     useEffect(() => {
         if (!open) {
-            reset({ ...defaultValues });
+            reset(defaultValues);
             setPreviewImage("");
         } else if (idBrand && open) {
             fetchDetailBrand(idBrand);
         }
     }, [open, idBrand, reset]);
+
 
 
     return (
@@ -184,33 +233,52 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                             sx={{
                                 backgroundColor: theme.palette.background.paper,
                                 borderRadius: "15px",
-                                py: 5, px: 4
+                                py: 5, px: 4,
+                                gap: 2
                             }}>
 
-                            <Grid item md={12} xs={12}>
+                            <Grid item md={12} xs={12} mb={8}>
                                 <Controller
                                     control={control}
-                                    name="image"
+                                    name="imageCommand"
                                     render={({ field: { value } }) => (
                                         <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                                            {previewImage && (
-                                                <Box sx={{ position: "relative" }}>
+                                            <Box sx={{ position: "relative" }}>
+                                                {previewImage && (
+                                                    <img
+                                                        ref={imageRef}
+                                                        src={previewImage}
+                                                        style={{ display: "none" }}
+                                                        onLoad={handleImageLoad}
+                                                        onError={() => setIsImageLoaded(false)}
+                                                        alt="preload"
+                                                    />
+                                                )}
+                                                {loading || (previewImage && !isImageLoaded) ? (
+                                                    <Avatar alt="loading-avatar" sx={{ width: 100, height: 100 }}>
+                                                        <IconifyIcon icon="eos-icons:loading" fontSize={70} />
+                                                    </Avatar>
+                                                ) : previewImage && isImageLoaded ? (
                                                     <Avatar
                                                         src={previewImage}
                                                         sx={{ width: 100, height: 100 }}
                                                         alt="brand-image"
                                                     />
-                                                    <IconButton
-                                                        sx={{ position: "absolute", bottom: -4, right: -6, color: theme.palette.error.main }}
-                                                        onClick={() => {
-                                                            setValue("image", "", { shouldValidate: true });
-                                                            setPreviewImage("");
-                                                        }}
-                                                    >
-                                                        <IconifyIcon icon="material-symbols:delete-rounded" />
-                                                    </IconButton>
-                                                </Box>
-                                            )}
+                                                ) : (
+                                                    <Avatar alt="default-avatar" sx={{ width: 100, height: 100 }}>
+                                                        <IconifyIcon icon="solar:cosmetic-outline" fontSize={70} />
+                                                    </Avatar>
+                                                )}
+                                                <IconButton
+                                                    sx={{ position: "absolute", bottom: -4, right: -6, color: theme.palette.error.main }}
+                                                    onClick={() => {
+                                                        setValue("imageCommand", defaultValues.imageCommand, { shouldValidate: true });
+                                                        setPreviewImage("");
+                                                    }}
+                                                >
+                                                    <IconifyIcon icon="material-symbols:delete-rounded" />
+                                                </IconButton>
+                                            </Box>
                                             <FileUploadWrapper
                                                 uploadFile={handleUploadImage}
                                                 objectAcceptedFile={{ "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"] }}
@@ -223,9 +291,9 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                                                     {t("upload_brand_image")}
                                                 </Button>
                                             </FileUploadWrapper>
-                                            {errors.image && (
+                                            {errors.imageCommand && (
                                                 <FormHelperText sx={{ color: theme.palette.error.main }}>
-                                                    {errors.image.message}
+                                                    {errors.imageCommand.message}
                                                 </FormHelperText>
                                             )}
                                         </Box>
@@ -233,8 +301,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                                 />
                             </Grid>
 
-
-                            <Grid container item md={12} xs={12} spacing={5}>
+                            <Grid container item md={12} xs={12} spacing={8}>
                                 <Grid item md={12} xs={12} >
                                     <Controller
                                         control={control}
@@ -274,7 +341,6 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                                         name='code'
                                     />
                                 </Grid>
-
                             </Grid>
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>

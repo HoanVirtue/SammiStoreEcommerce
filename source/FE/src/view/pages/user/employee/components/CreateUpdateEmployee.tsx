@@ -1,45 +1,37 @@
-//react
-import { useEffect, useState } from "react"
-
-//form
-import { yupResolver } from "@hookform/resolvers/yup"
-import { Controller, useForm } from "react-hook-form"
-import * as yup from 'yup';
-
-//Mui
-import { Avatar, Box, Button, FormHelperText, Grid, IconButton, InputAdornment, Typography } from "@mui/material"
-import { useTheme } from "@mui/material"
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-
-//components
-import CustomModal from "src/components/custom-modal"
-import IconifyIcon from "src/components/Icon"
-import Spinner from "src/components/spinner"
-import CustomTextField from "src/components/text-field"
-
-//services
-import { getEmployeeDetail } from "src/services/Employee"
-
-//translation
-import { useTranslation } from "react-i18next"
-
-//redux
-import { useDispatch } from "react-redux"
-import { AppDispatch } from "src/stores"
-import { createEmployeeAsync, updateEmployeeAsync } from "src/stores/employee/action"
-import { EMAIL_REG, PASSWORD_REG } from "src/configs/regex";
+import { useEffect, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Controller, useForm } from "react-hook-form";
+import * as yup from "yup";
+import {
+    Avatar,
+    Box,
+    Button,
+    FormHelperText,
+    Grid,
+    IconButton,
+    Typography,
+    InputLabel,
+    Select,
+    MenuItem,
+} from "@mui/material";
+import { useTheme } from "@mui/material";
+import CustomModal from "src/components/custom-modal";
+import IconifyIcon from "src/components/Icon";
+import Spinner from "src/components/spinner";
+import CustomTextField from "src/components/text-field";
 import FileUploadWrapper from "src/components/file-upload-wrapper";
-import { convertBase64, separationFullname, toFullName } from "src/utils";
-import { InputLabel } from "@mui/material";
-import CustomSelect from "src/components/custom-select";
-import { getAllRoles } from "src/services/role";
-import { getAllCities } from "src/services/city";
+import { getEmployeeDetail } from "src/services/employee";
+import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "src/stores";
+import { createEmployeeAsync, updateEmployeeAsync } from "src/stores/employee/action";
+import { EMAIL_REG, PASSWORD_REG } from "src/configs/regex";
+import { convertBase64 } from "src/utils";
 
 interface TCreateUpdateEmployee {
-    open: boolean
-    onClose: () => void
-    id?: string
+    open: boolean;
+    onClose: () => void;
+    id?: string;
 }
 
 type TDefaultValues = {
@@ -50,194 +42,149 @@ type TDefaultValues = {
     firstName: string;
     lastName: string;
     fullName: string;
-    email: string | null;
+    email: string;
     phone: string;
-    streetAddress: string | null;
+    streetAddress: string;
     wardId: number;
     wardName: string;
-    districtId: number;
-    districtName: string;
-    provinceId: number;
-    provinceName: string;
     username: string;
+    password: string;
     gender: number;
-}
+    securityStamp: string;
+};
 
 const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
+    const [loading, setLoading] = useState(false);
+    const [avatar, setAvatar] = useState("");
 
-    //state
-    const [loading, setLoading] = useState(false)
-    const [avatar, setAvatar] = useState("")
-    const [roleOptions, setRoleOptions] = useState<{ label: string, value: string }[]>([])
-    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
-    const [showPassword, setShowPassword] = useState(false)
+    const { open, onClose, id } = props;
+    const { t } = useTranslation();
+    const theme = useTheme();
+    const dispatch: AppDispatch = useDispatch();
 
-    //props
-    const { open, onClose, id } = props
-
-    //translation
-    const { t, i18n } = useTranslation()
-
-    //theme
-    const theme = useTheme()
-
-    //redux
-    const dispatch: AppDispatch = useDispatch()
-
+    // Schema validation với Yup
     const schema = yup.object().shape({
-        email: yup.string().required(t("required_email"))
-            .matches(EMAIL_REG, t('incorrect_email_format')),
-        password: id ? yup.string().nonNullable() : yup.string().required(t("required_password"))
-            .matches(PASSWORD_REG, t('incorrect_password_format')),
-        fullName: yup.string().required(t("required_fullname")),
-        phoneNumber: yup.string().required(t('required_phone_number'))
-            .min(10, t('incorrect_phone_format')),
-        role: yup.string().required(t('require_role')),
-        city: yup.string().nonNullable(),
-        address: yup.string().nonNullable(),
-        status: yup.number().nonNullable(),
+        roleIds: yup.array().of(yup.number().required()).required(t("required_code")),
+        code: yup.string().required(t("required_code")),
+        identityGuid: yup.string().required(t("required_identity_guid")),
+        type: yup.string().required(t("required_type")),
+        firstName: yup.string().required(t("required_first_name")),
+        lastName: yup.string().required(t("required_last_name")),
+        fullName: yup.string().required(t("required_full_name")),
+        email: yup.string().required(t("required_email")).email().matches(EMAIL_REG, t("incorrect_email_format")),
+        phone: yup.string().required(t("required_phone")).min(10, t("incorrect_phone_format")),
+        streetAddress: yup.string().required(t("required_address")),
+        wardId: yup.number().required(t("required_ward_id")),
+        wardName: yup.string().required(t("required_ward_name")),
+        username: yup.string().required(t("required_username")),
+        password: yup.string().required(t("required_password")),
+        securityStamp: yup.string().required(t("required_security_stamp")),
+        gender: yup.number().required(t("required_gender")),
     });
 
     const defaultValues: TDefaultValues = {
         roleIds: [],
-        code: '',
-        identityGuid: '',
-        type: '',
-        firstName: '',
-        lastName: '',
-        fullName: '',
-        email: '',
-        phone: '',
-        streetAddress: '',
+        code: "",
+        identityGuid: "",
+        type: "",
+        firstName: "",
+        lastName: "",
+        fullName: "",
+        email: "",
+        phone: "",
+        streetAddress: "",
         wardId: 0,
-        wardName: '',
-        districtId: 0,
-        districtName: '',
-        provinceId: 0,
-        provinceName: '',
-        username: '',
+        wardName: "",
+        username: "",
+        password: "",
+        securityStamp: "",
         gender: 0,
-    }
+    };
 
-    const { handleSubmit, control, formState: { errors }, reset } = useForm({
+    const {
+        handleSubmit,
+        control,
+        formState: { errors },
+        reset,
+    } = useForm({
         defaultValues,
-        mode: 'onChange',
-        resolver: yupResolver(schema)
+        mode: "onChange",
+        resolver: yupResolver(schema),
     });
 
-
+    // Xử lý submit form
     const onSubmit = (data: TDefaultValues) => {
-        const { firstName, middleName, lastName } = separationFullname(data.fullName, i18n.language)
-        if (!Object.keys(errors)?.length) {
+        if (!Object.keys(errors).length) {
+            const finalData = {
+                roleIds: data?.roleIds as number[],
+                code: data.code,
+                identityGuid: data?.identityGuid,
+                type: data?.type,
+                firstName: data?.firstName,
+                lastName: data?.lastName,
+                fullName: data?.fullName,
+                email: data?.email || "",
+                phone: data?.phone,
+                streetAddress: data?.streetAddress,
+                wardId: data?.wardId,
+                wardName: data?.wardName,
+                username: data?.username,
+                password: data?.password,
+                securityStamp: data?.securityStamp,
+                gender: data?.gender,
+            };
             if (id) {
-                //update
                 dispatch(updateEmployeeAsync({
-                    firstName, middleName, lastName,
-                    email: data?.email,
-                    role: data?.role,
-                    phoneNumber: data?.phoneNumber,
-                    address: data?.address,
-                    city: data?.city,
-                    avatar: avatar,
+                    ...finalData,
                     id: id,
-                    status: data?.status ? 1 : 0,
-                }))
+                }));
             } else {
-                //create
-                dispatch(createEmployeeAsync({
-                    firstName, lastName,
-                    email: data?.email,
-                    password: data.password,
-                    role: data?.role,
-                    phoneNumber: data?.phoneNumber,
-                    address: data?.address,
-                    city: data?.city,
-                    avatar: avatar
-                }))
+                dispatch(createEmployeeAsync({ ...finalData }));
             }
         }
-    }
+    };
 
-    //handler
+    // Upload avatar
     const handleUploadAvatar = async (file: File) => {
-        const base64 = await convertBase64(file)
-        setAvatar(base64 as string)
-    }
+        const base64 = await convertBase64(file);
+        setAvatar(base64 as string);
+    };
 
     const fetchDetailEmployee = async (id: string) => {
-        setLoading(true)
-        await getEmployeeDetail(id).then((res) => {
-            const data = res?.data
-            if (data) {
-                reset({
-                    fullName: toFullName(data?.lastName, data?.middleName, data?.firstName, i18n.language),
-                    email: data?.email,
-                    password: data?.password,
-                    role: data?.role._id,
-                    phoneNumber: data?.phoneNumber,
-                    address: data?.address,
-                    city: data?.city,
-                    status: data?.status
-                })
-                setAvatar(data?.avatar)
-            }
-            setLoading(false)
-        }).catch((e) => {
-            setLoading(false)
-        })
-    }
-
-
-    const fetchAllRoles = async () => {
-        setLoading(true)
-        await getAllRoles({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.roles
-            if (data) {
-                setRoleOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
-
-    const fetchAllCities = async () => {
-        setLoading(true)
-        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.cities
-            if (data) {
-                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
-
-    useEffect(() => {
-        if (!open) {
-            reset({
-                ...defaultValues
+        setLoading(true);
+        await getEmployeeDetail(id)
+            .then((res) => {
+                const data = res?.result;
+                if (data) {
+                    const wardIdNumber = Number(data.wardId);
+                    const roleIds = data.roleIds as number[];
+                    reset({
+                        ...data,
+                        roleIds: roleIds.length ? roleIds : [],
+                        wardId: isNaN(wardIdNumber) ? 0 : wardIdNumber,
+                        email: data.email ?? "",
+                        streetAddress: data.streetAddress ?? "",
+                    });
+                    setAvatar(data.avatar);
+                }
+                setLoading(false);
             })
-            setAvatar("")
-            setShowPassword(false)
-        } else {
-            if (id && open) {
-                fetchDetailEmployee(id)
-            }
-        }
-    }, [open, id])
+            .catch(() => setLoading(false));
+    };
 
     useEffect(() => {
-        fetchAllRoles()
-        fetchAllCities()
-    }, [])
+        if (open) {
+            if (id) fetchDetailEmployee(id);
+        } else {
+            reset(defaultValues);
+            setAvatar("");
+        }
+    }, [open, id]);
+
+    const roleOptions = [
+        { label: "Admin", value: 1 },
+        { label: "User", value: 2 },
+    ];
 
     return (
         <>
@@ -246,361 +193,472 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                 <Box
                     sx={{
                         backgroundColor: theme.palette.customColors.bodyBg,
-                        padding: '20px',
-                        borderRadius: '15px',
+                        padding: "20px",
+                        borderRadius: "15px",
+                        minWidth: { md: "800px", xs: "80vw" },
+                        maxWidth: { md: "80vw", xs: "80vw" },
+                        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
                     }}
-                    minWidth={{ md: '800px', xs: '80vw' }}
-                    maxWidth={{ md: '80vw', xs: '80vw' }}
                 >
-                    <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: 'relative',
-                        paddingBottom: '20px'
-                    }}>
-                        <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {id ? t('update_Employee') : t('create_Employee')}
+                    <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", paddingBottom: "20px" }}>
+                        <Typography variant="h4" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
+                            {id ? t("update_Employee") : t("create_Employee")}
                         </Typography>
-                        <IconButton sx={{
-                            position: 'absolute',
-                            right: "-10px",
-                            top: "-6px",
-                        }}>
-                            <IconifyIcon
-                                icon="material-symbols-light:close-rounded"
-                                fontSize={"30px"}
-                                onClick={onClose}
-                            />
+                        <IconButton sx={{ position: "absolute", right: "-10px", top: "-6px" }} onClick={onClose}>
+                            <IconifyIcon icon="material-symbols-light:close-rounded" fontSize={"30px"} />
                         </IconButton>
                     </Box>
-                    <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
+
+                    {/* Form */}
+                    <form onSubmit={handleSubmit(onSubmit)} autoComplete="off" noValidate>
                         <Box
                             sx={{
                                 backgroundColor: theme.palette.background.paper,
                                 borderRadius: "15px",
-                                py: 5, px: 4
-                            }}>
-                            <Grid container
-                                spacing={4}
-                            >
-                                <Grid container item md={6} xs={12}>
-                                    <Box sx={{
-                                        width: "100%",
-                                        height: "100%",
-                                    }}>
-                                        <Grid container spacing={4}>
-                                            <Grid item md={12} xs={12}>
-                                                <Box sx={{
-                                                    width: "100%",
-                                                    height: "100%",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    flexDirection: "column",
-                                                    gap: 2,
-                                                }}>
-                                                    <Box sx={{
-                                                        position: "relative",
-                                                    }}>
-                                                        {avatar && (
-                                                            <IconButton
-                                                                sx={{
-                                                                    position: "absolute",
-                                                                    bottom: -4,
-                                                                    right: -6,
-                                                                    zIndex: 2,
-                                                                    color: theme.palette.error.main
-                                                                }}
-                                                                edge="start"
-                                                                color="inherit"
-                                                                aria-label="delete-avatar"
-                                                                onClick={() => setAvatar('')}
-                                                            >
-                                                                <IconifyIcon icon="material-symbols:delete-rounded" />
-                                                            </IconButton>
-                                                        )}
-                                                        {avatar ? (
-                                                            <Avatar src={avatar} alt="avatar" sx={{ width: 100, height: 100 }}>
-                                                                <IconifyIcon icon="ph:Employee-thin" fontSize={70} />
-                                                            </Avatar>
-                                                        ) : (
-                                                            <Avatar alt="default-avatar" sx={{ width: 100, height: 100 }}>
-                                                                <IconifyIcon icon="ph:Employee-thin" fontSize={70} />
-                                                            </Avatar>
-                                                        )}
-                                                    </Box>
-                                                    <FileUploadWrapper uploadFile={handleUploadAvatar} objectAcceptedFile={{
-                                                        "image/jpeg": [".jpg", ".jpeg"],
-                                                        "image/png": [".png"]
-                                                    }}>
-                                                        <Button variant="outlined" sx={{
-                                                            width: "auto",
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            gap: 1
-                                                        }}>
-                                                            <IconifyIcon icon="ph:camera-thin" />
-                                                            {avatar ? t('change_avatar') : t('upload_avatar')}
-                                                        </Button>
-                                                    </FileUploadWrapper>
-                                                </Box>
-                                            </Grid>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    rules={{ required: true }}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            // 
-                                                            required
-                                                            fullWidth
-                                                            label={t('email')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_your_email')}
-                                                            error={errors.email ? true : false}
-                                                            helperText={errors.email?.message}
-                                                        />
-                                                    )}
-                                                    name='email'
-                                                />
-                                            </Grid>
-                                            {!id && (
-                                                <Grid item md={6} xs={12} >
-                                                    <Controller
-                                                        control={control}
-                                                        rules={{ required: true }}
-                                                        render={({ field: { onChange, onBlur, value } }) => (
-                                                            <CustomTextField
-                                                                required
-                                                                fullWidth
-                                                                label={t("password")}
-                                                                onChange={onChange}
-                                                                onBlur={onBlur}
-                                                                value={value}
-                                                                placeholder={t('enter_your_password')}
-                                                                helperText={errors.password?.message}
-                                                                error={errors.password ? true : false}
-                                                                type={showPassword ? 'text' : 'password'}
-                                                                InputProps={{
-                                                                    endAdornment: (
-                                                                        <InputAdornment position="end">
-                                                                            <IconButton
-                                                                                aria-label={
-                                                                                    showPassword ? 'hide the password' : 'display the password'
-                                                                                }
-                                                                                edge="end"
-                                                                                onClick={() => setShowPassword(!showPassword)}>
-                                                                                {
-                                                                                    showPassword ?
-                                                                                        <IconifyIcon icon='material-symbols:visibility-outline' />
-                                                                                        :
-                                                                                        <IconifyIcon icon='material-symbols:visibility-off-outline-rounded' />
-                                                                                }
-                                                                            </IconButton>
-                                                                        </InputAdornment>
-                                                                    )
-                                                                }}
-                                                            />
-                                                        )}
-                                                        name='password'
-                                                    />
-                                                </Grid>
-                                            )}
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    rules={{ required: true }}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <Box>
-                                                            <InputLabel sx={{
-                                                                fontSize: "13px",
-                                                                mb: "4px",
-                                                                display: "block",
-                                                                color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                            }}>
-                                                                {t('role')}<span style={{
-                                                                    color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                                }}>*</span>
-                                                            </InputLabel>
-                                                            <CustomSelect
-                                                                fullWidth
-                                                                onChange={onChange}
-                                                                onBlur={onBlur}
-                                                                value={value}
-                                                                options={roleOptions}
-                                                                placeholder={t('select_your_role')}
-                                                                error={errors.role ? true : false}
-                                                            />
-                                                            {!errors?.role?.message && (
-                                                                <FormHelperText sx={{
-                                                                    color: !errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                                }}>
-                                                                    {errors?.role?.message}
-                                                                </FormHelperText>
-                                                            )}
-                                                        </Box>
-                                                    )}
-                                                    name='role'
-                                                />
-                                            </Grid>
-                                            {id && (
-                                                <Grid item md={6} xs={12} >
-                                                    <Controller
-                                                        control={control}
-                                                        render={({ field: { onChange, onBlur, value } }) => {
-                                                            return (
-                                                                <FormControlLabel
-                                                                    control={
-                                                                        <Switch
-                                                                            checked={Boolean(value)}
-                                                                            value={value}
-                                                                            onChange={
-                                                                                (e) => onChange(e.target.checked ? 1 : 0)
-                                                                            }
-                                                                            sx={{
-                                                                                '& .MuiSwitch-switchBase': {
-                                                                                    color: theme.palette.common.white,
-                                                                                },
-                                                                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                                                                },
-                                                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                                                                    backgroundColor: theme.palette.primary.main,
-                                                                                },
-                                                                                '& .MuiSwitch-track': {
-                                                                                    backgroundColor: theme.palette.grey[400],
-                                                                                },
-                                                                            }}
-                                                                        />
-                                                                    }
-                                                                    label={Boolean(value) ? t('active') : t('inactive')}
-                                                                />
-                                                            )
+                                py: 5,
+                                px: 4,
+                                boxShadow: "0 2px 10px rgba(0, 0, 0, 0.05)",
+                            }}
+                        >
+                            <Grid container spacing={4}>
+                                {/* Cột trái */}
+                                <Grid item md={6} xs={12}>
+                                    <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                        {/* Avatar */}
+                                        <Box
+                                            sx={{
+                                                display: "flex",
+                                                justifyContent: "center",
+                                                alignItems: "center",
+                                                flexDirection: "column",
+                                                gap: 2,
+                                            }}
+                                        >
+                                            <Box sx={{ position: "relative" }}>
+                                                {avatar && (
+                                                    <IconButton
+                                                        sx={{
+                                                            position: "absolute",
+                                                            bottom: -4,
+                                                            right: -6,
+                                                            zIndex: 2,
+                                                            color: theme.palette.error.main,
+                                                            backgroundColor: theme.palette.background.paper,
+                                                            borderRadius: "50%",
                                                         }}
-                                                        name='status'
-                                                    />
-                                                </Grid>
+                                                        onClick={() => setAvatar("")}
+                                                    >
+                                                        <IconifyIcon icon="material-symbols:delete-rounded" />
+                                                    </IconButton>
+                                                )}
+                                                <Avatar
+                                                    src={avatar}
+                                                    alt="avatar"
+                                                    sx={{
+                                                        width: 100,
+                                                        height: 100,
+                                                        border: `2px solid ${theme.palette.primary.main}`,
+                                                    }}
+                                                >
+                                                    <IconifyIcon icon="ph:Employee-thin" fontSize={70} />
+                                                </Avatar>
+                                            </Box>
+                                            <FileUploadWrapper
+                                                uploadFile={handleUploadAvatar}
+                                                objectAcceptedFile={{ "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"] }}
+                                            >
+                                                <Button
+                                                    variant="outlined"
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        gap: 1,
+                                                        borderRadius: "8px",
+                                                        textTransform: "none",
+                                                    }}
+                                                >
+                                                    <IconifyIcon icon="ph:camera-thin" />
+                                                    {avatar ? t("change_avatar") : t("upload_avatar")}
+                                                </Button>
+                                            </FileUploadWrapper>
+                                        </Box>
+
+                                        {/* RoleIds */}
+                                        <Controller
+                                            control={control}
+                                            name="roleIds"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <Box>
+                                                    <InputLabel
+                                                        sx={{
+                                                            fontSize: "13px",
+                                                            mb: "4px",
+                                                            color: errors.roleIds ? theme.palette.error.main : theme.palette.text.primary,
+                                                        }}
+                                                    >
+                                                        {t("roles")}{" "}
+                                                        <span
+                                                            style={{
+                                                                color: errors.roleIds ? theme.palette.error.main : theme.palette.text.primary,
+                                                            }}
+                                                        >
+                                                            *
+                                                        </span>
+                                                    </InputLabel>
+                                                    <Select
+                                                        multiple
+                                                        fullWidth
+                                                        value={value || []}
+                                                        onChange={onChange}
+                                                        onBlur={onBlur}
+                                                        error={!!errors.roleIds}
+                                                        renderValue={(selected) =>
+                                                            selected
+                                                                .map((id) => roleOptions.find((opt) => opt.value === id)?.label)
+                                                                .join(", ")
+                                                        }
+                                                        sx={{ borderRadius: "8px" }}
+                                                    >
+                                                        {roleOptions.map((option) => (
+                                                            <MenuItem key={option.value} value={option.value}>
+                                                                {option.label}
+                                                            </MenuItem>
+                                                        ))}
+                                                    </Select>
+                                                    {errors.roleIds && <FormHelperText error>{errors.roleIds.message}</FormHelperText>}
+                                                </Box>
                                             )}
-                                        </Grid>
+                                        />
+
+                                        {/* Code */}
+                                        <Controller
+                                            control={control}
+                                            name="code"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("code")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_code")}
+                                                    error={!!errors.code}
+                                                    helperText={errors.code?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* IdentityGuid */}
+                                        <Controller
+                                            control={control}
+                                            name="identityGuid"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("identity_guid")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_identity_guid")}
+                                                    error={!!errors.identityGuid}
+                                                    helperText={errors.identityGuid?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* Type */}
+                                        <Controller
+                                            control={control}
+                                            name="type"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("type")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_type")}
+                                                    error={!!errors.type}
+                                                    helperText={errors.type?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
                                     </Box>
                                 </Grid>
-                                <Grid container item md={6} xs={12} >
-                                    <Box>
-                                        <Grid container spacing={5}>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            required
-                                                            label={t('full_name')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_your_full_name')}
-                                                            error={errors.fullName ? true : false}
-                                                            helperText={errors.fullName?.message}
-                                                        />
-                                                    )}
-                                                    name='fullName'
+
+                                {/* Cột phải */}
+                                <Grid item md={6} xs={12}>
+                                    <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                                        {/* FirstName */}
+                                        <Controller
+                                            control={control}
+                                            name="firstName"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("first_name")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_first_name")}
+                                                    error={!!errors.firstName}
+                                                    helperText={errors.firstName?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                                                 />
-                                            </Grid>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    name='address'
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            label={t('address')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_your_address')}
-                                                        />
-                                                    )}
+                                            )}
+                                        />
+
+                                        {/* LastName */}
+                                        <Controller
+                                            control={control}
+                                            name="lastName"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("last_name")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_last_name")}
+                                                    error={!!errors.lastName}
+                                                    helperText={errors.lastName?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                                                 />
-                                            </Grid>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    name='city'
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <Box>
-                                                            <InputLabel sx={{
-                                                                fontSize: "13px",
-                                                                mb: "4px",
-                                                                display: "block",
-                                                                color: errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                            }}>
-                                                                {t('city')}
-                                                            </InputLabel>
-                                                            <CustomSelect
-                                                                fullWidth
-                                                                onChange={onChange}
-                                                                onBlur={onBlur}
-                                                                value={value}
-                                                                options={cityOptions}
-                                                                placeholder={t('select_your_city')}
-                                                                error={errors.city ? true : false}
-                                                            />
-                                                            {errors?.city?.message && (
-                                                                <FormHelperText sx={{
-                                                                    color: errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                                }}>
-                                                                    {errors?.city?.message}
-                                                                </FormHelperText>
-                                                            )}
-                                                        </Box>
-                                                    )}
+                                            )}
+                                        />
+
+                                        {/* FullName */}
+                                        <Controller
+                                            control={control}
+                                            name="fullName"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("full_name")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_full_name")}
+                                                    error={!!errors.fullName}
+                                                    helperText={errors.fullName?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                                                 />
-                                            </Grid>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            required
-                                                            fullWidth
-                                                            label={t('phone_number')}
-                                                            onChange={(e) => {
-                                                                const numberValue = e.target.value.replace(/\D/g, '');
-                                                                onChange(numberValue);
+                                            )}
+                                        />
+
+                                        {/* Email */}
+                                        <Controller
+                                            control={control}
+                                            name="email"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("email")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_email")}
+                                                    error={!!errors.email}
+                                                    helperText={errors.email?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* Phone */}
+                                        <Controller
+                                            control={control}
+                                            name="phone"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("phone")}
+                                                    onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
+                                                    onBlur={onBlur}
+                                                    inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                                    value={value}
+                                                    placeholder={t("enter_phone")}
+                                                    error={!!errors.phone}
+                                                    helperText={errors.phone?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* StreetAddress */}
+                                        <Controller
+                                            control={control}
+                                            name="streetAddress"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("street_address")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_street_address")}
+                                                    error={!!errors.streetAddress}
+                                                    helperText={errors.streetAddress?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* WardId */}
+                                        <Controller
+                                            control={control}
+                                            name="wardId"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    type="number"
+                                                    label={t("ward_id")}
+                                                    onChange={(e) => onChange(Number(e.target.value))}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_ward_id")}
+                                                    error={!!errors.wardId}
+                                                    helperText={errors.wardId?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* WardName */}
+                                        <Controller
+                                            control={control}
+                                            name="wardName"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("ward_name")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_ward_name")}
+                                                    error={!!errors.wardName}
+                                                    helperText={errors.wardName?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* Username */}
+                                        <Controller
+                                            control={control}
+                                            name="username"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("username")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_username")}
+                                                    error={!!errors.username}
+                                                    helperText={errors.username?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* Password */}
+                                        <Controller
+                                            control={control}
+                                            name="password"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("password")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_password")}
+                                                    error={!!errors.password}
+                                                    helperText={errors.password?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* SecurityStamp */}
+                                        <Controller
+                                            control={control}
+                                            name="securityStamp"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("security_stamp")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_security_stamp")}
+                                                    error={!!errors.securityStamp}
+                                                    helperText={errors.securityStamp?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+
+                                        {/* Gender */}
+                                        <Controller
+                                            control={control}
+                                            name="gender"
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <Box>
+                                                    <InputLabel
+                                                        sx={{
+                                                            fontSize: "13px",
+                                                            mb: "4px",
+                                                            color: errors.gender ? theme.palette.error.main : theme.palette.text.primary,
+                                                        }}
+                                                    >
+                                                        {t("gender")}{" "}
+                                                        <span
+                                                            style={{
+                                                                color: errors.gender ? theme.palette.error.main : theme.palette.text.primary,
                                                             }}
-                                                            onBlur={onBlur}
-                                                            inputProps={{
-                                                                inputMode: 'numeric',
-                                                                pattern: '[0-9]*',
-                                                                minLength: 8
-                                                            }}
-                                                            value={value}
-                                                            placeholder={t('enter_your_phone_number')}
-                                                            error={errors.phoneNumber ? true : false}
-                                                            helperText={errors.phoneNumber?.message}
-                                                        />
-                                                    )}
-                                                    name='phoneNumber'
-                                                />
-                                            </Grid>
-                                        </Grid>
+                                                        >
+                                                            *
+                                                        </span>
+                                                    </InputLabel>
+                                                    <Select
+                                                        fullWidth
+                                                        value={value}
+                                                        onChange={onChange}
+                                                        onBlur={onBlur}
+                                                        error={!!errors.gender}
+                                                        sx={{ borderRadius: "8px" }}
+                                                    >
+                                                        <MenuItem value={0}>{t("male")}</MenuItem>
+                                                        <MenuItem value={1}>{t("female")}</MenuItem>
+                                                    </Select>
+                                                    {errors.gender && <FormHelperText error>{errors.gender.message}</FormHelperText>}
+                                                </Box>
+                                            )}
+                                        />
                                     </Box>
                                 </Grid>
                             </Grid>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+
+                        {/* Nút hành động */}
+                        <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 3 }}>
+                            <Button variant="outlined" sx={{ mt: 3, mb: 2, ml: 2, py: 1.5 }} onClick={onClose}>
+                                {t("cancel")}
+                            </Button>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {id ? t('update') : t('create')}
+                                {id ? t("update") : t("create")}
                             </Button>
                         </Box>
                     </form>
                 </Box>
             </CustomModal>
         </>
-    )
-}
+    );
+};
 
-export default CreateUpdateEmployee
+export default CreateUpdateEmployee;

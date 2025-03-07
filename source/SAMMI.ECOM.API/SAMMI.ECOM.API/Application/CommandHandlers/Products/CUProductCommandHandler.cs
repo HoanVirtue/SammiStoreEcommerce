@@ -182,7 +182,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             var updateRes = await _productRepository.UpdateAndSave(request);
             actResponse.Combine(updateRes);
 
-            var imageExistIds = (await _imageRepository.GetDataByProductId(request.Id)).Select(x => x.Id);
+            //var imageExistIds = (await _imageRepository.GetDataByProductId(request.Id)).Select(x => x.Id);
             //if(imageExistIds.Contains(request.ExistImages.))
             if (!request.ExistImages.All(i => _imageRepository.IsExisted(i.Id)))
             {

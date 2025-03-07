@@ -5,6 +5,7 @@ using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 
@@ -67,9 +68,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             // create order
             request.Code = Guid.NewGuid().ToString();
-            request.PaymentStatus = "";
-            request.OrderStatus = "";
-            request.ShippingStatus = "";
+            request.PaymentStatus = PaymentStatusEnum.Pending.ToString();
+            request.OrderStatus = OrderStatusEnum.WaitingForPayment.ToString();
+            request.ShippingStatus = ShippingStatusEnum.NotShipped.ToString();
             request.CreatedDate = DateTime.Now;
             request.CreatedBy = "System";
 

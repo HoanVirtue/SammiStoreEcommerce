@@ -16,7 +16,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         {
         }
 
-        [HttpPost]
+        [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand request)
         {
             if (request.Id != 0)

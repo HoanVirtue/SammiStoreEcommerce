@@ -14,11 +14,17 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public int? VoucherId { get; set; }
         public int? WardId { get; set; }
         public string? CustomerAddress { get; set; }
+        public decimal? CostShip { get; set; }
+        public string? TrackingNumber { get; set; }
+        public DateTime? EstimatedDeliveryDate { get; set; }
+        public DateTime? ActualDeliveryDate { get; set; }
+        public int? ShippingCompanyId { get; set; }
         public List<OrderDetailCommand> Details { get; set; }
         public decimal? TotalAmount { get; set; }
         public decimal? TotalQuantity { get; set; }
         public decimal? DiscountAmount { get; set; }
         public bool IsBuyNow { get; set; }
+
 
         public int Id { get; set; }
         public DateTime? CreatedDate { get; set; }

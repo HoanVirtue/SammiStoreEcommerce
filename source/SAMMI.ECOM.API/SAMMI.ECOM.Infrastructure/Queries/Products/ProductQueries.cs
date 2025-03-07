@@ -30,7 +30,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
-                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder AS ImageDisplayOrder");
+                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
                     sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
                     sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
 
@@ -78,7 +78,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 async (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
-                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder AS ImageDisplayOrder");
+                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
                     sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
                     sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
 
@@ -128,7 +128,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
-                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder AS ImageDisplayOrder");
+                    sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
                     sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
                     sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
 

@@ -16,25 +16,52 @@ export type TUserAddress ={
   isDefault: boolean
 }
 
+// export type UserDataType = {
+//   _id: string
+//   role: {
+//     name: string,
+//     permissions: string[]
+//   }
+//   email: string
+//   fullName: string
+//   firstName: string
+//   middleName: string
+//   lastName: string
+//   username: string
+//   password: string
+//   avatar?: string | null
+//   likedProducts: string[]
+//   city: string,
+//   address?: string,
+//   phoneNumber: string
+//   addresses: TUserAddress[]
+// }
+
 export type UserDataType = {
-  _id: string
-  role: {
-    name: string,
+  id: number
+  code: string
+  identityGuid: string
+  type: string
+  firstName: string
+  lastName: string
+  fullName: string
+  email: string
+  phone: string
+  streetAddress?: string
+  wardId: number
+  wardName: string
+  districtId: number
+  districtName: string
+  provinceId: number
+  provinceName: string
+  username: string
+  gender: number
+  displayOrder: number
+
+  role?: {
+    name: string
     permissions: string[]
   }
-  email: string
-  fullName: string
-  firstName: string
-  middleName: string
-  lastName: string
-  username: string
-  password: string
-  avatar?: string | null
-  likedProducts: string[]
-  city: string,
-  address?: string,
-  phoneNumber: string
-  addresses: TUserAddress[]
 }
 
 export type AuthValuesType = {

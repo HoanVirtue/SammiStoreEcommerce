@@ -9,6 +9,7 @@ using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Repositories;
 using SAMMI.ECOM.Infrastructure.Services.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Helpers.PasswordVerification;
+using SAMMI.ECOM.Infrastructure.Services.GHN_API;
 using SAMMI.ECOM.Repository.GenericRepositories;
 using System.Reflection;
 
@@ -56,6 +57,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
 
             builder.RegisterType<FileStorageService>().As<IFileStorageService>();
             builder.RegisterType<CloudinaryService>().As<ICloudinaryService>();
+            builder.RegisterType<GHNService>().As<IGHNService>().InstancePerLifetimeScope();
+
             builder.RegisterType<ProductElasticService>().As<IProductElasticService>().SingleInstance();
 
 

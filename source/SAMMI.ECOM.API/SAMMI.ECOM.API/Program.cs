@@ -8,6 +8,7 @@ using SAMMI.ECOM.API.Infrastructure.AutofacModules;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Infrastructure;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
+using SAMMI.ECOM.Infrastructure.Services.GHN_API;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,6 +90,8 @@ catch (Exception ex)
 builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
 
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
@@ -96,7 +99,8 @@ app.UseCors("CorsPolicy");
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<SammiEcommerceContext>();
-    var dataSeed = new DataSeeder(context);
+    var ghnService = scope.ServiceProvider.GetRequiredService<IGHNService>();
+    var dataSeed = new DataSeeder(context, ghnService);
     if (!context.Database.CanConnect())
     {
         // Nếu DB chưa tồn tại, tạo DB và chạy migration

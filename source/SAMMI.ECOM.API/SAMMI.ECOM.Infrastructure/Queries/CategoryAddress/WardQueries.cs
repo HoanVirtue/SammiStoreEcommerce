@@ -55,7 +55,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.CategoryAddress
                     if (request != null && request.Any("districtId"))
                     {
                         int districtId = int.Parse(request.Get("districtId")?.ToString());
-                        sqlBuilder.Where("t1.ProvinceId = @districtId", new { districtId });
+                        sqlBuilder.Where("t1.DistrictId = @districtId", new { districtId });
                     }
                     return conn.QueryAsync<SelectionItem>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, request

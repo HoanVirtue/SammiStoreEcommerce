@@ -15,6 +15,9 @@ export const API_ENDPOINT = {
     },
   },
   USER: {
+    ME: {
+      INDEX: `${BASE_URL}/users/get-current-user`,
+    },
     EMPLOYEE: {
       INDEX: `${BASE_URL}/users/employee`,
       DELETE: `${BASE_URL}/users`,

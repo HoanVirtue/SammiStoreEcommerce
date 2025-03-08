@@ -21,7 +21,7 @@ export type TParamsCreateEmployee = {
     email: string | null;
     phone: string;
     streetAddress: string | null;
-    wardId: number;
+    wardId: string;
     wardName: string;
     username: string;
     password: string;

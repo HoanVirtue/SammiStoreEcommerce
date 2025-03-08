@@ -27,6 +27,8 @@ import { AppDispatch } from "src/stores";
 import { createEmployeeAsync, updateEmployeeAsync } from "src/stores/employee/action";
 import { EMAIL_REG, PASSWORD_REG } from "src/configs/regex";
 import { convertBase64 } from "src/utils";
+import CustomSelect from "src/components/custom-select";
+import { getAllWards } from "src/services/ward";
 
 interface TCreateUpdateEmployee {
     open: boolean;
@@ -45,7 +47,7 @@ type TDefaultValues = {
     email: string;
     phone: string;
     streetAddress: string;
-    wardId: number;
+    wardId: string;
     wardName: string;
     username: string;
     password: string;
@@ -56,6 +58,7 @@ type TDefaultValues = {
 const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     const [loading, setLoading] = useState(false);
     const [avatar, setAvatar] = useState("");
+    const [wardOptions, setWardOptions] = useState<{ label: string, value: string }[]>([])
 
     const { open, onClose, id } = props;
     const { t } = useTranslation();
@@ -74,7 +77,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
         email: yup.string().required(t("required_email")).email().matches(EMAIL_REG, t("incorrect_email_format")),
         phone: yup.string().required(t("required_phone")).min(10, t("incorrect_phone_format")),
         streetAddress: yup.string().required(t("required_address")),
-        wardId: yup.number().required(t("required_ward_id")),
+        wardId: yup.string().required(t("required_ward_id")),
         wardName: yup.string().required(t("required_ward_name")),
         username: yup.string().required(t("required_username")),
         password: yup.string().required(t("required_password")),
@@ -93,7 +96,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
         email: "",
         phone: "",
         streetAddress: "",
-        wardId: 0,
+        wardId: '',
         wardName: "",
         username: "",
         password: "",
@@ -106,6 +109,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
         control,
         formState: { errors },
         reset,
+        setValue,
     } = useForm({
         defaultValues,
         mode: "onChange",
@@ -150,6 +154,32 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
         setAvatar(base64 as string);
     };
 
+    const fetchAllWard = async () => {
+        setLoading(true)
+        await getAllWards({
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: ""
+            }
+        }).then((res) => {
+            const data = res?.result?.subset
+            if (data) {
+                setWardOptions(data?.map((item: { name: string, id: string }) => ({
+                    label: item.name,
+                    value: item.id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
+    }
+
     const fetchDetailEmployee = async (id: string) => {
         setLoading(true);
         await getEmployeeDetail(id)
@@ -180,6 +210,10 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
             setAvatar("");
         }
     }, [open, id]);
+
+    useEffect(() => {
+        fetchAllWard()
+    }, [])
 
     const roleOptions = [
         { label: "Admin", value: 1 },
@@ -260,7 +294,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                                         border: `2px solid ${theme.palette.primary.main}`,
                                                     }}
                                                 >
-                                                    <IconifyIcon icon="ph:Employee-thin" fontSize={70} />
+                                                    <IconifyIcon icon="ph:employee-thin" fontSize={70} />
                                                 </Avatar>
                                             </Box>
                                             <FileUploadWrapper
@@ -528,23 +562,51 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                         />
 
                                         {/* WardName */}
-                                        <Controller
-                                            control={control}
-                                            name="wardName"
-                                            render={({ field: { onChange, onBlur, value } }) => (
-                                                <CustomTextField
-                                                    fullWidth
-                                                    label={t("ward_name")}
-                                                    onChange={onChange}
-                                                    onBlur={onBlur}
-                                                    value={value}
-                                                    placeholder={t("enter_ward_name")}
-                                                    error={!!errors.wardName}
-                                                    helperText={errors.wardName?.message}
-                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-                                                />
-                                            )}
-                                        />
+                                        <Grid item md={12} xs={12} >
+                                            <Controller
+                                                control={control}
+                                                name='wardName'
+                                                render={({ field: { onChange, onBlur, value } }) => (
+                                                    <Box sx={{
+                                                        mt: -5
+                                                    }}>
+                                                        <InputLabel sx={{
+                                                            fontSize: "13px",
+                                                            mb: "4px",
+                                                            display: "block",
+                                                            color: errors?.wardName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                        }}>
+                                                            {t('ward_name')}
+                                                        </InputLabel>
+                                                        <CustomSelect
+                                                            fullWidth
+                                                            onChange={(e) => {
+                                                                const selectedWard = wardOptions.find(opt => opt.value === e.target.value);
+                                                                if (selectedWard) {
+                                                                    onChange(selectedWard.value);
+                                                                    setValue('wardId', selectedWard.value);
+                                                                } else {
+                                                                    onChange('');
+                                                                    setValue('wardId', '');
+                                                                }
+                                                            }}
+                                                            onBlur={onBlur}
+                                                            value={value || ''}
+                                                            options={wardOptions}
+                                                            placeholder={t('select_ward_name')}
+                                                            error={errors.wardName ? true : false}
+                                                        />
+                                                        {errors?.wardName?.message && (
+                                                            <FormHelperText sx={{
+                                                                color: errors?.wardName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                            }}>
+                                                                {errors?.wardName?.message}
+                                                            </FormHelperText>
+                                                        )}
+                                                    </Box>
+                                                )}
+                                            />
+                                        </Grid>
 
                                         {/* Username */}
                                         <Controller

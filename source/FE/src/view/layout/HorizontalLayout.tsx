@@ -65,6 +65,8 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) =>
     const theme = useTheme()
     const { t } = useTranslation()
 
+    console.log("user", user)
+
 
     useEffect(() => {
         console.log(" event triggered"); 
@@ -81,7 +83,6 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) =>
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    console.log("fe1", isScrolled)
 
     const handleNavigateLogin = () => {
         if (router.asPath !== '/') {
@@ -172,7 +173,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) =>
                         </Badge>
                     </IconButton>
                     {
-                        !user
+                        user
                             ? (<UserMenu />)
                             : (
                                 <Button onClick={handleNavigateLogin}

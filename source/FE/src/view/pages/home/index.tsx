@@ -39,6 +39,9 @@ import toast from 'react-hot-toast'
 import { resetInitialState } from 'src/stores/product'
 import Banner from './components/banner'
 import OutstandingCategory from './components/category'
+import { getLoginUser } from 'src/services/auth'
+import axios from 'axios'
+import { API_ENDPOINT } from 'src/configs/api'
 
 type TProps = {}
 

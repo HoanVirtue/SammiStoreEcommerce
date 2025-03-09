@@ -29,7 +29,7 @@ import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
 //Service
-import { getAuthMe } from 'src/services/auth'
+import { getAuthMe, getLoginUser } from 'src/services/auth'
 
 //Types
 import { UserDataType } from 'src/contexts/types'
@@ -118,7 +118,7 @@ const MyProfilePage: NextPage<TProps> = () => {
     //fetch api
     const fetchGetAuthMe = async () => {
         setLoading(true)
-        await getAuthMe()
+        await getLoginUser()
             .then(async response => {
                 setLoading(false)
                 const data = response?.data

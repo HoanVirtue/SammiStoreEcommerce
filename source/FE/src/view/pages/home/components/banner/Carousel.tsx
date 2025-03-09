@@ -42,7 +42,7 @@ function PrevArrow(props: any) {
             sx={{
                 position: "absolute",
                 left: "16px",
-                top: '50%',
+                top: '38%',
                 transform: 'translateY(-50%)',
                 zIndex: 1,
                 display: "flex",
@@ -69,7 +69,7 @@ function NextArrow(props: any) {
             sx={{
                 position: "absolute",
                 right: "16px",
-                top: '50%',
+                top: '38%',
                 transform: 'translateY(-50%)',
                 zIndex: 1,
                 display: "flex",
@@ -120,7 +120,7 @@ const Carousel: React.FC = () => {
                     margin: '0 auto', padding: 0,
                     display: 'flex', gap: '8px',
                     position: 'absolute',
-                    bottom: '3rem',
+                    bottom: '12.5rem',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     justifyContent: 'center'
@@ -146,7 +146,7 @@ const Carousel: React.FC = () => {
     };
 
     return (
-        <Box sx={{ maxWidth: 'unset', margin: '0 auto', height: { xs: 'auto', md: '616px' }, padding: '0 2rem', backgroundColor: theme.palette.background.paper }}>
+        <Box sx={{ maxWidth: 'unset', margin: '0 auto', height: { xs: 'auto', md: '516px' }, padding: '0 2rem', backgroundColor: theme.palette.background.paper }}>
             <Slider {...settings}>
                 {banners.map((banner) => (
                     <Box

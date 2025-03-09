@@ -13,14 +13,6 @@ const Banner: React.FC = () => {
             <Grid item md={12} xs={12} sx={{paddingLeft: '0 !important', paddingTop: '0 !important'}}>
                 <Carousel />
             </Grid>
-            {/* <Grid item container md={3} xs={12} spacing={4}>
-                <Grid item md={12} xs={12}> 
-                    <Image src={SideBanner1} alt="Banner 1" width={350} height={300} style={{ width: '100%', height: '100%' }} />
-                </Grid>
-                <Grid item md={12} xs={12}>
-                    <Image src={SideBanner2} alt="Banner 2" width={350} height={300} style={{ width: '100%', height: '100%' }} />
-                </Grid>
-            </Grid> */}
         </Grid>
     );
 };

@@ -100,7 +100,7 @@ const HomePage: NextPage<TProps> = () => {
             },
         };
         await getAllProducts(query).then((res) => {
-            if (res?.data) {
+            if (res?.result) {
                 setLoading(false)
                 setPublicProducts({
                     data: res?.result?.subset,
@@ -110,6 +110,7 @@ const HomePage: NextPage<TProps> = () => {
         })
     }
 
+    console.log("publicProducts", publicProducts)
 
     const fetchAllCategories = async () => {
         setLoading(true)
@@ -213,6 +214,7 @@ const HomePage: NextPage<TProps> = () => {
             {/* {loading && <Spinner />} */}
             <Box sx={{
                 height: 'fit-content',
+                mt: '4.6rem'
             }}>
                 {/* <Box sx={{width: '100%', height: 'fit-content'}}>
                     <StyledTabs
@@ -232,6 +234,7 @@ const HomePage: NextPage<TProps> = () => {
                         })}
                     </StyledTabs>
                 </Box> */}
+                {/* <Box sx={{width: '100%', height: '9px', backgroundColor: '#e5677d'}}></Box> */}
                 <Banner />
                 <OutstandingCategory />
                 <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 4 }}>
@@ -265,6 +268,9 @@ const HomePage: NextPage<TProps> = () => {
                                     <Box sx={{
                                         padding: "20px",
                                         width: "100%",
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        alignItems: "center"    
                                     }}>
                                         <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
                                     </Box>

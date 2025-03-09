@@ -52,7 +52,8 @@ const ButtonGroupWrapper = styled(Box)(({ theme }) => ({
     transition: "all 0.3s ease",
 }));
 
-const ProductCard = (props: TProductCard) => {
+// const ProductCard = (props: TProductCard) => {
+const ProductCard = (props: any) => {
 
     //props
     const { item } = props
@@ -80,21 +81,19 @@ const ProductCard = (props: TProductCard) => {
         const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
         
         const listOrderItems = convertUpdateProductToCart(orderItems, {
-            name: item?.name,
-            amount: 1,
-            images: item?.images,
-            price: item?.price,
-            discount: discountItem || 0,
-            product: item.id,
+            cartId: item?.id,
+            productId: item?.id,
+            quantity: 1,
+            operation: 1,
             // slug: item?.slug
         })
-        if (user?._id) {
+        if (user?.id) {
             dispatch(
                 updateProductToCart({
                     orderItems: listOrderItems
                 })
             )
-            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
+            setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
         } else {
             router.replace({
                 pathname: '/login',
@@ -106,7 +105,7 @@ const ProductCard = (props: TProductCard) => {
     }
 
     const handleToggleFavoriteProduct = (id: string, isLiked: boolean) => {
-        if (user?._id) {
+        if (user?.id) {
             if (isLiked) {
                 dispatch(unlikeProductAsync({ productId: id }))
             } else {
@@ -153,7 +152,7 @@ const ProductCard = (props: TProductCard) => {
                 className="card-media"
                 component="img"
                 height="194"
-                image={item?.images}
+                image={item?.images[0]?.imageUrl}
                 alt="product image"
                 sx={{
                     transition: "transform 0.3s ease",
@@ -187,9 +186,9 @@ const ProductCard = (props: TProductCard) => {
                     </Tooltip>
                     <Tooltip title={t("add_to_wishlist")}>
                         <Fab aria-label="add-to-fav" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleToggleFavoriteProduct(item?._id, Boolean(user && item?.likedBy?.includes(user._id)))}
+                            <IconButton onClick={() => handleToggleFavoriteProduct(item?.id, Boolean(user && item?.likedBy?.includes(user.id)))}
                                 aria-label="add to favorites">
-                                {user && item?.likedBy?.includes(user._id) ? (
+                                {user && item?.likedBy?.includes(user.id) ? (
                                     <IconifyIcon icon="mdi:heart" color={theme.palette.primary.main} fontSize='1.5rem' />
                                 ) : (
                                     <IconifyIcon icon="tabler:heart" color={theme.palette.primary.main} fontSize='1.5rem' />

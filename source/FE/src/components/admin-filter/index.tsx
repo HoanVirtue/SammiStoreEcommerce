@@ -114,7 +114,7 @@ const AdminFilter: React.FC<AdminFilterProps> = ({ fields, onFilterChange }) => 
             }}
         >
             <Box sx={{ display: "flex", gap: 1 }}>
-                <IconButton title={t("columns")}>
+                {/* <IconButton title={t("columns")}>
                     <IconifyIcon icon='lsicon:column-outline' color={theme.palette.primary.main} />
                     <Typography component='span' color={theme.palette.primary.main} sx={{ textTransform: 'uppercase' }}>
                         {t('columns')}
@@ -125,7 +125,7 @@ const AdminFilter: React.FC<AdminFilterProps> = ({ fields, onFilterChange }) => 
                     <Typography component='span' color={theme.palette.primary.main} sx={{ textTransform: 'uppercase' }}>
                         {t('density')}
                     </Typography>
-                </IconButton>
+                </IconButton> */}
                 <IconButton title={t("filter")} onClick={handleFilterIconClick}>
                     <IconifyIcon icon='cuida:filter-outline' color={theme.palette.primary.main} />
                     <Typography component='span' color={theme.palette.primary.main} sx={{ textTransform: 'uppercase' }}>
@@ -143,7 +143,7 @@ const AdminFilter: React.FC<AdminFilterProps> = ({ fields, onFilterChange }) => 
                 }}
                 transformOrigin={{
                     vertical: "top",
-                    horizontal: "center",
+                    horizontal: "left",
                 }}
             >
                 <Box sx={{ p: 4, width: 700 }}>
@@ -197,7 +197,7 @@ const AdminFilter: React.FC<AdminFilterProps> = ({ fields, onFilterChange }) => 
                                     disabled={["isnull", "isnotnull", "isempty", "isnotempty"].includes(filter.operator)}
                                     sx={{ width: 180 }}
                                 />
-                                {index > 0 && (
+                                {/* {index > 0 && (
                                     <Select
                                         value={filter.logic || "AND"}
                                         onChange={(e: SelectChangeEvent<string>) => handleFilterChange(index, "logic", e.target.value)}
@@ -207,7 +207,7 @@ const AdminFilter: React.FC<AdminFilterProps> = ({ fields, onFilterChange }) => 
                                         <MenuItem value="AND">{t("and")}</MenuItem>
                                         <MenuItem value="OR">{t("or")}</MenuItem>
                                     </Select>
-                                )}
+                                )} */}
                                 <IconButton onClick={() => handleRemoveFilter(index)} disabled={filters.length === 1}>
                                     <DeleteIcon />
                                 </IconButton>

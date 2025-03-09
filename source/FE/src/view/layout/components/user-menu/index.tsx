@@ -208,7 +208,7 @@ const UserMenu = (props: TProps) => {
                     </StyledBadge>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <Typography component="span">
-                            {toFullName(user?.lastName || "", user?.middleName || "", user?.firstName || "", i18n.language)}
+                            {user?.fullName}
                         </Typography>
                         <Typography component="span">
                             {user?.role?.name}
@@ -248,8 +248,8 @@ const UserMenu = (props: TProps) => {
                     <Button fullWidth variant="contained" startIcon={
                         <IconifyIcon icon="humbleicons:logout" />
                     }
-                    color="error"
-                    sx={{ borderRadius: "6px" }}
+                        color="error"
+                        sx={{ borderRadius: "6px" }}
                     >
                         {t("logout")}
                     </Button>

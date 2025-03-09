@@ -4,24 +4,24 @@ import { NextPage } from "next";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { useTranslation } from "react-i18next";
 import { Typography } from "@mui/material";
-import { getEmployeeFields } from "src/configs/gridConfig";
-import CreateUpdateEmployee from "./components/CreateUpdateEmployee";
+import { getCustomerFields } from "src/configs/gridConfig";
+import CreateUpdateCustomer from "./components/CreateUpdateCustomer";
 import {
-  deleteMultipleEmployeesAsync,
-  deleteEmployeeAsync,
-  getAllEmployeesAsync,
-} from "src/stores/employee/action";
-import { resetInitialState } from "src/stores/employee";
+  deleteMultipleCustomersAsync,
+  deleteCustomerAsync,
+  getAllCustomersAsync,
+} from "src/stores/customer/action";
+import { resetInitialState } from "src/stores/customer";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
 
-const ListEmployeePage: NextPage = () => {
+const ListCustomerPage: NextPage = () => {
   const { t } = useTranslation();
 
   const columns: GridColDef[] = [
     {
-      field: "employee_code",
-      headerName: t("employee_code"),
+      field: "customer_code",
+      headerName: t("customer_code"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
@@ -63,28 +63,28 @@ const ListEmployeePage: NextPage = () => {
 
   return (
     <AdminPage
-      entityName="employee"
+      entityName="customer"
       columns={columns}
-      fields={getEmployeeFields()}
+      fields={getCustomerFields()}
       reduxSelector={(state: RootState) => ({
-        data: state.employee.employees.data,
-        total: state.employee.employees.total,
-        ...state.employee,
+        data: state.customer.customers.data,
+        total: state.customer.customers.total,
+        ...state.customer,
       })}
-      fetchAction={getAllEmployeesAsync}
-      deleteAction={deleteEmployeeAsync}
-      deleteMultipleAction={deleteMultipleEmployeesAsync as unknown as (ids: { [key: string]: string[] }) => any}
+      fetchAction={getAllCustomersAsync}
+      deleteAction={deleteCustomerAsync}
+      deleteMultipleAction={deleteMultipleCustomersAsync as unknown as (ids: { [key: string]: string[] }) => any}
       resetAction={resetInitialState}
-      CreateUpdateComponent={CreateUpdateEmployee}
-      permissionKey="USER.EMPLOYEE"
+      CreateUpdateComponent={CreateUpdateCustomer}
+      permissionKey="USER.CUSTOMER"
       fieldMapping={{
-        "employee_name": "name",
-        "employee_code": "code",
+        "customer_name": "name",
+        "customer_code": "code",
         "full_name": "fullName",
       }}
-      noDataText="no_data_employee"
+      noDataText="no_data_customer"
     />
   );
 };
 
-export default ListEmployeePage;
+export default ListCustomerPage;

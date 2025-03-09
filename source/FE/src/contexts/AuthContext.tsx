@@ -58,10 +58,13 @@ const AuthProvider = ({ children }: Props) => {
       if (storedToken) {
         setLoading(true);
         try {
+          instance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
           const response = await getLoginUser();
           setUser({ ...response.result });
+          setLoading(false);
         } catch (error) {
           removeLocalUserData();
+          delete instance.defaults.headers.common['Authorization'];
           setUser(null);
           setLoading(false);
           if (!router.pathname.includes('login')) {
@@ -74,7 +77,6 @@ const AuthProvider = ({ children }: Props) => {
     }
 
     initAuth()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
@@ -123,6 +125,7 @@ const AuthProvider = ({ children }: Props) => {
     logoutAuth().then((res) => {
       setUser(null)
       removeLocalUserData()
+      delete instance.defaults.headers.common['Authorization'];
       dispatch(updateProductToCart({
         orderItems: []
       }))

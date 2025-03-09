@@ -4,24 +4,24 @@ import { NextPage } from "next";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { useTranslation } from "react-i18next";
 import { Typography } from "@mui/material";
-import { getEmployeeFields } from "src/configs/gridConfig";
-import CreateUpdateEmployee from "./components/CreateUpdateEmployee";
+import { getSupplierFields } from "src/configs/gridConfig";
+import CreateUpdateSupplier from "./components/CreateUpdateSupplier";
 import {
-  deleteMultipleEmployeesAsync,
-  deleteEmployeeAsync,
-  getAllEmployeesAsync,
-} from "src/stores/employee/action";
-import { resetInitialState } from "src/stores/employee";
+  deleteMultipleSuppliersAsync,
+  deleteSupplierAsync,
+  getAllSuppliersAsync,
+} from "src/stores/supplier/action";
+import { resetInitialState } from "src/stores/supplier";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
 
-const ListEmployeePage: NextPage = () => {
+const ListSupplierPage: NextPage = () => {
   const { t } = useTranslation();
 
   const columns: GridColDef[] = [
     {
-      field: "employee_code",
-      headerName: t("employee_code"),
+      field: "supplier_code",
+      headerName: t("supplier_code"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
@@ -63,28 +63,28 @@ const ListEmployeePage: NextPage = () => {
 
   return (
     <AdminPage
-      entityName="employee"
+      entityName="supplier"
       columns={columns}
-      fields={getEmployeeFields()}
+      fields={getSupplierFields()}
       reduxSelector={(state: RootState) => ({
-        data: state.employee.employees.data,
-        total: state.employee.employees.total,
-        ...state.employee,
+        data: state.supplier.suppliers.data,
+        total: state.supplier.suppliers.total,
+        ...state.supplier,
       })}
-      fetchAction={getAllEmployeesAsync}
-      deleteAction={deleteEmployeeAsync}
-      deleteMultipleAction={deleteMultipleEmployeesAsync as unknown as (ids: { [key: string]: string[] }) => any}
+      fetchAction={getAllSuppliersAsync}
+      deleteAction={deleteSupplierAsync}
+      deleteMultipleAction={deleteMultipleSuppliersAsync as unknown as (ids: { [key: string]: string[] }) => any}
       resetAction={resetInitialState}
-      CreateUpdateComponent={CreateUpdateEmployee}
-      permissionKey="USER.EMPLOYEE"
+      CreateUpdateComponent={CreateUpdateSupplier}
+      permissionKey="USER.SUPPLIER"
       fieldMapping={{
-        "employee_name": "name",
-        "employee_code": "code",
+        "supplier_name": "name",
+        "supplier_code": "code",
         "full_name": "fullName",
       }}
-      noDataText="no_data_employee"
+      noDataText="no_data_supplier"
     />
   );
 };
 
-export default ListEmployeePage;
+export default ListSupplierPage;

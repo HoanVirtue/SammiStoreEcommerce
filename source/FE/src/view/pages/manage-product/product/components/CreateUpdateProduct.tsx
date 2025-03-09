@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm, SubmitHandler } from "react-hook-form";
 import * as yup from "yup";
-import { Avatar, Box, Button, FormHelperText, Grid, IconButton, InputLabel, Typography } from "@mui/material";
+import { Avatar, Box, Button, FormHelperText, Grid, IconButton, InputLabel, Tab, Tabs, Typography } from "@mui/material";
 import { useTheme } from "@mui/material";
 import Switch from "@mui/material/Switch";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "src/stores";
 import FileUploadWrapper from "src/components/file-upload-wrapper";
-import { convertBase64, stringToSlug } from "src/utils";
+import { convertBase64, convertHTMLToDraft, stringToSlug } from "src/utils";
 import CustomSelect from "src/components/custom-select";
 import CustomDatePicker from "src/components/custom-date-picker";
 import { createProductAsync, updateProductAsync } from "src/stores/product/action";
@@ -24,6 +24,9 @@ import { getAllBrands } from "src/services/brand";
 import { ProductImage, TParamsCreateProduct } from "src/types/product";
 import { TParamsGetAllProductCategories } from "src/types/product-category";
 import { TParamsGetAllBrands } from "src/types/brand";
+import CustomEditor from "src/components/custom-editor";
+import { convertToRaw, EditorState } from "draft-js";
+import draftToHtml from "draftjs-to-html";
 
 interface TCreateUpdateProduct {
     open: boolean;
@@ -37,9 +40,9 @@ type TDefaultValues = {
     stockQuantity: string;
     price: string;
     discount?: string | null;
-    ingredient: string;
-    uses: string;
-    usageGuide: string;
+    ingredient: EditorState;
+    uses: EditorState;
+    usageGuide: EditorState;
     brandId: string;
     categoryId: string;
     status: number;
@@ -54,6 +57,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     const [brandOptions, setBrandOptions] = useState<{ label: string; value: string }[]>([]);
     const [productImages, setProductImages] = useState<ProductImage[]>([]);
     const [areImagesLoaded, setAreImagesLoaded] = useState<boolean[]>([]);
+    const [currentTab, setCurrentTab] = useState<'usageGuide' | 'uses' | 'ingredient'>('usageGuide');
 
     const { open, onClose, id } = props;
     const { t } = useTranslation();
@@ -68,9 +72,9 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             .required(t("required_product_count_in_stock"))
             .matches(/^\d+$/, t("must_be_number"))
             .test("least_count", t("at_least_count_product"), (value) => Number(value) >= 1),
-        ingredient: yup.string().required(t("required_ingredient")),
-        uses: yup.string().required(t("required_uses")),
-        usageGuide: yup.string().required(t("required_usage_guide")),
+        ingredient: yup.mixed<EditorState>().required(t('required_ingredient')),
+        uses: yup.mixed<EditorState>().required(t('required_uses')),
+        usageGuide: yup.mixed<EditorState>().required(t('required_usage_guide')),
         brandId: yup.string().required(t("required_brand")),
         categoryId: yup.string().required(t("required_product_category")),
         discount: yup.string().notRequired()
@@ -131,9 +135,9 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         stockQuantity: "",
         price: "",
         discount: "",
-        ingredient: "",
-        uses: "",
-        usageGuide: "",
+        ingredient: EditorState.createEmpty(),
+        uses: EditorState.createEmpty(),
+        usageGuide: EditorState.createEmpty(),
         brandId: "",
         categoryId: "",
         status: 0,
@@ -155,9 +159,9 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             stockQuantity: Number(data.stockQuantity),
             price: Number(data.price),
             discount: data.discount ? Number(data.discount) : 0,
-            ingredient: data.ingredient,
-            uses: data.uses,
-            usageGuide: data.usageGuide,
+            ingredient: data?.ingredient ? draftToHtml(convertToRaw(data?.ingredient.getCurrentContent())) : "",
+            uses: data?.uses ? draftToHtml(convertToRaw(data?.uses.getCurrentContent())) : "",
+            usageGuide: data?.usageGuide ? draftToHtml(convertToRaw(data?.usageGuide.getCurrentContent())) : "",
             brandId: Number(data.brandId),
             categoryId: Number(data.categoryId),
             status: data.status,
@@ -201,10 +205,10 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                     name: data.name,
                     stockQuantity: data.stockQuantity.toString(),
                     price: data.price.toString(),
-                    discount: (data.discount*100).toString(),
-                    ingredient: data.ingredient,
-                    uses: data.uses,
-                    usageGuide: data.usageGuide,
+                    discount: (data.discount * 100).toString(),
+                    ingredient: data?.ingredient ? convertHTMLToDraft(data?.ingredient) : '',
+                    uses: data?.uses ? convertHTMLToDraft(data?.uses) : '',
+                    usageGuide: data?.usageGuide ? convertHTMLToDraft(data?.usageGuide) : '',
                     brandId: data.brandId.toString(),
                     categoryId: data.categoryId.toString(),
                     status: data.status,
@@ -290,34 +294,20 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                         <Grid container spacing={4}>
                                             <Grid item md={12} xs={12}>
                                                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
-                                                    {productImages.length > 0 && (
+                                                    {productImages.length > 0 ? (
                                                         <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
                                                             {productImages.map((img, index) => (
                                                                 <Box key={index} sx={{ position: "relative" }}>
-                                                                    <img
+                                                                    <Avatar
                                                                         src={img.imageBase64 ? `data:image/${img.typeImage};base64,${img.imageBase64}` : img.imageUrl}
-                                                                        style={{ display: "none" }}
-                                                                        onLoad={() => handleImageLoad(index)}
-                                                                        onError={() => handleImageLoad(index)}
-                                                                        alt={`preload-${index}`}
+                                                                        sx={{ width: 100, height: 100 }}
+                                                                        alt={`product-image-${index}`}
                                                                     />
-                                                                    {loading || !areImagesLoaded[index] ? (
-                                                                        <Avatar alt="loading-avatar" sx={{ width: 100, height: 100 }}>
-                                                                            <IconifyIcon icon="eos-icons:loading" fontSize={70} />
-                                                                        </Avatar>
-                                                                    ) : (
-                                                                        <Avatar
-                                                                            src={img.imageBase64 ? `data:image/${img.typeImage};base64,${img.imageBase64}` : img.imageUrl}
-                                                                            sx={{ width: 100, height: 100 }}
-                                                                            alt={`product-image-${index}`}
-                                                                        />
-                                                                    )}
                                                                     <IconButton
                                                                         sx={{ position: "absolute", bottom: -4, right: -6, color: theme.palette.error.main }}
                                                                         onClick={() => {
                                                                             const updatedImages = productImages.filter((_, i) => i !== index);
                                                                             setProductImages(updatedImages);
-                                                                            setAreImagesLoaded((prev) => prev.filter((_, i) => i !== index));
                                                                             setValue("images", updatedImages, { shouldValidate: true });
                                                                         }}
                                                                     >
@@ -325,6 +315,12 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                     </IconButton>
                                                                 </Box>
                                                             ))}
+                                                        </Box>
+                                                    ) : (
+                                                        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", flexDirection: "column", gap: 2 }}>
+                                                            <Avatar sx={{ width: 100, height: 100 }} alt="default-product-image">
+                                                                <IconifyIcon icon="material-symbols:image-not-supported-rounded" />
+                                                            </Avatar>
                                                         </Box>
                                                     )}
                                                     <FileUploadWrapper
@@ -390,6 +386,26 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                             <Grid item md={6} xs={12}>
                                                 <Controller
                                                     control={control}
+                                                    name="stockQuantity"
+                                                    render={({ field: { onChange, onBlur, value } }) => (
+                                                        <CustomTextField
+                                                            fullWidth
+                                                            required
+                                                            label={t('stock_quantity')}
+                                                            onChange={onChange}
+                                                            onBlur={onBlur}
+                                                            value={value}
+                                                            placeholder={t('enter_product_stock_quantity')}
+                                                            error={!!errors.stockQuantity}
+                                                            helperText={errors.stockQuantity?.message}
+                                                        />
+                                                    )}
+                                                />
+                                            </Grid>
+
+                                            <Grid item md={6} xs={12}>
+                                                <Controller
+                                                    control={control}
                                                     name="status"
                                                     render={({ field: { onChange, value } }) => (
                                                         <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
@@ -443,6 +459,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                             </Grid>
                                             <Grid item md={6} xs={12}>
                                                 <Controller
+                                                    key={currentTab}
                                                     control={control}
                                                     name="discount"
                                                     render={({ field: { onChange, onBlur, value } }) => (
@@ -491,25 +508,6 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             placeholder={t('select_discount_end_date')}
                                                             error={!!errors.endDate}
                                                             helperText={errors.endDate?.message}
-                                                        />
-                                                    )}
-                                                />
-                                            </Grid>
-                                            <Grid item md={6} xs={12}>
-                                                <Controller
-                                                    control={control}
-                                                    name="stockQuantity"
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            required
-                                                            label={t('stock_quantity')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_product_stock_quantity')}
-                                                            error={!!errors.stockQuantity}
-                                                            helperText={errors.stockQuantity?.message}
                                                         />
                                                     )}
                                                 />
@@ -569,63 +567,64 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                     )}
                                                 />
                                             </Grid>
-                                            
-                                            <Grid item md={6} xs={12}>
-                                                <Controller
-                                                    control={control}
-                                                    name="ingredient"
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            required
-                                                            label={t('ingredient')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_product_ingredient')}
-                                                            error={!!errors.ingredient}
-                                                            helperText={errors.ingredient?.message}
+
+                                            <Grid item md={12} xs={12}>
+                                                <Tabs
+                                                    value={currentTab}
+                                                    onChange={(e, newValue) => setCurrentTab(newValue)}
+                                                    sx={{ mb: 2 }}
+                                                >
+                                                    <Tab label={t("usage_guide")} value="usageGuide" />
+                                                    <Tab label={t("uses")} value="uses" />
+                                                    <Tab label={t("ingredient")} value="ingredient" />
+                                                </Tabs>
+                                                <Box sx={{ minHeight: '200px' }}>
+                                                    {currentTab === 'usageGuide' && (
+                                                        <Controller
+                                                            control={control}
+                                                            name="usageGuide"
+                                                            render={({ field: { onChange, value } }) => (
+                                                                <CustomEditor
+                                                                    editorState={value as EditorState}
+                                                                    placeholder={t('enter_product_usage_guide')}
+                                                                    error={!!errors.usageGuide}
+                                                                    helperText={errors.usageGuide?.message}
+                                                                    onEditorStateChange={onChange}
+                                                                />
+                                                            )}
                                                         />
                                                     )}
-                                                />
-                                            </Grid>
-                                            <Grid item md={6} xs={12}>
-                                                <Controller
-                                                    control={control}
-                                                    name="uses"
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            required
-                                                            label={t('uses')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_product_uses')}
-                                                            error={!!errors.uses}
-                                                            helperText={errors.uses?.message}
+                                                    {currentTab === 'uses' && (
+                                                        <Controller
+                                                            control={control}
+                                                            name="uses"
+                                                            render={({ field: { onChange, value } }) => (
+                                                                <CustomEditor
+                                                                    editorState={value as EditorState}
+                                                                    placeholder={t('enter_product_uses')}
+                                                                    error={!!errors.uses}
+                                                                    helperText={errors.uses?.message}
+                                                                    onEditorStateChange={onChange}
+                                                                />
+                                                            )}
                                                         />
                                                     )}
-                                                />
-                                            </Grid>
-                                            <Grid item md={6} xs={12}>
-                                                <Controller
-                                                    control={control}
-                                                    name="usageGuide"
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            required
-                                                            label={t('usageGuide')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_product_usageGuide')}
-                                                            error={!!errors.usageGuide}
-                                                            helperText={errors.usageGuide?.message}
+                                                    {currentTab === 'ingredient' && (
+                                                        <Controller
+                                                            control={control}
+                                                            name="ingredient"
+                                                            render={({ field: { onChange, value } }) => (
+                                                                <CustomEditor
+                                                                    editorState={value as EditorState}
+                                                                    placeholder={t('enter_product_ingredient')}
+                                                                    error={!!errors.ingredient}
+                                                                    helperText={errors.ingredient?.message}
+                                                                    onEditorStateChange={onChange}
+                                                                />
+                                                            )}
                                                         />
                                                     )}
-                                                />
+                                                </Box>
                                             </Grid>
                                         </Grid>
                                     </Box>
@@ -638,9 +637,9 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                 {id ? t('update') : t('create')}
                             </Button>
                         </Box>
-                    </form>
-                </Box>
-            </CustomModal>
+                    </form >
+                </Box >
+            </CustomModal >
         </>
     );
 };

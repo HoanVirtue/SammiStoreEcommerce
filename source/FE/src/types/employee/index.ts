@@ -22,7 +22,7 @@ export type TParamsCreateEmployee = {
     phone: string;
     streetAddress: string | null;
     wardId: string;
-    wardName: string;
+    wardName?: string;
     username: string;
     password: string;
     gender: number;

@@ -10,9 +10,6 @@ import {
     Grid,
     IconButton,
     Typography,
-    InputLabel,
-    Select,
-    MenuItem,
     InputAdornment,
     FormControl,
 } from "@mui/material";
@@ -22,11 +19,11 @@ import IconifyIcon from "src/components/Icon";
 import Spinner from "src/components/spinner";
 import CustomTextField from "src/components/text-field";
 import FileUploadWrapper from "src/components/file-upload-wrapper";
-import { getEmployeeDetail } from "src/services/employee";
+import { getCustomerDetail } from "src/services/customer";
 import { useTranslation } from "react-i18next";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "src/stores";
-import { createEmployeeAsync, updateEmployeeAsync } from "src/stores/employee/action";
+import { createCustomerAsync, updateCustomerAsync } from "src/stores/customer/action";
 import { EMAIL_REG, PASSWORD_REG } from "src/configs/regex";
 import { convertBase64 } from "src/utils";
 import CustomSelect from "src/components/custom-select";
@@ -34,7 +31,7 @@ import { getAllWards, getWardDetail } from "src/services/ward";
 import { getAllProvinces } from "src/services/province";
 import { getAllDistricts } from "src/services/district";
 
-interface TCreateUpdateEmployee {
+interface TCreateUpdateCustomer {
     open: boolean;
     onClose: () => void;
     id?: string;
@@ -59,7 +56,7 @@ type TDefaultValues = {
     securityStamp: string;
 };
 
-const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
+const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
     const [loading, setLoading] = useState(false);
     const [avatar, setAvatar] = useState("");
     const [wardOptions, setWardOptions] = useState<{ label: string; value: string }[]>([]);
@@ -148,9 +145,9 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                 gender: data.gender,
             };
             if (id) {
-                dispatch(updateEmployeeAsync({ ...finalData, id }));
+                dispatch(updateCustomerAsync({ ...finalData, id }));
             } else {
-                dispatch(createEmployeeAsync({ ...finalData }));
+                dispatch(createCustomerAsync({ ...finalData }));
             }
         }
     };
@@ -250,9 +247,9 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
             .catch((err) => console.error(err));
     };
 
-    const fetchDetailEmployee = async (id: string) => {
+    const fetchDetailCustomer = async (id: string) => {
         setLoading(true);
-        await getEmployeeDetail(id)
+        await getCustomerDetail(id)
             .then((res) => {
                 const data = res?.result;
                 if (data) {
@@ -299,7 +296,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
 
     useEffect(() => {
         if (open) {
-            if (id) fetchDetailEmployee(id);
+            if (id) fetchDetailCustomer(id);
         } else {
             reset(defaultValues);
             setAvatar("");
@@ -337,7 +334,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                 >
                     <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", paddingBottom: "20px" }}>
                         <Typography variant="h4" sx={{ fontWeight: 600, color: theme.palette.text.primary }}>
-                            {id ? t("update_employee") : t("create_employee")}
+                            {id ? t("update_customer") : t("create_customer")}
                         </Typography>
                         <IconButton sx={{ position: "absolute", right: "-10px", top: "-6px" }} onClick={onClose}>
                             <IconifyIcon icon="material-symbols-light:close-rounded" fontSize={"30px"} />
@@ -380,7 +377,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                                 alt="avatar"
                                                 sx={{ width: 100, height: 100, border: `2px solid ${theme.palette.primary.main}` }}
                                             >
-                                                <IconifyIcon icon="ph:employee-thin" fontSize={70} />
+                                                <IconifyIcon icon="ph:Customer-thin" fontSize={70} />
                                             </Avatar>
                                         </Box>
                                         <FileUploadWrapper
@@ -546,11 +543,11 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                             render={({ field: { onChange, onBlur, value } }) => (
                                                 <CustomTextField
                                                     fullWidth
-                                                    label={t("employee_code")}
+                                                    label={t("Customer_code")}
                                                     onChange={onChange}
                                                     onBlur={onBlur}
                                                     value={value}
-                                                    placeholder={t("enter_employee_code")}
+                                                    placeholder={t("enter_customer_code")}
                                                     error={!!errors.code}
                                                     helperText={errors.code?.message}
                                                     sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
@@ -721,7 +718,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                             )}
                                         />
 
-<Controller
+                                        <Controller
                                             control={control}
                                             name="type"
                                             render={({ field: { onChange, onBlur, value } }) => (
@@ -777,4 +774,4 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     );
 };
 
-export default CreateUpdateEmployee;
+export default CreateUpdateCustomer;

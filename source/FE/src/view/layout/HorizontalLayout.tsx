@@ -120,7 +120,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon, show
                                     alignItems: "center",
                                     width: "fit-content",
                                     fontWeight: "600",
-                                    background: 'linear-gradient(90deg, rgba(6,196,235,1) 10%, rgba(175,21,213,1) 90%)',
+                                    background: "linear-gradient(to right, #d82e4d, #f26398)",
                                     WebkitBackgroundClip: 'text',
                                     WebkitTextFillColor: 'transparent',
                                     backgroundClip: 'text',

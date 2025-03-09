@@ -42,6 +42,9 @@ import OutstandingCategory from './components/category'
 import { getLoginUser } from 'src/services/auth'
 import axios from 'axios'
 import { API_ENDPOINT } from 'src/configs/api'
+import ListVoucher from './components/voucher'
+import HotSale from './components/hot-sale'
+import TopSale from './components/top-sale'
 
 type TProps = {}
 
@@ -110,8 +113,6 @@ const HomePage: NextPage<TProps> = () => {
         })
     }
 
-    console.log("publicProducts", publicProducts)
-
     const fetchAllCategories = async () => {
         setLoading(true)
         await getAllProductCategories({
@@ -175,11 +176,11 @@ const HomePage: NextPage<TProps> = () => {
         fetchAllCategories()
     }, [])
 
-    useEffect(() => {
-        if (firstRender.current) {
-            handleGetListProduct();
-        }
-    }, [sortBy, searchBy, page, pageSize, filterBy]);
+    // useEffect(() => {
+    //     if (firstRender.current) {
+    //         handleGetListProduct();
+    //     }
+    // }, [sortBy, searchBy, page, pageSize, filterBy]);
 
     useEffect(() => {
         if (firstRender.current) {
@@ -214,7 +215,8 @@ const HomePage: NextPage<TProps> = () => {
             {/* {loading && <Spinner />} */}
             <Box sx={{
                 height: 'fit-content',
-                mt: '4.6rem'
+                mt: '4.6rem',
+                backgroundColor: theme.palette.background.paper
             }}>
                 {/* <Box sx={{width: '100%', height: 'fit-content'}}>
                     <StyledTabs
@@ -237,7 +239,10 @@ const HomePage: NextPage<TProps> = () => {
                 {/* <Box sx={{width: '100%', height: '9px', backgroundColor: '#e5677d'}}></Box> */}
                 <Banner />
                 <OutstandingCategory />
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 4 }}>
+                <ListVoucher />
+                <HotSale />
+                <TopSale />
+                {/* <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 4 }}>
                     <Box sx={{ width: '300px' }}>
                         <SearchField value={searchBy} placeholder={t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
                     </Box>
@@ -278,15 +283,15 @@ const HomePage: NextPage<TProps> = () => {
                             </Grid>
                         </Grid>
                     </Grid>
-                </Box>
-                <CustomPagination
+                </Box> */}
+                {/* <CustomPagination
                     pageSize={pageSize}
                     pageSizeOptions={PAGE_SIZE_OPTIONS}
                     onChangePagination={handleOnChangePagination}
                     page={page}
                     rowLength={publicProducts.total}
                     isHidden
-                />
+                /> */}
             </Box >
         </>
     )

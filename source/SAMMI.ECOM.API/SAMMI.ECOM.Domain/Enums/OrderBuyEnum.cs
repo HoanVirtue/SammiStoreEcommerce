@@ -7,6 +7,12 @@
         Replace
     }
 
+    public enum PaymentMethodEnum
+    {
+        COD,
+        VNPAY
+    }
+
     public enum PaymentStatusEnum
     {
         Pending, // (Chờ thanh toán)	Đơn hàng đã được tạo nhưng chưa thanh toán.

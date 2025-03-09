@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
+using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.System;
@@ -755,6 +756,45 @@ namespace SAMMI.ECOM.Infrastructure
             }
         }
 
+        private async Task SeedPaymentMethod()
+        {
+            if (_context.PaymentMethods.Any())
+            {
+                return;
+            }
+
+            var methods = new List<PaymentMethod>
+            {
+                new PaymentMethod()
+                {
+                    Code = PaymentMethodEnum.COD.ToString(),
+                    Name = "Thanh toán khi nhận hàng",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+                new PaymentMethod()
+                {
+                    Code = PaymentMethodEnum.VNPAY.ToString(),
+                    Name = "VNPay",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                }
+            };
+
+            try
+            {
+                await _context.PaymentMethods.AddRangeAsync(methods);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error seed payment method: ", ex.Message);
+            }
+        }
         public async Task SeedAsync()
         {
             await SeedAddress();
@@ -766,6 +806,7 @@ namespace SAMMI.ECOM.Infrastructure
             await SeedBrand();
             await SeedProductCategory();
             await SeedDiscountType();
+            await SeedPaymentMethod();
         }
     }
 }

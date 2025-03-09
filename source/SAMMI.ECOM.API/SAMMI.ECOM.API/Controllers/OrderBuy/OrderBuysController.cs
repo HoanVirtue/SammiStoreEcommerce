@@ -12,7 +12,8 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
     [ApiController]
     public class OrderBuysController : CustomBaseController
     {
-        public OrderBuysController(IMediator mediator, ILogger logger) : base(mediator, logger)
+        public OrderBuysController(IMediator mediator,
+            ILogger<OrderBuysController> logger) : base(mediator, logger)
         {
         }
 

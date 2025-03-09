@@ -142,6 +142,13 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             return actResponse;
         }
         */
+
+        /// <summary>
+        /// Kiểm tra voucher có hợp lệ hay không
+        /// </summary>
+        /// <param name="voucherId"></param>
+        /// <param name="order"></param>
+        /// <returns></returns>
         public async Task<ActionResponse<bool>> ValidVoucher(int voucherId, CreateOrderCommand order)
         {
             var actResponse = new ActionResponse<bool>();

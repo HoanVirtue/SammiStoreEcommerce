@@ -1,5 +1,6 @@
 import { ContentState, EditorState } from "draft-js";
 import htmlToDraft from "html-to-draftjs";
+import { TItemCartProduct } from "src/types/cart";
 import { TItemOrderProduct } from "src/types/order";
 
 export const toFullName = (lastName: string, middleName: string, firstName: string, language: string) => {
@@ -149,17 +150,17 @@ export const cloneDeep = (data: any) => {
     }
 }
 
-export const convertUpdateProductToCart = (orderItems: TItemOrderProduct[], addItem: TItemOrderProduct) => {
+export const convertUpdateProductToCart = (orderItems: TItemCartProduct[], addItem: TItemCartProduct) => {
     try {
         let result = []
         const cloneOrderItems = cloneDeep(orderItems)
-        const findItems = cloneOrderItems.find((item: TItemOrderProduct) => item.product === addItem.product)
+        const findItems = cloneOrderItems.find((item: TItemCartProduct) => item.cartId === addItem.cartId)
         if (findItems) {
-            findItems.amount += addItem.amount
+            findItems.quantity += addItem.quantity
         } else {
             cloneOrderItems.push(addItem)
         }
-        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.amount)
+        result = cloneOrderItems.filter((item: TItemCartProduct) => item.quantity)
         return result
     } catch (error) {
         return orderItems

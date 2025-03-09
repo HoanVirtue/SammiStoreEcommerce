@@ -178,13 +178,16 @@ const MyProductPage: NextPage<TProps> = () => {
                         <Box sx={{
                             width: "100%",
                             height: "100%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
                         }}>
                             <Grid container md={12} xs={12} spacing={4}>
                                 {likedProducts?.data?.length > 0 ? (
                                     <>
                                         {likedProducts?.data?.map((item: TProduct) => {
                                             return (
-                                                <Grid item key={item._id} md={3} sm={6} xs={12}>
+                                                <Grid item key={item.id} md={3} sm={6} xs={12}>
                                                     <ProductCard item={item} />
                                                 </Grid>
                                             )
@@ -205,13 +208,16 @@ const MyProductPage: NextPage<TProps> = () => {
                         <Box sx={{
                             width: "100%",
                             height: "100%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
                         }}>
                             <Grid container md={12} xs={12} spacing={4}>
                                 {viewedProducts?.data?.length > 0 ? (
                                     <>
                                         {viewedProducts?.data?.map((item: TProduct) => {
                                             return (
-                                                <Grid item key={item._id} md={3} sm={6} xs={12}>
+                                                <Grid item key={item.id} md={3} sm={6} xs={12}>
                                                     <ProductCard item={item} />
                                                 </Grid>
                                             )
@@ -221,6 +227,7 @@ const MyProductPage: NextPage<TProps> = () => {
                                     <Box sx={{
                                         padding: "20px",
                                         width: "100%",
+                                       
                                     }}>
                                         <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
                                     </Box>

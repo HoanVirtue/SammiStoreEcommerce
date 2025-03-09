@@ -102,6 +102,14 @@ export const getEmployeeFields = (): FieldConfig[] => [
     { value: "name", label: i18n.t("brand_name"), type: "string", operators: getStringOperators() },
     { value: "code", label: i18n.t("brand_code"), type: "string", operators: getStringOperators() },
 ];
+export const getCustomerFields = (): FieldConfig[] => [
+    { value: "name", label: i18n.t("brand_name"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("brand_code"), type: "string", operators: getStringOperators() },
+];
+export const getSupplierFields = (): FieldConfig[] => [
+    { value: "name", label: i18n.t("brand_name"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("brand_code"), type: "string", operators: getStringOperators() },
+];
 
 
 export const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50, 100];

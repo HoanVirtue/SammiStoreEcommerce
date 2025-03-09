@@ -244,7 +244,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
         <Grid container>
           {!selectedRow.length && (
             <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 4, gap: 4, width: "100%" }}>
-              <GridCreate onClick={() => setOpenCreateUpdate({ open: true, id: "" })} />
+              <GridCreate addText={t(`create_${entityName}`)} onClick={() => setOpenCreateUpdate({ open: true, id: "" })} />
             </Box>
           )}
           {selectedRow.length > 0 && (

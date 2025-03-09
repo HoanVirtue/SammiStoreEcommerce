@@ -10,7 +10,13 @@
         public string? OrderStatus { get; set; }
         public string? ShippingStatus { get; set; }
         public int? VoucherId { get; set; }
+        public int? WardId { get; set; }
         public string? CustomerAddress { get; set; }
+        public decimal? CostShip { get; set; }
+        public string? TrackingNumber { get; set; }
+        public DateTime? EstimatedDeliveryDate { get; set; }
+        public DateTime? ActualDeliveryDate { get; set; }
+        public int? ShippingCompanyId { get; set; }
         public decimal? TotalPrice { get; set; }
         public int? TotalQuantity { get; set; }
 

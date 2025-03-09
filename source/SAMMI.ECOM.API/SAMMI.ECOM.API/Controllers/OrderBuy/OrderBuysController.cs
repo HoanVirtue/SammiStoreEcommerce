@@ -12,11 +12,12 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
     [ApiController]
     public class OrderBuysController : CustomBaseController
     {
-        public OrderBuysController(IMediator mediator, ILogger logger) : base(mediator, logger)
+        public OrderBuysController(IMediator mediator,
+            ILogger<OrderBuysController> logger) : base(mediator, logger)
         {
         }
 
-        [HttpPost]
+        [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand request)
         {
             if (request.Id != 0)

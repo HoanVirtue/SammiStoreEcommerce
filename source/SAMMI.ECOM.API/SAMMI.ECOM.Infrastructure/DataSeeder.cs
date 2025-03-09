@@ -1,10 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
+using SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
+using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Services.GHN_API;
 using System.Data;
 using System.Text.Json.Serialization;
 
@@ -115,11 +117,14 @@ namespace SAMMI.ECOM.Infrastructure
             // Voucher
             "CUSTOMER_VOUCHER_MANAGE"
         };
-        public DataSeeder(SammiEcommerceContext context)
+        private readonly IGHNService _ghnService;
+        public DataSeeder(SammiEcommerceContext context,
+            IGHNService ghnService)
         {
             _context = context;
+            _ghnService = ghnService;
         }
-
+        /*
         private async Task SeedAddress()
         {
             var listProvince = new List<SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Province>();
@@ -129,13 +134,6 @@ namespace SAMMI.ECOM.Infrastructure
 
             try
             {
-                //var duplicateWards = listWard
-                //    .GroupBy(w => w.Id)          // Nhóm các phần tử theo Id
-                //    .Where(g => g.Count() > 1)   // Chỉ lấy nhóm có nhiều hơn 1 phần tử
-                //    .SelectMany(g => g)          // Chuyển nhóm thành danh sách các phần tử trùng lặp
-                //.ToList();
-                await _context.SaveChangesAsync();
-
                 if (!_context.Provinces.Any() && !_context.Districts.Any() && !_context.Wards.Any())
                 {
                     string json = File.ReadAllText(Path.Combine("Resources", "vietnamAddress.json"));
@@ -173,6 +171,84 @@ namespace SAMMI.ECOM.Infrastructure
                             await _context.SaveChangesAsync();
                         }
                     }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+            }
+        }
+        */
+
+        private async Task SeedAddress()
+        {
+            try
+            {
+                if (!_context.Provinces.Any() && !_context.Districts.Any() && !_context.Wards.Any())
+                {
+                    var provincesFromGHN = await _ghnService.GetProvinces();
+                    if (provincesFromGHN == null || !provincesFromGHN.Any())
+                    {
+                        Console.WriteLine("No province data retrieved from GHN API.");
+                        return;
+                    }
+
+                    // Chuẩn bị danh sách để lưu vào DB
+                    var provincesToAdd = new List<Province>();
+                    var districtsToAdd = new List<District>();
+                    var wardsToAdd = new List<Ward>();
+
+                    // Xử lý tỉnh/thành
+                    foreach (var provinceFromGHN in provincesFromGHN)
+                    {
+                        var provinceEntity = new Province
+                        {
+                            Id = provinceFromGHN.ProvinceID, // Sử dụng ProvinceID từ GHN
+                            Code = provinceFromGHN.Code.ToString(),
+                            Name = provinceFromGHN.ProvinceName ?? "System"
+                        };
+                        provincesToAdd.Add(provinceEntity);
+
+                        // Lấy danh sách quận/huyện
+                        var districtsFromGHN = await _ghnService.GetDistricts(provinceFromGHN.ProvinceID);
+                        if (districtsFromGHN != null)
+                        {
+                            foreach (var districtFromGHN in districtsFromGHN)
+                            {
+                                var districtEntity = new District
+                                {
+                                    Id = districtFromGHN.DistrictID, // Sử dụng DistrictID từ GHN
+                                    Code = districtFromGHN.Code != null ? districtFromGHN.Code.ToString() : null,
+                                    Name = districtFromGHN.DistrictName ?? "System",
+                                    ProvinceId = provinceEntity.Id,
+                                };
+                                districtsToAdd.Add(districtEntity);
+
+                                // Lấy danh sách phường/xã
+                                var wardsFromGHN = await _ghnService.GetWards(districtFromGHN.DistrictID);
+                                if (wardsFromGHN != null)
+                                {
+                                    foreach (var wardFromGHN in wardsFromGHN)
+                                    {
+                                        var wardEntity = new Ward
+                                        {
+                                            Code = wardFromGHN.WardCode, // Sử dụng WardCode từ GHN
+                                            Name = wardFromGHN.WardName ?? "System",
+                                            DistrictId = districtEntity.Id,
+                                        };
+                                        wardsToAdd.Add(wardEntity);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Lưu tất cả dữ liệu vào DB cùng lúc
+                    await _context.Provinces.AddRangeAsync(provincesToAdd);
+                    await _context.Districts.AddRangeAsync(districtsToAdd);
+                    await _context.Wards.AddRangeAsync(wardsToAdd);
+
+                    await _context.SaveChangesAsync();
                 }
             }
             catch (Exception ex)
@@ -680,6 +756,45 @@ namespace SAMMI.ECOM.Infrastructure
             }
         }
 
+        private async Task SeedPaymentMethod()
+        {
+            if (_context.PaymentMethods.Any())
+            {
+                return;
+            }
+
+            var methods = new List<PaymentMethod>
+            {
+                new PaymentMethod()
+                {
+                    Code = PaymentMethodEnum.COD.ToString(),
+                    Name = "Thanh toán khi nhận hàng",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+                new PaymentMethod()
+                {
+                    Code = PaymentMethodEnum.VNPAY.ToString(),
+                    Name = "VNPay",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                }
+            };
+
+            try
+            {
+                await _context.PaymentMethods.AddRangeAsync(methods);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error seed payment method: ", ex.Message);
+            }
+        }
         public async Task SeedAsync()
         {
             await SeedAddress();
@@ -691,6 +806,7 @@ namespace SAMMI.ECOM.Infrastructure
             await SeedBrand();
             await SeedProductCategory();
             await SeedDiscountType();
+            await SeedPaymentMethod();
         }
     }
 }

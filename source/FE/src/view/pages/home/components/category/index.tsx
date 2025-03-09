@@ -89,13 +89,13 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false }}
         >
-            <Box sx={{ flexGrow: 1, pt: 10, margin: '0 auto', pb: 10, backgroundColor: theme.palette.background.paper }}>
-                <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', mb: 4 }}>
+            <Box sx={{ flexGrow: 1, maxWidth: '1440px', pt: 10, margin: '0 auto', pb: '1.2rem', backgroundColor: theme.palette.background.paper }}>
+                <Typography variant="h4" gutterBottom align="left" sx={{ fontWeight: 'bold', mb: '1.6rem', ml: '15px' , textTransform: 'uppercase', fontFamily: 'Yeseva One' }}>
                     {t('outstanding_category')}
                 </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', width: '100%', flex: 1, gap: 2 }}>
+                <Box sx={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'center', width: '100%', flex: 1 }}>
                     {categories.map((category: TCategory) => (
-                        <Box key={category.id}>
+                        <Box key={category.id} sx={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                             <motion.div
                                 whileHover={{
                                     scale: 1.1,
@@ -108,10 +108,11 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
                                     duration: 0.5,
                                 }}
                             >
-                                <Card sx={{ maxWidth: '9vw', margin: 'auto', cursor: 'pointer', padding: 3, backgroundColor: 'transparent', boxShadow: 'none' }}>
+                                <Card sx={{ width: '100%', maxWidth: '114px', margin: 'auto', cursor: 'pointer', backgroundColor: 'transparent', boxShadow: 'none' }}>
                                     <CardMedia
                                         component="img"
                                         height="50"
+                                        width="114"
                                         sizes='small'
                                         image={typeof category.image === 'string' ? category.image : category.image.src}
                                         alt={category.title}
@@ -121,10 +122,11 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
                                             sx={{
                                                 width: '100%',
                                                 padding: 0,
-                                                pt: 1,
-                                                fontSize: '0.6rem',
+                                                mt: '12px',
+                                                fontSize: '14px',
                                                 fontWeight: 'bold',
                                                 textAlign: 'center',
+                                                fontFamily: 'Roboto, sans-serif',
                                                 textWrap: 'nowrap',
                                                 "&:hover": {
                                                     color: theme.palette.primary.main

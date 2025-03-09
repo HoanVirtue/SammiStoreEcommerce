@@ -173,11 +173,6 @@ const LoginPage: NextPage<TProps> = () => {
                                         error={errors.password ? true : false}
                                         type={showPassword ? 'text' : 'password'}
                                         InputProps={{
-                                            // startAdornment: (
-                                            //     <InputAdornment position="start">
-                                            //         <IconifyIcon icon='material-symbols:visibility-outline' />
-                                            //     </InputAdornment>
-                                            // ),
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <IconButton

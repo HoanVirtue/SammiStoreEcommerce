@@ -21,8 +21,7 @@ export type TParamsCreateCustomer = {
     email: string | null;
     phone: string;
     streetAddress: string | null;
-    wardId: number;
-    wardName: string;
+    wardId: string;
     username: string;
     password: string;
     gender: number;

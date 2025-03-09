@@ -28,6 +28,7 @@ interface TProductCard {
 const StyledCard = styled(Card)(({ theme }) => ({
     position: "relative",
     overflow: "hidden",
+    width: "100%",
     ".MuiCardMedia-root.MuiCardMedia-media": {
         objectFit: "contain"
     },
@@ -79,7 +80,7 @@ const ProductCard = (props: any) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
         const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
-        
+
         const listOrderItems = convertUpdateProductToCart(orderItems, {
             cartId: item?.id,
             productId: item?.id,
@@ -147,14 +148,16 @@ const ProductCard = (props: any) => {
     }, [item, t]);
 
     return (
-        <StyledCard sx={{ width: "100%" }}>
+        <StyledCard sx={{ width: "100%", boxShadow: "none" }}>
             <CardMedia
                 className="card-media"
                 component="img"
-                height="194"
                 image={item?.images[0]?.imageUrl}
                 alt="product image"
                 sx={{
+                    height: { xs: '200px', sm: '260px', md: '300px' },
+                    width: '100%', 
+                    objectFit: 'contain', // Giữ tỷ lệ ảnh
                     transition: "transform 0.3s ease",
                     "&:hover": {
                         transform: "scale(0.9)",
@@ -198,7 +201,7 @@ const ProductCard = (props: any) => {
                     </Tooltip>
                 </ButtonGroup>
             </ButtonGroupWrapper>
-            <CardContent sx={{ padding: "8px 12px 0px 12px", pb: "10px !important" }}>
+            <CardContent sx={{ padding: "8px 12px 0px 12px", pb: "10px !important", }}>
                 <Typography variant="h5" onClick={() => handleNavigateProductDetail(item?.slug)}
                     sx={{
                         color: theme.palette.primary.main,
@@ -279,7 +282,7 @@ const ProductCard = (props: any) => {
                                 alignItems: "center",
                                 justifyContent: "center",
                             }}>
-                                -{item?.discount}%
+                                -{item?.discount * 100}%
                             </Typography>
                         </Box>
                     )}
@@ -297,7 +300,7 @@ const ProductCard = (props: any) => {
                         alignItems: "flex-start",
                         justifyContent: "center"
                     }}>
-                        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                        {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                             {item?.stockQuantity > 0 ? (
                                 <>{t("product_count_in_stock", { count: item?.stockQuantity })}</>
                             ) : (
@@ -305,7 +308,7 @@ const ProductCard = (props: any) => {
                                     {t('out_of_stock')}
                                 </span>
                             )}
-                        </Typography>
+                        </Typography> */}
 
                         <Box sx={{ width: "100%", mt: 1, position: 'relative' }}>
                             <LinearProgress
@@ -327,7 +330,7 @@ const ProductCard = (props: any) => {
                                     top: '50%',
                                     left: '50%',
                                     transform: 'translate(-50%, -50%)',
-                                    color: progressColor === 'error' ? theme.palette.error.main : progressColor === 'warning' ? theme.palette.warning.main : theme.palette.primary.main,
+                                    color: progressColor === 'error' ? theme.palette.error.main : progressColor === 'warning' ? theme.palette.warning.main : theme.palette.text.primary,
                                     textShadow: '0px 0px 2px rgba(255, 255, 255, 0.8)',
                                     fontWeight: 'bold'
                                 }}>

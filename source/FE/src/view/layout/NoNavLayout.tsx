@@ -8,6 +8,7 @@ import { Box, Container, CssBaseline, Toolbar, useTheme, } from "@mui/material";
 //views
 import HorizontalLayout from "./HorizontalLayout";
 
+
 type TProps = {
     children: React.ReactNode
 }
@@ -15,9 +16,9 @@ type TProps = {
 const NoNavLayout: NextPage<TProps> = ({ children }) => {
     const theme = useTheme()
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', flexDirection: "column" }}>
             <CssBaseline />
-            <HorizontalLayout open={false} toggleDrawer={() => { }} />
+            <HorizontalLayout open={false} toggleDrawer={() => { }} showBanner={true} />
             <Box
                 component='main'
                 sx={{
@@ -34,14 +35,14 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
                 <Toolbar />
                 <Container
                     sx={{
-                            width: "100vw", 
-                            // marginTop: '-4rem',
-                            maxWidth: "unset !important",
-                            overflow: "auto",
-                            maxHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight} - 32px)`,
-                            paddingLeft: "0rem !important",
-                            paddingRight: "0rem !important",
-                            // borderRadius: "15px"
+                        width: "100vw",
+                        // marginTop: '-4rem',
+                        maxWidth: "unset !important",
+                        overflow: "auto",
+                        maxHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight} - 32px)`,
+                        paddingLeft: "0rem !important",
+                        paddingRight: "0rem !important",
+                        // borderRadius: "15px"
                     }}>
                     {children}
                 </Container>

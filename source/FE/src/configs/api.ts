@@ -6,6 +6,9 @@ export const API_ENDPOINT = {
     INDEX: `${BASE_URL}/auth`,
     AUTH_ME: `${BASE_URL}/auth/me`,
   },
+  CART: {
+    INDEX: `${BASE_URL}/carts`,
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,

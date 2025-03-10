@@ -72,8 +72,8 @@ const ProductCard = (props: any) => {
     const { orderItems } = useSelector((state: RootState) => state.order)
 
     //handler
-    const handleNavigateProductDetail = (slug: string) => {
-        router.push(`${ROUTE_CONFIG.PRODUCT}/${slug}`)
+    const handleNavigateProductDetail = (id: string) => {
+        router.push(`${ROUTE_CONFIG.PRODUCT}/${id}`)
     }
 
     const handleUpdateProductToCart = (item: TProduct) => {
@@ -82,10 +82,12 @@ const ProductCard = (props: any) => {
         const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
 
         const listOrderItems = convertUpdateProductToCart(orderItems, {
-            cartId: item?.id,
-            productId: item?.id,
-            quantity: 1,
-            operation: 1,
+            name: item?.name,
+            amount: 1,
+            images: item?.images,
+            price: item?.price,
+            discount: discountItem,
+            productId: item.id,
             // slug: item?.slug
         })
         if (user?.id) {
@@ -156,8 +158,8 @@ const ProductCard = (props: any) => {
                 alt="product image"
                 sx={{
                     height: { xs: '200px', sm: '260px', md: '300px' },
-                    width: '100%', 
-                    objectFit: 'contain', // Giữ tỷ lệ ảnh
+                    width: '100%',
+                    objectFit: 'contain',
                     transition: "transform 0.3s ease",
                     "&:hover": {
                         transform: "scale(0.9)",
@@ -182,7 +184,7 @@ const ProductCard = (props: any) => {
                     </Tooltip>
                     <Tooltip title={t("see_product_detail")}>
                         <Fab aria-label="see-detail" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleNavigateProductDetail(item?.slug)}>
+                            <IconButton onClick={() => handleNavigateProductDetail(item?.id)}>
                                 <IconifyIcon color={theme.palette.primary.main} icon="famicons:eye-outline" fontSize='1.5rem' />
                             </IconButton>
                         </Fab>
@@ -243,11 +245,11 @@ const ProductCard = (props: any) => {
                     }}>
                         {item?.discount > 0 && memoCheckExpire ? (
                             <>
-                                {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
+                                {formatPrice(item?.price * (100 - item?.discount * 100) / 100)}đ
                             </>
                         ) : (
                             <>
-                                {formatPrice(item?.price)} VND
+                                {formatPrice(item?.price)}đ
                             </>
                         )}
                     </Typography>
@@ -258,7 +260,7 @@ const ProductCard = (props: any) => {
                             textDecoration: "line-through",
                             fontSize: "14px"
                         }}>
-                            {formatPrice(item?.price)} VND
+                            {formatPrice(item?.price)}đ
                         </Typography>
                     )}
                     {item?.discount > 0 && memoCheckExpire && (

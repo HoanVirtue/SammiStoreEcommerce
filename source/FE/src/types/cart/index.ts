@@ -33,17 +33,10 @@ export type TItemCartProductMe = {
 }
 
 export type TParamsCreateCart = {
-    cartItems: TItemCartProduct[],
-    fullName: string,
-    address?: string,
-    city: string,
-    phone: string,
-    paymentMethod: string,
-    deliveryMethod: string,
-    itemsPrice: number,
-    shippingPrice: number,
-    totalPrice: number,
-    user: string,
+    cartId: string,
+    productId: string,
+    quantity: number,
+    operation: number,
 }
 
 export type TParamsUpdateCart ={

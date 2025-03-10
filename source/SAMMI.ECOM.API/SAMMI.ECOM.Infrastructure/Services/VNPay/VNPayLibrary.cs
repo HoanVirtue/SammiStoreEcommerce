@@ -31,22 +31,24 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
                 collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value;
             var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
             var amountRental = vnPay.GetResponseData("vnp_Amount");
+            var paymentDate = DateTime.Parse(vnPay.GetResponseData("vnp_PayDate"));
 
-            var checkSignature =
-                vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
+            var checkSignature = vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
 
             if (!checkSignature)
                 return new VNPayReponseDTO()
                 {
                     Success = false,
-                    //OrderDescription = GetResponseData(),
+                    OrderDescription = orderInfo,
+                    PaymentDate = paymentDate
                 };
             if (vnpResponseCode != "00")
             {
                 return new VNPayReponseDTO()
                 {
                     Success = false,
-                    //OrderDescription = GetResponseData(),
+                    OrderDescription = orderInfo,
+                    PaymentDate = paymentDate
                 };
             }
             else
@@ -55,15 +57,13 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
                 {
                     Success = true,
                     PaymentMethod = "VNPay",
-                    //AmountOfRental = decimal.Parse(amountRental),
                     OrderDescription = orderInfo,
-                    //OrderDescription = GetResponseData(),
                     OrderId = orderId.ToString(),
                     PaymentId = vnPayTranId.ToString(),
                     TransactionId = vnPayTranId.ToString(),
                     Token = vnpSecureHash,
                     VnPayResponseCode = vnpResponseCode,
-
+                    PaymentDate = paymentDate
                 };
             }
         }

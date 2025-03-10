@@ -19,6 +19,8 @@
         public int? ShippingCompanyId { get; set; }
         public decimal? TotalPrice { get; set; }
         public int? TotalQuantity { get; set; }
+        public string? ReturnUrl { get; set; }
+
 
         public int Id { get; set; }
         public DateTime? CreatedDate { get; set; }

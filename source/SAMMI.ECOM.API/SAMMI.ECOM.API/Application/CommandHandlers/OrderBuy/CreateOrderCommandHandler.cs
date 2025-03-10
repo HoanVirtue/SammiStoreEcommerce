@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MediatR;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
@@ -21,6 +22,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly ICartRepository _cartRepository;
         private readonly ICartDetailRepository _cartDetailRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IMediator _mediator;
+        private readonly IPaymentMethodRepository _methodRepository;
+        private readonly IShippingCompanyRepository _shippingRepository;
         public CreateOrderCommandHandler(
             IOrderRepository orderRepository,
             IOrderDetailRepository detailRepository,
@@ -29,6 +33,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             ICartRepository cartRepository,
             ICartDetailRepository cartDetailRepository,
             IProductRepository productRepository,
+            IMediator mediator,
+            IPaymentMethodRepository methodRepository,
+            IShippingCompanyRepository shippingCompanyRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -39,6 +46,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             _cartRepository = cartRepository;
             _cartDetailRepository = cartDetailRepository;
             _productRepository = productRepository;
+            _mediator = mediator;
+            _methodRepository = methodRepository;
+            _shippingRepository = shippingCompanyRepository;
         }
 
         public override async Task<ActionResponse<OrderDTO>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -76,6 +86,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
 
+            // create order from ship
+            request.ShippingCompanyId = (await _shippingRepository.GetShipDefault()).Id;
+
             // create order
             request.CustomerId = _currentUser.Id;
             request.Code = Guid.NewGuid().ToString();
@@ -93,6 +106,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             }
             var orderCreated = createOrderRes.Result;
 
+            request.TotalAmount = 0;
             foreach (var detail in request.Details)
             {
                 var product = await _productRepository.GetByIdAsync(detail.ProductId);
@@ -101,6 +115,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     actResponse.AddError("Số lượng hàng trong kho không đủ! Vui lòng đặt lại đơn hàng");
                     return actResponse;
                 }
+                request.TotalAmount += await _productRepository.CalAmount(detail.ProductId, detail.Quantity);
                 detail.OrderId = orderCreated.Id;
                 detail.CreatedDate = DateTime.Now;
                 detail.CreatedBy = "System";
@@ -133,9 +148,25 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 }
             }
 
-            //create transaction
+            //create payment
+            var paymentRequest = new CreatePaymentCommand
+            {
+                OrderId = orderCreated.Id,
+                OrderCode = orderCreated.Code,
+                PaymentAmount = request.TotalAmount ?? 0,
+                PaymentStatus = PaymentStatusEnum.Pending.ToString(),
+                PaymentMethodId = request.PaymentMethodId
+            };
 
-            actResponse.SetResult(_mapper.Map<OrderDTO>(orderCreated));
+            var paymentReponse = await _mediator.Send(paymentRequest);
+            actResponse.Combine(paymentReponse);
+            if (!actResponse.IsSuccess)
+            {
+                return actResponse;
+            }
+            var orderResult = _mapper.Map<OrderDTO>(orderCreated);
+            orderResult.ReturnUrl = paymentReponse.Result.ReturnUrl;
+            actResponse.SetResult(orderResult);
 
             return actResponse;
         }
@@ -149,7 +180,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .NotEmpty()
                 .WithMessage("Mã phường không được bỏ trống");
 
-            RuleFor(x => x.PaymentMethod)
+            RuleFor(x => x.PaymentMethodId)
                 .NotEmpty()
                 .WithMessage("Phương thức thanh toán không được bỏ trống");
 

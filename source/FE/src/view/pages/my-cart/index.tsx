@@ -76,6 +76,7 @@ const MyCartPage: NextPage<TProps> = () => {
         return total
     }, [memoSelectedProduct])
 
+
     useEffect(() => {
         const selectedProduct = router.query.selected as string
         if (selectedProduct) {
@@ -87,11 +88,11 @@ const MyCartPage: NextPage<TProps> = () => {
         }
     }, [router.query])
 
+
     //Handler
-
-
     const handleChangeCheckBox = (value: string) => {
         const isChecked = selectedRow.includes(value)
+        console.log("router.query", isChecked )
         if (isChecked) {
             const filtered = selectedRow.filter((item) => item !== value)
             setSelectedRow(filtered)
@@ -181,7 +182,7 @@ const MyCartPage: NextPage<TProps> = () => {
                                                 <IconButton
                                                     onClick={handleDeleteMany}
                                                     disabled={selectedRow.length === 0}>
-                                                    <IconifyIcon icon="mdi:delete-outline" />
+                                                    <IconifyIcon icon="carbon:trash-can" />
                                                 </IconButton>
                                             </span>
                                         </Tooltip>
@@ -214,7 +215,7 @@ const MyCartPage: NextPage<TProps> = () => {
                             {t('total_price')}
                         </Typography>
                         <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "24px", color: theme.palette.primary.main }}>
-                            {formatPrice(memoTotalPrice)} VND
+                            {formatPrice(memoTotalPrice)}đ
                         </Typography>
                     </Box>
                 </Grid>

@@ -49,7 +49,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     const fetchProductDetail = async (id: string) => {
         const res = await getProductDetail(id)
         const data = res?.result
-        console.log("de", data )
+
         if (data) {
             const discountItem = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0
             setItemState({
@@ -59,7 +59,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                 discount: discountItem,
                 productId: id,
                 amount: data.amount,
-                stockQuantity: data.stockQuantity    
+                stockQuantity: data.stockQuantity
             })
         }
     }
@@ -112,6 +112,8 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
         }
     }
 
+    console.log("select", selectedRow.includes(itemState?.productId))
+
     return (
         <Fragment>
             <>
@@ -119,7 +121,8 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                     <Checkbox
                         disabled={!itemState?.stockQuantity}
                         checked={selectedRow.includes(itemState?.productId)}
-                        value={itemState?.productId} onChange={(e) => {
+                        value={itemState?.productId}
+                        onChange={(e) => {
                             handleChangeCheckBox(e.target.value)
                         }} />
                 </Grid>
@@ -160,40 +163,42 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                         )}
                     </Typography>
                 </Grid>
-                <Grid item md={1}>
-                    <IconButton onClick={() => handleChangeQuantity(itemState, -1)}>
-                        <IconifyIcon icon="eva:minus-fill" />
-                    </IconButton>
-                    <CustomTextField
-                        type='number'
-                        value={itemState?.amount}
-                        InputProps={{
-                            inputMode: "numeric",
-                            inputProps: {
-                                min: 1,
-                            }
-                        }}
-                        sx={{
-                            ".MuiInputBase-root.MuiFilledInput-root": {
-                                width: "50px",
-                                border: "none",
-                            },
-                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button': {
-                                WebkitAppearance: "none",
-                                margin: 0
-                            },
-                            'input[type=number]': {
-                                MozAppearance: "textfield"
-                            }
-                        }} />
-                    <IconButton disabled={!itemState?.stockQuantity}
-                        onClick={() => handleChangeQuantity(itemState, 1)}>
-                        <IconifyIcon icon="ic:round-plus" />
-                    </IconButton>
+                <Grid item md={1} sx={{ml: '-30px'}} >
+                    <Box sx={{ display: "flex", alignItems: "center" }}>
+                        <IconButton onClick={() => handleChangeQuantity(itemState, -1)}>
+                            <IconifyIcon icon="eva:minus-fill" />
+                        </IconButton>
+                        <CustomTextField
+                            type='number'
+                            value={itemState?.amount}
+                            InputProps={{
+                                inputMode: "numeric",
+                                inputProps: {
+                                    min: 1,
+                                }
+                            }}
+                            sx={{
+                                ".MuiInputBase-root.MuiFilledInput-root": {
+                                    width: "40px",
+                                    border: "none",
+                                },
+                                'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button': {
+                                    WebkitAppearance: "none",
+                                    margin: 0
+                                },
+                                'input[type=number]': {
+                                    MozAppearance: "textfield"
+                                }
+                            }} />
+                        <IconButton disabled={!itemState?.stockQuantity}
+                            onClick={() => handleChangeQuantity(itemState, 1)}>
+                            <IconifyIcon icon="ic:round-plus" />
+                        </IconButton>
+                    </Box>
                 </Grid>
-                <Grid item md={1}>
+                <Grid item md={1} sx={{ml: '25px'}}>
                     <IconButton onClick={() => handleDeleteProductInCart(itemState.productId)}>
-                        <IconifyIcon icon="mdi:delete-outline" />
+                        <IconifyIcon icon="carbon:trash-can" />
                     </IconButton>
                 </Grid>
             </>

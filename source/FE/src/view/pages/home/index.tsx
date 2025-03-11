@@ -239,7 +239,7 @@ const HomePage: NextPage<TProps> = () => {
                 {/* <Box sx={{width: '100%', height: '9px', backgroundColor: '#e5677d'}}></Box> */}
                 <Banner />
                 <OutstandingCategory />
-                {/* <ListVoucher /> */}
+                <ListVoucher />
                 <HotSale />
                 <TopSale />
                 {/* <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 4 }}>

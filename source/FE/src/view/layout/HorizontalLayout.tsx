@@ -83,7 +83,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon, show
     }
 
     return (
-        <AppBar open={open}
+        <AppBar position="fixed" open={open}
             sx={{ transition: 'background-color 0.3s ease' }}>
             {/* {showBanner && (
                 <Box sx={{ width: "100%", height: "auto", maxWidth: "100%" }}>

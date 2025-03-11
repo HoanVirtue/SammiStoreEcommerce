@@ -335,7 +335,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     }}>
                                         {productData?.discount > 0 && memoCheckExpire ? (
                                             <>
-                                                {formatPrice(productData?.price - (productData?.price * productData?.discount / 100))}đ
+                                                {formatPrice(productData?.price - (productData?.price * productData?.discount*100 / 100))}đ
                                             </>
                                         ) : (
                                             <>
@@ -371,7 +371,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                                 lineHeight: "1.3",
                                                 whiteSpace: "nowrap"
                                             }}>
-                                                -{productData?.discount}%
+                                                -{productData?.discount*100}%
                                             </Typography>
                                         </Box>
                                     )}

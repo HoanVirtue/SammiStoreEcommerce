@@ -9,7 +9,7 @@ import SideBanner2 from '/public/images/right_banner_2.jpg'
 const Banner: React.FC = () => {
 
     return (
-        <Grid container spacing={4} md={12} xs={12} sx={{ width: '100%', margin: 0, maxWidth: '1440px' }}>
+        <Grid container item spacing={4} md={12} xs={12} sx={{ width: '100%', margin: 0, maxWidth: '1440px' }}>
             <Grid item md={12} xs={12} sx={{paddingLeft: '0 !important', paddingTop: '0 !important'}}>
                 <Carousel />
             </Grid>

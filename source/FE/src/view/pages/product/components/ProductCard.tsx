@@ -176,7 +176,8 @@ const ProductCard = (props: any) => {
                     }}>
                     <Tooltip title={t("add_to_cart")}>
                         <Fab aria-label="add" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleUpdateProductToCart(item)} disabled={item.stockQuantity === 0}>
+                            <IconButton onClick={() => handleUpdateProductToCart(item)} 
+                            disabled={item.stockQuantity === 0}>
                                 <IconifyIcon color={theme.palette.primary.main}
                                     icon="bi:cart-plus" fontSize='1.5rem' />
                             </IconButton>
@@ -212,8 +213,8 @@ const ProductCard = (props: any) => {
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         display: "-webkit-box",
-                        "-webkitLineClamp": "2",
-                        "-webkitBoxOrient": "vertical",
+                        "WebkitLineClamp": "2",
+                        "WebkitBoxOrient": "vertical",
                         minHeight: "48px",
                         mt: 2
                     }}>

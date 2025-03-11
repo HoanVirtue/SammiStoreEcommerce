@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 
 const listProduct = [
     {
-        id: '234',
+        id: '994',
         code: 'fr934',
         name: 'Collagen Dạng Uống Cải Thiện Làn Da SHJW Hanami Collagen Ampoule 28 ống x 25ml',
         stockQuantity: 45,
@@ -73,7 +73,7 @@ const listProduct = [
         ]
     },
     {
-        id: '234',
+        id: '432',
         code: 'fr934',
         name: 'Kem Dưỡng Da Tay Whoo Royal Hand Cream SPF10 set',
         stockQuantity: 65,

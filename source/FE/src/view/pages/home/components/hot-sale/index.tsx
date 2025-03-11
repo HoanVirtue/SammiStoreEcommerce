@@ -42,7 +42,7 @@ const listProduct = [
         ]
     },
     {
-        id: '234',
+        id: '9999',
         code: 'fr934',
         name: 'Kem Dưỡng Da Tay Whoo Royal Hand Cream SPF10 set',
         stockQuantity: 65,
@@ -106,7 +106,7 @@ const listProduct = [
         ]
     },
     {
-        id: '234',
+        id: '222',
         code: 'fr934',
         name: 'Collagen Dạng Uống Cải Thiện Làn Da SHJW Hanami Collagen Ampoule 28 ống x 25ml',
         stockQuantity: 45,

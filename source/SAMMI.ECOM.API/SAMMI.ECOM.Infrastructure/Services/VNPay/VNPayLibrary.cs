@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.DomainModels.VNPay;
 using System.Globalization;
 using System.Net;
@@ -13,8 +14,9 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
     {
         private readonly SortedList<string, string> _requestData = new SortedList<string, string>(new VnPayCompare());
         private readonly SortedList<string, string> _responseData = new SortedList<string, string>(new VnPayCompare());
-        public VNPayReponseDTO GetFullResponseData(IQueryCollection collection, string hashSecret)
+        public ActionResponse<VNPayReponseDTO> GetFullResponseData(IQueryCollection collection, string hashSecret)
         {
+            var actResponse = new ActionResponse<VNPayReponseDTO>();
             var vnPay = new VNPayLibrary();
             foreach (var (key, value) in collection)
             {
@@ -23,49 +25,58 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
                     vnPay.AddResponseData(key, value);
                 }
             }
-
-            var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
-            var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
-            var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
-            var vnpSecureHash =
-                collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value;
-            var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
-            var amountRental = vnPay.GetResponseData("vnp_Amount");
-            var paymentDate = DateTime.Parse(vnPay.GetResponseData("vnp_PayDate"));
-
-            var checkSignature = vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
-
-            if (!checkSignature)
-                return new VNPayReponseDTO()
-                {
-                    Success = false,
-                    OrderDescription = orderInfo,
-                    PaymentDate = paymentDate
-                };
-            if (vnpResponseCode != "00")
+            try
             {
-                return new VNPayReponseDTO()
+                var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
+                var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
+                var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
+                var vnpSecureHash =
+                    collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value;
+                var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
+                var amountRental = vnPay.GetResponseData("vnp_Amount");
+                var paymentDate = DateTime.Parse(vnPay.GetResponseData("vnp_PayDate"));
+
+                var checkSignature = vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
+
+                if (!checkSignature)
                 {
-                    Success = false,
-                    OrderDescription = orderInfo,
-                    PaymentDate = paymentDate
-                };
+                    actResponse.SetResult(new VNPayReponseDTO()
+                    {
+                        Success = false,
+                        OrderDescription = orderInfo,
+                        PaymentDate = paymentDate
+                    });
+                }
+                if (vnpResponseCode != "00")
+                {
+                    actResponse.SetResult(new VNPayReponseDTO()
+                    {
+                        Success = false,
+                        OrderDescription = orderInfo,
+                        PaymentDate = paymentDate
+                    });
+                }
+                else
+                {
+                    actResponse.SetResult(new VNPayReponseDTO()
+                    {
+                        Success = true,
+                        PaymentMethod = "VNPay",
+                        OrderDescription = orderInfo,
+                        OrderId = orderId.ToString(),
+                        PaymentId = vnPayTranId.ToString(),
+                        TransactionId = vnPayTranId.ToString(),
+                        Token = vnpSecureHash,
+                        VnPayResponseCode = vnpResponseCode,
+                        PaymentDate = paymentDate
+                    });
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return new VNPayReponseDTO()
-                {
-                    Success = true,
-                    PaymentMethod = "VNPay",
-                    OrderDescription = orderInfo,
-                    OrderId = orderId.ToString(),
-                    PaymentId = vnPayTranId.ToString(),
-                    TransactionId = vnPayTranId.ToString(),
-                    Token = vnpSecureHash,
-                    VnPayResponseCode = vnpResponseCode,
-                    PaymentDate = paymentDate
-                };
+                actResponse.AddError("Error format data: ", ex.Message);
             }
+            return actResponse;
         }
         public string GetIpAddress(HttpContext context)
         {

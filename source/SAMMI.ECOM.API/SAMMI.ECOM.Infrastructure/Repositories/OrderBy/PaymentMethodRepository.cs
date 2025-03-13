@@ -7,6 +7,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface IPaymentMethodRepository : ICrudRepository<PaymentMethod>
     {
         Task<bool> CheckExistName(string name, int? id = 0);
+        Task<PaymentMethod> GetByCode(string code);
     }
     public class PaymentMethodRepository : CrudRepository<PaymentMethod>, IPaymentMethodRepository, IDisposable
     {
@@ -25,6 +26,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         public void Dispose()
         {
             _disposed = true;
+        }
+
+        public async Task<PaymentMethod> GetByCode(string code)
+        {
+            return await _context.PaymentMethods.SingleOrDefaultAsync(x => x.Code.ToLower() == code.ToLower() && x.IsDeleted != true);
         }
     }
 }

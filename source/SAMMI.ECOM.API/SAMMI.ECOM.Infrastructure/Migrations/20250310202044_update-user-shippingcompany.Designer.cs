@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SAMMI.ECOM.Infrastructure;
 
@@ -11,9 +12,11 @@ using SAMMI.ECOM.Infrastructure;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     [DbContext(typeof(SammiEcommerceContext))]
-    partial class SammiEcommerceContextModelSnapshot : ModelSnapshot
+    [Migration("20250310202044_update-user-shippingcompany")]
+    partial class updateusershippingcompany
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1110,25 +1113,12 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("decimal(65,30)")
                         .HasColumnName("PaymentAmount");
 
-                    b.Property<DateTime?>("PaymentCreated")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("PaymentCreated");
-
-                    b.Property<DateTime?>("PaymentDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("PaymentDate");
-
                     b.Property<int>("PaymentMethodId")
                         .HasColumnType("int");
 
                     b.Property<string>("PaymentStatus")
                         .HasColumnType("longtext")
                         .HasColumnName("PaymentStatus");
-
-                    b.Property<string>("ReponseCode")
-                        .HasMaxLength(10)
-                        .HasColumnType("varchar(10)")
-                        .HasColumnName("ReponseCode");
 
                     b.Property<string>("TransactionId")
                         .HasColumnType("longtext")

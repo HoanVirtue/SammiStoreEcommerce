@@ -223,6 +223,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .WithMessage("Email không được bỏ trống");
+
+            RuleFor(x => x.IdCardNumber)
+                .NotEmpty()
+                .WithMessage("CCCD không được bỏ trống");
         }
     }
 
@@ -237,6 +241,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .WithMessage("Email không được bỏ trống");
+
+            RuleFor(x => x.IdCardNumber)
+                .NotEmpty()
+                .WithMessage("CCCD không được bỏ trống");
         }
     }
 }

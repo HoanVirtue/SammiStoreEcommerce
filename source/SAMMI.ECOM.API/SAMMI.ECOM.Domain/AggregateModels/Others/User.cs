@@ -81,6 +81,9 @@ public partial class User : Entity
     [Column("AvatarId")]
     public int? AvatarId { get; set; }
 
+    [Column("IdCardNumber")]
+    public string? IdCardNumber { get; set; } // căn cước công dân
+
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 
     public virtual ICollection<FavouriteProduct> FavouriteProducts { get; set; } = new List<FavouriteProduct>();

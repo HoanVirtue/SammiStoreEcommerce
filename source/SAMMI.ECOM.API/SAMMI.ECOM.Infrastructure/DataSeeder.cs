@@ -795,6 +795,49 @@ namespace SAMMI.ECOM.Infrastructure
                 Console.WriteLine("Error seed payment method: ", ex.Message);
             }
         }
+
+        private async Task SeedShippingCompany()
+        {
+            if (_context.ShippingCompanies.Any())
+            {
+                return;
+            }
+            var ships = new List<ShippingCompany>
+            {
+                new ShippingCompany()
+                {
+                    Name = "Giao hàng nhanh",
+                    Website = "https://khachhang.ghn.vn/",
+                    ContactInfo = "",
+                    IsDefault = true,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+                new ShippingCompany()
+                {
+                    Name = "ViettelPost",
+                    Website = "https://viettelpost.vn/",
+                    ContactInfo = "",
+                    IsDefault = true,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+            };
+            try
+            {
+                await _context.ShippingCompanies.AddRangeAsync(ships);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error seed shipping company: ", ex.Message);
+            }
+        }
+
         public async Task SeedAsync()
         {
             await SeedAddress();
@@ -807,6 +850,7 @@ namespace SAMMI.ECOM.Infrastructure
             await SeedProductCategory();
             await SeedDiscountType();
             await SeedPaymentMethod();
+            await SeedShippingCompany();
         }
     }
 }

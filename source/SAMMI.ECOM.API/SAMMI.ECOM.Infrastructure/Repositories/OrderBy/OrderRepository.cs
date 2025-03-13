@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
@@ -8,14 +11,18 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface IOrderRepository : ICrudRepository<Order>
     {
         Task<OrderDTO> GetByCode(string code);
+        Task<ActionResponse<Order>> UpdateStatus(OrderStatusEnum status, int? id = 0, string? code = null);
     }
     public class OrderRepository : CrudRepository<Order>, IOrderRepository, IDisposable
     {
         private readonly SammiEcommerceContext _context;
         private bool _disposed;
-        public OrderRepository(SammiEcommerceContext context) : base(context)
+        private readonly IMapper _mapper;
+        public OrderRepository(SammiEcommerceContext context,
+            IMapper mapper) : base(context)
         {
             _context = context;
+            _mapper = mapper;
         }
 
         public void Dispose()
@@ -79,6 +86,32 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                              };
 
             return await orderQuery.FirstAsync();
+        }
+
+        private async Task<Order> FindByCode(string code)
+        {
+            return await DbSet.FirstOrDefaultAsync(x => x.Code.ToLower() == code.ToLower() && x.IsDeleted != true);
+        }
+
+        public async Task<ActionResponse<Order>> UpdateStatus(OrderStatusEnum status, int? id = 0, string? code = null)
+        {
+            Order order = null;
+            if (!string.IsNullOrEmpty(code))
+            {
+                order = await FindByCode(code);
+            }
+            else
+            {
+                order = await FindById(id);
+            }
+
+            if (order == null)
+                return null;
+            order.OrderStatus = status.ToString();
+            order.UpdatedDate = DateTime.Now;
+            order.UpdatedBy = "System";
+            var updateRes = await UpdateAndSave(order);
+            return updateRes;
         }
     }
 }

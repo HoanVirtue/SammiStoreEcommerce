@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using SAMMI.ECOM.API.Infrastructure.VNPay;
+using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.VNPay;
 
@@ -9,7 +10,7 @@ namespace SAMMI.ECOM.Infrastructure.Services.VNPay
     public interface IVNPayService
     {
         string CreatePaymentUrl(CreatePaymentCommand model, HttpContext context);
-        VNPayReponseDTO PaymentExecute(IQueryCollection collections);
+        ActionResponse<VNPayReponseDTO> PaymentExecute(IQueryCollection collections);
         bool ValidateChecksum(string inputHash);
     }
     public class VNPayService : IVNPayService
@@ -39,7 +40,7 @@ namespace SAMMI.ECOM.Infrastructure.Services.VNPay
             pay.AddRequestData("vnp_OrderInfo", $"Thanh toán cho đơn hàng #{model.OrderCode}_{model.UserIdentity}");
             pay.AddRequestData("vnp_OrderType", "shopping");
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            pay.AddRequestData("vnp_IPNUrl", _configuration["IPNUrl"]);
+            //pay.AddRequestData("vnp_IPNUrl", _configuration["IPNUrl"]);
             pay.AddRequestData("vnp_TxnRef", tick);
 
             var paymentUrl = pay.CreateRequestUrl(_configuration["BaseUrl"], _configuration["HashSecret"]);
@@ -47,7 +48,7 @@ namespace SAMMI.ECOM.Infrastructure.Services.VNPay
             return paymentUrl;
         }
 
-        public VNPayReponseDTO PaymentExecute(IQueryCollection collections)
+        public ActionResponse<VNPayReponseDTO> PaymentExecute(IQueryCollection collections)
         {
             var pay = new VNPayLibrary();
             var response = pay.GetFullResponseData(collections, _configuration["HashSecret"]);

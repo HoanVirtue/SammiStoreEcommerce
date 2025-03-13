@@ -49,34 +49,38 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         public async Task<IActionResult> PaymentCallback()
         {
             var paymentResponse = _vnpayService.PaymentExecute(Request.Query);
-
-            string[] paymentInfos = paymentResponse.OrderDescription.Split('#')[1].Split('_');
+            if (!paymentResponse.IsSuccess)
+            {
+                return BadRequest(paymentResponse);
+            }
+            var paymentResult = paymentResponse.Result;
+            string[] paymentInfos = paymentResult.OrderDescription.Split('#')[1].Split('_');
             string orderCode = paymentInfos[0];
             var payment = await _paymentRepository.GetByOrderCode(orderCode);
             if (payment == null)
             {
                 return BadRequest("Không tồn tại giao dịch");
             }
-            if (paymentResponse.VnPayResponseCode != "00")
+            if (paymentResult.VnPayResponseCode != "00")
             {
                 _paymentRepository.UpdateStatus(payment.Id, PaymentStatusEnum.Unpaid);
-                return BadRequest(paymentResponse);
+                return BadRequest(paymentResult);
             }
 
             // update info payment
-            payment.TransactionId = paymentResponse.TransactionId;
-            payment.ReponseCode = paymentResponse.VnPayResponseCode;
+            payment.TransactionId = paymentResult.TransactionId;
+            payment.ReponseCode = paymentResult.VnPayResponseCode;
             payment.PaymentStatus = PaymentStatusEnum.Paid.ToString();
-            payment.PaymentDate = paymentResponse.PaymentDate;
+            payment.PaymentDate = paymentResult.PaymentDate;
             var paymentUpdateRes = await _paymentRepository.UpdateAndSave(payment);
             _orderRepository.UpdateStatus(OrderStatusEnum.Processing, code: orderCode);
             if (paymentUpdateRes.IsSuccess)
-                return Ok(paymentResponse);
+                return Ok(paymentResult);
             return BadRequest(paymentUpdateRes);
         }
 
         [AllowAnonymous]
-        [HttpPost("vnpay/ipn")]
+        [HttpGet("vnpay/ipn")]
         public async Task<IActionResult> VNPayIPN([FromForm] VNPayIPNDTO model)
         {
             if (!_vnpayService.ValidateChecksum(model.vnp_SecureHash))

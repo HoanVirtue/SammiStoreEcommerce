@@ -65,6 +65,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.AddError("Mã phường không tồn tại.");
                 return actResponse;
             }
+            request.TotalAmount = 0;
             request.VoucherId = request.VoucherId == 0 ? null : request.VoucherId;
             var voucherExist = await _voucherRepository.GetByIdAsync(request.VoucherId);
             if ((request.VoucherId != 0 && request.VoucherId != null)
@@ -86,8 +87,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
 
-            // create order from ship
+            // create order from ship & cal shipcost
             request.ShippingCompanyId = (await _shippingRepository.GetShipDefault()).Id;
+            request.CostShip = 30000;
+            request.TotalAmount += request.CostShip;
+
 
             // create order
             request.CustomerId = _currentUser.Id;
@@ -106,7 +110,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             }
             var orderCreated = createOrderRes.Result;
 
-            request.TotalAmount = 0;
             foreach (var detail in request.Details)
             {
                 var product = await _productRepository.GetByIdAsync(detail.ProductId);
@@ -115,7 +118,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     actResponse.AddError("Số lượng hàng trong kho không đủ! Vui lòng đặt lại đơn hàng");
                     return actResponse;
                 }
-                request.TotalAmount += await _productRepository.CalAmount(detail.ProductId, detail.Quantity);
+                detail.Price = await _productRepository.GetPrice(detail.ProductId);
+                request.TotalAmount += detail.Price * detail.Quantity;
                 detail.OrderId = orderCreated.Id;
                 detail.CreatedDate = DateTime.Now;
                 detail.CreatedBy = "System";
@@ -146,6 +150,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 {
                     return actResponse;
                 }
+            }
+
+            // calculate discount
+            if (request.VoucherId != 0 && request.VoucherId != null)
+            {
+                var totalDiscount = await _voucherRepository.CalculateDiscount(request.VoucherId ?? 0, request.CostShip ?? 0, request.TotalAmount ?? 0);
+                request.TotalAmount -= totalDiscount;
             }
 
             //create payment

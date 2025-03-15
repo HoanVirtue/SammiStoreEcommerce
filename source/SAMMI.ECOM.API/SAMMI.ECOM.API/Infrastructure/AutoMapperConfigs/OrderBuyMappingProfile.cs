@@ -17,7 +17,7 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 
             CreateMap<OrderDetailCommand, OrderDetail>();
 
-            CreateMap<CreatePaymentCommand, Payment>();
+            CreateMap<CreatePaymentCommand, Payment>().ReverseMap();
             CreateMap<Payment, PaymentDTO>();
         }
     }

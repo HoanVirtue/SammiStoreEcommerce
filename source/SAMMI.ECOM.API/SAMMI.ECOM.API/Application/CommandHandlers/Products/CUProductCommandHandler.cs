@@ -281,8 +281,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             RuleFor(x => x.StartDate)
                 .NotEmpty()
                 .WithMessage("Ngày bắt đầu không được để trống khi có giảm giá")
-                .Must(x => x.HasValue && x > DateTime.Now)
-                .WithMessage("Ngày bắt đầu phải lớn hơn ngày hiện tại")
+                .Must(x => x.HasValue && x >= DateTime.Now)
+                .WithMessage("Ngày bắt đầu phải lớn hơn hoặc bằng ngày hiện tại")
                 .When(x => x.Discount.HasValue && x.Discount > 0);
 
             RuleFor(x => x.EndDate)

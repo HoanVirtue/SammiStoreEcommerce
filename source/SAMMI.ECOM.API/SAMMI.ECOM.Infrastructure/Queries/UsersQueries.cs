@@ -20,7 +20,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         EmployeeDTO FindById(int id);
         CustomerDTO FindCustomerByUsername(string username);
         CustomerDTO FindCustomerById(int id);
-        Task<IEnumerable<PermissionDTO>> GetPermissionOfUser(int userId);
+        Task<IEnumerable<PermissionDTO>> GetPermissionOfRole(int roleId);
 
         Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null);
         Task<IPagedList<CustomerDTO>> GetCustomerList(RequestFilterModel filterModel);
@@ -40,14 +40,9 @@ namespace SAMMI.ECOM.Infrastructure.Queries
 
         private EmployeeDTO Find(int? id = null, string? username = null, string? email = null)
         {
-            var cached = new Dictionary<int, EmployeeDTO>();
             return WithDefaultTemplate(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.LeftJoin("UserRole t2 ON t1.Id = t2.UserId AND t2.IsDeleted != 1");
-
-                    sqlBuilder.Select("t2.RoleId AS RoleId");
-
                     sqlBuilder.Where("t1.Type = @type", new { type = TypeUserEnum.Employee.ToString() });
                     if (id.HasValue)
                     {
@@ -62,40 +57,16 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                         sqlBuilder.Where("LOWER(t1.Email) = LOWER(@email)", new { email });
                     }
 
-                    var query = conn.Query<EmployeeDTO, int, EmployeeDTO>(
-                        sqlTemplate.RawSql,
-                        (user, roleId) =>
-                        {
-                            if (!cached.TryGetValue(user.Id, out var userModel))
-                            {
-                                userModel = user;
-                                cached.Add(user.Id, userModel);
-                            }
-
-                            if (roleId != null && roleId > 0 && (userModel.RoleIds.All(x => x != roleId)))
-                            {
-                                userModel.RoleIds ??= new();
-                                userModel.RoleIds.Add(roleId);
-                            }
-                            return userModel;
-                        },
-                        sqlTemplate.Parameters,
-                        splitOn: "RoleId");
-
-                    return query.FirstOrDefault();
-                });
+                    return conn.QueryFirst<EmployeeDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
+            );
         }
 
         private CustomerDTO FindCustomer(int? id = null, string? username = null, string? email = null)
         {
-            var cached = new Dictionary<int, CustomerDTO>();
             return WithDefaultTemplate(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.LeftJoin("UserRole t2 ON t1.Id = t2.UserId AND t2.IsDeleted != 1");
-
-                    sqlBuilder.Select("t2.RoleId AS RoleId");
-
                     sqlBuilder.Where("t1.Type = @type", new { type = TypeUserEnum.Customer.ToString() });
                     if (id.HasValue)
                     {
@@ -110,26 +81,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                         sqlBuilder.Where("LOWER(t1.Email) = LOWER(@email)", new { email });
                     }
 
-                    var query = conn.Query<CustomerDTO, int, CustomerDTO>(
-                        sqlTemplate.RawSql,
-                        (user, roleId) =>
-                        {
-                            if (!cached.TryGetValue(user.Id, out var userModel))
-                            {
-                                userModel = user;
-                                cached.Add(user.Id, userModel);
-                            }
-
-                            if (roleId != null && roleId > 0)
-                            {
-                                userModel.RoleId = roleId;
-                            }
-                            return userModel;
-                        },
-                        sqlTemplate.Parameters,
-                        splitOn: "RoleId");
-
-                    return query.FirstOrDefault();
+                    return conn.QueryFirst<CustomerDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 });
         }
 
@@ -228,22 +180,20 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                 filterModel);
         }
 
-        public Task<IEnumerable<PermissionDTO>> GetPermissionOfUser(int userId)
+        public Task<IEnumerable<PermissionDTO>> GetPermissionOfRole(int roleId)
         {
             return WithConnectionAsync(conn => conn.QueryAsync<PermissionDTO>(@"
                 SELECT
-                t1.UserId,
-                t2.Id AS RoleId, t2.Name AS RoleName,
-                t3.Allow,
-                t4.Id AS PermissionId, t4.Name AS PermissionName
-                FROM userrole t1
-                LEFT JOIN role t2 ON t1.RoleId = t2.Id AND t2.IsDeleted != 1 AND t2.IsActive = 1
-                LEFT JOIN rolepermission t3 ON t2.Id = t3.RoleId AND t3.IsDeleted != 1
-                LEFT JOIN permission t4 on t3.PermissionId = t4.Id AND t4.IsDeleted != 1
+                t1.Id AS RoleId, t1.Name AS RoleName,
+                t2.Allow,
+                t3.Id AS PermissionId, t3.Name AS PermissionName
+                FROM role t1
+                LEFT JOIN rolepermission t2 ON t1.Id = t2.RoleId AND t2.IsDeleted != 1
+                LEFT JOIN permission t3 on t2.PermissionId = t3.Id AND t3.IsDeleted != 1
                 WHERE t1.IsDeleted != 1
-                AND t1.UserId = @userId
+                AND t1.Id = @roleId
             ",
-            new { userId },
+            new { roleId },
             commandType: CommandType.Text));
         }
 

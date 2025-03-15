@@ -34,7 +34,7 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
                     collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value;
                 var orderInfo = vnPay.GetResponseData("vnp_OrderInfo");
                 var amountRental = vnPay.GetResponseData("vnp_Amount");
-                var paymentDate = DateTime.Parse(vnPay.GetResponseData("vnp_PayDate"));
+                var paymentDate = DateTime.ParseExact(vnPay.GetResponseData("vnp_PayDate"), "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
 
                 var checkSignature = vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
 

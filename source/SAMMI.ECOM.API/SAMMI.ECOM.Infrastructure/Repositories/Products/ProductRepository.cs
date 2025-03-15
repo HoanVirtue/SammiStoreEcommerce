@@ -8,6 +8,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
     {
         Task<bool> IsExistCode(string code, int? id = 0);
         Task<decimal> CalAmount(int productId, int quantity);
+        Task<decimal> GetPrice(int productId);
     }
 
     public class ProductRepository : CrudRepository<Product>, IProductRepository, IDisposable
@@ -26,6 +27,16 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
                 return 0;
             return quantity *
                 (product.StartDate <= DateTime.Now && product.EndDate >= DateTime.Now
+                    ? (decimal)(product.Price * (1 - product.Discount))
+                    : product.Price);
+        }
+
+        public async Task<decimal> GetPrice(int productId)
+        {
+            var product = await GetByIdAsync(productId);
+            if (product == null)
+                return 0;
+            return (product.StartDate <= DateTime.Now && product.EndDate >= DateTime.Now
                     ? (decimal)(product.Price * (1 - product.Discount))
                     : product.Price);
         }

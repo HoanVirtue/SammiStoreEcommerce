@@ -1,4 +1,5 @@
-﻿using SAMMI.ECOM.Domain.Seeds;
+﻿using SAMMI.ECOM.Domain.AggregateModels.Others;
+using SAMMI.ECOM.Domain.Seeds;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,7 +18,9 @@ public partial class Role : Entity
     [Column("Description")]
     [StringLength(255)]
     public string? Description { get; set; }
+    [Column("IsLock")]
+    public bool? IsLock { get; set; }
 
     public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }

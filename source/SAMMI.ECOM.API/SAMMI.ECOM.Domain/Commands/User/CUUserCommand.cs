@@ -41,7 +41,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public string Username { get; set; }
         public string Password { get; set; }
         public string? SecurityStamp { get; set; }
-        public List<int>? RoleIds { get; set; }
+        public int RoleId { get; set; }
     }
 
     public class UpdateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
@@ -49,7 +49,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public string IdCardNumber { get; set; }
         [DefaultValue(false)]
         public bool? IsAdmin { get; set; } = false!;
-        public string Username { get; set; }
+        public int RoleId { get; set; }
     }
 
     public class CUCustomerCommand : CUUserCommand, IRequest<ActionResponse<CustomerDTO>>
@@ -57,6 +57,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public string Username { get; set; }
         public string? Password { get; set; }
         public string? SecurityStamp { get; set; }
+        public int? RoleId { get; set; }
     }
 
     public class CUSupplierCommand : CUUserCommand, IRequest<ActionResponse<SupplierDTO>>

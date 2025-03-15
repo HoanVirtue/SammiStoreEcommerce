@@ -15,6 +15,8 @@ public partial class OrderDetail : Entity
 
     [Column("Quantity")]
     public int Quantity { get; set; }
+    [Column("Price")]
+    public decimal Price { get; set; }
 
     [Column("Tax")]
     public decimal? Tax { get; set; }

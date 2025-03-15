@@ -84,7 +84,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
                 new Claim(GlobalClaimsTypes.LocalId, user.Id.ToString())
             });
 
-            var userPermissions = await _userQueries.GetPermissionOfUser(user.Id);
+            var userPermissions = await _userQueries.GetPermissionOfRole(user.Id);
             if (userPermissions != null && userPermissions.Any())
             {
                 var permissionIds = string.Join(',', userPermissions.Select(p => p.PermissionId.ToString()));

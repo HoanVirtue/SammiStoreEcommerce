@@ -18,5 +18,7 @@ public partial class Permission : Entity
     [StringLength(255)]
     public string? Description { get; set; }
 
+    public bool? IsShow { get; set; }
+
     public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
 }

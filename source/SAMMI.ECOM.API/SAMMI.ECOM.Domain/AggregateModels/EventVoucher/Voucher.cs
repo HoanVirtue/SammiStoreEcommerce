@@ -31,7 +31,6 @@ public partial class Voucher : Entity
     [Column("UsedCount")]
     public int UsedCount { get; set; }
 
-
     [Column("StartDate")]
     public DateTime StartDate { get; set; }
 

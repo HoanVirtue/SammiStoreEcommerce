@@ -72,8 +72,6 @@ public partial class SammiEcommerceContext : DbContext
 
     public virtual DbSet<RolePermission> RolePermissions { get; set; }
 
-    public virtual DbSet<UserRole> UserRoles { get; set; }
-
     public virtual DbSet<ShippingCompany> ShippingCompanies { get; set; }
 
     public virtual DbSet<SysAction> SysActions { get; set; }
@@ -135,7 +133,6 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new SysFunctionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new SysLogEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new UserEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new UserRoleEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new WardEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RefreshTokenEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new CartEntityTypeConfiguration());

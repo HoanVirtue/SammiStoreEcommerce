@@ -26,8 +26,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             { DiscountTypeEnum.Percentage, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue, ConditionTypeEnum.MaxDiscountAmount } },
             { DiscountTypeEnum.FixedAmount, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue } },
             { DiscountTypeEnum.FreeShipping, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue, ConditionTypeEnum.AllowedRegions } },
-            { DiscountTypeEnum.TieredDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.TierLevels } },
-            { DiscountTypeEnum.BundleDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.RequiredProducts } }
+            //{ DiscountTypeEnum.TieredDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.TierLevels } },
+            //{ DiscountTypeEnum.BundleDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.RequiredProducts } }
         };
         public CUVoucherCommandHandler(
             IVoucherRepository voucherRepository,
@@ -182,12 +182,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
                         vCondi.ConditionValue = regionFormated;
                         break;
-                    case ConditionTypeEnum.TierLevels:
-                        var tierLevels = c.ConditionType.ToString().DeserializeJson<List<TierLevelCommand>>();
-                        string valueFormated = string.Join(",", tierLevels.Select(t => $"{t.Level}:{t.Discount}"));
+                    //case ConditionTypeEnum.TierLevels:
+                    //    var tierLevels = c.ConditionType.ToString().DeserializeJson<List<TierLevelCommand>>();
+                    //    string valueFormated = string.Join(",", tierLevels.Select(t => $"{t.Level}:{t.Discount}"));
 
-                        vCondi.ConditionValue = valueFormated;
-                        break;
+                    //    vCondi.ConditionValue = valueFormated;
+                    //    break;
                     case ConditionTypeEnum.RequiredProducts:
                         var products = c.ConditionType.ToString().DeserializeJson<List<RequiredProductCommand>>();
                         string productFormated = string.Join(",", products.Select(r => r.ProductId));
@@ -200,15 +200,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             }
             return listCondition;
         }
-
-        private async Task<bool> ValidateVoucherConditions(CUVoucherCommand voucher)
-        {
-
-
-
-            return true;
-        }
-
     }
 
     public class CUVoucherCommandValidator : AbstractValidator<CUVoucherCommand>

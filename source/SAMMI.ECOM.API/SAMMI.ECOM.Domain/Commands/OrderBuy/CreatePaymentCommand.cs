@@ -22,4 +22,9 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }
     }
+
+    public class CreatePayback
+    {
+        public string OrderCode { get; set; }
+    }
 }

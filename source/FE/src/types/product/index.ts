@@ -43,7 +43,7 @@ export type TProduct = {
     name: string;
     stockQuantity: number;
     price: number;
-    discount?: number;
+    discount: number;
     ingredient: string;
     uses: string;
     usageGuide: string;
@@ -60,7 +60,7 @@ export type TParamsCreateProduct = {
     name: string;
     stockQuantity: number;
     price: number;
-    discount?: number;
+    discount: number;
     ingredient: string;
     uses: string;
     usageGuide: string;

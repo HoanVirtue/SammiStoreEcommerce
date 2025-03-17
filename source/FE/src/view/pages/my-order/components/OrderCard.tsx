@@ -34,6 +34,7 @@ import { updateProductToCart } from 'src/stores/order'
 import { useAuth } from 'src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import { ROUTE_CONFIG } from 'src/configs/route'
+import { PAYMENT_METHOD } from 'src/configs/payment'
 
 
 type TProps = {
@@ -52,6 +53,7 @@ const OrderCard: NextPage<TProps> = (props) => {
     const { t } = useTranslation();
     const { user } = useAuth()
     const router = useRouter()
+    const paymentData = PAYMENT_METHOD()
 
     //redux
     const dispatch: AppDispatch = useDispatch();
@@ -94,6 +96,10 @@ const OrderCard: NextPage<TProps> = (props) => {
         router.push(`${ROUTE_CONFIG.MY_ORDER}/${orderData._id}`)
     }
 
+    const handlePayment = () =>{
+        
+    }
+
 
     //cancel order
     useEffect(() => {
@@ -103,7 +109,7 @@ const OrderCard: NextPage<TProps> = (props) => {
     }, [isSuccessCancel])
 
     const memoDisableBuyAgain = useMemo(()=>{
-        // return orderData.orderItems?.some((item)=> !item.product.countInStock)
+        // return orderData.orderItems?.some((item)=> !item.product.countInStock )
     },[orderData.orderItems])
 
     return (
@@ -190,6 +196,15 @@ const OrderCard: NextPage<TProps> = (props) => {
                     gap: 4,
                     mt: 4
                 }}>
+                    {/* {[0].includes(orderData.status) && orderData.paymentMethod.type !== paymentData.PAYMENT_LATER.value && ( */}
+                        <Button variant="contained"
+                            color='error'
+                            onClick={handlePayment}
+                            startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                            {t('payment')}
+                        </Button>
+                    {/* )} */}
                     {[0, 1].includes(orderData.status) && (
                         <Button variant="contained"
                             color='error'

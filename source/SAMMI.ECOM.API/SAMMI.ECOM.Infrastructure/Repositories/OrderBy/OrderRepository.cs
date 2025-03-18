@@ -40,6 +40,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                              join t2 in _context.OrderDetails on t1.Id equals t2.OrderId
                              join t3 in _context.Users on t1.CustomerId equals t3.Id
                              join t4 in _context.Products on t2.ProductId equals t4.Id
+                             join t5 in _context.Payments on t1.Id equals t5.OrderId
                              where
                                 !string.IsNullOrEmpty(code)
                                 ? t1.Code.ToLower() == code.ToLower()
@@ -48,11 +49,12 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                                 && t2.IsDeleted != true
                                 && t3.IsDeleted != true && t3.IsActive == true
                                 && t4.IsDeleted != true && t4.IsActive == true
+                                && t5.IsDeleted != true
                              group new { t2, t4 } by new
                              {
                                  t1.Id,
                                  t1.Code,
-                                 t1.PaymentStatus,
+                                 t5.PaymentStatus,
                                  t1.OrderStatus,
                                  t1.ShippingStatus,
                                  t1.VoucherId,

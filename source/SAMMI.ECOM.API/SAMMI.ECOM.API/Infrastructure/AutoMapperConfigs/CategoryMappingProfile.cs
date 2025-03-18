@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SAMMI.ECOM.Domain.AggregateModels;
 using SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
@@ -65,8 +66,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<CUProductCategoryCommand, ProductCategory>();
             CreateMap<ProductCategory, ProductCategoryDTO>();
 
-            //CreateMap<>();
-            //CreateMap<>();
+            CreateMap<CUCustomerAddressCommand, CustomerAddress>();
+            CreateMap<CustomerAddress, CustomerAddressDTO>();
             //CreateMap<>();
             //CreateMap<>();
         }

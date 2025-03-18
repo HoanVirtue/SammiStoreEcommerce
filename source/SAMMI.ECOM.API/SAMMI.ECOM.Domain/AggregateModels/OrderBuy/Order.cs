@@ -17,10 +17,6 @@ public partial class Order : Entity
     [ForeignKey("Customer")]
     public int CustomerId { get; set; }
 
-    [Column("PaymentStatus")]
-    [MaxLength(50)]
-    public string? PaymentStatus { get; set; }
-
     [Column("OrderStatus")]
     [MaxLength(50)]
     public string? OrderStatus { get; set; }

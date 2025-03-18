@@ -215,5 +215,7 @@ namespace SAMMI.ECOM.API.Controllers
         {
             return Ok(await _userRepository.GetUserById(UserIdentity.Id));
         }
+
+
     }
 }

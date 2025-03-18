@@ -88,7 +88,6 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
 
             // update info payment
             payment.TransactionId = paymentResult.TransactionId;
-            payment.ReponseCode = paymentResult.VnPayResponseCode;
             payment.PaymentStatus = PaymentStatusEnum.Paid.ToString();
             payment.PaymentDate = paymentResult.PaymentDate;
             var paymentUpdateRes = await _paymentRepository.UpdateAndSave(payment);
@@ -172,8 +171,6 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             if (model.vnp_ResponseCode == "00") // 00 là mã thành công
             {
                 payment.TransactionId = model.vnp_TransactionNo;
-                payment.ReponseCode = model.vnp_ResponseCode;
-                payment.PaymentStatus = PaymentStatusEnum.Paid.ToString();
                 payment.PaymentDate = DateTime.Parse(model.vnp_PayDate);
                 await _paymentRepository.UpdateAndSave(payment);
                 await _orderRepository.UpdateStatus(OrderStatusEnum.Processing, code: orderCode);

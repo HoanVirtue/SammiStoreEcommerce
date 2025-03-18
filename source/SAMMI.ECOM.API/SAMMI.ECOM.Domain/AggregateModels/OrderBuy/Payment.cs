@@ -1,5 +1,4 @@
 ﻿using SAMMI.ECOM.Domain.Seeds;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
@@ -21,15 +20,8 @@ public partial class Payment : Entity
     [Column("TransactionId")]
     public string? TransactionId { get; set; }
 
-    [Column("ReponseCode")]
-    [StringLength(10)]
-    public string? ReponseCode { get; set; }
-
     [Column("PaymentDate")]
     public DateTime? PaymentDate { get; set; }
-
-    [Column("PaymentCreated")]
-    public DateTime? PaymentCreated { get; set; }
 
 
     public virtual Order Order { get; set; } = null!;

@@ -1,6 +1,10 @@
-﻿namespace SAMMI.ECOM.Domain.Commands;
+﻿using MediatR;
+using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.DomainModels.CategoryAddress;
 
-public partial class CUCustomerAddressCommand
+namespace SAMMI.ECOM.Domain.Commands;
+
+public partial class CUCustomerAddressCommand : IRequest<ActionResponse<CustomerAddressDTO>>
 {
     public int? CustomerId { get; set; }
     public string? StreetAddress { get; set; }

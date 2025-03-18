@@ -8,7 +8,7 @@ import { NextPage } from 'next'
 import { useRouter } from 'next/navigation'
 
 //MUI
-import { Avatar, AvatarGroup, Chip, ChipProps, Grid, ListItem, Typography, useTheme } from '@mui/material'
+import { Avatar, AvatarGroup, Chip, ChipProps, Grid, ListItem, Tooltip, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 import { GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid'
 
@@ -46,35 +46,22 @@ import { resetInitialState } from 'src/stores/user'
 import { styled } from '@mui/material'
 import CustomSelect from 'src/components/custom-select'
 import { getAllCities } from 'src/services/city'
-import { deleteOrderAsync, getAllManageOrderAsync } from 'src/stores/order/action'
-import { ORDER_STATUS } from 'src/configs/order'
-import { TItemOrderProduct, TOrderItem } from 'src/types/order'
-import UpdateOrder from './components/UpdateOrder'
+import { deleteReviewAsync, getAllReviewsAsync } from 'src/stores/review/action'
+import { FILTER_REVIEW_CMS } from 'src/configs/review'
+import UpdateReview from './components/UpdateReview'
+
 
 type TProps = {}
 
-interface TStatusChip extends ChipProps{
-    background: string
-}
-
-const StyledOrderStatus = styled(Chip)<TStatusChip>(({ theme, background }) => ({
-    backgroundColor: background,
-    color: theme.palette.common.white,
-    fontSize: "14px",
-    padding: "8px 4px",
-    fontWeight: 600
-}))
-
-
-const ListOrderPage: NextPage<TProps> = () => {
+const ListReviewPage: NextPage<TProps> = () => {
     //States
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
-    const [openUpdateOrder, setOpenUpdateOrder] = useState({
+    const [openUpdateReview, setOpenUpdateReview] = useState({
         open: false,
         id: ""
     });
-    const [openDeleteOrder, setOpenDeleteOrder] = useState({
+    const [openDeleteReview, setOpenDeleteReview] = useState({
         open: false,
         id: ""
     });
@@ -82,9 +69,7 @@ const ListOrderPage: NextPage<TProps> = () => {
     const [sortBy, setSortBy] = useState("createdAt asc");
     const [searchBy, setSearchBy] = useState("");
     const [loading, setLoading] = useState(false);
-    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
-    const [selectedCity, setSelectedCity] = useState<string[]>([]);
-    const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+    const [selectedStar, setSelectedStar] = useState<string[]>([]);
     const [filterBy, setFilterBy] = useState<Record<string, string | string[]>>({});
 
     //Translation
@@ -92,65 +77,27 @@ const ListOrderPage: NextPage<TProps> = () => {
 
 
     //hooks
-    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("SYSTEM.MANAGE_ORDER.ORDER", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
+    const { VIEW, CREATE, UPDATE, DELETE } = usePermission("SYSTEM.MANAGE_ORDER.REVIEW", ["CREATE", "UPDATE", "DELETE", "VIEW"]);
 
     //router
     const router = useRouter();
 
     //Redux
-    const { orderProducts, isSuccessUpdate, isErrorUpdate, isLoading,
-        errorMessageUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.order)
+    const { reviews, isSuccessUpdate, isErrorUpdate, isLoading,
+        errorMessageUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.review)
     const dispatch: AppDispatch = useDispatch();
 
     //Theme
     const theme = useTheme();
 
-    const STYLED_ORDER_STATUS = {
-        0: {
-            label: 'wait_payment',
-            background: "orange"
-        },
-        1: {
-            label: 'wait_delivery',
-            background: theme.palette.warning.main
-        },
-        2: {
-            label: 'completed',
-            background: theme.palette.success.main
-        },
-        3: {
-            label: 'cancelled',
-            background: theme.palette.error.main
-        },
-        4: {
-            label: 'all',
-            background: "white"
-        },
-    }
-
+    const reviewOption = FILTER_REVIEW_CMS()
 
     //api 
-    const handleGetListOrder = () => {
+    const handleGetListReview = () => {
         const query = {
             params: { limit: pageSize, page: page, search: searchBy, order: sortBy, ...formatFilter(filterBy) }
         }
-        dispatch(getAllManageOrderAsync(query));
-    }
-
-    const fetchAllCities = async () => {
-        setLoading(true)
-        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.cities
-            if (data) {
-                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
+        dispatch(getAllReviewsAsync(query));
     }
 
     //handlers
@@ -168,116 +115,84 @@ const ListOrderPage: NextPage<TProps> = () => {
         }
     }
 
-    const handleCloseUpdateOrder = () => {
-        setOpenUpdateOrder({
+    const handleCloseUpdateReview = () => {
+        setOpenUpdateReview({
             open: false,
             id: ""
         })
     }
 
     const handleCloseDeleteDialog = () => {
-        setOpenDeleteOrder({
+        setOpenDeleteReview({
             open: false,
             id: ""
         })
     }
 
 
-    const handleDeleteOrder = () => {
-        dispatch(deleteOrderAsync(openDeleteOrder.id))
+    const handleDeleteReview = () => {
+        dispatch(deleteReviewAsync(openDeleteReview.id))
     }
 
 
     const columns: GridColDef[] = [
         {
-            field: 'product_image',
-            headerName: t('product_image'),
+            field: 'username',
+            headerName: t('username'),
             minWidth: 200,
             flex: 1,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
+                const fullName = toFullName(row?.user?.lastName || '', row?.user?.middleName || '', row?.user?.firstName || '', i18n.language)
                 return (
-                    <AvatarGroup max={3} total={row?.orderItems?.length}>
-                        {row?.orderItems?.map((item: TItemOrderProduct)=>{
-                            return (
-                                <Avatar alt={item?.slug} 
-                                src={item.image}
-                                key={item?.product}
-                                  />
-                            )
-                        })}
-                    </AvatarGroup>
+                    <Typography sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%' }}>{fullName}</Typography>
                 )
             }
         },
         {
-            field: 'fullname',
-            headerName: t('fullname'),
+            field: 'product_name',
+            headerName: t('product_name'),
             flex: 1,
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{row?.shippingAddress?.fullName}</Typography>
+                    <Typography sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%' }}>
+                        <Tooltip title={row?.product?.name}>
+                            {row?.product?.name}
+                        </Tooltip>
+                    </Typography>
                 )
             }
         },
         {
-            field: 'total_price',
-            headerName: t('total_price'),
+            field: 'content',
+            headerName: t('content'),
             flex: 1,
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{row?.totalPrice}</Typography>
+                    <Typography sx={{ textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden', maxWidth: '200px', width: '100%' }}>
+                        <Tooltip title={row?.content}>
+                            {row?.content}
+                        </Tooltip>
+                    </Typography>
                 )
             }
         },
         {
-            field: 'city',
-            headerName: t('city'),
+            field: 'star',
+            headerName: t('star'),
             flex: 1,
             minWidth: 200,
             maxWidth: 200,
             renderCell: (params: GridRenderCellParams) => {
                 const { row } = params
                 return (
-                    <Typography>{row?.shippingAddress?.city}</Typography>
-                )
-            }
-        },
-        {
-            field: 'phone',
-            headerName: t('phone'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.shippingAddress?.phone}</Typography>
-                )
-            }
-        },
-        {
-            field: 'status',
-            headerName: t('status'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <>
-                        {
-                            <StyledOrderStatus 
-                            background = {(STYLED_ORDER_STATUS as any)[row?.status]?.background}
-                            label={t((STYLED_ORDER_STATUS as any)[row?.status]?.label)} />
-                        }
-                    </>
+                    <Typography>{row?.star}</Typography>
                 )
             }
         },
@@ -293,14 +208,14 @@ const ListOrderPage: NextPage<TProps> = () => {
                     <>
                         <GridUpdate
                             disabled={!UPDATE}
-                            onClick={() => setOpenUpdateOrder({
+                            onClick={() => setOpenUpdateReview({
                                 open: true,
                                 id: String(params.id)
                             })}
                         />
                         <GridDelete
                             disabled={!DELETE}
-                            onClick={() => setOpenDeleteOrder({
+                            onClick={() => setOpenDeleteReview({
                                 open: true,
                                 id: String(params.id)
                             })}
@@ -317,54 +232,40 @@ const ListOrderPage: NextPage<TProps> = () => {
             pageSizeOptions={PAGE_SIZE_OPTIONS}
             onChangePagination={handleOnChangePagination}
             page={page}
-            rowLength={orderProducts.total}
+            rowLength={reviews.total}
         />
     };
 
     useEffect(() => {
-        handleGetListOrder();
+        handleGetListReview();
     }, [sortBy, searchBy, i18n.language, page, pageSize, filterBy]);
 
     useEffect(() => {
-        setFilterBy({ status: selectedStatus, cityId: selectedCity });
-    }, [selectedStatus, selectedCity]);
+        setFilterBy({ minStar: selectedStar });
+    }, [selectedStar]);
 
-    useEffect(() => {
-        fetchAllCities();
-    }, []);
 
-    /// create order
+
+    /// update Review
     useEffect(() => {
         if (isSuccessUpdate) {
-            if (!openUpdateOrder.id) {
-                toast.success(t("create_order_success"))
-            } else {
-                toast.success(t("update_order_success"))
-            }
-            handleGetListOrder()
-            handleCloseUpdateOrder()
+            toast.success(t("update_review_success"))
+            handleGetListReview()
+            handleCloseUpdateReview()
             dispatch(resetInitialState())
         } else if (isErrorUpdate && errorMessageUpdate && typeError) {
-            const errConfig = OBJECT_TYPE_ERROR[typeError]
-            if (errConfig) {
-                toast.error(t(errConfig))
-            } else {
-                if (openUpdateOrder.id) {
-                    toast.error(t("update_order_error"))
-                } else {
-                    toast.error(t("create_order_error"))
-                }
-            }
+
+            toast.error(t("update_review_error"))
             dispatch(resetInitialState())
         }
     }, [isSuccessUpdate, isErrorUpdate, errorMessageUpdate, typeError])
 
 
-    //delete order
+    //delete Review
     useEffect(() => {
         if (isSuccessDelete) {
-            toast.success(t("delete_order_success"))
-            handleGetListOrder()
+            toast.success(t("delete_review_success"))
+            handleGetListReview()
             dispatch(resetInitialState())
             handleCloseDeleteDialog()
         } else if (isErrorDelete && errorMessageDelete) {
@@ -373,28 +274,22 @@ const ListOrderPage: NextPage<TProps> = () => {
         }
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
 
-    const memoStatusOptions = useMemo(() => {
-        return Object.values(ORDER_STATUS).map((status) => ({
-            label: t(status.label),
-            value: status.value
-        }))
-    }, [])
 
     return (
         <>{loading && <Spinner />}
             <ConfirmDialog
-                open={openDeleteOrder.open}
+                open={openDeleteReview.open}
                 onClose={handleCloseDeleteDialog}
                 handleCancel={handleCloseDeleteDialog}
-                handleConfirm={handleDeleteOrder}
-                title={"Xác nhận xóa đơn hàng"}
-                description={"Bạn có chắc xóa đơn hàng này không?"}
+                handleConfirm={handleDeleteReview}
+                title={"Xác nhận xóa đánh giá"}
+                description={"Bạn có chắc xóa đánh giá này không?"}
             />
-            
-            <UpdateOrder
-                idOrder={openUpdateOrder.id}
-                open={openUpdateOrder.open}
-                onClose={handleCloseUpdateOrder}
+
+            <UpdateReview
+                idReview={openUpdateReview.id}
+                open={openUpdateReview.open}
+                onClose={handleCloseUpdateReview}
             />
             {isLoading && <Spinner />}
             <Box sx={{
@@ -418,20 +313,10 @@ const ListOrderPage: NextPage<TProps> = () => {
                             <CustomSelect
                                 fullWidth
                                 multiple
-                                value={selectedCity}
-                                options={cityOptions}
-                                onChange={(e) => setSelectedCity(e.target.value as string[])}
-                                placeholder={t('city')}
-                            />
-                        </Box>
-                        <Box sx={{ width: '200px', }}>
-                            <CustomSelect
-                                fullWidth
-                                multiple
-                                value={selectedStatus}
-                                options={memoStatusOptions}
-                                onChange={(e) => setSelectedStatus(e.target.value as string[])}
-                                placeholder={t('status')}
+                                value={selectedStar}
+                                options={reviewOption}
+                                onChange={(e) => setSelectedStar(e.target.value as string[])}
+                                placeholder={t('star')}
                             />
                         </Box>
                         <Box sx={{
@@ -441,7 +326,7 @@ const ListOrderPage: NextPage<TProps> = () => {
                         </Box>
                     </Box>
                     <CustomDataGrid
-                        rows={orderProducts.data}
+                        rows={reviews.data}
                         columns={columns}
                         // checkboxSelection
                         getRowId={(row) => row._id}
@@ -456,7 +341,7 @@ const ListOrderPage: NextPage<TProps> = () => {
                         }}
                         disableColumnFilter
                         disableColumnMenu
-         
+
                         sx={{
                             ".selected-row": {
                                 backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
@@ -470,4 +355,4 @@ const ListOrderPage: NextPage<TProps> = () => {
     )
 }
 
-export default ListOrderPage
+export default ListReviewPage

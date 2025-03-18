@@ -304,7 +304,6 @@ const UpdateOrder = (props: TUpdateOrder) => {
                                                     render={({ field: { onChange, onBlur, value } }) => (
                                                         <CustomTextField
                                                             fullWidth
-                                                            disabled
                                                             required
                                                             label={t('address')}
                                                             onChange={onChange}
@@ -327,8 +326,16 @@ const UpdateOrder = (props: TUpdateOrder) => {
                                                             disabled
                                                             required
                                                             label={t('phone')}
-                                                            onChange={onChange}
+                                                            onChange={(e) => {
+                                                                const numberValue = e.target.value.replace(/\D/g, '');
+                                                                onChange(numberValue);
+                                                            }}
                                                             onBlur={onBlur}
+                                                            inputProps={{
+                                                                inputMode: 'numeric',
+                                                                pattern: '[0-9]*',
+                                                                minLength: 10
+                                                            }}
                                                             value={value}
                                                             placeholder={t('enter_phone')}
                                                             error={errors.phone ? true : false}

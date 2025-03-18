@@ -51,7 +51,7 @@ export const VerticalLayoutItems = () => {
                     title: t('order_list'),
                     icon: 'lsicon:order-outline',
                     path: ROUTE_CONFIG.MANAGE_ORDER.ORDER,
-                    permission: [PERMISSIONS.MANAGE_ORDER.ORDER.VIEW]
+                    permission: PERMISSIONS.MANAGE_ORDER.ORDER.VIEW
                 },
                 {
                     title: t('review_list'),
@@ -68,6 +68,7 @@ export const VerticalLayoutItems = () => {
                     title: t('product_list'),
                     icon: 'fluent-mdl2:product-catalog',
                     path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT,
+                    permission: PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW
                 },
                 {
                     title: t('product_category'),

@@ -35,6 +35,8 @@ import { useAuth } from 'src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import { PAYMENT_METHOD } from 'src/configs/payment'
+import { createVNPayPaymentUrl, getVNPayPaymentIpn } from 'src/services/payment'
+import Spinner from 'src/components/spinner'
 
 
 type TProps = {
@@ -48,12 +50,14 @@ const OrderCard: NextPage<TProps> = (props) => {
 
     //States
     const [openCancelDialog, setOpenCancelDialog] = useState<boolean>(false)
+    const [loading, setLoading] = useState<boolean>(false)
 
     //hooks
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { user } = useAuth()
     const router = useRouter()
     const paymentData = PAYMENT_METHOD()
+
 
     //redux
     const dispatch: AppDispatch = useDispatch();
@@ -96,8 +100,29 @@ const OrderCard: NextPage<TProps> = (props) => {
         router.push(`${ROUTE_CONFIG.MY_ORDER}/${orderData._id}`)
     }
 
-    const handlePayment = () =>{
-        
+    const handlePaymentMethod = (type: string) => {
+        switch (type) {
+            case paymentData.VN_PAYMENT.value: {
+                handlePaymentVNPay()
+                break;
+            }
+            default:
+                break
+        }
+    }
+
+    const handlePaymentVNPay = async () => {
+        setLoading(true)
+        await createVNPayPaymentUrl({
+            totalPrice: orderData.totalPrice,
+            orderId: orderData._id,
+            language: i18n.language === "vi" ? "vn" : i18n.language
+        }).then((res) => {
+            if (res.data) {
+                window.open(res.data, "_blank", "noopener,noreferrer")
+            }
+            setLoading(false)
+        })
     }
 
 
@@ -108,13 +133,13 @@ const OrderCard: NextPage<TProps> = (props) => {
         }
     }, [isSuccessCancel])
 
-    const memoDisableBuyAgain = useMemo(()=>{
+    const memoDisableBuyAgain = useMemo(() => {
         // return orderData.orderItems?.some((item)=> !item.product.countInStock )
-    },[orderData.orderItems])
+    }, [orderData.orderItems])
 
     return (
         <>
-            {/* {loading || isLoading && <Spinner />} */}
+            {loading && <Spinner />}
             <ConfirmDialog
                 open={openCancelDialog}
                 onClose={() => setOpenCancelDialog(false)}
@@ -129,8 +154,22 @@ const OrderCard: NextPage<TProps> = (props) => {
                 borderRadius: '15px',
                 width: "100%",
             }}>
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, fontWeight: 600 }}>
-                    <Typography sx={{ color: theme.palette.primary.main }}>{t((ORDER_STATUS as any)[orderData.status].label)}</Typography>
+                <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                    {!!orderData?.isDelivered && (
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                            <IconifyIcon color={theme.palette.success.main}
+                                icon='material-symbols-light:delivery-truck-speed-outline-rounded' />
+                            <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_delivered')}{' | '}</Typography>
+                        </Box>
+                    )}
+                    {!!orderData?.isPaid && (
+                        <Box sx={{ display: 'flex', gap: 2 }}>
+                            <IconifyIcon color={theme.palette.success.main}
+                                icon='streamline:payment-10' />
+                            <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_paid')}{' | '}</Typography>
+                        </Box>
+                    )}
+                    <Typography sx={{ color: theme.palette.primary.main }}>{t((ORDER_STATUS as any)[orderData?.status]?.label)}</Typography>
                 </Box>
                 <Divider />
                 <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
@@ -196,15 +235,15 @@ const OrderCard: NextPage<TProps> = (props) => {
                     gap: 4,
                     mt: 4
                 }}>
-                    {/* {[0].includes(orderData.status) && orderData.paymentMethod.type !== paymentData.PAYMENT_LATER.value && ( */}
+                    {[0].includes(orderData.status) && orderData.paymentMethod.type !== paymentData.PAYMENT_LATER.value && (
                         <Button variant="contained"
                             color='error'
-                            onClick={handlePayment}
+                            onClick={() => handlePaymentMethod(orderData.paymentMethod.type)}
                             startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
                             sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                             {t('payment')}
                         </Button>
-                    {/* )} */}
+                    )}
                     {[0, 1].includes(orderData.status) && (
                         <Button variant="contained"
                             color='error'

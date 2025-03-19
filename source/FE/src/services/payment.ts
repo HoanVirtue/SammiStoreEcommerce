@@ -5,7 +5,7 @@ import { TParamsCreatePaymentUrl, TParamsGetVNPayPaymentIpn } from "src/types/pa
 
 export const createVNPayPaymentUrl = async (data: TParamsCreatePaymentUrl) => {
     try {
-        const res = await instance.post(`${API_ENDPOINT.PAYMENT.VNPAY.INDEX}/create_payment_url`, data)
+        const res = await instance.post(`${API_ENDPOINT.PAYMENT.VNPAY.INDEX}/create-payment-url`, data)
         return res.data
     } catch (error) {
         return error
@@ -14,7 +14,7 @@ export const createVNPayPaymentUrl = async (data: TParamsCreatePaymentUrl) => {
 
 export const getVNPayPaymentIpn = async (data: {params: TParamsGetVNPayPaymentIpn}) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.PAYMENT.VNPAY.INDEX}/vnpay_ipn`, data)
+        const res = await instance.get(`${API_ENDPOINT.PAYMENT.VNPAY.INDEX}/vnpay-ipn`, data)
         return res.data
     } catch (error) {
         return error

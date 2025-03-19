@@ -40,19 +40,24 @@ import Spinner from 'src/components/spinner'
 import WarningModal from './components/WarningModal'
 import Swal from 'sweetalert2'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
+import { ROUTE_CONFIG } from 'src/configs/route'
+import { createVNPayPaymentUrl } from 'src/services/payment'
+import { PAYMENT_METHOD } from 'src/configs/payment'
 
 type TProps = {}
 
 const CheckoutPage: NextPage<TProps> = () => {
     //States
     const [loading, setLoading] = useState<boolean>(false)
-    const [paymentOptions, setPaymentOptions] = useState<{ label: string, value: string }[]>([])
+    const [paymentOptions, setPaymentOptions] = useState<{ label: string, value: string, type: string }[]>([])
     const [deliveryOptions, setDeliveryOptions] = useState<{ label: string, value: string, price: string }[]>([])
     const [selectedPayment, setSelectedPayment] = useState<string>('')
     const [selectedDelivery, setSelectedDelivery] = useState<string>('')
     const [openAddressModal, setOpenAddressModal] = useState(false)
     const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
     const [openWarning, setOpenWarning] = useState(false)
+
+    const paymentData = PAYMENT_METHOD()
 
     //hooks
     const { user } = useAuth()
@@ -120,9 +125,10 @@ const CheckoutPage: NextPage<TProps> = () => {
         setLoading(true)
         await getAllPaymentMethods({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
             if (res?.data) {
-                setPaymentOptions(res?.data?.paymentTypes?.map((item: { name: string, _id: string }) => ({
+                setPaymentOptions(res?.data?.paymentTypes?.map((item: { name: string, _id: string, type: string }) => ({
                     label: item?.name,
-                    value: item?._id
+                    value: item?._id,
+                    type: item.type
                 })))
                 setSelectedPayment(res?.data?.paymentTypes?.[0]?._id)
             }
@@ -174,6 +180,31 @@ const CheckoutPage: NextPage<TProps> = () => {
         setSelectedPayment(value)
     }
 
+    const handlePaymentMethod = (type: string, data: {orderId: string, totalPrice: number}) => {
+        switch (type) {
+            case paymentData.VN_PAYMENT.value: {
+                handlePaymentVNPay(data)
+                break;
+            }
+            default:
+                break
+        }
+    }
+
+    const handlePaymentVNPay = async (data:  {orderId: string, totalPrice: number}) => {
+        setLoading(true)
+        await createVNPayPaymentUrl({
+            totalPrice: data.totalPrice,
+            orderId: data?.orderId,
+            language: i18n.language === "vi" ? "vn" : i18n.language
+        }).then((res) => {
+            if (res.data) {
+                window.open(res.data, "_blank", "noopener,noreferrer")
+            }
+            setLoading(false)
+        })
+    }
+
     const handlePlaceOrder = () => {
 
         const totalPrice = Number(memoShippingPrice) ? Number(memoQueryProduct?.totalPrice) + Number(memoShippingPrice) : Number(memoQueryProduct?.totalPrice)
@@ -189,7 +220,15 @@ const CheckoutPage: NextPage<TProps> = () => {
             city: memoDefaultAddress ? memoDefaultAddress?.city : "",
             phone: memoDefaultAddress ? memoDefaultAddress?.phoneNumber : "",
             totalPrice: Number(totalPrice)
-        }))
+        })).then((res) => {
+            const paymentMethodId = res?.payload.data?.paymentMethod
+            const orderId = res?.payload?.data?._id
+            const totalPrice = res?.payload?.data?.totalPrice
+            const findPayment = paymentOptions.find((item) => item.value === paymentMethodId)
+            if (findPayment) {
+                handlePaymentMethod(findPayment.type, {orderId, totalPrice})
+            }
+        })
     }
 
     const handleChangeQuantity = (items: TItemOrderProduct[]) => {
@@ -245,7 +284,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 color: theme.palette.customColors.main
             }).then((result) => {
                 if (result.isConfirmed) {
-
+                    router.push(ROUTE_CONFIG.MY_ORDER)
                 }
             })
             handleChangeQuantity(memoQueryProduct.selectedProduct)

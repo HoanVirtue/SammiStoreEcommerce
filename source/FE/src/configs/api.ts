@@ -11,6 +11,9 @@ export const API_ENDPOINT = {
       INDEX: `${BASE_URL}/payment/vnpay`,
     }
   },
+  REPORT: {
+    INDEX: `${BASE_URL}/report`
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,

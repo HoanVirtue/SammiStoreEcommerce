@@ -208,35 +208,37 @@ const CheckoutPage: NextPage<TProps> = () => {
     const handlePlaceOrder = () => {
 
         const totalPrice = Number(memoShippingPrice) ? Number(memoQueryProduct?.totalPrice) + Number(memoShippingPrice) : Number(memoQueryProduct?.totalPrice)
+        const orderDetails = memoQueryProduct.selectedProduct.map((item: TItemOrderProduct) => ({
+            orderId: 0, 
+            productId: Number(item.productId),
+            quantity: item.amount,
+            tax: 0,
+            id: 2, 
+            amount: item.price * item.amount * (item.discount ? (100 - item.discount) / 100 : 1),
+        }));
         dispatch(createOrderAsync({
+            id: 1,
+            displayOrder: 0,
             customerId: user ? user?.id : 0,
-            code: 0,
-            paymentStatus: '',
-            orderStatus: '',
-            shippingStatus: '',
+            code: "1",
+            paymentStatus: 'pending',
+            orderStatus: 'pending',
+            shippingStatus: 'pending',
             voucherId: 0,
-            wardId: 0,
+            wardId: 20,
             customerAddress: '',
             costShip: 0,
             trackingNumber: '',
-            estimatedDeliveryDate: null,
-            actualDeliveryDate: null,
+            estimatedDeliveryDate: '2025-03-20T11:40:42.001Z',
+            actualDeliveryDate: '2025-03-20T11:40:42.001Z',
             shippingCompanyId: 0,
 
-            details: [
-                {
-                    orderId: 0,
-                    productId: 0,
-                    quantity: 0,
-                    tax: 0,
-                    amount: 0,
-                }
-            ],
+            details: orderDetails,
             totalAmount: totalPrice,
-            totalQuantity: 0,
+            totalQuantity: 2,
             discountAmount: 0,
             isBuyNow: false,
-            paymentMethodId: 0
+            paymentMethodId: 1
         }))
     }
 
@@ -422,7 +424,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                                         textDecoration: item?.discount && item?.discount > 0 ? "line-through" : "normal",
                                                         fontSize: "14px"
                                                     }}>
-                                                        {formatPrice(item?.price)} VND
+                                                        {formatPrice(item?.price)}đ
                                                     </Typography>
                                                 </Grid>
                                                 <Grid item md={2}>
@@ -433,11 +435,11 @@ const CheckoutPage: NextPage<TProps> = () => {
                                                     }}>
                                                         {item?.discount && item?.discount > 0 ? (
                                                             <>
-                                                                {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
+                                                                {formatPrice(item?.price * (100 - item?.discount * 100) / 100)}đ
                                                             </>
                                                         ) : (
                                                             <>
-                                                                {formatPrice(item?.price)} VND
+                                                                {formatPrice(item?.price)}đ
                                                             </>
                                                         )}
                                                     </Typography>
@@ -534,7 +536,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 {t('product_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ width: '200px', fontSize: "20px" }}>
-                                {formatPrice(memoQueryProduct.totalPrice)} VND
+                                {formatPrice(memoQueryProduct.totalPrice)}đ
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", mt: 3, gap: 2 }}>
@@ -542,7 +544,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 {t('shipping_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ width: '200px', fontSize: "20px" }}>
-                                {formatPrice(memoShippingPrice)} VND
+                                {formatPrice(memoShippingPrice)}đ
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", mt: 3, gap: 2 }}>
@@ -550,7 +552,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 {t('total_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "24px", width: '200px', color: theme.palette.primary.main }}>
-                                {formatPrice(Number(memoQueryProduct.totalPrice) + Number(memoShippingPrice))} VND
+                                {formatPrice(Number(memoQueryProduct.totalPrice) + Number(memoShippingPrice))}đ
                             </Typography>
                         </Box>
                     </Box>

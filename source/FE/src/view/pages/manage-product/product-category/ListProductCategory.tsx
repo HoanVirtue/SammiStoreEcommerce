@@ -96,7 +96,7 @@ const ListProductCategoryPage: NextPage = () => {
             deleteMultipleAction={deleteMultipleProductCategoriesAsync as unknown as (ids: { [key: string]: string[] }) => any}
             resetAction={resetInitialState}
             CreateUpdateComponent={CreateUpdateProductCategory}
-            permissionKey="ADDRESS.productCategory"
+            permissionKey="MANAGE_PRODUCT.PRODUCT_CATEGORY"
             fieldMapping={{
                 "ProductCategory_name": "name",
                 "ProductCategory_code": "code",

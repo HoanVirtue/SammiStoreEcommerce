@@ -257,65 +257,6 @@ namespace SAMMI.ECOM.Infrastructure
             }
         }
 
-        private async Task SeedUsers()
-        {
-            if (!_context.Users.Any(x => x.Type == TypeUserEnum.Employee.ToString()))
-            {
-                List<User> users = new List<User>()
-                {
-                    new User()
-                    {
-                        Code = "NV000001",
-                        IsAdmin = true,
-                        IdentityGuid = Guid.NewGuid().ToString(),
-                        Type = TypeUserEnum.Employee.ToString(),
-                        Phone = "012321232",
-                        FirstName = "ad",
-                        LastName = "min",
-                        FullName = "admin",
-                        WardId = 1,
-                        Username = "admin",
-                        Gender = 1,
-                        Password = "AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==",
-                        IsActive = true,
-                        IsDeleted = false,
-                        IsLock = false,
-                        CreatedDate = DateTime.Now,
-                        CreatedBy = "N/A"
-                    },
-                    new User()
-                    {
-                        Code = "NV000002",
-                        IsAdmin = false,
-                        IdentityGuid = Guid.NewGuid().ToString(),
-                        Type = TypeUserEnum.Employee.ToString(),
-                        Phone = "012321443",
-                        FirstName = "employee",
-                        LastName = "employee",
-                        FullName = "employee",
-                        WardId = 1,
-                        Username = "employee",
-                        Gender = 1,
-                        Password = "AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==",
-                        IsActive = true,
-                        IsDeleted = false,
-                        IsLock = false,
-                        CreatedDate = DateTime.Now,
-                        CreatedBy = "N/A"
-                    }
-                };
-
-                try
-                {
-                    await _context.Users.AddRangeAsync(users);
-                    await _context.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-            }
-        }
 
         private async Task SeedPermission()
         {
@@ -483,6 +424,7 @@ namespace SAMMI.ECOM.Infrastructure
                     {
                         Code = "ADMIN",
                         Name = "Quản trị viên hệ thống",
+                        IsLock = true,
                         IsActive = true,
                         IsDeleted = false,
                         CreatedDate = DateTime.Now,
@@ -597,36 +539,81 @@ namespace SAMMI.ECOM.Infrastructure
             }
         }
 
-        private async Task SeedUserRole()
+        private async Task SeedUsers()
         {
-            if (!await _context.UserRoles.AnyAsync())
+            if (!_context.Users.Any(x => x.Type == TypeUserEnum.Employee.ToString()))
             {
-                List<UserRole> userRoles = new List<UserRole>();
-                List<User> users = await _context.Users.Where(x => x.Code == "NV000001" || x.Code == "NV000002").ToListAsync();
                 var roles = await _context.Roles.ToListAsync();
-                userRoles.Add(new UserRole()
+                List<User> users = new List<User>()
                 {
-                    RoleId = roles.FirstOrDefault(x => x.Code == "ADMIN").Id,
-                    UserId = users.FirstOrDefault(x => x.Code == "NV000001").Id,
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-                userRoles.Add(new UserRole()
-                {
-                    RoleId = roles.FirstOrDefault(x => x.Code == "MANAGER").Id,
-                    UserId = users.FirstOrDefault(x => x.Code == "NV000002").Id,
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "Unknown"
-                });
-
+                    new User()
+                    {
+                        Code = "NV000001",
+                        IsAdmin = true,
+                        IdentityGuid = Guid.NewGuid().ToString(),
+                        Type = TypeUserEnum.Employee.ToString(),
+                        Phone = "012321232",
+                        FirstName = "ad",
+                        LastName = "min",
+                        FullName = "admin",
+                        WardId = 1,
+                        Username = "admin",
+                        Gender = 1,
+                        Password = "AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==",
+                        RoleId = roles.FirstOrDefault(x => x.Code == RoleTypeEnum.ADMIN.ToString()).Id,
+                        IsActive = true,
+                        IsDeleted = false,
+                        IsLock = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    },
+                    new User()
+                    {
+                        Code = "NV000002",
+                        IsAdmin = false,
+                        IdentityGuid = Guid.NewGuid().ToString(),
+                        Type = TypeUserEnum.Employee.ToString(),
+                        Phone = "012321443",
+                        FirstName = "employee",
+                        LastName = "employee",
+                        FullName = "employee",
+                        WardId = 1,
+                        Username = "employee",
+                        Gender = 1,
+                        Password = "AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==",
+                        RoleId = roles.FirstOrDefault(x => x.Code == RoleTypeEnum.EMPLOYEE.ToString()).Id,
+                        IsActive = true,
+                        IsDeleted = false,
+                        IsLock = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    },
+                    new User()
+                    {
+                        Code = "KH000001",
+                        IsAdmin = false,
+                        IdentityGuid = Guid.NewGuid().ToString(),
+                        Type = TypeUserEnum.Customer.ToString(),
+                        Phone = "0123216543",
+                        FirstName = "Thu",
+                        LastName = "Thảo",
+                        FullName = "Thu Thảo",
+                        WardId = 1,
+                        Username = "thao",
+                        Gender = 0,
+                        Password = "AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==",
+                        RoleId = roles.FirstOrDefault(x => x.Code == RoleTypeEnum.CUSTOMER.ToString()).Id,
+                        IsActive = true,
+                        IsDeleted = false,
+                        IsLock = false,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = "N/A"
+                    },
+                };
 
                 try
                 {
-                    await _context.UserRoles.AddRangeAsync(userRoles);
+                    await _context.Users.AddRangeAsync(users);
                     await _context.SaveChangesAsync();
                 }
                 catch (Exception ex)
@@ -723,26 +710,26 @@ namespace SAMMI.ECOM.Infrastructure
                     CreatedDate = DateTime.Now,
                     CreatedBy = "System"
                 },
-                new DiscountType()
-                {
-                    Code = DiscountTypeEnum.TieredDiscount.ToString(),
-                    Name = "Giảm giá theo cấp bậc",
-                    Description = "Giảm giá theo cấp bậc dựa trên số lượng hoặc giá trị đơn hàng.",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "System"
-                },
-                new DiscountType()
-                {
-                    Code = DiscountTypeEnum.BundleDiscount.ToString(),
-                    Name = "Giảm giá khi mua combo",
-                    Description = "Giảm giá khi mua theo combo sản phẩm nhất định.",
-                    IsActive = true,
-                    IsDeleted = false,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = "System"
-                }
+                //new DiscountType()
+                //{
+                //    Code = DiscountTypeEnum.TieredDiscount.ToString(),
+                //    Name = "Giảm giá theo cấp bậc",
+                //    Description = "Giảm giá theo cấp bậc dựa trên số lượng hoặc giá trị đơn hàng.",
+                //    IsActive = true,
+                //    IsDeleted = false,
+                //    CreatedDate = DateTime.Now,
+                //    CreatedBy = "System"
+                //},
+                //new DiscountType()
+                //{
+                //    Code = DiscountTypeEnum.BundleDiscount.ToString(),
+                //    Name = "Giảm giá khi mua combo",
+                //    Description = "Giảm giá khi mua theo combo sản phẩm nhất định.",
+                //    IsActive = true,
+                //    IsDeleted = false,
+                //    CreatedDate = DateTime.Now,
+                //    CreatedBy = "System"
+                //}
             };
 
             try
@@ -795,18 +782,61 @@ namespace SAMMI.ECOM.Infrastructure
                 Console.WriteLine("Error seed payment method: ", ex.Message);
             }
         }
+
+        private async Task SeedShippingCompany()
+        {
+            if (_context.ShippingCompanies.Any())
+            {
+                return;
+            }
+            var ships = new List<ShippingCompany>
+            {
+                new ShippingCompany()
+                {
+                    Name = "Giao hàng nhanh",
+                    Website = "https://khachhang.ghn.vn/",
+                    ContactInfo = "",
+                    IsDefault = true,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+                new ShippingCompany()
+                {
+                    Name = "ViettelPost",
+                    Website = "https://viettelpost.vn/",
+                    ContactInfo = "",
+                    IsDefault = true,
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                },
+            };
+            try
+            {
+                await _context.ShippingCompanies.AddRangeAsync(ships);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error seed shipping company: ", ex.Message);
+            }
+        }
+
         public async Task SeedAsync()
         {
             await SeedAddress();
-            await SeedUsers();
             await SeedPermission();
             await SeedRole();
             await SeedRolePermission();
-            await SeedUserRole();
+            await SeedUsers();
             await SeedBrand();
             await SeedProductCategory();
             await SeedDiscountType();
             await SeedPaymentMethod();
+            await SeedShippingCompany();
         }
     }
 }

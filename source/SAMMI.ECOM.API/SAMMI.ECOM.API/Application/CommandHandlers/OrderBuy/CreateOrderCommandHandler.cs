@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using MediatR;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
@@ -21,6 +22,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly ICartRepository _cartRepository;
         private readonly ICartDetailRepository _cartDetailRepository;
         private readonly IProductRepository _productRepository;
+        private readonly IMediator _mediator;
+        private readonly IPaymentMethodRepository _methodRepository;
+        private readonly IShippingCompanyRepository _shippingRepository;
         public CreateOrderCommandHandler(
             IOrderRepository orderRepository,
             IOrderDetailRepository detailRepository,
@@ -29,6 +33,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             ICartRepository cartRepository,
             ICartDetailRepository cartDetailRepository,
             IProductRepository productRepository,
+            IMediator mediator,
+            IPaymentMethodRepository methodRepository,
+            IShippingCompanyRepository shippingCompanyRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -39,6 +46,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             _cartRepository = cartRepository;
             _cartDetailRepository = cartDetailRepository;
             _productRepository = productRepository;
+            _mediator = mediator;
+            _methodRepository = methodRepository;
+            _shippingRepository = shippingCompanyRepository;
         }
 
         public override async Task<ActionResponse<OrderDTO>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -55,6 +65,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.AddError("Mã phường không tồn tại.");
                 return actResponse;
             }
+            request.TotalAmount = 0;
             request.VoucherId = request.VoucherId == 0 ? null : request.VoucherId;
             var voucherExist = await _voucherRepository.GetByIdAsync(request.VoucherId);
             if ((request.VoucherId != 0 && request.VoucherId != null)
@@ -75,6 +86,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.AddError("Có ít nhất 1 sản phẩm không tồn tại");
                 return actResponse;
             }
+
+            // create order from ship & cal shipcost
+            request.ShippingCompanyId = (await _shippingRepository.GetShipDefault()).Id;
+            request.CostShip = 30000;
+            request.TotalAmount += request.CostShip;
+
 
             // create order
             request.CustomerId = _currentUser.Id;
@@ -101,6 +118,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     actResponse.AddError("Số lượng hàng trong kho không đủ! Vui lòng đặt lại đơn hàng");
                     return actResponse;
                 }
+                detail.Price = await _productRepository.GetPrice(detail.ProductId);
+                request.TotalAmount += detail.Price * detail.Quantity;
                 detail.OrderId = orderCreated.Id;
                 detail.CreatedDate = DateTime.Now;
                 detail.CreatedBy = "System";
@@ -133,9 +152,32 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 }
             }
 
-            //create transaction
+            // calculate discount
+            if (request.VoucherId != 0 && request.VoucherId != null)
+            {
+                var totalDiscount = await _voucherRepository.CalculateDiscount(request.VoucherId ?? 0, request.CostShip ?? 0, request.TotalAmount ?? 0);
+                request.TotalAmount -= totalDiscount;
+            }
 
-            actResponse.SetResult(_mapper.Map<OrderDTO>(orderCreated));
+            //create payment
+            var paymentRequest = new CreatePaymentCommand
+            {
+                OrderId = orderCreated.Id,
+                OrderCode = orderCreated.Code,
+                PaymentAmount = request.TotalAmount ?? 0,
+                PaymentStatus = PaymentStatusEnum.Pending.ToString(),
+                PaymentMethodId = request.PaymentMethodId
+            };
+
+            var paymentReponse = await _mediator.Send(paymentRequest);
+            actResponse.Combine(paymentReponse);
+            if (!actResponse.IsSuccess)
+            {
+                return actResponse;
+            }
+            var orderResult = _mapper.Map<OrderDTO>(orderCreated);
+            orderResult.ReturnUrl = paymentReponse.Result.ReturnUrl;
+            actResponse.SetResult(orderResult);
 
             return actResponse;
         }
@@ -149,7 +191,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .NotEmpty()
                 .WithMessage("Mã phường không được bỏ trống");
 
-            RuleFor(x => x.PaymentMethod)
+            RuleFor(x => x.PaymentMethodId)
                 .NotEmpty()
                 .WithMessage("Phương thức thanh toán không được bỏ trống");
 

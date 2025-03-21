@@ -22,9 +22,8 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public List<OrderDetailCommand> Details { get; set; }
         public decimal? TotalAmount { get; set; }
         public decimal? TotalQuantity { get; set; }
-        public decimal? DiscountAmount { get; set; }
         public bool IsBuyNow { get; set; }
-        public string PaymentMethod { get; set; }
+        public int? PaymentMethodId { get; set; }
 
 
         public int Id { get; set; }

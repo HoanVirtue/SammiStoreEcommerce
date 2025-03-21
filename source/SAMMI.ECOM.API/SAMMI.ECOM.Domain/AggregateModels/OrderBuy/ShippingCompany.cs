@@ -20,5 +20,7 @@ public partial class ShippingCompany : Entity
     [MaxLength(255)]
     public string? Website { get; set; }
 
+    public bool IsDefault { get; set; }
+
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }

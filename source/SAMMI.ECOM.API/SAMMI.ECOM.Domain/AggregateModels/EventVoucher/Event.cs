@@ -30,6 +30,10 @@ public partial class Event : Entity
     [Column("ImageId")]
     public int? ImageId { get; set; }
 
+    [Column("Description")]
+    [StringLength(int.MaxValue)]
+    public string? Description { get; set; }
+
     public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
     public virtual Image? Image { get; set; }
 }

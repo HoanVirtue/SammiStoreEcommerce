@@ -12,8 +12,8 @@ using SAMMI.ECOM.Infrastructure;
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     [DbContext(typeof(SammiEcommerceContext))]
-    [Migration("20250308182859_update-tbl-paymentmethod")]
-    partial class updatetblpaymentmethod
+    [Migration("20250314193220_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -369,6 +369,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<string>("Culture")
                         .HasColumnType("longtext")
                         .HasColumnName("Culture");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2147483647)
+                        .HasColumnType("longtext")
+                        .HasColumnName("Description");
 
                     b.Property<int?>("DisplayOrder")
                         .HasColumnType("int")
@@ -1045,6 +1050,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(65,30)")
+                        .HasColumnName("Price");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -1113,12 +1122,25 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("decimal(65,30)")
                         .HasColumnName("PaymentAmount");
 
+                    b.Property<DateTime?>("PaymentCreated")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("PaymentCreated");
+
+                    b.Property<DateTime?>("PaymentDate")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("PaymentDate");
+
                     b.Property<int>("PaymentMethodId")
                         .HasColumnType("int");
 
                     b.Property<string>("PaymentStatus")
                         .HasColumnType("longtext")
                         .HasColumnName("PaymentStatus");
+
+                    b.Property<string>("ReponseCode")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)")
+                        .HasColumnName("ReponseCode");
 
                     b.Property<string>("TransactionId")
                         .HasColumnType("longtext")
@@ -1296,6 +1318,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsActive");
 
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsDeleted");
@@ -1434,6 +1459,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("Gender");
 
+                    b.Property<string>("IdCardNumber")
+                        .HasColumnType("longtext")
+                        .HasColumnName("IdCardNumber");
+
                     b.Property<string>("IdentityGuid")
                         .IsRequired()
                         .HasMaxLength(36)
@@ -1471,6 +1500,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("varchar(20)")
                         .HasColumnName("Phone");
 
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
                     b.Property<string>("SecurityStamp")
                         .HasMaxLength(68)
                         .HasColumnType("varchar(68)")
@@ -1506,6 +1538,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AvatarId");
+
+                    b.HasIndex("RoleId");
 
                     b.HasIndex("WardId");
 
@@ -2109,6 +2143,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsDeleted");
 
+                    b.Property<bool?>("IsShow")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -2238,6 +2275,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsDeleted");
+
+                    b.Property<bool?>("IsLock")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("IsLock");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -2487,62 +2528,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.HasIndex("FunctionId");
 
                     b.ToTable("SysLog");
-                });
-
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.UserRole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("Id");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("CreatedBy");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("CreatedDate");
-
-                    b.Property<string>("Culture")
-                        .HasColumnType("longtext")
-                        .HasColumnName("Culture");
-
-                    b.Property<int?>("DisplayOrder")
-                        .HasColumnType("int")
-                        .HasColumnName("DisplayOrder");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsActive");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("IsDeleted");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("longtext")
-                        .HasColumnName("UpdatedBy");
-
-                    b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("UpdatedDate");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserRole");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.AddressCategory.District", b =>
@@ -2808,11 +2793,18 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .WithMany("UserImages")
                         .HasForeignKey("AvatarId");
 
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.System.Role", "Role")
+                        .WithMany("Users")
+                        .HasForeignKey("RoleId")
+                        .IsRequired();
+
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.AddressCategory.Ward", "Ward")
                         .WithMany("Users")
                         .HasForeignKey("WardId");
 
                     b.Navigation("Avatar");
+
+                    b.Navigation("Role");
 
                     b.Navigation("Ward");
                 });
@@ -2949,23 +2941,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("Function");
                 });
 
-            modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.UserRole", b =>
-                {
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.System.Role", "Role")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("RoleId")
-                        .IsRequired();
-
-                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Others.User", "User")
-                        .WithMany("UserRoles")
-                        .HasForeignKey("UserId")
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.AddressCategory.District", b =>
                 {
                     b.Navigation("Wards");
@@ -3051,8 +3026,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("PurchaseOrderSuppliers");
 
                     b.Navigation("Reviews");
-
-                    b.Navigation("UserRoles");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.Products.Brand", b =>
@@ -3115,7 +3088,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     b.Navigation("RolePermissions");
 
-                    b.Navigation("UserRoles");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.System.SysAction", b =>

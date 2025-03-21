@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
-using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands.User;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
@@ -20,7 +20,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private readonly IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> _authService;
         private readonly IWardRepository _wardRepository;
         private readonly IRoleRepository _roleRepository;
-        private readonly IUserRoleRepository _userRoleRepository;
 
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
@@ -29,14 +28,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
             IWardRepository wardRepository,
             IRoleRepository roleRepository,
-            IUserRoleRepository userRoleRepository,
             UserIdentity currentUser, IMapper mapper) : base(currentUser, mapper)
         {
             _authService = authService;
             _userRepository = userRepository;
             _wardRepository = wardRepository;
             _roleRepository = roleRepository;
-            _userRoleRepository = userRoleRepository;
         }
 
         public override async Task<ActionResponse<CustomerDTO>> Handle(CUCustomerCommand request, CancellationToken cancellationToken)
@@ -71,6 +68,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
 
             if (request.Id == 0)
             {
+                request.RoleId = (await _roleRepository.FindByCode(RoleTypeEnum.CUSTOMER.ToString())).Id;
                 request.CreatedDate = DateTime.Now;
                 request.CreatedBy = _currentUser.UserName;
                 request.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
@@ -100,14 +98,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 //mã hóa thuật toán PBKDF2
                 customer.Password = _authService.EncryptPassword(customer.Password!);
                 await _userRepository.SaveChangeAsync();
-
-                UserRole userRole = new UserRole
-                {
-                    UserId = customer.Id,
-                    RoleId = (await _roleRepository.FindByCode(RoleTypeEnum.CUSTOMER.ToString())).Id
-                };
-                await _userRoleRepository.CreateAndSave(userRole);
-
                 actionResponse.SetResult(_mapper.Map<CustomerDTO>(customer));
             }
             else
@@ -142,6 +132,24 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             byte[] bytes = new byte[20];
             _rng.GetBytes(bytes);
             return Base32.ToBase32(bytes);
+        }
+    }
+
+    public class CUCustomerCommandValidator : AbstractValidator<CUCustomerCommand>
+    {
+        public CUCustomerCommandValidator()
+        {
+            RuleFor(x => x.Phone)
+                .NotEmpty()
+                .WithMessage("Điện thoại không được bỏ trống");
+
+            RuleFor(x => x.Email)
+                .NotEmpty()
+                .WithMessage("Email không được bỏ trống");
+
+            RuleFor(x => x.RoleId)
+                .Must(x => x != 0 && x != null)
+                .WithMessage("Chọn vai trò là bắt buộc");
         }
     }
 }

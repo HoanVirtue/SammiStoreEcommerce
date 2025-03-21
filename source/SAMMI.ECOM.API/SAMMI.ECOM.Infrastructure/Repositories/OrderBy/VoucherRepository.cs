@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
@@ -17,6 +16,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<Voucher> GetByCode(string code);
         //Task<ActionResponse<bool>> ValidVoucher(string orderCode, string voucherCode);
         Task<ActionResponse<bool>> ValidVoucher(int voucherId, CreateOrderCommand order);
+        Task<decimal> CalculateDiscount(int voucherId, decimal costShip, decimal totalPrice);
     }
     public class VoucherRepository : CrudRepository<Voucher>, IVoucherRepository, IDisposable
     {
@@ -31,8 +31,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             { DiscountTypeEnum.Percentage, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue, ConditionTypeEnum.MaxDiscountAmount } },
             { DiscountTypeEnum.FixedAmount, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue } },
             { DiscountTypeEnum.FreeShipping, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue, ConditionTypeEnum.AllowedRegions } },
-            { DiscountTypeEnum.TieredDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.TierLevels } },
-            { DiscountTypeEnum.BundleDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.RequiredProducts } }
+            //{ DiscountTypeEnum.TieredDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.TierLevels } },
+            //{ DiscountTypeEnum.BundleDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.RequiredProducts } }
         };
 
         public VoucherRepository(
@@ -166,8 +166,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                     actResponse.AddError("Mã sản phẩm không tồn tại.");
                     return actResponse;
                 }
-                detail.Amount = await _productRepository.CalAmount(detail.ProductId, detail.Quantity);
-                order.TotalAmount += detail.Amount;
+                var amount = await _productRepository.CalAmount(detail.ProductId, detail.Quantity);
+                order.TotalAmount += amount;
                 order.TotalQuantity += detail.Quantity;
             }
             var wardCustomer = await _wardRepository.GetById(order.WardId ?? 0);
@@ -191,18 +191,18 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                             return actResponse;
                         }
                         break;
-                    case ConditionTypeEnum.MaxDiscountAmount:
-                        if (discountTypeEnum == DiscountTypeEnum.Percentage)
-                        {
-                            decimal maxDiscount = Convert.ToDecimal(con.ConditionValue);
-                            decimal discountAmount = (decimal)(order.TotalAmount * voucher.DiscountValue) / 100;
-                            if (discountAmount > maxDiscount)
-                            {
-                                maxDiscount = discountAmount;
-                            }
-                            order.DiscountAmount = maxDiscount;
-                        }
-                        break;
+                    //case ConditionTypeEnum.MaxDiscountAmount:
+                    //    if (discountTypeEnum == DiscountTypeEnum.Percentage)
+                    //    {
+                    //        decimal maxDiscount = Convert.ToDecimal(con.ConditionValue);
+                    //        decimal discountAmount = (decimal)(order.TotalAmount * voucher.DiscountValue) / 100;
+                    //        if (discountAmount > maxDiscount)
+                    //        {
+                    //            maxDiscount = discountAmount;
+                    //        }
+                    //        order.DiscountAmount = maxDiscount;
+                    //    }
+                    //    break;
                     case ConditionTypeEnum.RequiredQuantity:
                         int requiredQuantity = Convert.ToInt32(con.ConditionValue);
                         if (order.TotalQuantity < requiredQuantity)
@@ -220,24 +220,24 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                             return actResponse;
                         }
                         break;
-                    case ConditionTypeEnum.TierLevels:
-                        var tierLevels = JsonConvert.DeserializeObject<List<TierLevelCommand>>(con.ConditionValue);
-                        var applicableDiscount = tierLevels
-                            .Where(tl => order.TotalQuantity >= tl.Level)
-                            .OrderByDescending(tl => tl.Level)
-                            .FirstOrDefault();
+                    //case ConditionTypeEnum.TierLevels:
+                    //    var tierLevels = JsonConvert.DeserializeObject<List<TierLevelCommand>>(con.ConditionValue);
+                    //    var applicableDiscount = tierLevels
+                    //        .Where(tl => order.TotalQuantity >= tl.Level)
+                    //        .OrderByDescending(tl => tl.Level)
+                    //        .FirstOrDefault();
 
-                        if (applicableDiscount != null)
-                        {
-                            decimal discountAmount = (decimal)(order.TotalAmount * applicableDiscount.Discount) / 100;
-                            order.DiscountAmount = discountAmount;
-                        }
-                        else
-                        {
-                            actResponse.AddError($"Áp dụng voucher không hợp lệ. Tổng số lượng sản phẩm không thỏa mãn!");
-                            return actResponse;
-                        }
-                        break;
+                    //    if (applicableDiscount != null)
+                    //    {
+                    //        decimal discountAmount = (decimal)(order.TotalAmount * applicableDiscount.Discount) / 100;
+                    //        order.DiscountAmount = discountAmount;
+                    //    }
+                    //    else
+                    //    {
+                    //        actResponse.AddError($"Áp dụng voucher không hợp lệ. Tổng số lượng sản phẩm không thỏa mãn!");
+                    //        return actResponse;
+                    //    }
+                    //    break;
 
                     case ConditionTypeEnum.RequiredProducts:
                         var requiredProducts = con.ConditionValue.Split(',').Select(int.Parse);
@@ -251,6 +251,48 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             }
 
             return actResponse;
+        }
+
+        public async Task<decimal> CalculateDiscount(int voucherId, decimal costShip, decimal totalPrice)
+        {
+            decimal totalDiscount = 0;
+            var voucher = await GetByIdAsync(voucherId);
+            var discountType = await _typeRepository.FindById(voucher.DiscountTypeId);
+            var conditions = await _context.VoucherConditions
+                .Where(x => x.VoucherId == voucher.Id && x.IsDeleted != true)
+                .ToListAsync();
+
+            if (!Enum.TryParse(discountType.Code, true, out DiscountTypeEnum discountTypeEnum))
+            {
+                return 0;
+            }
+
+            if (discountType.Code == DiscountTypeEnum.Percentage.ToString())
+            {
+                totalDiscount = totalPrice * voucher.DiscountValue;
+            }
+            else if (discountType.Code == DiscountTypeEnum.FixedAmount.ToString())
+            {
+                totalDiscount = voucher.DiscountValue;
+            }
+            else if (discountType.Code == DiscountTypeEnum.FreeShipping.ToString())
+            {
+                totalDiscount = costShip;
+            }
+
+            foreach (var con in conditions)
+            {
+                if (Enum.TryParse(con.ConditionType, true, out ConditionTypeEnum conType) && conType == ConditionTypeEnum.MaxDiscountAmount)
+                {
+                    if (decimal.TryParse(con.ConditionValue, out decimal maxDiscount) && maxDiscount >= 0)
+                    {
+                        totalDiscount = Math.Min(totalDiscount, maxDiscount);
+                    }
+                    break;
+                }
+            }
+
+            return totalDiscount > 0 ? totalDiscount : 0;
         }
     }
 }

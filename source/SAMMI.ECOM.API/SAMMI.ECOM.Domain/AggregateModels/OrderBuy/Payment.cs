@@ -20,7 +20,10 @@ public partial class Payment : Entity
     [Column("TransactionId")]
     public string? TransactionId { get; set; }
 
-    public virtual Order Order { get; set; } = null!;
+    [Column("PaymentDate")]
+    public DateTime? PaymentDate { get; set; }
 
+
+    public virtual Order Order { get; set; } = null!;
     public virtual PaymentMethod PaymentMethod { get; set; } = null!;
 }

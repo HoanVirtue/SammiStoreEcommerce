@@ -1,15 +1,28 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace SAMMI.ECOM.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class updatetblpaymentmethod : Migration
+    public partial class updateorderpayment : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropColumn(
+                name: "PaymentCreated",
+                table: "Payment");
+
+            migrationBuilder.DropColumn(
+                name: "ReponseCode",
+                table: "Payment");
+
+            migrationBuilder.DropColumn(
+                name: "PaymentStatus",
+                table: "Order");
+
             migrationBuilder.AlterTable(
                 name: "Ward")
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
@@ -24,10 +37,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.AlterTable(
                 name: "Users")
-                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
-
-            migrationBuilder.AlterTable(
-                name: "UserRole")
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterTable(
@@ -422,6 +431,16 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterColumn<string>(
+                name: "IdCardNumber",
+                table: "Users",
+                type: "longtext",
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterColumn<string>(
                 name: "FullName",
                 table: "Users",
                 type: "varchar(100)",
@@ -486,36 +505,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(256)",
                 oldMaxLength: 256)
-                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "UpdatedBy",
-                table: "UserRole",
-                type: "longtext",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "longtext",
-                oldNullable: true)
-                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Culture",
-                table: "UserRole",
-                type: "longtext",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "longtext",
-                oldNullable: true)
-                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "CreatedBy",
-                table: "UserRole",
-                type: "longtext",
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "longtext",
-                oldNullable: true)
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterColumn<string>(
@@ -1302,7 +1291,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 maxLength: 100,
                 nullable: false,
                 oldClrType: typeof(string),
-                oldType: "longtext")
+                oldType: "varchar(100)",
+                oldMaxLength: 100)
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterColumn<string>(
@@ -1325,11 +1315,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldNullable: true)
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
-            migrationBuilder.AddColumn<string>(
+            migrationBuilder.AlterColumn<string>(
                 name: "Code",
                 table: "PaymentMethod",
                 type: "longtext",
-                nullable: false);
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "longtext")
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterColumn<string>(
                 name: "UpdatedBy",
@@ -1454,18 +1447,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(100)",
                 oldMaxLength: 100,
-                oldNullable: true)
-                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "PaymentStatus",
-                table: "Order",
-                type: "varchar(50)",
-                maxLength: 50,
-                nullable: true,
-                oldClrType: typeof(string),
-                oldType: "varchar(50)",
-                oldMaxLength: 50,
                 oldNullable: true)
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
@@ -1785,6 +1766,18 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(50)",
                 oldMaxLength: 50,
+                oldNullable: true)
+                .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Description",
+                table: "Event",
+                type: "longtext",
+                maxLength: 2147483647,
+                nullable: true,
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldMaxLength: 2147483647,
                 oldNullable: true)
                 .OldAnnotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
@@ -2136,10 +2129,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "Code",
-                table: "PaymentMethod");
-
             migrationBuilder.AlterTable(
                 name: "Ward")
                 .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
@@ -2154,10 +2143,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.AlterTable(
                 name: "Users")
-                .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
-
-            migrationBuilder.AlterTable(
-                name: "UserRole")
                 .Annotation("Relational:Collation", "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterTable(
@@ -2552,6 +2537,16 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldMaxLength: 36);
 
             migrationBuilder.AlterColumn<string>(
+                name: "IdCardNumber",
+                table: "Users",
+                type: "longtext",
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
                 name: "FullName",
                 table: "Users",
                 type: "varchar(100)",
@@ -2617,36 +2612,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(256)",
                 oldMaxLength: 256);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "UpdatedBy",
-                table: "UserRole",
-                type: "longtext",
-                nullable: true,
-                collation: "utf8mb4_0900_ai_ci",
-                oldClrType: typeof(string),
-                oldType: "longtext",
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Culture",
-                table: "UserRole",
-                type: "longtext",
-                nullable: true,
-                collation: "utf8mb4_0900_ai_ci",
-                oldClrType: typeof(string),
-                oldType: "longtext",
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "CreatedBy",
-                table: "UserRole",
-                type: "longtext",
-                nullable: true,
-                collation: "utf8mb4_0900_ai_ci",
-                oldClrType: typeof(string),
-                oldType: "longtext",
-                oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
                 name: "Username",
@@ -3428,7 +3393,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
             migrationBuilder.AlterColumn<string>(
                 name: "Name",
                 table: "PaymentMethod",
-                type: "longtext",
+                type: "varchar(100)",
+                maxLength: 100,
                 nullable: false,
                 collation: "utf8mb4_0900_ai_ci",
                 oldClrType: typeof(string),
@@ -3454,6 +3420,15 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "longtext",
                 oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Code",
+                table: "PaymentMethod",
+                type: "longtext",
+                nullable: false,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext");
 
             migrationBuilder.AlterColumn<string>(
                 name: "UpdatedBy",
@@ -3504,6 +3479,20 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "longtext",
                 oldNullable: true);
+
+            migrationBuilder.AddColumn<DateTime>(
+                name: "PaymentCreated",
+                table: "Payment",
+                type: "datetime(6)",
+                nullable: true);
+
+            migrationBuilder.AddColumn<string>(
+                name: "ReponseCode",
+                table: "Payment",
+                type: "varchar(10)",
+                maxLength: 10,
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterColumn<string>(
                 name: "UpdatedBy",
@@ -3582,18 +3571,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(
-                name: "PaymentStatus",
-                table: "Order",
-                type: "varchar(50)",
-                maxLength: 50,
-                nullable: true,
-                collation: "utf8mb4_0900_ai_ci",
-                oldClrType: typeof(string),
-                oldType: "varchar(50)",
-                oldMaxLength: 50,
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<string>(
                 name: "OrderStatus",
                 table: "Order",
                 type: "varchar(50)",
@@ -3647,6 +3624,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(256)",
                 oldMaxLength: 256);
+
+            migrationBuilder.AddColumn<string>(
+                name: "PaymentStatus",
+                table: "Order",
+                type: "varchar(50)",
+                maxLength: 50,
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci");
 
             migrationBuilder.AlterColumn<string>(
                 name: "UpdatedBy",
@@ -3910,6 +3895,18 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 oldClrType: typeof(string),
                 oldType: "varchar(50)",
                 oldMaxLength: 50,
+                oldNullable: true);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "Description",
+                table: "Event",
+                type: "longtext",
+                maxLength: 2147483647,
+                nullable: true,
+                collation: "utf8mb4_0900_ai_ci",
+                oldClrType: typeof(string),
+                oldType: "longtext",
+                oldMaxLength: 2147483647,
                 oldNullable: true);
 
             migrationBuilder.AlterColumn<string>(

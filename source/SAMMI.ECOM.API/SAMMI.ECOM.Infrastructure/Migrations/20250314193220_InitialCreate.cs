@@ -44,7 +44,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "longtext", nullable: false),
+                    Code = table.Column<string>(type: "longtext", nullable: false),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -68,6 +69,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     Code = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    IsShow = table.Column<bool>(type: "tinyint(1)", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -169,6 +171,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     Code = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     Description = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    IsLock = table.Column<bool>(type: "tinyint(1)", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -192,6 +195,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     ContactInfo = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
                     Website = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    IsDefault = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -501,6 +505,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     EventType = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
                     ImageId = table.Column<int>(type: "int", nullable: true),
+                    Description = table.Column<string>(type: "longtext", maxLength: 2147483647, nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -543,6 +548,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     IsLock = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     SecurityStamp = table.Column<string>(type: "varchar(68)", maxLength: 68, nullable: true),
                     AvatarId = table.Column<int>(type: "int", nullable: true),
+                    IdCardNumber = table.Column<string>(type: "longtext", nullable: true),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -559,6 +566,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         name: "FK_Users_Image_AvatarId",
                         column: x => x.AvatarId,
                         principalTable: "Image",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Users_Role_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Role",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Users_Ward_WardId",
@@ -854,38 +866,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserRole",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserRole", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserRole_Role_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Role",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_UserRole_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "MyVoucher",
                 columns: table => new
                 {
@@ -1112,6 +1092,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     OrderId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
+                    Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     Tax = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
@@ -1148,6 +1129,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     PaymentAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     PaymentStatus = table.Column<string>(type: "longtext", nullable: true),
                     TransactionId = table.Column<string>(type: "longtext", nullable: true),
+                    ReponseCode = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
+                    PaymentDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    PaymentCreated = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -1378,19 +1362,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "FunctionId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserRole_RoleId",
-                table: "UserRole",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserRole_UserId",
-                table: "UserRole",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Users_AvatarId",
                 table: "Users",
                 column: "AvatarId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_RoleId",
+                table: "Users",
+                column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_WardId",
@@ -1500,9 +1479,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "SysLog");
 
             migrationBuilder.DropTable(
-                name: "UserRole");
-
-            migrationBuilder.DropTable(
                 name: "VoucherCondition");
 
             migrationBuilder.DropTable(
@@ -1527,9 +1503,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "SysFunction");
 
             migrationBuilder.DropTable(
-                name: "Role");
-
-            migrationBuilder.DropTable(
                 name: "ShippingCompany");
 
             migrationBuilder.DropTable(
@@ -1546,6 +1519,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Product");
+
+            migrationBuilder.DropTable(
+                name: "Role");
 
             migrationBuilder.DropTable(
                 name: "Ward");

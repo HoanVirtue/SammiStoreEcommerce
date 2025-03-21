@@ -2,7 +2,6 @@
 using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
-using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands.User;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
@@ -20,13 +19,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private readonly IUsersRepository _userRepository;
         private readonly IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> _authService;
         private readonly IWardRepository _wardRepository;
-        private readonly IUserRoleRepository _userRoleRepository;
         private readonly IRoleRepository _roleRepository;
         public CreateEmployeeCommandHandler(
             IUsersRepository userRepository,
             IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
             IWardRepository wardRepository,
-            IUserRoleRepository userRoleRepository,
             IRoleRepository roleRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
@@ -34,7 +31,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             _authService = authService;
             _userRepository = userRepository;
             _wardRepository = wardRepository;
-            _userRoleRepository = userRoleRepository;
             _roleRepository = roleRepository;
         }
 
@@ -63,18 +59,17 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 actionResponse.AddError("Số điện thoại đã tồn tại");
                 return actionResponse;
             }
-
-            if (request.RoleIds == null || request.RoleIds.Count == 0)
-            {
-                actionResponse.AddError("Vai trò của người dùng không được bỏ trống");
-                return actionResponse;
-            }
             #endregion
 
             // check foreign key
             if (!_wardRepository.IsExisted(request.WardId))
             {
                 actionResponse.AddError("Không tìm thấy xã");
+                return actionResponse;
+            }
+            if (!_roleRepository.IsExisted(request.RoleId))
+            {
+                actionResponse.AddError("Vai trò không tồn tại");
                 return actionResponse;
             }
 
@@ -109,25 +104,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             await _userRepository.SaveChangeAsync();
 
             // add role và send password email(nếu có)
-            if (actionResponse.IsSuccess && request.RoleIds != null && request.RoleIds.Count > 0)
-            {
-                if (!request.RoleIds.All(x => _roleRepository.IsExisted(x)))
-                {
-                    actionResponse.AddError("Mã vai trò không tồn tại");
-                    return actionResponse;
-                }
-                foreach (var rId in request.RoleIds)
-                {
-                    UserRole userRole = new UserRole
-                    {
-                        UserId = employee.Id,
-                        RoleId = rId
-                    };
-                    _userRoleRepository.Create(userRole);
-                }
-                await _userRoleRepository.SaveChangeAsync();
-            }
-
 
             actionResponse.SetResult(_mapper.Map<EmployeeDTO>(employee));
             return actionResponse;
@@ -187,7 +163,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 return actionResponse;
             }
 
-            var employee = await _userRepository.FindByUserNameAsync(request.Username);
+            var employee = await _userRepository.FindById(request.Id);
 
             employee.UpdatedDate = DateTime.Now;
             employee.UpdatedBy = _currentUser.UserName;
@@ -223,6 +199,14 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .WithMessage("Email không được bỏ trống");
+
+            RuleFor(x => x.IdCardNumber)
+                .NotEmpty()
+                .WithMessage("CCCD không được bỏ trống");
+
+            RuleFor(x => x.RoleId)
+                .Must(x => x != 0 && x != null)
+                .WithMessage("Chọn vai trò là bắt buộc");
         }
     }
 
@@ -237,6 +221,14 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             RuleFor(x => x.Email)
                 .NotEmpty()
                 .WithMessage("Email không được bỏ trống");
+
+            RuleFor(x => x.IdCardNumber)
+                .NotEmpty()
+                .WithMessage("CCCD không được bỏ trống");
+
+            RuleFor(x => x.RoleId)
+                .Must(x => x != 0 && x != null)
+                .WithMessage("Chọn vai trò là bắt buộc");
         }
     }
 }

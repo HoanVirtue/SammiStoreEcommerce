@@ -18,6 +18,11 @@ namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
                 .WithMany(p => p.UserImages)
                 .HasForeignKey(d => d.AvatarId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
+
+            builder.HasOne(d => d.Role)
+                .WithMany(p => p.Users)
+                .HasForeignKey(d => d.RoleId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

@@ -81,6 +81,11 @@ public partial class User : Entity
     [Column("AvatarId")]
     public int? AvatarId { get; set; }
 
+    [Column("IdCardNumber")]
+    public string? IdCardNumber { get; set; } // căn cước công dân
+    [ForeignKey("Role")]
+    public int RoleId { get; set; }
+
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 
     public virtual ICollection<FavouriteProduct> FavouriteProducts { get; set; } = new List<FavouriteProduct>();
@@ -103,7 +108,7 @@ public partial class User : Entity
 
     public virtual Ward? Ward { get; set; }
 
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public virtual Role? Role { get; set; }
 
     public virtual Image? Avatar { get; set; }
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();

@@ -25,7 +25,7 @@ import { t } from 'i18next'
 import Spinner from 'src/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
 import { useTranslation } from 'react-i18next'
-import { getListRelatedProductBySlug, getProductDetailPublicBySlug } from 'src/services/product'
+import { getListRelatedProductBySlug, getProductDetail, getProductDetailPublicBySlug } from 'src/services/product'
 import { useRouter } from 'next/router'
 import { TProduct } from 'src/types/product'
 import Image from 'next/image'
@@ -87,12 +87,12 @@ const ProductDetailPage: NextPage<TProps> = () => {
     : 0;
 
     //fetch api
-    const fetchGetProductDetail = async (slug: string) => {
+    const fetchGetProductDetail = async (id: string) => {
         setLoading(true)
-        await getProductDetailPublicBySlug(slug)
+        await getProductDetail(id)
             .then(async response => {
                 setLoading(false)
-                const data = response?.data
+                const data = response?.result
                 if (data) {
                     setProductData(data)
                 }
@@ -140,23 +140,22 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const handleUpdateProductToCart = (item: TProduct) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
-        const discountItem = item.discountStartDate && item.discountEndDate && isExpired(item?.discountStartDate, item.discountEndDate) ? item.discount : 0
+        const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
         const listOrderItems = convertUpdateProductToCart(orderItems, {
             name: item?.name,
             amount: productAmount,
-            image: item?.image,
+            images: item?.images,
             price: item?.price,
             discount: discountItem,
-            product: item._id,
-            slug: item?.slug
+            productId: item.id,
         })
-        if (user?._id) {
+        if (user?.id) {
             dispatch(
                 updateProductToCart({
                     orderItems: listOrderItems
                 })
             )
-            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
+            setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
         } else {
             router.replace({
                 pathname: '/login',
@@ -172,7 +171,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
         router.push({
             pathname: ROUTE_CONFIG.MY_CART,
             query: {
-                selected: item._id,
+                selected: item.id,
             }
         }, ROUTE_CONFIG.MY_CART)
     }
@@ -180,7 +179,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
     useEffect(() => {
         if (productId) {
             fetchGetProductDetail(productId)
-            fetchGetListRelatedProduct(productId)
+            // fetchGetListRelatedProduct(productId)
         }
     }, [productId])
 
@@ -216,8 +215,8 @@ const ProductDetailPage: NextPage<TProps> = () => {
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
 
     const memoCheckExpire = React.useMemo(() => {
-        if (productData.discountStartDate && productData.discountEndDate) {
-            return isExpired(productData.discountStartDate, productData.discountEndDate);
+        if (productData.startDate && productData.endDate) {
+            return isExpired(productData.startDate, productData.endDate);
         }
     }, [productData])
 
@@ -336,11 +335,11 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     }}>
                                         {productData?.discount > 0 && memoCheckExpire ? (
                                             <>
-                                                {formatPrice(productData?.price - (productData?.price * productData?.discount / 100))} VND
+                                                {formatPrice(productData?.price - (productData?.price * productData?.discount / 100))}đ
                                             </>
                                         ) : (
                                             <>
-                                                {formatPrice(productData?.price)} VND
+                                                {formatPrice(productData?.price)}đ
                                             </>
                                         )}
                                     </Typography>
@@ -351,7 +350,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             textDecoration: "line-through",
                                             fontSize: "18px"
                                         }}>
-                                            {formatPrice(productData?.price)} VND
+                                            {formatPrice(productData?.price)}đ
                                         </Typography>
                                     )}
                                     {productData?.discount > 0 && memoCheckExpire && (
@@ -401,7 +400,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             inputMode: "numeric",
                                             inputProps: {
                                                 min: 1,
-                                                max: productData?.countInStock
+                                                max: productData?.stockQuantity
                                             }
                                         }}
                                         onChange={(e) => {
@@ -432,7 +431,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         border: `1px solid ${theme.palette.customColors.borderColor}`,
                                     }}
                                         onClick={() => {
-                                            if (productAmount < productData?.countInStock) {
+                                            if (productAmount < productData?.stockQuantity) {
                                                 setProductAmount((prev) => prev + 1)
                                             }
                                         }}>

@@ -69,9 +69,9 @@ const ProductCart = (props: TProps) => {
     useEffect(() => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
-        if (user?._id) {
+        if (user?.id) {
             dispatch(updateProductToCart({
-                orderItems: parseData[user?._id] || []
+                orderItems: parseData[user?.id] || []
             }))
         }
     }, [user])
@@ -147,36 +147,38 @@ const ProductCart = (props: TProps) => {
                     <Box sx={{ maxHeight: "300px", maxWidth: "300px", overflow: "auto" }}>
                         {orderItems.map((item: TItemOrderProduct) => {
                             return (
-                                <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>
-                                    <Avatar src={item?.image} />
+                                <StyledMenuItem key={item.productId} onClick={() => handleNavigateProductDetail(item.productId)}>
+                                    <Avatar src={item?.images[0].imageUrl} />
                                     <Box sx={{ ml: 1 }}>
+
                                         <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.name}</Typography>
                                         <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                            {item?.discount > 0 && (
+                                            <Typography variant="h4" sx={{
+                                                color: theme.palette.primary.main,
+                                                fontWeight: "bold",
+                                                fontSize: "12px"
+                                            }}>
+                                                {item.discount && item?.discount > 0 ? (
+                                                    <>
+                                                        {formatPrice(item?.price * (100 - item?.discount*100) / 100)}đ
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {formatPrice(item?.price)}đ
+                                                    </>
+                                                )}
+                                            </Typography>
+                                            {(item.discount && item?.discount > 0) ? (
                                                 <Typography variant="h6" sx={{
                                                     color: theme.palette.error.main,
                                                     fontWeight: "bold",
                                                     textDecoration: "line-through",
                                                     fontSize: "10px"
                                                 }}>
-                                                    {formatPrice(item?.price)} VND
+                                                    {formatPrice(item?.price)}đ
                                                 </Typography>
-                                            )}
-                                            <Typography variant="h4" sx={{
-                                                color: theme.palette.primary.main,
-                                                fontWeight: "bold",
-                                                fontSize: "12px"
-                                            }}>
-                                                {item?.discount > 0 ? (
-                                                    <>
-                                                        {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
-                                                    </>
-                                                ) : (
-                                                    <>
-                                                        {formatPrice(item?.price)} VND
-                                                    </>
-                                                )}
-                                            </Typography>
+                                            ) : ''}
+
                                         </Box>
                                     </Box>
                                     <Typography sx={{ textWrap: "wrap", fontSize: "13px", fontWeight: 600, ml: 2 }}>
@@ -185,11 +187,11 @@ const ProductCart = (props: TProps) => {
                                 </StyledMenuItem>
                             )
                         })}
-                        <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end" }}>
-                            <Button type="submit" variant="contained"
+                        <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", padding: '0 20px' }}>
+                            <Button type="submit" variant="contained" fullWidth
                                 onClick={handleNavigateMyCart}
-                                sx={{ mt: 3, mb: 2, py: 1.5, mr: 2 }}>
-                                {t('view_cart')}
+                                sx={{ mt: 3, mb: 2, py: 1.5, mr: 2, borderRadius: "8px" }}>
+                                {t('go_payment')}
                             </Button>
                         </Box>
                     </Box>

@@ -13,20 +13,11 @@ export type TParamsGetAllOrders = {
 }
 
 export type TItemOrderProduct = {
-    id: string;
-    code: string;
+    productId: string;
     name: string;
-    stockQuantity: number;
+    amount: number;
     price: number;
     discount?: number;
-    ingredient: string;
-    uses: string;
-    usageGuide: string;
-    brandId: number;
-    categoryId: number;
-    status: number;
-    startDate?: string;
-    endDate?: string;
     images: ProductImage[];
 }
 

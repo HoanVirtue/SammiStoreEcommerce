@@ -4,7 +4,7 @@ import { Avatar } from "@mui/material"
 import { Checkbox } from "@mui/material"
 import Link from "next/link"
 import { useRouter } from "next/router"
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useDispatch, useSelector } from "react-redux"
 import IconifyIcon from "src/components/Icon"
@@ -25,7 +25,7 @@ type TProps = {
 }
 
 interface TItemOrderProductState extends TItemOrderProduct {
-    countInStock?: number
+    stockQuantity?: number
 }
 
 const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TProps) => {
@@ -48,27 +48,27 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     //fetch
     const fetchProductDetail = async (id: string) => {
         const res = await getProductDetail(id)
-        const data = res?.data
+        const data = res?.result
+        console.log("de", data )
         if (data) {
-            const discountItem = data.discountStartDate && data.discountEndDate && isExpired(data?.discountStartDate, data.discountEndDate) ? data.discount : 0
+            const discountItem = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0
             setItemState({
                 name: data.name,
-                amount: data.amount,
-                image: data.image,
+                images: data.images,
                 price: data.price,
                 discount: discountItem,
-                product: id,
-                slug: data.slug,
-                countInStock: data.countInStock,
+                productId: id,
+                amount: data.amount,
+                stockQuantity: data.stockQuantity    
             })
         }
     }
 
     useEffect(() => {
-        if (item.product) {
-            fetchProductDetail(item.product)
+        if (item.productId) {
+            fetchProductDetail(item.productId)
         }
-    }, [item.product])
+    }, [item.productId])
 
     useEffect(() => {
         setItemState((prev) => ({ ...prev, amount: item.amount }))
@@ -81,11 +81,10 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
         const listOrderItems = convertUpdateProductToCart(orderItems, {
             name: item?.name,
             amount: amount,
-            image: item?.image,
+            images: item?.images,
             price: item?.price,
             discount: item?.discount,
-            product: item.product,
-            slug: item?.slug
+            productId: item.productId,
         })
         if (user) {
             dispatch(
@@ -93,7 +92,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                     orderItems: listOrderItems
                 })
             )
-            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
+            setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
         }
     }
 
@@ -102,14 +101,14 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
         const cloneOrderItem = cloneDeep(orderItems)
-        const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => item.product !== id)
+        const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => item.productId !== id)
         if (user) {
             dispatch(
                 updateProductToCart({
                     orderItems: filteredItem
                 })
             )
-            setLocalProductToCart({ ...parseData, [user?._id]: filteredItem })
+            setLocalProductToCart({ ...parseData, [user?.id]: filteredItem })
         }
     }
 
@@ -117,30 +116,31 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
         <Fragment>
             <>
                 <Grid item md={1}>
-                    <Checkbox disabled={!itemState?.countInStock}
-                        checked={selectedRow.includes(itemState?.product)}
-                        value={itemState?.product} onChange={(e) => {
+                    <Checkbox
+                        disabled={!itemState?.stockQuantity}
+                        checked={selectedRow.includes(itemState?.productId)}
+                        value={itemState?.productId} onChange={(e) => {
                             handleChangeCheckBox(e.target.value)
                         }} />
                 </Grid>
                 <Grid item md={2}>
-                    <Avatar src={itemState.image} sx={{ width: "100px", height: "100px" }} />
+                    <Avatar src={itemState.images[0].imageUrl} sx={{ width: "100px", height: "100px" }} />
                 </Grid>
                 <Grid item md={3}>
                     <Typography fontSize={"18px"}>
-                        <Link href={`/product/${itemState.slug}`}>
-                    {itemState?.name}
-                    </Link>
+                        <Link href={`/product/${itemState.productId}`}>
+                            {itemState?.name}
+                        </Link>
                     </Typography>
                 </Grid>
                 <Grid item md={2}>
                     <Typography variant="h6" sx={{
-                        color: itemState?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
+                        color: itemState?.discount && itemState?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
                         fontWeight: "bold",
-                        textDecoration: item?.discount > 0 ? "line-through" : "normal",
+                        textDecoration: item?.discount && item?.discount > 0 ? "line-through" : "normal",
                         fontSize: "14px"
                     }}>
-                        {formatPrice(itemState?.price)} VND
+                        {formatPrice(itemState?.price)}đ
                     </Typography>
                 </Grid>
                 <Grid item md={2}>
@@ -149,13 +149,13 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                         fontWeight: "bold",
                         fontSize: "18px"
                     }}>
-                        {itemState?.discount > 0 ? (
+                        {itemState?.discount && itemState?.discount > 0 ? (
                             <>
-                                {formatPrice(itemState?.price * (100 - itemState?.discount) / 100)} VND
+                                {formatPrice(itemState?.price * (100 - itemState?.discount * 100) / 100)}đ
                             </>
                         ) : (
                             <>
-                                {formatPrice(itemState?.price)} VND
+                                {formatPrice(itemState?.price)}đ
                             </>
                         )}
                     </Typography>
@@ -186,13 +186,13 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                                 MozAppearance: "textfield"
                             }
                         }} />
-                    <IconButton disabled={!itemState?.countInStock}
-                     onClick={() => handleChangeQuantity(itemState, 1)}>
+                    <IconButton disabled={!itemState?.stockQuantity}
+                        onClick={() => handleChangeQuantity(itemState, 1)}>
                         <IconifyIcon icon="ic:round-plus" />
                     </IconButton>
                 </Grid>
                 <Grid item md={1}>
-                    <IconButton onClick={() => handleDeleteProductInCart(itemState.product)}>
+                    <IconButton onClick={() => handleDeleteProductInCart(itemState.productId)}>
                         <IconifyIcon icon="mdi:delete-outline" />
                     </IconButton>
                 </Grid>

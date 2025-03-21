@@ -14,6 +14,9 @@ export const API_ENDPOINT = {
   REPORT: {
     INDEX: `${BASE_URL}/report`
   },
+  CART: {
+    INDEX: `${BASE_URL}/carts`,
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,

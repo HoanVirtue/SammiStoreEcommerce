@@ -477,6 +477,7 @@
     "select_province_name": "Chọn tỉnh/thành phố",
     "select_district_name": "Chọn quận/huyện",
     "enter_phone": "Nhập số điện thoại",
+    "go_payment": "Tiến hành thanh toán",
 
     "province_id": "Mã Tỉnh/Thành phố"
 }

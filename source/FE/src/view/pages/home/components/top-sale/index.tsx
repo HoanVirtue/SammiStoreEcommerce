@@ -178,7 +178,7 @@ const TopSale = () => {
     }, [])
 
     return (
-        <Box sx={{ backgroundColor: theme.palette.background.paper, width: '100%', height: '100%', padding: '10px', marginTop: '20px', maxxWidth: '1440px', margin: '0 auto' }}>
+        <Box sx={{ backgroundColor: theme.palette.background.paper, width: '100%', height: '100%', padding: '10px', marginTop: '20px', maxWidth: '1440px !important', margin: '0 auto' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', padding: '20px' }}>
                     <Typography sx={{ textTransform: 'uppercase', cursor: 'pointer' }} variant="h3">Make up xịn - Bật mood xinh</Typography>

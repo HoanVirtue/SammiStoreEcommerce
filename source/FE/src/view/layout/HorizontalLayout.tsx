@@ -85,11 +85,11 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon, show
     return (
         <AppBar open={open}
             sx={{ transition: 'background-color 0.3s ease' }}>
-            {showBanner && (
+            {/* {showBanner && (
                 <Box sx={{ width: "100%", height: "auto", maxWidth: "100%" }}>
                     <Image src={TopBanner} width={0} height={0} alt="Top Banner" style={{ width: "100%", height: "auto", maxWidth: "1440px", margin: "0 auto" }} />
                 </Box>
-            )}
+            )} */}
             <Toolbar sx={{ margin: '0 auto', display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, width: '100%', paddingLeft: '2rem !important', paddingRight: '2rem !important', transition: 'background-color 0.3s ease', maxWidth: '1440px' }} >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
                     {showIcon && (

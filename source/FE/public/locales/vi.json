@@ -478,6 +478,22 @@
     "select_district_name": "Chọn quận/huyện",
     "enter_phone": "Nhập số điện thoại",
     "go_payment": "Tiến hành thanh toán",
+    "price_in_cart": "Đơn giá",
+    "total_item_price": "Số tiền",
+    "summary": "Tổng giá",
+    "subtotal": "Tổng tiền",
+    "shipping_fee": "Phí vận chuyển",
+    "total": "Tổng cộng",
+    "voucher_code": "Mã giảm giá",
+    "enter_voucher_code": "Nhập mã giảm giá",
+    "apply_voucher": "Áp dụng",
+    "remove": "Xóa",
+    "update_cart": "Cập nhật",
+    "checkout": "Thanh toán",
+    "delete_all": "Xóa tất cả",
+    "delete_all_description": "Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng?",
+    "delete_all_success": "Xóa tất cả sản phẩm trong giỏ hàng thành công",
+    
 
     "province_id": "Mã Tỉnh/Thành phố"
 }

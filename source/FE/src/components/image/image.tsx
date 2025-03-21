@@ -1,5 +1,6 @@
 import { forwardRef } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import Box from '@mui/material/Box';
 import { alpha, useTheme } from '@mui/material/styles';
@@ -17,11 +18,8 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
       disabledEffect = false,
       alt,
       src,
-      afterLoad,
-      delayTime,
       threshold,
       beforeLoad,
-      delayMethod,
       placeholder,
       wrapperProps,
       scrollPosition,
@@ -53,12 +51,9 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
       <Box
         component={LazyLoadImage}
         alt={alt}
-        src={src}
-        afterLoad={afterLoad}
-        delayTime={delayTime}
+        src={src || '/assets/placeholder.svg'}
         threshold={threshold}
         beforeLoad={beforeLoad}
-        delayMethod={delayMethod}
         placeholder={placeholder}
         wrapperProps={wrapperProps}
         scrollPosition={scrollPosition}
@@ -68,8 +63,8 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
         wrapperClassName={wrapperClassName || 'component-image-wrapper'}
         placeholderSrc={disabledEffect ? '/assets/transparent.png' : '/assets/placeholder.svg'}
         sx={{
-          width: 1,
-          height: 1,
+          width: '100%',
+          height: '100%',
           objectFit: 'cover',
           verticalAlign: 'bottom',
           ...(!!ratio && {
@@ -92,16 +87,21 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
           verticalAlign: 'bottom',
           display: 'inline-block',
           ...(!!ratio && {
-            width: 1,
+            width: '100%',
           }),
           '& span.component-image-wrapper': {
-            width: 1,
-            height: 1,
+            width: '100%',
+            height: '100%',
             verticalAlign: 'bottom',
             backgroundSize: 'cover !important',
             ...(!!ratio && {
               pt: getRatio(ratio),
             }),
+          },
+          '& img': {
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
           },
           ...overlayStyles,
           ...sx,

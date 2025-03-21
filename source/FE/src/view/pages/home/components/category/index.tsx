@@ -90,7 +90,7 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
             viewport={{ once: false }}
         >
             <Box sx={{ flexGrow: 1, maxWidth: '1440px', pt: 10, margin: '0 auto', pb: '1.2rem', backgroundColor: theme.palette.background.paper }}>
-                <Typography variant="h4" gutterBottom align="left" sx={{ fontWeight: 'bold', mb: '1.6rem', ml: '15px' , textTransform: 'uppercase', fontFamily: 'Yeseva One' }}>
+                <Typography variant="h4" gutterBottom align="left" sx={{ fontWeight: 'bold', mb: '1.6rem', ml: '15px', textTransform: 'uppercase', fontFamily: 'Yeseva One' }}>
                     {t('outstanding_category')}
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'center', width: '100%', flex: 1 }}>

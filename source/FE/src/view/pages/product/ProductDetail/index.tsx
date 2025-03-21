@@ -10,8 +10,6 @@ import { NextPage } from 'next'
 import { IconButton, Rating, useTheme } from '@mui/material'
 import { Box, Button } from '@mui/material'
 
-
-
 //Configs
 import { Grid } from '@mui/material'
 
@@ -38,9 +36,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import { updateProductToCart } from 'src/stores/order'
-import NoData from 'src/components/no-data'
-import ProductCard from '../components/ProductCard'
-import RelatedProduct from '../components/RelatedProduct'
 import CustomBreadcrumbs from 'src/components/custom-breadcrum'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import { getAllReviews } from 'src/services/review'
@@ -57,7 +52,31 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const [loading, setLoading] = useState<boolean>(false)
     const router = useRouter();
     const productId = router.query.productId as string
-    const [productData, setProductData] = useState<TProduct | any>({})
+    const [productData, setProductData] = useState<TProduct>({
+        id: '',
+        code: '',
+        name: '',
+        stockQuantity: 0,
+        price: 0,
+        ingredient: '',
+        uses: '',
+        discount: 0,
+        usageGuide: '',
+        brandId: 0,
+        categoryId: 0,
+        status: 0,
+        images: [
+            {
+                id: 0,
+                imageUrl: '',
+                imageBase64: '',
+                value: '',
+                publicId: '',
+                typeImage: '',
+                displayOrder: 0
+            }
+        ]
+    })
     const [listRelatedProduct, setListRelatedProduct] = useState<TProduct[]>([])
 
     const [productAmount, setProductAmount] = useState<number>(1)
@@ -82,9 +101,9 @@ const ProductDetailPage: NextPage<TProps> = () => {
         { label: productData?.name || t('product'), href: `/product/${productId}` },
     ];
 
-    const roundedAverageRating = productData?.averageRating 
-    ? parseFloat(Number(productData.averageRating).toFixed(1)) 
-    : 0;
+    // const roundedAverageRating = productData?.averageRating
+    //     ? parseFloat(Number(productData.averageRating).toFixed(1))
+    //     : 0;
 
     //fetch api
     const fetchGetProductDetail = async (id: string) => {
@@ -92,6 +111,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
         await getProductDetail(id)
             .then(async response => {
                 setLoading(false)
+                console.log("response", response)
                 const data = response?.result
                 if (data) {
                     setProductData(data)
@@ -184,16 +204,16 @@ const ProductDetailPage: NextPage<TProps> = () => {
     }, [productId])
 
     useEffect(() => {
-        if (productData._id) {
-            fetchGetAllReviews(productData._id)
+        if (productData.id) {
+            fetchGetAllReviews(productData.id)
         }
-    }, [productData._id])
+    }, [productData.id])
 
     /// update Review
     useEffect(() => {
         if (isSuccessUpdate) {
             toast.success(t("update_review_success"))
-            fetchGetAllReviews(productData._id)
+            fetchGetAllReviews(productData.id)
             dispatch(resetInitialState())
         } else if (isErrorUpdate && errorMessageUpdate && typeError) {
             toast.error(t("update_review_error"))
@@ -206,7 +226,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
     useEffect(() => {
         if (isSuccessDelete) {
             toast.success(t("delete_review_success"))
-            fetchGetAllReviews(productData._id)
+            fetchGetAllReviews(productData.id)
             dispatch(resetInitialState())
         } else if (isErrorDelete && errorMessageDelete) {
             toast.error(errorMessageDelete)
@@ -220,7 +240,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
         }
     }, [productData])
 
-
+    console.log("deta", productData)
 
     return (
         <>
@@ -244,7 +264,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                     }}>
                         <Grid container spacing={5}>
                             <Grid item md={5} xs={12}>
-                                <Image src={productData?.image}
+                                <img src={productData?.images[0].imageUrl}
                                     alt={productData?.name}
                                     className="w-full h-[300px] max-h-[400px] object-contain"
                                     width={0}
@@ -295,11 +315,13 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                                 textDecoration: "underline",
                                                 fontSize: "16px"
                                             }}>
-                                            {roundedAverageRating}
+                                            {/* {roundedAverageRating} */}
                                         </Typography>
-                                        <Rating name="half-rating" value={roundedAverageRating} precision={0.1} />
+                                        <Rating name="half-rating"
+                                            // value={roundedAverageRating}
+                                            precision={0.1} />
                                     </Box>
-                                    <Typography>
+                                    {/* <Typography>
                                         {!!productData?.totalReviews ? (
                                             <span>
                                                 {productData?.totalReviews}{' '}
@@ -308,19 +330,19 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         ) : (
                                             <span>{t("no_review")}</span>
                                         )}
-                                    </Typography>
+                                    </Typography> */}
                                 </Box>
-                                {productData?.sold > 0 && (
+                                {/* {productData?.sold > 0 && (
                                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
                                         <>{t("product_sold", { count: productData?.sold })}</>
                                     </Typography>
-                                )}
-                                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+                                )} */}
+                                {/* <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
                                     <IconifyIcon icon="carbon:location" width={20} height={20} />
                                     <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
                                         {productData?.location?.name}
                                     </Typography>
-                                </Box>
+                                </Box> */}
                                 <Box sx={{
                                     display: "flex", alignItems: "center", gap: 2, mt: 2,
                                     backgroundColor: theme.palette.common.white,
@@ -335,7 +357,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     }}>
                                         {productData?.discount > 0 && memoCheckExpire ? (
                                             <>
-                                                {formatPrice(productData?.price - (productData?.price * productData?.discount*100 / 100))}đ
+                                                {formatPrice(productData?.price - (productData?.price * productData?.discount * 100 / 100))}đ
                                             </>
                                         ) : (
                                             <>
@@ -371,7 +393,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                                 lineHeight: "1.3",
                                                 whiteSpace: "nowrap"
                                             }}>
-                                                -{productData?.discount*100}%
+                                                -{productData?.discount * 100}%
                                             </Typography>
                                         </Box>
                                     )}
@@ -447,14 +469,14 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                 }}>
                                     <Button variant="contained"
                                         color='error'
-                                        disabled={productData?.countInStock === 0}
+                                        disabled={productData?.stockQuantity === 0}
                                         onClick={() => handleUpdateProductToCart(productData)}
                                         startIcon={<IconifyIcon icon="bx:cart" />}
                                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                                         {t('add_cart')}
                                     </Button>
                                     <Button type="submit" variant="contained"
-                                        disabled={productData?.countInStock === 0}
+                                        disabled={productData?.stockQuantity === 0}
                                         onClick={() => handleBuyNow(productData)}
                                         startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
                                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
@@ -486,10 +508,10 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         fontWeight: "bold",
                                         fontSize: "18px"
                                     }}>
-                                        {t("product_description")}
+                                        {t("product_usage_guide")}
                                     </Typography>
                                 </Box>
-                                <Box dangerouslySetInnerHTML={{ __html: productData?.description }}
+                                <Box dangerouslySetInnerHTML={{ __html: productData?.usageGuide }}
                                     sx={{
                                         mt: 4,
                                         padding: 5,

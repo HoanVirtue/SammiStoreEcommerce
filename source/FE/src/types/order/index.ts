@@ -35,8 +35,10 @@ export type TItemOrderProductMe = {
 }
 
 export type TParamsCreateOrder = {
+    id: number;
     customerId: number;
-    code: number,
+    code: string,
+    displayOrder: number;
     paymentStatus: string;
     orderStatus: string;
     shippingStatus: string;
@@ -45,10 +47,11 @@ export type TParamsCreateOrder = {
     customerAddress: string;
     costShip: number;
     trackingNumber?: string;
-    estimatedDeliveryDate?: Date | null;
-    actualDeliveryDate?: Date | null;
+    estimatedDeliveryDate?: Date| string | null;
+    actualDeliveryDate?: Date|string | null;
     shippingCompanyId: number;
     details: {
+        id: number;
         orderId: number;
         productId: number;
         quantity: number;

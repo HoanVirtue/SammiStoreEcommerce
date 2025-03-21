@@ -55,9 +55,9 @@ const CreateUpdateDeliveryMethod = (props: TCreateUpdateDeliveryMethod) => {
     const dispatch: AppDispatch = useDispatch()
 
     const schema = yup.object().shape({
-        name: yup.string().required("Delivery method name is required"),
-        price: yup.string().required("Delivery method price is required")
-            .test('least_value_price', t('at_least_price'), (value) => Number(value) >= 1000),
+        name: yup.string().required(t("required_delivery_method_name")),
+        price: yup.string().required(t("required_delivery_method_price"))
+            .test('least_value_price', t('dm_at_least_price'), (value) => Number(value) >= 1000),
     });
 
     const defaultValues: TDefaultValues = {
@@ -163,7 +163,7 @@ const CreateUpdateDeliveryMethod = (props: TCreateUpdateDeliveryMethod) => {
                                 borderRadius: "15px",
                                 py: 5, px: 4
                             }}>
-                            <Grid container item md={12} xs={12} >
+                            <Grid container item md={12} xs={12} spacing={5} >
                                 <Grid item md={12} xs={12} >
                                     <Controller
                                         control={control}

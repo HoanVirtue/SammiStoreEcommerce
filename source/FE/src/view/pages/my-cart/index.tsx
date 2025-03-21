@@ -31,6 +31,7 @@ import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/stor
 import NoData from 'src/components/no-data'
 import { useRouter } from 'next/router'
 import { ROUTE_CONFIG } from 'src/configs/route'
+import ProductCartItem from './components/ProductCartItem'
 
 type TProps = {}
 
@@ -47,71 +48,47 @@ const MyCartPage: NextPage<TProps> = () => {
     //Theme
     const theme = useTheme();
 
-    //Dispatch
+    //Redux
     const dispatch: AppDispatch = useDispatch();
     const { orderItems } = useSelector((state: RootState) => state.order)
 
     const memoListAllProductIds = useMemo(() => {
-        return orderItems.map((item: TItemOrderProduct) => item.product)
+        return orderItems?.map((item: TItemOrderProduct) => item.product)
     }, [orderItems])
 
     const memoSelectedProduct = useMemo(() => {
-        return selectedRow.map((selectedId) => {
-            const findItems: any = orderItems.find((item: TItemOrderProduct) => item.product === selectedId)
+        const result: TItemOrderProduct[] = []
+        selectedRow.forEach((selectedId) => {
+            const findItems: any = orderItems?.find((item: TItemOrderProduct) => item.product === selectedId)
             if (findItems) {
-                return {
-                    ...findItems
-                }
+                result.push(findItems)
             }
         })
+        return result
     }, [selectedRow, orderItems])
 
     const memoTotalPrice = useMemo(() => {
-        const total = memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
-            const currentPrice = current.discount > 0 ? (current.price * (100 - current.discount)) / 100 : current.price
-            return result + currentPrice * current.amount
+        const total = memoSelectedProduct?.reduce((result: number, current: TItemOrderProduct) => {
+
+            const currentPrice = current?.discount > 0 ? (current?.price * (100 - current?.discount)) / 100 : current?.price
+            return result + currentPrice * current?.amount
         }, 0)
         return total
     }, [memoSelectedProduct])
 
+    useEffect(() => {
+        const selectedProduct = router.query.selected as string
+        if (selectedProduct) {
+            if (typeof selectedProduct === "string") {
+                setSelectedRow([selectedProduct])
+            } else {
+                setSelectedRow([...selectedProduct])
+            }
+        }
+    }, [router.query])
 
     //Handler
-    const handleChangeQuantity = (item: TItemOrderProduct, amount: number) => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        const listOrderItems = convertUpdateProductToCart(orderItems, {
-            name: item?.name,
-            amount: amount,
-            image: item?.image,
-            price: item?.price,
-            discount: item?.discount,
-            product: item.product,
-            slug: item?.slug
-        })
-        if (user) {
-            dispatch(
-                updateProductToCart({
-                    orderItems: listOrderItems
-                })
-            )
-            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
-        }
-    }
 
-    const handleDeleteProductInCart = (id: string) => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        const cloneOrderItem = cloneDeep(orderItems)
-        const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => item.product !== id)
-        if (user) {
-            dispatch(
-                updateProductToCart({
-                    orderItems: filteredItem
-                })
-            )
-            setLocalProductToCart({ ...parseData, [user?._id]: filteredItem })
-        }
-    }
 
     const handleChangeCheckBox = (value: string) => {
         const isChecked = selectedRow.includes(value)
@@ -148,13 +125,17 @@ const MyCartPage: NextPage<TProps> = () => {
     }
 
     const handleNavigateCheckout = () => {
+        const formattedData = JSON.stringify(memoSelectedProduct.map((item: TItemOrderProduct) => ({
+            product: item.product,
+            amount: item.amount
+        })))
         router.push({
             pathname: ROUTE_CONFIG.CHECKOUT,
             query: {
                 totalPrice: memoTotalPrice,
-                selectedProduct: JSON.stringify(memoSelectedProduct)
+                selectedProduct: formattedData
             }
-        }, "checkout")
+        })
     }
 
     return (
@@ -210,86 +191,11 @@ const MyCartPage: NextPage<TProps> = () => {
                             <Grid container spacing={2}>
                                 {orderItems.map((item: TItemOrderProduct, index: number) => {
                                     return (
-                                        <Fragment key={item?.product}>
-                                            <>
-                                                <Grid item md={1}>
-                                                    <Checkbox
-                                                        checked={selectedRow.includes(item?.product)}
-                                                        value={item?.product} onChange={(e) => {
-                                                            handleChangeCheckBox(e.target.value)
-                                                        }} />
-                                                </Grid>
-                                                <Grid item md={2}>
-                                                    <Avatar src={item?.image} sx={{ width: "100px", height: "100px" }} />
-                                                </Grid>
-                                                <Grid item md={3}>
-                                                    <Typography fontSize={"24px"}>{item?.name}</Typography>
-                                                </Grid>
-                                                <Grid item md={2}>
-                                                    <Typography variant="h6" sx={{
-                                                        color: item?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
-                                                        fontWeight: "bold",
-                                                        textDecoration: item?.discount > 0 ? "line-through" : "normal",
-                                                        fontSize: "14px"
-                                                    }}>
-                                                        {formatPrice(item?.price)} VND
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item md={2}>
-                                                    <Typography variant="h4" sx={{
-                                                        color: theme.palette.primary.main,
-                                                        fontWeight: "bold",
-                                                        fontSize: "18px"
-                                                    }}>
-                                                        {item?.discount > 0 ? (
-                                                            <>
-                                                                {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                {formatPrice(item?.price)} VND
-                                                            </>
-                                                        )}
-                                                    </Typography>
-                                                </Grid>
-                                                <Grid item md={1}>
-                                                    <IconButton onClick={() => handleChangeQuantity(item, -1)}>
-                                                        <IconifyIcon icon="eva:minus-fill" />
-                                                    </IconButton>
-                                                    <CustomTextField
-                                                        type='number'
-                                                        value={item?.amount}
-                                                        InputProps={{
-                                                            inputMode: "numeric",
-                                                            inputProps: {
-                                                                min: 1,
-                                                            }
-                                                        }}
-                                                        sx={{
-                                                            ".MuiInputBase-root.MuiFilledInput-root": {
-                                                                width: "50px",
-                                                                border: "none",
-                                                            },
-                                                            'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button': {
-                                                                WebkitAppearance: "none",
-                                                                margin: 0
-                                                            },
-                                                            'input[type=number]': {
-                                                                MozAppearance: "textfield"
-                                                            }
-                                                        }} />
-                                                    <IconButton onClick={() => handleChangeQuantity(item, 1)}>
-                                                        <IconifyIcon icon="ic:round-plus" />
-                                                    </IconButton>
-                                                </Grid>
-                                                <Grid item md={1}>
-                                                    <IconButton onClick={() => handleDeleteProductInCart(item.product)}>
-                                                        <IconifyIcon icon="mdi:delete-outline" />
-                                                    </IconButton>
-                                                </Grid>
-                                            </>
-                                            {index !== orderItems.length - 1 && <Divider />}
-                                        </Fragment>
+                                        <ProductCartItem item={item}
+                                            key={item.product}
+                                            handleChangeCheckBox={handleChangeCheckBox}
+                                            selectedRow={selectedRow}
+                                            index={index} />
                                     )
                                 })}
                             </Grid>
@@ -302,7 +208,7 @@ const MyCartPage: NextPage<TProps> = () => {
                             <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
                         </Box>
                     )}
-                    <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3, gap: 2 }}>
+                    <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
                         <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "24px" }}>
                             {t('total_price')}
                         </Typography>
@@ -316,7 +222,7 @@ const MyCartPage: NextPage<TProps> = () => {
                 <Button type="submit"
                     variant="contained"
                     onClick={handleNavigateCheckout}
-                    disabled={selectedRow.length === 0}
+                    disabled={selectedRow.length === 0 || !memoSelectedProduct.length}
                     startIcon={<IconifyIcon icon="icon-park-outline:buy" />}
                     sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                     {t('buy_now')}

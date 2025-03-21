@@ -6,6 +6,8 @@ using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
+using SAMMI.ECOM.Utility;
+using System.Data;
 
 namespace SAMMI.ECOM.Infrastructure.Queries
 {
@@ -16,6 +18,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         Task<EmployeeDTO> GetEmployeeById(int id);
         EmployeeDTO FindByUsername(string username);
         EmployeeDTO FindById(int id);
+        CustomerDTO FindCustomerByUsername(string username);
+        CustomerDTO FindCustomerById(int id);
         Task<IEnumerable<PermissionDTO>> GetPermissionOfUser(int userId);
 
         Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null);
@@ -25,6 +29,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null);
         Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel);
         Task<SupplierDTO> GetSupplierById(int id);
+
+        Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Employee);
     }
     public class UsersQueries : QueryRepository<User>, IUsersQueries
     {
@@ -32,7 +38,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         {
         }
 
-        private EmployeeDTO Find(int? id = null, string? username = null, string? email = null, TypeUserEnum? type = TypeUserEnum.Employee)
+        private EmployeeDTO Find(int? id = null, string? username = null, string? email = null)
         {
             var cached = new Dictionary<int, EmployeeDTO>();
             return WithDefaultTemplate(
@@ -42,7 +48,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
 
                     sqlBuilder.Select("t2.RoleId AS RoleId");
 
-                    sqlBuilder.Where("t1.Type = @type", new { type = type.ToString() });
+                    sqlBuilder.Where("t1.Type = @type", new { type = TypeUserEnum.Employee.ToString() });
                     if (id.HasValue)
                     {
                         sqlBuilder.Where("t1.Id = @id", new { id });
@@ -70,6 +76,53 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                             {
                                 userModel.RoleIds ??= new();
                                 userModel.RoleIds.Add(roleId);
+                            }
+                            return userModel;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "RoleId");
+
+                    return query.FirstOrDefault();
+                });
+        }
+
+        private CustomerDTO FindCustomer(int? id = null, string? username = null, string? email = null)
+        {
+            var cached = new Dictionary<int, CustomerDTO>();
+            return WithDefaultTemplate(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.LeftJoin("UserRole t2 ON t1.Id = t2.UserId AND t2.IsDeleted != 1");
+
+                    sqlBuilder.Select("t2.RoleId AS RoleId");
+
+                    sqlBuilder.Where("t1.Type = @type", new { type = TypeUserEnum.Customer.ToString() });
+                    if (id.HasValue)
+                    {
+                        sqlBuilder.Where("t1.Id = @id", new { id });
+                    }
+                    else if (!string.IsNullOrEmpty(username))
+                    {
+                        sqlBuilder.Where("LOWER(t1.Username) = LOWER(@username)", new { username });
+                    }
+                    else if (!string.IsNullOrEmpty(email))
+                    {
+                        sqlBuilder.Where("LOWER(t1.Email) = LOWER(@email)", new { email });
+                    }
+
+                    var query = conn.Query<CustomerDTO, int, CustomerDTO>(
+                        sqlTemplate.RawSql,
+                        (user, roleId) =>
+                        {
+                            if (!cached.TryGetValue(user.Id, out var userModel))
+                            {
+                                userModel = user;
+                                cached.Add(user.Id, userModel);
+                            }
+
+                            if (roleId != null && roleId > 0)
+                            {
+                                userModel.RoleId = roleId;
                             }
                             return userModel;
                         },
@@ -181,7 +234,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                 SELECT
                 t1.UserId,
                 t2.Id AS RoleId, t2.Name AS RoleName,
-                t3.RoleView, t3.RoleCreate, t3.RoleUpdate, t3.RoleDelete,
+                t3.Allow,
                 t4.Id AS PermissionId, t4.Name AS PermissionName
                 FROM userrole t1
                 LEFT JOIN role t2 ON t1.RoleId = t2.Id AND t2.IsDeleted != 1 AND t2.IsActive = 1
@@ -191,7 +244,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                 AND t1.UserId = @userId
             ",
             new { userId },
-            commandType: System.Data.CommandType.Text));
+            commandType: CommandType.Text));
         }
 
         public async Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null)
@@ -222,6 +275,43 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         public async Task<SupplierDTO> GetSupplierById(int id)
         {
             return await GetUserById<SupplierDTO>(id, TypeUserEnum.Supplier);
+        }
+
+        public async Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Employee)
+        {
+            int idLast = 0;
+            if (type != CodeEnum.Employee &&
+                type != CodeEnum.Customer &&
+                type != CodeEnum.Supplier)
+                return null;
+            string code = type.GetDescription();
+            idLast = await WithDefaultNoSelectTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("CASE WHEN MAX(t1.Id) IS NOT NULL THEN  MAX(t1.Id) ELSE 0 END");
+                    sqlBuilder.OrderDescBy("t1.Id");
+
+                    sqlBuilder.Where("t1.Type = @type", new { type = type.ToString() });
+                    return await conn.QueryFirstOrDefaultAsync<int>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
+                );
+
+            return $"{code}{(idLast + 1).ToString("D6")}";
+        }
+
+        public CustomerDTO FindCustomerByUsername(string username)
+        {
+            var customer = FindCustomer(username: username);
+            if (customer == null)
+            {
+                customer = FindCustomer(email: username);
+            }
+            return customer;
+        }
+
+        public CustomerDTO FindCustomerById(int id)
+        {
+            return FindCustomer(id: id);
         }
     }
 }

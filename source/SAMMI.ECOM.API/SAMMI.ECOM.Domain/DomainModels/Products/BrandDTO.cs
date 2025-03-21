@@ -4,7 +4,8 @@
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
-        public string? Image { get; set; }
+        public int? ImageId { get; set; }
+        public string? ImageUrl { get; set; }
 
 
         public int Id { get; set; }

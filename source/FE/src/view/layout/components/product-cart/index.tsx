@@ -87,7 +87,7 @@ const ProductCart = (props: TProps) => {
     return (
         <React.Fragment>
             <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
-                <Tooltip title={t("Account")}>
+                <Tooltip title={t("cart")}>
                     <IconButton
                         onClick={handleClick}
                         size="small"
@@ -144,15 +144,13 @@ const ProductCart = (props: TProps) => {
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
                 {orderItems.length > 0 ? (
-                    <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
+                    <Box sx={{ maxHeight: "300px", maxWidth: "300px", overflow: "auto" }}>
                         {orderItems.map((item: TItemOrderProduct) => {
                             return (
                                 <StyledMenuItem key={item.product} onClick={() => handleNavigateProductDetail(item.slug)}>
                                     <Avatar src={item?.image} />
-                                    <Box sx={{
-
-                                    }}>
-                                        <Typography>{item?.name}</Typography>
+                                    <Box sx={{ ml: 1 }}>
+                                        <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.name}</Typography>
                                         <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                             {item?.discount > 0 && (
                                                 <Typography variant="h6" sx={{
@@ -181,6 +179,9 @@ const ProductCart = (props: TProps) => {
                                             </Typography>
                                         </Box>
                                     </Box>
+                                    <Typography sx={{ textWrap: "wrap", fontSize: "13px", fontWeight: 600, ml: 2 }}>
+                                        x{item?.amount}
+                                    </Typography>
                                 </StyledMenuItem>
                             )
                         })}

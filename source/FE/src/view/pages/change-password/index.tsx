@@ -212,7 +212,7 @@ const ChangePasswordPage: NextPage<TProps> = () => {
                                             onChange={onChange}
                                             onBlur={onBlur}
                                             value={value}
-                                            placeholder='Enter your password'
+                                            placeholder={t('enter_your_password')}
                                             helperText={errors.newPassword?.message}
                                             error={errors.newPassword ? true : false}
                                             type={showNewPassword ? 'text' : 'password'}

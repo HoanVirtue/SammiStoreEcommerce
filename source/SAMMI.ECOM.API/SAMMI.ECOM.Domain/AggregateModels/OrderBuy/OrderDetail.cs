@@ -1,5 +1,4 @@
-﻿using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
-using SAMMI.ECOM.Domain.AggregateModels.Products;
+﻿using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.Seeds;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,10 +19,6 @@ public partial class OrderDetail : Entity
     [Column("Tax")]
     public decimal? Tax { get; set; }
 
-    [ForeignKey("Discount")]
-    public int? DiscountId { get; set; }
-
-    public virtual Discount? Discount { get; set; }
 
     public virtual Order Order { get; set; } = null!;
 

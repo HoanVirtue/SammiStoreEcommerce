@@ -1,6 +1,7 @@
 import { Box, InputLabel, InputLabelProps, styled } from "@mui/material";
 import Select, { SelectProps } from "@mui/material/Select";
 import MenuItem, { MenuItemProps } from '@mui/material/MenuItem';
+import { useTranslation } from "react-i18next";
 
 type TCustomSelect = SelectProps & {
     options: { label: string, value: string }[]
@@ -37,6 +38,7 @@ const StyledMenuItem = styled(MenuItem)<MenuItemProps>(({ theme }) => ({
 
 const CustomSelect = (props: TCustomSelect) => {
     const { value, label, onChange, options, placeholder, fullWidth, ...rest } = props
+    const { t } = useTranslation()
     return (
         <Box sx={{
             width: '100%',
@@ -63,7 +65,7 @@ const CustomSelect = (props: TCustomSelect) => {
                     )
                 }) : (
                     <StyledMenuItem>
-                        No data
+                        {t('no_data')}
                     </StyledMenuItem>
                 )}
             </StyledSelect>

@@ -10,10 +10,6 @@ namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.HasOne(d => d.Discount)
-                .WithMany(p => p.OrderDetails)
-                .HasForeignKey(d => d.DiscountId);
-
             builder.HasOne(d => d.Order)
                 .WithMany(p => p.OrderDetails)
                 .HasForeignKey(d => d.OrderId)

@@ -1,4 +1,5 @@
-﻿using SAMMI.ECOM.Domain.Seeds;
+﻿using SAMMI.ECOM.Domain.AggregateModels.Products;
+using SAMMI.ECOM.Domain.Seeds;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -11,11 +12,12 @@ public partial class Banner : Entity
     [StringLength(100)]
     public string Name { get; set; } = null!;
 
-    [Column("ImageUrl")]
-    [StringLength(255)]
-    public string? ImageUrl { get; set; }
+    [ForeignKey("Image")]
+    [Column("ImageId")]
+    public int? ImageId { get; set; }
 
     [Column("Level")]
     public int Level { get; set; }
 
+    public virtual Image? Image { get; set; }
 }

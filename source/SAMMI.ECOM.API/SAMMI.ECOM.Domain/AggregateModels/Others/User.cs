@@ -77,9 +77,9 @@ public partial class User : Entity
     [Column("SecurityStamp")]
     public string? SecurityStamp { get; set; }
 
-    [StringLength(68)]
-    [Column("Avatar")]
-    public string? Avatar { get; set; }
+    [ForeignKey("Avatar")]
+    [Column("AvatarId")]
+    public int? AvatarId { get; set; }
 
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 
@@ -105,5 +105,6 @@ public partial class User : Entity
 
     public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
 
-    public virtual ICollection<Image> UserImages { get; set; } = new List<Image>();
+    public virtual Image? Avatar { get; set; }
+    public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 }

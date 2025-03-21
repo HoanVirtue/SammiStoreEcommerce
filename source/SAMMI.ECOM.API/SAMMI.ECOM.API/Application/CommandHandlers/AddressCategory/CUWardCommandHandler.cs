@@ -24,6 +24,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
         public override async Task<ActionResponse<WardDTO>> Handle(CUWardCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<WardDTO>();
+            if (await _wardRepository.CheckExistCode(request.Code, request.Id))
+            {
+                actResponse.AddError("Mã phường/xã đã tồn tại");
+                return actResponse;
+            }
             if (await _wardRepository.CheckExistName(request.Name, request.Id))
             {
                 actResponse.AddError("Tên phường/xã đã tồn tại");
@@ -62,9 +67,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
     {
         public CUWardCommandValidator()
         {
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithMessage("Mã phường/xã không được bỏ trống");
+
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Tên phường/xã là bắt buộc");
+                .WithMessage("Tên phường/xã không được bỏ trống");
         }
     }
 }

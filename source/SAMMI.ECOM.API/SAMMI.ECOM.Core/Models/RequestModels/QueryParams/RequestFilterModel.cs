@@ -93,7 +93,6 @@ namespace SAMMI.ECOM.Core.Models
         {
             _propertyFilterModels = new List<PropertyFilterModel>();
         }
-
         private void DissectFilters()
         {
             var conditions = Filters!.Split('|');

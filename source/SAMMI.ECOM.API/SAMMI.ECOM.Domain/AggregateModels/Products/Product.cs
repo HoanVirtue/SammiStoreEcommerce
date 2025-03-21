@@ -25,13 +25,13 @@ public partial class Product : Entity
     [Required]
     public int StockQuantity { get; set; }
 
-    [Column("OldPrice")]
-    public decimal? OldPrice { get; set; }
-
-    [Column("NewPrice")]
+    [Column("Price")]
     [Required]
-    [DataType(DataType.Currency)]
-    public decimal NewPrice { get; set; }
+    public decimal Price { get; set; }
+
+    [Column("Discount")]
+    [Required]
+    public decimal? Discount { get; set; }
 
     [Column("Ingredient")]
     public string? Ingredient { get; set; }
@@ -51,13 +51,20 @@ public partial class Product : Entity
     [ForeignKey("Category")]
     public int? CategoryId { get; set; }
 
+    [Column("StartDate")]
+    public DateTime? StartDate { get; set; }
+
+    [Column("EndDate")]
+    public DateTime? EndDate { get; set; }
+
     public virtual Brand? Brand { get; set; }
     public virtual ProductCategory? Category { get; set; }
 
-    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
+    public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
     public virtual ICollection<FavouriteProduct> FavouriteProducts { get; set; } = new List<FavouriteProduct>();
     public virtual ICollection<OrderDetail> OrderDetails { get; set; } = new List<OrderDetail>();
-    public virtual ICollection<Image> ProductImages { get; set; } = new List<Image>();
+    public virtual ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
     public virtual ICollection<PurchaseOrderDetail> PurchaseOrderDetails { get; set; } = new List<PurchaseOrderDetail>();
     public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public virtual ICollection<CartDetail> CartDetails { get; set; } = new List<CartDetail>();
 }

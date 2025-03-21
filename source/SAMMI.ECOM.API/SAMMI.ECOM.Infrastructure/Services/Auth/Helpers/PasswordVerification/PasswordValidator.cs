@@ -58,10 +58,10 @@ namespace SAMMI.ECOM.Infrastructure.Services.Auth.Helpers.PasswordVerification
             {
                 errors.Add(Describer.PasswordRequiresUpper());
             }
-            if (_passwordOptions.RequiredUniqueChars >= 1 && password.Distinct().Count() < _passwordOptions.RequiredUniqueChars)
-            {
-                errors.Add(Describer.PasswordRequiresUniqueChars(_passwordOptions.RequiredUniqueChars));
-            }
+            //if (_passwordOptions.RequiredUniqueChars >= 1 && password.Distinct().Count() < _passwordOptions.RequiredUniqueChars)
+            //{
+            //    errors.Add(Describer.PasswordRequiresUniqueChars(_passwordOptions.RequiredUniqueChars));
+            //}
             return
                 Task.FromResult(errors.Count == 0
                     ? UserIdentityResult.Success

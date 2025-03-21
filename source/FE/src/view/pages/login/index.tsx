@@ -53,22 +53,22 @@ const LoginPage: NextPage<TProps> = () => {
     //context
     const { login } = useAuth();
 
-    //translate
-    const { t } = useTranslation()
-
     //Theme
     const theme = useTheme();
 
+    //translation
+    const { t } = useTranslation()
+
     const schema = yup.object().shape({
-        // email: yup.string().email().required("Email is required"),
+        // email: yup.string().email().required(t("required_email")),
         email: yup
             .string()
-            .required("Email is required")
-            .matches(EMAIL_REG, "The email format is incorrect"),
+            .required(t("required_email"))
+            .matches(EMAIL_REG, t("incorrect_email_format")),
         password: yup
             .string()
-            .required("Password is required")
-            .matches(PASSWORD_REG, "The password format is incorrect")
+            .required(t("required_password"))
+            .matches(PASSWORD_REG, t("incorrect_password_format")),
     });
 
     const { handleSubmit, control, formState: { errors }, setError } = useForm({
@@ -83,8 +83,8 @@ const LoginPage: NextPage<TProps> = () => {
     const onSubmit = (data: { email: string, password: string }) => {
         if (!Object.keys(errors)?.length) {
             login({ ...data, rememberMe: isRemember }, (err) => {
-                if (err?.response?.data?.typeError === "INVALID") {
-                    toast.error(t("incorrect_email_password"))
+                if (err?.response?.data?.typeError !== "") {
+                    toast.error(err?.response?.message)
                 }
             })
         }
@@ -125,7 +125,8 @@ const LoginPage: NextPage<TProps> = () => {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                flex: 1
+                flex: 1,
+               
             }}>
                 <CssBaseline />
                 <Box sx={{
@@ -134,9 +135,9 @@ const LoginPage: NextPage<TProps> = () => {
                     flexDirection: 'column',
                     alignItems: 'center',
                 }}>
-                    <Typography component="h1" variant="h5">Sign in</Typography>
+                    <Typography component="h1" variant="h5">{t("login")}</Typography>
                     <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
-                        <Box sx={{ mt: 1 }}>
+                        <Box sx={{ mt: 4}}  width={{ md: '18rem', xs: '20rem' }}>
                             <Controller
                                 control={control}
                                 rules={{ required: true }}
@@ -144,20 +145,19 @@ const LoginPage: NextPage<TProps> = () => {
                                     <CustomTextField
                                         required
                                         fullWidth
-                                        label="Email"
+                                        label={t("email")}
                                         onChange={onChange}
                                         onBlur={onBlur}
                                         value={value}
-                                        placeholder='Enter your email'
+                                        placeholder={t("enter_email")}
                                         error={errors.email ? true : false}
                                         helperText={errors.email?.message}
                                     />
                                 )}
                                 name='email'
                             />
-                            {/* {errors.email && <Typography>{errors.email.message}</Typography>} */}
                         </Box>
-                        <Box sx={{ mt: 1 }}>
+                        <Box sx={{ mt: 4}}  width={{ md: '18rem', xs: '20rem' }}>
                             <Controller
                                 control={control}
                                 rules={{ required: true }}
@@ -165,15 +165,20 @@ const LoginPage: NextPage<TProps> = () => {
                                     <CustomTextField
                                         required
                                         fullWidth
-                                        label="Password"
+                                        label={t("password")}
                                         onChange={onChange}
                                         onBlur={onBlur}
                                         value={value}
-                                        placeholder='Enter your password'
+                                        placeholder={t("enter_password")}
                                         helperText={errors.password?.message}
                                         error={errors.password ? true : false}
                                         type={showPassword ? 'text' : 'password'}
                                         InputProps={{
+                                            // startAdornment: (
+                                            //     <InputAdornment position="start">
+                                            //         <IconifyIcon icon='material-symbols:visibility-outline' />
+                                            //     </InputAdornment>
+                                            // ),
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <IconButton
@@ -196,7 +201,6 @@ const LoginPage: NextPage<TProps> = () => {
                                 )}
                                 name='password'
                             />
-                            {/* {errors.password && <Typography>{errors.password.message}</Typography>} */}
                         </Box>
                         <Box sx={{
                             mt: 2,
@@ -212,26 +216,26 @@ const LoginPage: NextPage<TProps> = () => {
                                         onChange={(e) => setIsRemember(e.target.checked)}
                                         color="primary" />
                                 }
-                                label="Remember me" />
-                            <Link href="#">Forgot password?</Link>
+                                label={t("remember_me")} />
+                            <Link href="#">{t("forgot_password")}</Link>
                         </Box>
                         <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                            Sign in
+                            {t("login")}
                         </Button>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: "4px" }}>
                             <Typography>
-                                {"Don't have an account?"}
+                                {t("dont_have_an_account")}
                             </Typography>
                             <Link
                                 className={clsx('text-base',
                                     `theme.palette.mode === 'light' 
                                     ? text-[${theme.palette.common.black}]
                                     : text-[${theme.palette.common.white}]`)}
-                                href="register">
-                                {"Sign Up"}
+                                href="/register">
+                                {t("register")}
                             </Link>
                         </Box>
-                        <Typography sx={{ textAlign: 'center', mt: 2, mb: 2 }}>Or</Typography>
+                        <Typography sx={{ textAlign: 'center', mt: 2, mb: 2 }}>{t("or")}</Typography>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: "10px" }}>
                             <IconButton sx={{ color: theme.palette.error.main }}
                                 aria-label="Social Icon" onClick={() => console.log('login with google')}>

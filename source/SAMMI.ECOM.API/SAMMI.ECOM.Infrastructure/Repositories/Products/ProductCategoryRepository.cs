@@ -2,7 +2,7 @@
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
-namespace SAMMI.ECOM.Infrastructure.Repositories.ProductCategorys
+namespace SAMMI.ECOM.Infrastructure.Repositories.Products
 {
     public interface IProductCategoryRepository : ICrudRepository<ProductCategory>
     {

@@ -26,9 +26,10 @@ public partial class SammiEcommerceContext : DbContext
 
     public virtual DbSet<CustomerAddress> CustomerAddresses { get; set; }
 
-    public virtual DbSet<Discount> Discounts { get; set; }
+    public virtual DbSet<Voucher> Vouchers { get; set; }
 
     public virtual DbSet<DiscountType> DiscountTypes { get; set; }
+    public virtual DbSet<VoucherCondition> VoucherConditions { get; set; }
 
     public virtual DbSet<District> Districts { get; set; }
 
@@ -55,6 +56,7 @@ public partial class SammiEcommerceContext : DbContext
     public virtual DbSet<ProductCategory> ProductCategories { get; set; }
 
     public virtual DbSet<Image> Images { get; set; }
+    public virtual DbSet<ProductImage> ProductImages { get; set; }
 
     public virtual DbSet<Province> Provinces { get; set; }
 
@@ -74,8 +76,6 @@ public partial class SammiEcommerceContext : DbContext
 
     public virtual DbSet<ShippingCompany> ShippingCompanies { get; set; }
 
-    public virtual DbSet<ShippingInfo> ShippingInfos { get; set; }
-
     public virtual DbSet<SysAction> SysActions { get; set; }
 
     public virtual DbSet<SysFunction> SysFunctions { get; set; }
@@ -86,6 +86,8 @@ public partial class SammiEcommerceContext : DbContext
 
     public virtual DbSet<Ward> Wards { get; set; }
     public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+    public virtual DbSet<Cart> Carts { get; set; }
+    public virtual DbSet<CartDetail> CartDetails { get; set; }
 
 
     private readonly IMediator _mediator;
@@ -105,7 +107,8 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new BannerEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new BrandEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new CustomerAddressEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new DiscountEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new VoucherEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new VoucherConditionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new DiscountTypeEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new DistrictEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new EventEntityTypeConfiguration());
@@ -128,7 +131,6 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new RoleEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RolePermissionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new ShippingCompanyEntityTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new ShippingInfoEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new SysActionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new SysFunctionEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new SysLogEntityTypeConfiguration());
@@ -136,6 +138,8 @@ public partial class SammiEcommerceContext : DbContext
         modelBuilder.ApplyConfiguration(new UserRoleEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new WardEntityTypeConfiguration());
         modelBuilder.ApplyConfiguration(new RefreshTokenEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new CartEntityTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new CartDetailEntityTypeConfiguration());
 
 
         /*

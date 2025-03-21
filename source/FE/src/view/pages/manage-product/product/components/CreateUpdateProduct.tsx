@@ -81,12 +81,12 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     const dispatch: AppDispatch = useDispatch()
 
     const schema = yup.object().shape({
-        name: yup.string().required("Product name is required"),
-        slug: yup.string().required("Product slug is required"),
-        category: yup.string().required("Product category is required"),
-        location: yup.string().required("Product location is required"),
-        countInStock: yup.string().required("countInStock is required")
-            .test('least_count', t('at_least_count'), (value) => Number(value) >= 1),
+        name: yup.string().required(t("required_product_name")),
+        slug: yup.string().required(t("required_product_slug")),
+        category: yup.string().required(t("required_product_category")),
+        location: yup.string().required(t("required_product_location")),
+        countInStock: yup.string().required(t("required_product_count_in_stock"))
+            .test('least_count', t('at_least_count_product'), (value) => Number(value) >= 1),
         discount: yup.string().notRequired()
             .test('least_discount', t('at_least_discount'), (value, context) => {
                 const discountStartDate = context?.parent?.discountStartDate
@@ -94,13 +94,13 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                 if (value) {
                     if (!discountStartDate) {
                         setError('discountStartDate', {
-                            message: t('required_start_discount'),
+                            message: t('required_start_discount_date'),
                             type: 'required_start_discount'
                         })
                     }
                     if (!discountEndDate) {
                         setError('discountEndDate', {
-                            message: t('required_end_discount'),
+                            message: t('required_end_discount_date'),
                             type: 'required_end_discount'
                         })
                     }
@@ -112,11 +112,11 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                 return !value || Number(value) >= 1
             }),
         discountStartDate: yup.date().notRequired()
-            .test('required_start_discount', t('required_start_discount'), (value, context) => {
+            .test('required_start_discount', t('required_start_discount_date'), (value, context) => {
                 const discount = context?.parent?.discount
                 return !discount || (value && discount)
             })
-            .test('less_start_discount', t('less_start_discount'), (value, context: any) => {
+            .test('less_start_discount', t('less_start_discount_date'), (value, context: any) => {
                 const discountEndDate = context?.parent?.discountEndDate
                 if (value && discountEndDate && discountEndDate.getTime() > value?.getTime()) {
                     clearErrors("discountEndDate")
@@ -124,21 +124,21 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                 return !discountEndDate || (discountEndDate && value && discountEndDate.getTime() > value?.getTime())
             }),
         discountEndDate: yup.date().notRequired()
-            .test('required_end_discount', t('required_end_discount'), (value, context: any) => {
+            .test('required_end_discount', t('required_end_discount_date'), (value, context: any) => {
                 const discountStartDate = context?.parent?.discountStartDate
                 return !discountStartDate || (discountStartDate && value)
             })
-            .test('greater_start_discount', t('greater_start_discount'), (value, context: any) => {
+            .test('greater_start_discount', t('greater_start_discount_date'), (value, context: any) => {
                 const discountStartDate = context?.parent?.discountStartDate
                 if (value && discountStartDate && discountStartDate.getTime() < value?.getTime()) {
                     clearErrors("discountStartDate")
                 }
                 return !discountStartDate || (discountStartDate && value && discountStartDate.getTime() < value?.getTime())
             }),
-        status: yup.number().required("Product status is required"),
-        description: yup.mixed<EditorState>().required("Product description is required"),
-        price: yup.string().required("Product price is required")
-            .test('least_price', t('at_least_price'), (value) => Number(value) >= 1000),
+        status: yup.number().required(t('required_product_status')),
+        description: yup.mixed<EditorState>().required(t('required_product_description')),
+        price: yup.string().required("required_product_price")
+            .test('least_price', t('at_least_price_product'), (value) => Number(value) >= 1000),
     });
 
     const defaultValues: TDefaultValues = {
@@ -556,7 +556,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 onBlur={onBlur}
                                                                 value={value}
                                                                 options={categoryOptions}
-                                                                placeholder={t('Select_product_category')}
+                                                                placeholder={t('select_product_category')}
                                                                 error={errors.category ? true : false}
                                                             />
                                                             {errors?.category?.message && (
@@ -609,7 +609,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             onBlur={onBlur}
                                                             minDate={new Date()}
                                                             selectedDate={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
-                                                            placeholder={t('Select_discount_start_date')}
+                                                            placeholder={t('select_discount_start_date')}
                                                             error={errors.discountStartDate ? true : false}
                                                             helperText={errors.discountStartDate?.message}
                                                         />
@@ -629,7 +629,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             label={t('discount_end_date')}
                                                             onBlur={onBlur}
                                                             selectedDate={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
-                                                            placeholder={t('Select_discount_end_date')}
+                                                            placeholder={t('select_discount_end_date')}
                                                             error={errors.discountEndDate ? true : false}
                                                             helperText={errors.discountEndDate?.message}
                                                         />
@@ -657,7 +657,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 onBlur={onBlur}
                                                                 value={value}
                                                                 options={cityOptions}
-                                                                placeholder={t('Select_product_location')}
+                                                                placeholder={t('select_product_location')}
                                                                 error={errors.location ? true : false}
                                                             />
                                                             {errors?.location?.message && (
@@ -679,7 +679,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             label={t('description')}
                                                             onBlur={onBlur}
                                                             editorState={value as EditorState}
-                                                            placeholder={t('Enter_your_description')}
+                                                            placeholder={t('enter_your_description')}
                                                             error={errors.description ? true : false}
                                                             helperText={errors.description?.message}
                                                             onEditorStateChange={onChange}
@@ -695,7 +695,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idProduct ? t('Update') : t('Create')}
+                                {idProduct ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form>

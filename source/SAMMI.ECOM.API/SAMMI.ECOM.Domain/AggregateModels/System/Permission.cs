@@ -7,6 +7,9 @@ namespace SAMMI.ECOM.Domain.AggregateModels.System;
 [Table("Permission")]
 public partial class Permission : Entity
 {
+    [Column("Code")]
+    [MaxLength(100)]
+    public string? Code { get; set; }
     [Column("Name")]
     [StringLength(100)]
     public string Name { get; set; } = null!;

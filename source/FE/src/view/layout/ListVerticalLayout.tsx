@@ -34,18 +34,30 @@ type TListItem = {
 }
 
 interface TListItemText extends ListItemTextProps {
-    active: boolean
+    active: boolean,
+    hasActiveChild?: boolean
+    isOpen?: boolean
+    isParent?: boolean
 }
 
-const StyledListItemText = styled(ListItemText)<TListItemText>(({ theme, active }) => ({
+const StyledListItemText = styled(ListItemText)<TListItemText>(({ theme, active, hasActiveChild, isOpen, isParent }) => ({
     ".MuiTypography-root.MuiTypography-body1.MuiListItemText-primary": {
         textOverflow: "ellipsis",
         overflow: "hidden",
         display: "block",
         width: "100%",
-        color: active
-            ? `${theme.palette.primary.main}`
-            : `rgba(${theme.palette.customColors.main}, 0.78)`,
+
+        color: isOpen
+            ? (hasActiveChild ? theme.palette.primary.main : theme.palette.primary.main)
+            : (isParent
+                ? ((hasActiveChild ? theme.palette.primary.main : theme.palette.text.primary)
+                    || (active
+                        ? theme.palette.common.white
+                        : theme.palette.text.primary)
+                )
+                : (active
+                    ? theme.palette.common.white
+                    : theme.palette.text.primary)),
         fontWeight: active ? 600 : 400
     }
 }))
@@ -76,22 +88,36 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
         }
         return item.children.some((item: TVerticalLayoutItem) => hasActiveChild(item))
     }
+
+    const isActiveItem = (item: TVerticalLayoutItem): boolean => {
+        return item.path === activePath || !!openItem[item.title] || hasActiveChild(item)
+    }
+
+
     return (
         <>
+
             {items?.map((item: any) => {
                 const activeParent = hasActiveChild(item)
+                const isActive = isActiveItem(item)
+
                 return (
                     <React.Fragment key={item.title}>
                         <ListItemButton
                             sx={{
-                                padding: `8px 10px 8px ${level * (level === 1 ? 28 : 20)}px !important`,
-                                margin: "1px 0",
-                                backgroundColor:
-                                    ((activePath && item.path === activePath) || !!openItem[item.title] || activeParent)
-                                        ? `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`
+                                padding: `8px 25px 8px ${level * (level === 1 ? 15 : 15)}px !important`,
+                                margin: "2px 8px 2px 0px",
+                                borderTopRightRadius: "30px",
+                                borderBottomRightRadius: "30px",
+                                background:
+                                    isActive
+                                        ? item.path === activePath
+                                            ? `linear-gradient(135deg, ${hexToRGBA(theme.palette.secondary.main, 0.8)} 0%, ${hexToRGBA(theme.palette.primary.main, 0.8)} 100%)`
+                                            : `${hexToRGBA(theme.palette.primary.main, 0.08)}`
                                         : theme.palette.background.paper,
                             }}
                             onClick={() => {
+                                console.log(!!item.children, isActive)
                                 if (item.children) {
                                     handleClick(item.title)
                                 }
@@ -108,47 +134,56 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                     justifyContent: "center",
                                     width: "30px",
                                     height: "30px",
-                                    backgroundColor:
-                                        ((activePath && item.path === activePath) || !!openItem[item.title] || activeParent)
+                                    color:
+                                        isActive
                                             ? `${theme.palette.primary.main} !important`
                                             : theme.palette.background.paper,
                                 }}>
                                     <IconifyIcon icon={item.icon}
+                                        // strokeWidth="1.6"
                                         style={{
-                                            color:
-                                                (activePath && item.path === activePath) || !!openItem[item.title] || activeParent
-                                                    ? `${theme.palette.customColors.lightPaperBg}`
-                                                    : `rgba(${theme.palette.customColors.main}, 0.78)`
+                                            color: item.children
+                                                ? openItem[item.title] || hasActiveChild(item)
+                                                    ? theme.palette.primary.main
+                                                    : theme.palette.text.primary
+                                                : isActive
+                                                    ? theme.palette.common.white
+                                                    : theme.palette.text.primary
                                         }} />
                                 </Box>
                             </ListItemIcon>
                             {!disabled && (
-                                <Tooltip title={item?.title}>
-                                    <StyledListItemText
-                                        primary={item?.title}
-                                        active={(activePath && item.path === activePath) || !!openItem[item.title] || activeParent}
-                                    />
-                                </Tooltip>
+                                // <Tooltip title={item?.title}>
+                                <StyledListItemText
+                                    primary={item?.title}
+                                    active={isActive}
+                                    hasActiveChild={!!item.children?.length && hasActiveChild(item)}
+                                    isOpen={openItem[item.title]}
+                                    isParent={!!item.children}
+                                />
+                                // </Tooltip>
                             )}
                             {item?.children && item?.children.length > 0 && (
                                 <>
                                     {openItem[item.title] ? (
-                                        <IconifyIcon icon='iconamoon:arrow-up-2'
+                                        <IconifyIcon icon='weui:arrow-outlined'
                                             style={{
                                                 color:
-                                                    (activePath && item.path === activePath) || !!openItem[item.title] || activeParent
-                                                        ? `${theme.palette.primary.main}`
+                                                    isActive
+                                                        ? theme.palette.primary.main
                                                         : `rgba(${theme.palette.customColors.main}, 0.78)`,
-                                                transform: 'rotate(180deg)',
+                                                transform: 'rotate(90deg)',
+                                                transition: "transform 0.3s ease",
                                             }} />
                                     )
                                         : (
-                                            <IconifyIcon icon='iconamoon:arrow-up-2'
+                                            <IconifyIcon icon='weui:arrow-outlined'
                                                 style={{
                                                     color:
-                                                        (activePath && item.path === activePath) || !!openItem[item.title] || activeParent
+                                                        isActive
                                                             ? `${theme.palette.primary.main}`
                                                             : `rgba(${theme.palette.customColors.main}, 0.78)`,
+                                                    transition: "transform 0.3s ease",
                                                 }} />
                                         )
                                     }
@@ -239,7 +274,7 @@ const ListVerticalLayout: NextPage<TProps> = ({ open }) => {
     //set open item in menu
     useEffect(() => {
         if (!open) {
-            // handleToggleAll()
+            handleToggleAll()
             setOpenItem({})
         }
     }, [open])
@@ -264,9 +299,9 @@ const ListVerticalLayout: NextPage<TProps> = ({ open }) => {
         }
     }, [router.asPath])
 
-    // const handleToggleAll = () => {
-    //     setOpenItem({})
-    // }
+    const handleToggleAll = () => {
+        setOpenItem({})
+    }
 
     return (
         <List

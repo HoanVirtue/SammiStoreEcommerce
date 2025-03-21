@@ -1,7 +1,10 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.User;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Repositories;
 
@@ -16,11 +19,15 @@ namespace SAMMI.ECOM.API.Controllers
         public UsersController(
             IUsersQueries usersQueries,
             IUsersRepository usersRepository,
+            IMapper mapper,
+            UserIdentity currentUser,
             IMediator mediator,
             ILogger<UsersController> logger) : base(mediator, logger)
         {
             _usersQueries = usersQueries;
             _userRepository = usersRepository;
+            Mapper = mapper;
+            UserIdentity = currentUser;
         }
 
         [HttpGet("employee")]
@@ -171,6 +178,42 @@ namespace SAMMI.ECOM.API.Controllers
                 return BadRequest(response);
             }
             return Ok(response);
+        }
+
+        [HttpDelete]
+        public IActionResult DeleteRange([FromBody] List<int> ids)
+        {
+            var actErrorResponse = new ActionResponse<List<string>>();
+            var listError = new Dictionary<int, string>();
+            if (ids == null || ids.Count == 0)
+            {
+                return BadRequest();
+            }
+            foreach (var id in ids)
+            {
+                if (!_userRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
+                {
+                    listError[id] = $"Không tồn tại người dùng có mã {id}";
+                }
+            }
+            if (listError.Count > 0)
+            {
+                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                return BadRequest(actErrorResponse);
+            }
+            return Ok(_userRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
+        }
+
+        [HttpGet("get-code-by-last-id")]
+        public async Task<IActionResult> GetCodeByLastIdAsync([FromQuery] CodeEnum type = CodeEnum.Employee)
+        {
+            return Ok(await _usersQueries.GetCodeByLastId(type));
+        }
+
+        [HttpGet("get-current-user")]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            return Ok(await _userRepository.GetUserById(UserIdentity.Id));
         }
     }
 }

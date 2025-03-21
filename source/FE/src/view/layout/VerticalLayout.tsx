@@ -7,6 +7,7 @@ import { Divider, IconButton, styled, Toolbar } from "@mui/material";
 import MuiDrawer from '@mui/material/Drawer'
 import ListVerticalLayout from "./ListVerticalLayout";
 import IconifyIcon from "src/components/Icon";
+import { useState } from "react";
 
 
 type TProps = {
@@ -14,12 +15,14 @@ type TProps = {
     toggleDrawer: () => void
 }
 
-const drawerWidth: number = 240
+const drawerWidth: number = 280
 
 const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(
     ({ theme, open }) => ({
         "& .MuiDrawer-paper": {
             position: 'relative',
+            marginTop: "64px",
+            paddingTop: "5px",
             whiteSpace: 'nowrap',
             width: drawerWidth,
             transition: theme.transitions.create('width', {
@@ -43,9 +46,22 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 )
 
 const VerticalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
+    const [isHovered, setIsHovered] = useState(false)
+
+    const handleMouseEnter = () => {
+        setIsHovered(true)
+    }
+
+    const handleMouseLeave = () => {
+        setIsHovered(false)
+    }
+
     return (
-        <Drawer variant="permanent" open={open}>
-            <Toolbar
+        <Drawer variant="permanent"
+            open={open || isHovered}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}>
+            {/* <Toolbar
                 sx={{
                     display: 'flex',
                     alignItems: 'center',
@@ -53,11 +69,11 @@ const VerticalLayout: NextPage<TProps> = ({ open, toggleDrawer }) => {
                     px: [1],
                 }}>
                 <IconButton onClick={toggleDrawer}>
-                    <IconifyIcon icon='iconamoon:arrow-left-2'/>
+                    <IconifyIcon icon='iconamoon:arrow-left-2' />
                 </IconButton>
             </Toolbar>
-            <Divider />
-            <ListVerticalLayout open = {open} />
+            <Divider /> */}
+            <ListVerticalLayout open={open || isHovered} />
         </Drawer>
     )
 }

@@ -462,5 +462,27 @@ namespace SAMMI.ECOM.Repository.GenericRepositories
         {
             return await _context.Set<TEntity>().FindAsync(id);
         }
+
+        public virtual ActionResponse DeleteRangeAndSave(object[] keys)
+        {
+            var actionResponse = new ActionResponse();
+            var entities = _context.Set<TEntity>().Where(entity => keys.Contains(entity.Id));
+
+            if (!entities.Any() || entities.Count() != keys.Length)
+            {
+                actionResponse.AddError(
+                    $"Sorry, Some {ExtractDisplayHelpers.GetNameForClass<TEntity>()} were not found.");
+                return actionResponse;
+            }
+            foreach (var entity in entities)
+            {
+                entity.IsDeleted = true;
+                Update(entity);
+            }
+
+            actionResponse.Combine(SaveChangeWithValidation());
+
+            return actionResponse;
+        }
     }
 }

@@ -4,7 +4,7 @@ using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
-using SAMMI.ECOM.Infrastructure.Repositories.ProductCategorys;
+using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
 {
@@ -32,8 +32,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 actResponse.AddError("Tên danh mục sản phẩm đã tồn tại");
                 return actResponse;
             }
-
-            if (!_categoryRespository.IsExisted(request.Id))
+            request.ParentId = request.ParentId == 0 ? null : request.ParentId;
+            if (request.ParentId != null && !_categoryRespository.IsExisted(request.ParentId))
             {
                 actResponse.AddError("Danh mục cha không tồn tại");
                 return actResponse;

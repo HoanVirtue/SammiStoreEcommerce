@@ -258,7 +258,7 @@ const ListCityPage: NextPage<TProps> = () => {
             dispatch(resetInitialState())
             handleCloseDeleteDialog()
         } else if (isErrorDelete && errorMessageDelete) {
-            toast.error(t(errorMessageDelete))
+            toast.error(errorMessageDelete)
             dispatch(resetInitialState())
         }
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete])

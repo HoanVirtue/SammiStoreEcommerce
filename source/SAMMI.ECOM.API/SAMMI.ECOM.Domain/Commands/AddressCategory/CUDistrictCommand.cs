@@ -6,6 +6,7 @@ namespace SAMMI.ECOM.Domain.Commands;
 
 public partial class CUDistrictCommand : IRequest<ActionResponse<DistrictDTO>>
 {
+    public string Code { get; set; }
     public string? Name { get; set; }
     public int? ProvinceId { get; set; }
 

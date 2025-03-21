@@ -7,9 +7,17 @@ namespace SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 [Table("DiscountType")]
 public partial class DiscountType : Entity
 {
+    [Column("Code")]
+    [MaxLength(100)]
+    public string Code { get; set; } = null!;
+
     [Column("Name")]
     [MaxLength(100)]
     public string Name { get; set; } = null!;
 
-    public virtual ICollection<Discount> Discounts { get; set; } = new List<Discount>();
+    [Column("Description")]
+    [MaxLength(500)]
+    public string? Description { get; set; }
+
+    public virtual ICollection<Voucher> Vouchers { get; set; } = new List<Voucher>();
 }

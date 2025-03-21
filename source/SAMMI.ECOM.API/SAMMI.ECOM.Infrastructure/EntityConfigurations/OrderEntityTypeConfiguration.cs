@@ -15,9 +15,18 @@ namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
 
-            builder.HasOne(d => d.Discount)
+            builder.HasOne(d => d.Voucher)
                 .WithMany(p => p.Orders)
-                .HasForeignKey(d => d.DiscountId);
+                .HasForeignKey(d => d.VoucherId);
+
+            builder.HasOne(d => d.Ward)
+                .WithMany(p => p.Orders)
+                .HasForeignKey(d => d.WardId);
+
+            builder.HasOne(d => d.ShippingCompany)
+                .WithMany(p => p.Orders)
+                .HasForeignKey(d => d.ShippingCompanyId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

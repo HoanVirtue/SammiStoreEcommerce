@@ -1,113 +1,103 @@
-//React
-import React from "react"
+// ** React
+import React, { useState } from 'react'
 
-//Next
+// ** Next
+import { useTranslation } from 'react-i18next'
 
-// MUI Imports
-import { Box, BoxProps, IconButton, Menu, MenuItem, Popover, Typography } from "@mui/material"
-import { styled } from "@mui/material";
+// ** Mui Imports
 
-//components
-import IconifyIcon from "../../../../components/Icon";
+import IconButton from '@mui/material/IconButton'
 
-//i18n
-import { useTranslation } from "../../../../../node_modules/react-i18next";
+// ** Components
+import Icon from 'src/components/Icon'
 
-//config
-import { LANGUAGE_OPTIONS } from "src/configs/i18n";
-import { ListItemIcon } from "@mui/material";
+// ** Hooks
+import { Box, Menu, MenuItem } from '@mui/material'
+
+// ** Third party
+import ReactCountryFlag from 'react-country-flag'
+
+// ** config
+import { LANGUAGE_OPTIONS } from 'src/configs/i18n'
 
 type TProps = {}
 
-interface TStyledItem extends BoxProps {
-    selected?: boolean
+const countryCode = {
+  en: 'GB',
+  vi: 'VN'
 }
 
-const StyledLanguageItem = styled(Box)<TStyledItem>(({ theme, selected }) => {
-
-    return ({
-        cursor: "pointer",
-        "&:hover": {
-            backgroundColor: theme.palette.action.hover
-        },
-        "& .MuiTypography-root": {
-            padding: "8px 12px"
-        }
-    })
-})
-
 const LanguageDropdown = (props: TProps) => {
-    //State
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  // ** State
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
-    //Hooks
-    const { i18n } = useTranslation();
+  // ** Hooks
+  const { i18n } = useTranslation()
+  const open = Boolean(anchorEl)
 
-    const open = Boolean(anchorEl);
+  const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
 
-    const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-    return (
-        <>
-            <IconButton color="inherit" id={"language-dropdown"} onClick={handleOpen}>
-                <IconifyIcon icon="bi:translate" />
-            </IconButton>
-            <Menu
-                anchorEl={anchorEl}
-                id="account-menu"
-                open={open}
-                onClose={handleClose}
-                onClick={handleClose}
-                slotProps={{
-                    paper: {
-                        elevation: 0,
-                        sx: {
-                            overflow: 'visible',
-                            filter: 'drop-shadow(0px 2px 8px rgba(0,0,0,0.32))',
-                            mt: 1.5,
-                            '& .MuiAvatar-root': {
-                                width: 32,
-                                height: 32,
-                                ml: -0.5,
-                                mr: 1,
-                            },
-                            '&::before': {
-                                content: '""',
-                                display: 'block',
-                                position: 'absolute',
-                                top: 0,
-                                right: 14,
-                                width: 10,
-                                height: 10,
-                                bgcolor: 'background.paper',
-                                transform: 'translateY(-50%) rotate(45deg)',
-                                zIndex: 0,
-                            },
-                        },
-                    },
-                }}
-                transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-                anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleOnchangeLang = (lang: string) => {
+    i18n.changeLanguage(lang)
+  }
+
+  return (
+    <Box>
+      <IconButton
+        onClick={handleOpen}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px',
+          borderRadius: '50%'
+        }}
+      >
+        <ReactCountryFlag
+          style={{ height: '26px', width: '26px', borderRadius: '50%', objectFit: 'cover' }}
+          className='country-flag flag-icon'
+          countryCode={(countryCode as any)[i18n.language]}
+          svg
+        />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        id='language-dropdown'
+        open={open}
+        onClose={handleClose}
+        onClick={handleClose}
+        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
+        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      >
+        {LANGUAGE_OPTIONS.map(lang => {
+          return (
+            <MenuItem
+              key={lang.value}
+              selected={i18n.language === lang.value}
+              onClick={() => {
+                handleClose()
+                handleOnchangeLang(lang.value)
+              }}
+              sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
             >
-                {
-                    LANGUAGE_OPTIONS.map((lang) => (
-                        <MenuItem
-                            onClick={() => i18n.changeLanguage(lang.value)}
-                            selected={lang.value === i18n.language}
-                            key={lang.value}>
-                            <ListItemIcon>
-                                {lang.language}
-                            </ListItemIcon>
-                        </MenuItem>
-                    ))
-                }
-            </Menu>
-        </>
-    )
+              <ReactCountryFlag
+                className='country-flag flag-icon'
+                countryCode={(countryCode as any)[lang.value]}
+                svg
+                style={{ position: 'relative', top: '0px' }}
+              />
+              {lang.language}
+            </MenuItem>
+          )
+        })}
+      </Menu>
+    </Box>
+  )
 }
 
 export default LanguageDropdown

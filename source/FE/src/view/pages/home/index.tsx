@@ -215,7 +215,7 @@ const HomePage: NextPage<TProps> = () => {
             {/* {loading && <Spinner />} */}
             <Box sx={{
                 height: 'fit-content',
-                mt: '4.6rem',
+                // mt: '4.6rem',
                 backgroundColor: theme.palette.background.paper
             }}>
                 {/* <Box sx={{width: '100%', height: 'fit-content'}}>
@@ -239,7 +239,7 @@ const HomePage: NextPage<TProps> = () => {
                 {/* <Box sx={{width: '100%', height: '9px', backgroundColor: '#e5677d'}}></Box> */}
                 <Banner />
                 <OutstandingCategory />
-                <ListVoucher />
+                {/* <ListVoucher /> */}
                 <HotSale />
                 <TopSale />
                 {/* <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 4 }}>

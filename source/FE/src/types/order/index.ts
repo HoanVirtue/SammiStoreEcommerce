@@ -35,18 +35,33 @@ export type TItemOrderProductMe = {
 }
 
 export type TParamsCreateOrder = {
-    orderItems: TItemOrderProduct[],
-    fullName: string,
-    address?: string,
-    city: string,
-    phone: string,
-    paymentMethod: string,
-    deliveryMethod: string,
-    itemsPrice: number,
-    shippingPrice: number,
-    totalPrice: number,
-    user: string,
+    customerId: number;
+    code: number,
+    paymentStatus: string;
+    orderStatus: string;
+    shippingStatus: string;
+    voucherId?: number;
+    wardId: number;
+    customerAddress: string;
+    costShip: number;
+    trackingNumber?: string;
+    estimatedDeliveryDate?: Date | null;
+    actualDeliveryDate?: Date | null;
+    shippingCompanyId: number;
+    details: {
+        orderId: number;
+        productId: number;
+        quantity: number;
+        tax?: number;
+        amount: number;
+    }[];
+    totalAmount: number;
+    totalQuantity: number;
+    discountAmount?: number;
+    isBuyNow?: boolean;
+    paymentMethodId: number;
 }
+
 
 export type TParamsUpdateOrder ={
     shippingAddress: {

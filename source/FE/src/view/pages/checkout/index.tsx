@@ -213,11 +213,11 @@ const CheckoutPage: NextPage<TProps> = () => {
             productId: Number(item.productId),
             quantity: item.amount,
             tax: 0,
-            id: 2, 
+            id: 0, 
             amount: item.price * item.amount * (item.discount ? (100 - item.discount) / 100 : 1),
         }));
         dispatch(createOrderAsync({
-            id: 1,
+            id: 0,
             displayOrder: 0,
             customerId: user ? user?.id : 0,
             code: "1",

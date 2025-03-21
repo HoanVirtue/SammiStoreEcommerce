@@ -225,6 +225,7 @@ const ProductCard = (props: any) => {
                         precision={0.1}
                         size='medium'
                         name='read-only'
+                        readOnly
                         sx={{
                             '& .MuiRating-icon': {
                                 color: 'gold',
@@ -285,7 +286,7 @@ const ProductCard = (props: any) => {
                                 alignItems: "center",
                                 justifyContent: "center",
                             }}>
-                                -{item?.discount * 100}%
+                                {Math.ceil(-(item?.discount * 100))}%
                             </Typography>
                         </Box>
                     )}

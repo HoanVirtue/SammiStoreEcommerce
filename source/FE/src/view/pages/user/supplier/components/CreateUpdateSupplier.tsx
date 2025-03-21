@@ -41,7 +41,6 @@ interface TCreateUpdateSupplier {
 }
 
 type TDefaultValues = {
-    roleIds: number[];
     code: string;
     identityGuid: string;
     type: string;
@@ -75,7 +74,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
     const dispatch: AppDispatch = useDispatch();
 
     const schema = yup.object().shape({
-        roleIds: yup.array().of(yup.number().required()).required(t("required_code")),
         code: yup.string().required(t("required_code")),
         identityGuid: yup.string().required(t("required_identity_guid")),
         type: yup.string().required(t("required_type")),
@@ -97,7 +95,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
     });
 
     const defaultValues: TDefaultValues = {
-        roleIds: [],
         code: "",
         identityGuid: "",
         type: "",
@@ -130,7 +127,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors).length) {
             const finalData = {
-                roleIds: data.roleIds as number[],
                 code: data.code,
                 identityGuid: data.identityGuid,
                 type: data.type,
@@ -518,27 +514,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                                             )}
                                         />
 
-                                        {/* RoleIds */}
-                                        <Controller
-                                            control={control}
-                                            name="roleIds"
-                                            render={({ field: { onChange, onBlur, value } }) => (
-                                                <Box>
-                                                    <CustomSelect
-                                                        multiple
-                                                        fullWidth
-                                                        value={value || []}
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        label={t("role_ids")}
-                                                        placeholder={t("select_role_ids_name")}
-                                                        error={!!errors.roleIds}
-                                                        options={roleOptions}
-                                                        sx={{ borderRadius: "8px" }} />
-                                                    {errors.roleIds && <FormHelperText error>{errors.roleIds.message}</FormHelperText>}
-                                                </Box>
-                                            )}
-                                        />
 
                                         <Controller
                                             control={control}

@@ -11,7 +11,6 @@ export type TParamsGetAllSuppliers = {
 }
 
 export type TParamsCreateSupplier = {
-    roleIds: number[];
     code: string;
     identityGuid: string;
     type: string;

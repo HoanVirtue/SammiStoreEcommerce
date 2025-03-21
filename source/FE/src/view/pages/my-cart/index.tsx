@@ -53,13 +53,13 @@ const MyCartPage: NextPage<TProps> = () => {
     const { orderItems } = useSelector((state: RootState) => state.order)
 
     const memoListAllProductIds = useMemo(() => {
-        return orderItems?.map((item: TItemOrderProduct) => item.product)
+        return orderItems?.map((item: TItemOrderProduct) => item.productId)
     }, [orderItems])
 
     const memoSelectedProduct = useMemo(() => {
         const result: TItemOrderProduct[] = []
         selectedRow.forEach((selectedId) => {
-            const findItems: any = orderItems?.find((item: TItemOrderProduct) => item.product === selectedId)
+            const findItems: any = orderItems?.find((item: TItemOrderProduct) => item.productId === selectedId)
             if (findItems) {
                 result.push(findItems)
             }
@@ -70,7 +70,7 @@ const MyCartPage: NextPage<TProps> = () => {
     const memoTotalPrice = useMemo(() => {
         const total = memoSelectedProduct?.reduce((result: number, current: TItemOrderProduct) => {
 
-            const currentPrice = current?.discount > 0 ? (current?.price * (100 - current?.discount)) / 100 : current?.price
+            const currentPrice = current?.discount && current?.discount > 0 ? (current?.price * (100 - current?.discount*100)) / 100 : current?.price
             return result + currentPrice * current?.amount
         }, 0)
         return total
@@ -113,20 +113,20 @@ const MyCartPage: NextPage<TProps> = () => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
         const cloneOrderItem = cloneDeep(orderItems)
-        const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => !selectedRow.includes(item.product))
+        const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => !selectedRow.includes(item.productId))
         if (user) {
             dispatch(
                 updateProductToCart({
                     orderItems: filteredItem
                 })
             )
-            setLocalProductToCart({ ...parseData, [user?._id]: filteredItem })
+            setLocalProductToCart({ ...parseData, [user?.id]: filteredItem })
         }
     }
 
     const handleNavigateCheckout = () => {
         const formattedData = JSON.stringify(memoSelectedProduct.map((item: TItemOrderProduct) => ({
-            product: item.product,
+            productId: item.productId,
             amount: item.amount
         })))
         router.push({
@@ -193,7 +193,7 @@ const MyCartPage: NextPage<TProps> = () => {
                                 {orderItems.map((item: TItemOrderProduct, index: number) => {
                                     return (
                                         <ProductCartItem item={item}
-                                            key={item.product}
+                                            key={item.productId}
                                             handleChangeCheckBox={handleChangeCheckBox}
                                             selectedRow={selectedRow}
                                             index={index} />

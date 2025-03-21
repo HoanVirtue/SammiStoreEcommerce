@@ -99,19 +99,19 @@ const CheckoutPage: NextPage<TProps> = () => {
         return result
     }, [router.query, orderItems])
 
-    const memoDefaultAddress = useMemo(() => {
-        const findAddress = user?.addresses?.find(item => item.isDefault === true)
-        return findAddress
-    }, [user?.addresses])
+    // const memoDefaultAddress = useMemo(() => {
+    //     const findAddress = user?.addresses?.find(item => item.isDefault === true)
+    //     return findAddress
+    // }, [user?.addresses])
 
 
-    const memoCityName = useMemo(() => {
-        if (memoDefaultAddress) {
-            const findCity = cityOptions.find((item) => item.value === memoDefaultAddress?.city)
-            return findCity?.label
-        }
-        return ''
-    }, [memoDefaultAddress, cityOptions])
+    // const memoCityName = useMemo(() => {
+    //     if (memoDefaultAddress) {
+    //         const findCity = cityOptions.find((item) => item.value === memoDefaultAddress?.city)
+    //         return findCity?.label
+    //     }
+    //     return ''
+    // }, [memoDefaultAddress, cityOptions])
 
     const memoShippingPrice = useMemo(() => {
         const shippingPrice = deliveryOptions?.find(item => item.value === selectedDelivery)?.price ?? 0
@@ -209,26 +209,35 @@ const CheckoutPage: NextPage<TProps> = () => {
 
         const totalPrice = Number(memoShippingPrice) ? Number(memoQueryProduct?.totalPrice) + Number(memoShippingPrice) : Number(memoQueryProduct?.totalPrice)
         dispatch(createOrderAsync({
-            orderItems: memoQueryProduct?.selectedProduct as TItemOrderProduct[],
-            itemsPrice: memoQueryProduct?.totalPrice,
-            paymentMethod: selectedPayment,
-            deliveryMethod: selectedDelivery,
-            shippingPrice: Number(memoShippingPrice) ? Number(memoShippingPrice) : 0,
-            user: user ? user?._id : '',
-            fullName: memoDefaultAddress ? toFullName(memoDefaultAddress?.lastName, memoDefaultAddress?.middleName, memoDefaultAddress?.firstName, i18n.language) : '',
-            address: memoDefaultAddress ? memoDefaultAddress?.address : "",
-            city: memoDefaultAddress ? memoDefaultAddress?.city : "",
-            phone: memoDefaultAddress ? memoDefaultAddress?.phoneNumber : "",
-            totalPrice: Number(totalPrice)
-        })).then((res) => {
-            const paymentMethodId = res?.payload.data?.paymentMethod
-            const orderId = res?.payload?.data?._id
-            const totalPrice = res?.payload?.data?.totalPrice
-            const findPayment = paymentOptions.find((item) => item.value === paymentMethodId)
-            if (findPayment) {
-                handlePaymentMethod(findPayment.type, {orderId, totalPrice})
-            }
-        })
+            customerId: user ? user?.id : 0,
+            code: 0,
+            paymentStatus: '',
+            orderStatus: '',
+            shippingStatus: '',
+            voucherId: 0,
+            wardId: 0,
+            customerAddress: '',
+            costShip: 0,
+            trackingNumber: '',
+            estimatedDeliveryDate: null,
+            actualDeliveryDate: null,
+            shippingCompanyId: 0,
+
+            details: [
+                {
+                    orderId: 0,
+                    productId: 0,
+                    quantity: 0,
+                    tax: 0,
+                    amount: 0,
+                }
+            ],
+            totalAmount: totalPrice,
+            totalQuantity: 0,
+            discountAmount: 0,
+            isBuyNow: false,
+            paymentMethodId: 0
+        }))
     }
 
     const handleGoBack = () => {
@@ -245,10 +254,10 @@ const CheckoutPage: NextPage<TProps> = () => {
         const listOrderItems: TItemOrderProduct[] = []
 
         orderItems.forEach((order: TItemOrderProduct) => {
-            if (objectMap[order.product]) {
+            if (objectMap[order.productId]) {
                 listOrderItems.push({
                     ...order,
-                    amount: order.amount + objectMap[order.product]
+                    amount: order.amount + objectMap[order.productId]
                 })
             } else {
                 listOrderItems.push(order)
@@ -261,7 +270,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                     orderItems: filteredProduct
                 })
             )
-            setLocalProductToCart({ ...parseData, [user?._id]: filteredProduct })
+            setLocalProductToCart({ ...parseData, [user?.id]: filteredProduct })
         }
     }
 
@@ -310,7 +319,7 @@ const CheckoutPage: NextPage<TProps> = () => {
         <>
             {loading || (isLoading && <Spinner />)}
             <WarningModal open={openWarning} onClose={() => setOpenWarning(false)} />
-            <AddressModal open={openAddressModal} onClose={() => setOpenAddressModal(false)} />
+            {/* <AddressModal open={openAddress Modal} onClose={() => setOpenAddressModal(false)} /> */}
             <Box sx={{ mb: 2 }}>
                 <IconButton
                     onClick={handleGoBack}
@@ -339,7 +348,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                             {t("shipping_address")}
                         </Typography>
                     </Box>
-                    <Box sx={{
+                    {/* <Box sx={{
                         // backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.1)}`,
                         padding: 2
                     }}>
@@ -363,7 +372,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 onClick={() => setOpenAddressModal(true)}>{t("add_address")}
                             </Button>
                         )}
-                    </Box>
+                    </Box> */}
                 </Box>
             </Box>
             <Box sx={{
@@ -398,19 +407,19 @@ const CheckoutPage: NextPage<TProps> = () => {
                             <Grid container spacing={2}>
                                 {memoQueryProduct?.selectedProduct?.map((item: TItemOrderProduct, index: number) => {
                                     return (
-                                        <Fragment key={item?.product}>
+                                        <Fragment key={item?.productId}>
                                             <>
                                                 <Grid item md={3}>
-                                                    <Avatar src={item?.image} sx={{ width: "100px", height: "100px" }} />
+                                                    <Avatar src={item?.images[0].imageUrl} sx={{ width: "100px", height: "100px" }} />
                                                 </Grid>
                                                 <Grid item md={3}>
                                                     <Typography fontSize={"24px"}>{item?.name}</Typography>
                                                 </Grid>
                                                 <Grid item md={2}>
                                                     <Typography variant="h6" sx={{
-                                                        color: item?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
+                                                        color: item?.discount && item?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
                                                         fontWeight: "bold",
-                                                        textDecoration: item?.discount > 0 ? "line-through" : "normal",
+                                                        textDecoration: item?.discount && item?.discount > 0 ? "line-through" : "normal",
                                                         fontSize: "14px"
                                                     }}>
                                                         {formatPrice(item?.price)} VND
@@ -422,7 +431,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                                         fontWeight: "bold",
                                                         fontSize: "18px"
                                                     }}>
-                                                        {item?.discount > 0 ? (
+                                                        {item?.discount && item?.discount > 0 ? (
                                                             <>
                                                                 {formatPrice(item?.price * (100 - item?.discount) / 100)} VND
                                                             </>

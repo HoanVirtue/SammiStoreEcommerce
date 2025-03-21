@@ -1,14 +1,11 @@
-import { Box, Divider, Grid, IconButton, useTheme } from "@mui/material"
+import { Box, Checkbox, Stack, useTheme } from "@mui/material"
 import { Typography } from "@mui/material"
-import { Avatar } from "@mui/material"
-import { Checkbox } from "@mui/material"
+import { IconButton } from "@mui/material"
+import { TextField } from "@mui/material"
 import Link from "next/link"
-import { useRouter } from "next/router"
-import { Fragment, useEffect, useMemo, useState } from "react"
-import { useTranslation } from "react-i18next"
+import { Fragment, useEffect, useState, useMemo } from "react"
 import { useDispatch, useSelector } from "react-redux"
 import IconifyIcon from "src/components/Icon"
-import CustomTextField from "src/components/text-field"
 import { getLocalProductFromCart, setLocalProductToCart } from "src/helpers/storage"
 import { useAuth } from "src/hooks/useAuth"
 import { getProductDetail } from "src/services/product"
@@ -16,6 +13,7 @@ import { AppDispatch, RootState } from "src/stores"
 import { updateProductToCart } from "src/stores/order"
 import { TItemOrderProduct } from "src/types/order"
 import { cloneDeep, convertUpdateProductToCart, formatPrice, isExpired } from "src/utils"
+import Image from "src/components/image"
 
 type TProps = {
     item: TItemOrderProduct
@@ -29,23 +27,17 @@ interface TItemOrderProductState extends TItemOrderProduct {
 }
 
 const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TProps) => {
-
-    //State
-    const [itemState, setItemState] = useState<TItemOrderProductState>(item)
-
-    //hooks
     const { user } = useAuth()
-    const { i18n } = useTranslation();
-    const router = useRouter()
-
-    //Theme
-    const theme = useTheme();
-
-    //Redux
-    const dispatch: AppDispatch = useDispatch();
+    const theme = useTheme()
+    const dispatch: AppDispatch = useDispatch()
     const { orderItems } = useSelector((state: RootState) => state.order)
+    
+    const productCart = getLocalProductFromCart()
+    const parseData = productCart ? JSON.parse(productCart) : {}
+    const lastAmount = user && parseData[user.id]?.find((cartItem: TItemOrderProduct) => cartItem.productId === item.productId)?.amount
 
-    //fetch
+    const [itemState, setItemState] = useState<TItemOrderProductState>({...item, amount: lastAmount || item.amount || 1})
+
     const fetchProductDetail = async (id: string) => {
         const res = await getProductDetail(id)
         const data = res?.result
@@ -58,7 +50,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                 price: data.price,
                 discount: discountItem,
                 productId: id,
-                amount: data.amount,
+                amount: lastAmount || data.amount || 1,
                 stockQuantity: data.stockQuantity
             })
         }
@@ -71,9 +63,8 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     }, [item.productId])
 
     useEffect(() => {
-        setItemState((prev) => ({ ...prev, amount: item.amount }))
+        setItemState((prev) => ({ ...prev, amount: lastAmount || item.amount || 1 }))
     }, [item.amount])
-
 
     const handleChangeQuantity = (item: TItemOrderProduct, amount: number) => {
         const productCart = getLocalProductFromCart()
@@ -87,15 +78,10 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
             productId: item.productId,
         })
         if (user) {
-            dispatch(
-                updateProductToCart({
-                    orderItems: listOrderItems
-                })
-            )
+            dispatch(updateProductToCart({ orderItems: listOrderItems }))
             setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
         }
     }
-
 
     const handleDeleteProductInCart = (id: string) => {
         const productCart = getLocalProductFromCart()
@@ -103,106 +89,135 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
         const cloneOrderItem = cloneDeep(orderItems)
         const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => item.productId !== id)
         if (user) {
-            dispatch(
-                updateProductToCart({
-                    orderItems: filteredItem
-                })
-            )
+            dispatch(updateProductToCart({ orderItems: filteredItem }))
             setLocalProductToCart({ ...parseData, [user?.id]: filteredItem })
         }
     }
 
-    console.log("select", selectedRow.includes(itemState?.productId))
+    const totalPrice = useMemo(() => {
+        if (!itemState?.amount) return itemState.price * (itemState.amount || 1)
+
+        if (itemState?.discount && itemState?.discount > 0) {
+            return itemState.price * (100 - itemState.discount * 100) / 100 * itemState.amount
+        }
+        return itemState.price * itemState.amount
+    }, [itemState?.amount, itemState?.price, itemState?.discount])
 
     return (
         <Fragment>
-            <>
-                <Grid item md={1}>
+            <Stack
+                direction="row"
+                alignItems="center"
+                sx={{
+                    py: 3,
+                    minWidth: {
+                        xs: '100%',
+                        md: 900
+                    },
+                    maxWidth: {
+                        xs: '100%',
+                        md: '70%'
+                    },
+                    borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
+                }}
+            >
+                <Stack sx={{ width: 40 }}>
                     <Checkbox
                         disabled={!itemState?.stockQuantity}
                         checked={selectedRow.includes(itemState?.productId)}
                         value={itemState?.productId}
-                        onChange={(e) => {
-                            handleChangeCheckBox(e.target.value)
-                        }} />
-                </Grid>
-                <Grid item md={2}>
-                    <Avatar src={itemState.images[0].imageUrl} sx={{ width: "100px", height: "100px" }} />
-                </Grid>
-                <Grid item md={3}>
-                    <Typography fontSize={"18px"}>
-                        <Link href={`/product/${itemState.productId}`}>
-                            {itemState?.name}
-                        </Link>
-                    </Typography>
-                </Grid>
-                <Grid item md={2}>
-                    <Typography variant="h6" sx={{
-                        color: itemState?.discount && itemState?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
-                        fontWeight: "bold",
-                        textDecoration: item?.discount && item?.discount > 0 ? "line-through" : "normal",
-                        fontSize: "14px"
+                        onChange={(e) => handleChangeCheckBox(e.target.value)}
+                    />
+                </Stack>
+
+                <Stack direction="row" alignItems="center" flexGrow={1}>
+                    <Image
+                        src={itemState.images?.[0]?.imageUrl}
+                        sx={{
+                            width: 80,
+                            height: 80,
+                            flexShrink: 0,
+                            borderRadius: 1.5,
+                            bgcolor: 'background.neutral',
+                        }}
+                    />
+
+                    <Stack spacing={0.5} sx={{ p: 2 }}>
+                        <Typography variant="subtitle2" sx={{ textWrap: 'wrap' }}>
+                            <Link href={`/product/${itemState.productId}`}>
+                                {itemState?.name}
+                            </Link>
+                        </Typography>
+                    </Stack>
+                </Stack>
+
+                <Stack sx={{ width: 200, alignItems: 'center', flexDirection: 'row', gap: 2 }}>
+                    <Typography variant="subtitle2" sx={{
+                        color: itemState?.discount && itemState?.discount > 0 ? theme.palette.grey[500] : theme.palette.primary.main,
+                        textDecoration: itemState?.discount && itemState?.discount > 0 ? "line-through" : "none",
                     }}>
                         {formatPrice(itemState?.price)}đ
                     </Typography>
-                </Grid>
-                <Grid item md={2}>
-                    <Typography variant="h4" sx={{
-                        color: theme.palette.primary.main,
-                        fontWeight: "bold",
-                        fontSize: "18px"
-                    }}>
+                    <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main }}>
                         {itemState?.discount && itemState?.discount > 0 ? (
-                            <>
-                                {formatPrice(itemState?.price * (100 - itemState?.discount * 100) / 100)}đ
-                            </>
+                            formatPrice(itemState?.price * (100 - itemState?.discount * 100) / 100)
                         ) : (
-                            <>
-                                {formatPrice(itemState?.price)}đ
-                            </>
-                        )}
+                            formatPrice(itemState?.price)
+                        )}đ
                     </Typography>
-                </Grid>
-                <Grid item md={1} sx={{ml: '-30px'}} >
+                </Stack>
+
+                <Stack sx={{ width: 120, alignItems: 'center' }}>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
-                        <IconButton onClick={() => handleChangeQuantity(itemState, -1)}>
-                            <IconifyIcon icon="eva:minus-fill" />
+                        <IconButton
+                            onClick={() => handleChangeQuantity(itemState, -1)}
+                            disabled={itemState?.amount < 1}
+                        >
+                            <IconifyIcon icon="mdi:minus" />
                         </IconButton>
-                        <CustomTextField
-                            type='number'
+                        <TextField
+                            type="number"
                             value={itemState?.amount}
-                            InputProps={{
-                                inputMode: "numeric",
-                                inputProps: {
-                                    min: 1,
-                                }
+                            onChange={(e) => handleChangeQuantity(itemState, Number(e.target.value))}
+                            size="small"
+                            inputProps={{
+                                min: 1,
+                                max: itemState?.stockQuantity,
+                                style: { textAlign: 'center' }
                             }}
                             sx={{
-                                ".MuiInputBase-root.MuiFilledInput-root": {
-                                    width: "40px",
-                                    border: "none",
-                                },
-                                'input::-webkit-outer-spin-button, input::-webkit-inner-spin-button': {
-                                    WebkitAppearance: "none",
-                                    margin: 0
-                                },
-                                'input[type=number]': {
-                                    MozAppearance: "textfield"
+                                width: 40,
+                                '& input': {
+                                    py: 1,
+                                    px: 0,
+                                    textAlign: 'center',
+                                    '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': {
+                                        display: 'none'
+                                    }
                                 }
-                            }} />
-                        <IconButton disabled={!itemState?.stockQuantity}
-                            onClick={() => handleChangeQuantity(itemState, 1)}>
-                            <IconifyIcon icon="ic:round-plus" />
+                            }}
+                        />
+                        <IconButton
+                            onClick={() => handleChangeQuantity(itemState, 1)}
+                            disabled={itemState?.amount >= (itemState?.stockQuantity || 0)}
+                        >
+                            <IconifyIcon icon="mdi:plus" />
                         </IconButton>
                     </Box>
-                </Grid>
-                <Grid item md={1} sx={{ml: '25px'}}>
+                </Stack>
+
+                <Stack sx={{ width: 120, alignItems: 'center' }}>
+                    <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main, fontWeight: 600 }}>
+                        {formatPrice(totalPrice)}đ
+                    </Typography>
+                </Stack>
+
+                <Stack sx={{ width: 40 }}>
                     <IconButton onClick={() => handleDeleteProductInCart(itemState.productId)}>
                         <IconifyIcon icon="carbon:trash-can" />
                     </IconButton>
-                </Grid>
-            </>
-            {index !== orderItems.length - 1 && <Divider />}
+                </Stack>
+            </Stack>
         </Fragment>
     )
 }

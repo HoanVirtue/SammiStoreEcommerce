@@ -481,6 +481,7 @@
     "price_in_cart": "Đơn giá",
     "total_item_price": "Số tiền",
     "summary": "Tổng giá",
+    "order_summary": "Tổng giá đơn hàng",
     "subtotal": "Tổng tiền",
     "shipping_fee": "Phí vận chuyển",
     "total": "Tổng cộng",
@@ -493,6 +494,8 @@
     "delete_all": "Xóa tất cả",
     "delete_all_description": "Bạn có chắc muốn xóa tất cả sản phẩm trong giỏ hàng?",
     "delete_all_success": "Xóa tất cả sản phẩm trong giỏ hàng thành công",
+    "my_cart": "Giỏ hàng",
+    "shipping_info": "Thông tin giao hàng",
     
 
     "province_id": "Mã Tỉnh/Thành phố"

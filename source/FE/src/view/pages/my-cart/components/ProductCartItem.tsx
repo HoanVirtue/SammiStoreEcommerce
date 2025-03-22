@@ -31,12 +31,12 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     const theme = useTheme()
     const dispatch: AppDispatch = useDispatch()
     const { orderItems } = useSelector((state: RootState) => state.order)
-    
+
     const productCart = getLocalProductFromCart()
     const parseData = productCart ? JSON.parse(productCart) : {}
     const lastAmount = user && parseData[user.id]?.find((cartItem: TItemOrderProduct) => cartItem.productId === item.productId)?.amount
 
-    const [itemState, setItemState] = useState<TItemOrderProductState>({...item, amount: lastAmount || item.amount || 1})
+    const [itemState, setItemState] = useState<TItemOrderProductState>({ ...item, amount: lastAmount || item.amount || 1 })
 
     const fetchProductDetail = async (id: string) => {
         const res = await getProductDetail(id)
@@ -110,10 +110,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                 alignItems="center"
                 sx={{
                     py: 3,
-                    minWidth: {
-                        xs: '100%',
-                        md: 900
-                    },
+                    minWidth: '100%',
                     maxWidth: {
                         xs: '100%',
                         md: '70%'
@@ -151,7 +148,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                     </Stack>
                 </Stack>
 
-                <Stack sx={{ width: 200, alignItems: 'center', flexDirection: 'row', gap: 2 }}>
+                <Stack sx={{ width: 200, alignItems: 'center', flexDirection: { xs: 'column', md: 'column', lg: 'row' }, gap: 2 }}>
                     <Typography variant="subtitle2" sx={{
                         color: itemState?.discount && itemState?.discount > 0 ? theme.palette.grey[500] : theme.palette.primary.main,
                         textDecoration: itemState?.discount && itemState?.discount > 0 ? "line-through" : "none",
@@ -167,9 +164,10 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                     </Typography>
                 </Stack>
 
-                <Stack sx={{ width: 120, alignItems: 'center' }}>
+                <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, alignItems: 'center' }}>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                         <IconButton
+                            sx={{ p: { xs: 0, md: 0, lg: 2 } }}
                             onClick={() => handleChangeQuantity(itemState, -1)}
                             disabled={itemState?.amount < 1}
                         >
@@ -198,6 +196,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                             }}
                         />
                         <IconButton
+                            sx={{ p: { xs: 0, md: 0, lg: 2 } }}
                             onClick={() => handleChangeQuantity(itemState, 1)}
                             disabled={itemState?.amount >= (itemState?.stockQuantity || 0)}
                         >
@@ -206,7 +205,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                     </Box>
                 </Stack>
 
-                <Stack sx={{ width: 120, alignItems: 'center' }}>
+                <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, alignItems: 'center' }}>
                     <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main, fontWeight: 600 }}>
                         {formatPrice(totalPrice)}đ
                     </Typography>

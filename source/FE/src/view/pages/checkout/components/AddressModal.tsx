@@ -41,10 +41,8 @@ interface TAddressModal {
 }
 
 interface TDefaultValues {
-    address: string
-    city: string
-    phoneNumber: string
-    fullName: string
+    streetAddress: string;
+    wardId: number;
 }
 
 const AddressModal = (props: TAddressModal) => {
@@ -53,7 +51,7 @@ const AddressModal = (props: TAddressModal) => {
     const [loading, setLoading] = useState(false)
     const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
     const [activeTab, setActiveTab] = useState(1)
-    const [addresses, setAddresses] = useState<TUserAddress[]>([])
+    const [userAddress, setUserAddress] = useState<TUserAddress[]>([])
     const [isEdit, setIsEdit] = useState({
         isEdit: false,
         index: 0
@@ -74,17 +72,13 @@ const AddressModal = (props: TAddressModal) => {
     const { isLoading, isErrorUpdateMe, messageUpdateMe, isSuccessUpdateMe } = useSelector((state: RootState) => state.auth)
 
     const schema = yup.object().shape({
-        fullName: yup.string().required(t("required_fullname")),
-        address: yup.string().required(t("required_address")),
-        city: yup.string().required(t("required_city")),
-        phoneNumber: yup.string().required(t("required_phone_number")).min(10, t('incorrect_phone_format')),
+        streetAddress: yup.string().required(t("required_street_address")),
+        wardId: yup.number().required(t("required_ward_id")),
     });
 
     const defaultValues: TDefaultValues = {
-        address: '',
-        city: '',
-        phoneNumber: '',
-        fullName: ''
+        streetAddress: '',
+        wardId: 0
     }
     const { handleSubmit, getValues, setError, clearErrors, control, formState: { errors }, reset } = useForm<TDefaultValues>({
         defaultValues,
@@ -96,29 +90,21 @@ const AddressModal = (props: TAddressModal) => {
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
             if (activeTab === 2) {
-                // const findCity = cityOptions.find((item) => item.value === data.city)
-                const haveDefault = addresses.some((item) => item.isDefault)
-                const { firstName, middleName, lastName } = separationFullname(data.fullName, i18n.language)
+                const haveDefault = userAddress.some((item) => item.isDefault)
                 if (isEdit.isEdit) {
-                    const cloneAddress = cloneDeep(addresses)
+                    const cloneAddress = cloneDeep(userAddress)
                     const findAddress = cloneAddress[isEdit.index]
                     if (findAddress) {
-                        findAddress.address = data.address
-                        findAddress.phoneNumber = data.phoneNumber
-                        findAddress.city = data.city ? data.city : ''
-                        findAddress.firstName = firstName
-                        findAddress.middleName = middleName
-                        findAddress.lastName = lastName
+                        findAddress.streetAddress = data.streetAddress
+                        findAddress.wardId = data.wardId
                     }
-                    setAddresses(cloneAddress)
+                    setUserAddress(cloneAddress)
                 } else {
-                    setAddresses([...addresses,
+                    setUserAddress([...userAddress,
                     {
-                        firstName, middleName, lastName,
-                        address: data?.address,
-                        city: data.city ? data.city : '',
-                        isDefault: !haveDefault,
-                        phoneNumber: data?.phoneNumber
+                        streetAddress: data?.streetAddress,
+                        wardId: data?.wardId,
+                        isDefault: !haveDefault
                     }])
                 }
                 setActiveTab(1)
@@ -150,8 +136,8 @@ const AddressModal = (props: TAddressModal) => {
 
 
     const onChangeAddress = (value: string) => {
-        const cloneAddress = [...addresses]
-        setAddresses(cloneAddress.map((item, index) => {
+        const cloneAddress = [...userAddress]
+        setUserAddress(cloneAddress.map((item, index) => {
             return {
                 ...item,
                 isDefault: Boolean(index === Number(value))
@@ -162,7 +148,7 @@ const AddressModal = (props: TAddressModal) => {
     const handleUpdate = () => {
         dispatch(updateAuthMeAsync({
             ...user,
-            addresses: addresses
+            userAddress: userAddress
         }))
     }
 
@@ -178,11 +164,6 @@ const AddressModal = (props: TAddressModal) => {
         fetchAllCities()
     }, [])
 
-    useEffect(() => {
-        if (user) {
-            setAddresses(user?.addresses)
-        }
-    }, [user?.addresses])
 
     useEffect(() => {
         if (messageUpdateMe) {
@@ -192,7 +173,7 @@ const AddressModal = (props: TAddressModal) => {
             else if (isSuccessUpdateMe) {
                 toast.success(messageUpdateMe)
                 if (user) {
-                    setUser({...user, addresses})
+                    setUser({...user})
                 }
             }
         }
@@ -202,7 +183,7 @@ const AddressModal = (props: TAddressModal) => {
 
     useEffect(() => {
         if (activeTab === 2 && isEdit.isEdit) {
-            const findDefault = addresses.find((item) => item.isDefault)
+            const findDefault = userAddress.find((item) => item.isDefault)
             const findCity = findDefault ? cityOptions.find((item) => findDefault?.city === item.label) : ""
             const fullName = toFullName(findDefault?.lastName || "", findDefault?.middleName || "", findDefault?.firstName || "",
                 i18n.language)
@@ -263,7 +244,7 @@ const AddressModal = (props: TAddressModal) => {
                             }}>
                             {activeTab === 1 ? (
                                 <Box>
-                                    {addresses.length > 0 ? (
+                                    {userAddress.length > 0 ? (
                                         <FormControl>
                                             <FormLabel id="radio-address-group" sx={{
                                                 fontWeight: "bold",
@@ -275,7 +256,7 @@ const AddressModal = (props: TAddressModal) => {
                                                 name="radio-address-group"
                                                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChangeAddress(e.target.value)}
                                             >
-                                                {addresses.map((address, index) => {
+                                                {userAddress.map((address, index) => {
                                                     const findCity = cityOptions.find((item) => item.value === address.city)
                                                     return (
                                                         <Box key={index}
@@ -317,7 +298,7 @@ const AddressModal = (props: TAddressModal) => {
                                     )}
                                     <Button
                                         variant="outlined"
-                                        disabled={addresses.length > 3}
+                                        disabled={userAddress.length > 3}
                                         onClick={() => setActiveTab(2)}
                                         sx={{ mt: 3, mb: 2, py: 1.5 }}>
                                         {t('add_address')}

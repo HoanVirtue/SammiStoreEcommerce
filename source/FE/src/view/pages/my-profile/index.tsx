@@ -218,10 +218,15 @@ const MyProfilePage: NextPage<TProps> = () => {
     }
 
     return (
-        <>
+        <Box sx={{
+            maxWidth: '1440px',
+            margin: '0 auto',
+            width: '100%',
+            padding: '1rem 2rem'
+        }}>
             {loading || isLoading && <Spinner />}
             <Box sx={{
-                paddingLeft: '0.75rem',
+                mb: '1rem',
                 backgroundColor: theme.palette.grey[100],
             }}>
                 <CustomBreadcrumbs items={breadcrumbItems} />
@@ -236,7 +241,6 @@ const MyProfilePage: NextPage<TProps> = () => {
                     margin: "0 auto",
                     backgroundColor: theme.palette.background.paper,
                     borderRadius: "15px",
-                    mt: 10,
                     py: 5, px: 4,
                 }}>
                     <Grid container md={12} xs={12} spacing={6} sx={{
@@ -476,7 +480,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                     </Box>
                 </Box>
             </form>
-        </>
+        </Box>
     )
 }
 

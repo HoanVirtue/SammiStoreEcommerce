@@ -212,86 +212,16 @@ const HomePage: NextPage<TProps> = () => {
 
     return (
         <>
-            {/* {loading && <Spinner />} */}
             <Box sx={{
                 height: 'fit-content',
-                // mt: '4.6rem',
                 backgroundColor: theme.palette.background.paper
             }}>
-                {/* <Box sx={{width: '100%', height: 'fit-content'}}>
-                    <StyledTabs
-                        value={selectedProductCategory}
-                        onChange={handleChange}
-                        aria-label="wrapped label tabs example"
-                    >
-                        {categoryOptions.map((option) => {
-                            return (
-                                <Tab
-                                    key={option.value}
-                                    value={option.value}
-                                    label={option.label}
-                                    wrapped
-                                />
-                            )
-                        })}
-                    </StyledTabs>
-                </Box> */}
-                {/* <Box sx={{width: '100%', height: '9px', backgroundColor: '#e5677d'}}></Box> */}
                 <Banner />
                 <OutstandingCategory />
                 <ListVoucher />
                 <HotSale />
                 <TopSale />
-                {/* <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 4 }}>
-                    <Box sx={{ width: '300px' }}>
-                        <SearchField value={searchBy} placeholder={t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
-                    </Box>
-                </Box>
-                <Box sx={{ width: '100%', height: '100%', mt: 4, mb: 4 }}>
-                    <Grid container spacing={{ md: 4, sx: 2 }} mt={2}>
-                        <Grid item md={3} display={{ md: "flex", xs: "none" }}>
-                            <ProductFilter
-                                selectedLocation={selectedLocation}
-                                selectedReview={selectedReview}
-                                handleReset={handleResetFilter}
-                                handleProductFilter={handleProductFilter}
-                                cityOptions={cityOptions} />
-                        </Grid>
-                        <Grid item md={9} xs={12}>
-                            <Grid container spacing={{ md: 4, sx: 2 }}>
-                                {publicProducts?.data?.length > 0 ? (
-                                    <>
-                                        {publicProducts?.data?.map((item: TProduct) => {
-                                            return (
-                                                <Grid item key={item.id} md={4} sm={6} xs={12}>
-                                                    <ProductCard item={item} />
-                                                </Grid>
-                                            )
-                                        })}
-                                    </>
-                                ) : (
-                                    <Box sx={{
-                                        padding: "20px",
-                                        width: "100%",
-                                        display: "flex",
-                                        justifyContent: "center",
-                                        alignItems: "center"    
-                                    }}>
-                                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
-                                    </Box>
-                                )}
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Box> */}
-                {/* <CustomPagination
-                    pageSize={pageSize}
-                    pageSizeOptions={PAGE_SIZE_OPTIONS}
-                    onChangePagination={handleOnChangePagination}
-                    page={page}
-                    rowLength={publicProducts.total}
-                    isHidden
-                /> */}
+
             </Box >
         </>
     )

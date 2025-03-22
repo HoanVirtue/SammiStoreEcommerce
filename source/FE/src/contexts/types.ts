@@ -7,13 +7,9 @@ export type LoginParams = {
 }
 
 export type TUserAddress ={
-  address: string,
-  city: string,
-  phoneNumber: string,
-  firstName: string,
-  middleName: string,
-  lastName: string,
-  isDefault: boolean
+  streetAddress: string;
+  wardId: number;
+  isDefault: boolean;
 }
 
 // export type UserDataType = {

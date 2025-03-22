@@ -19,6 +19,7 @@
     "@hookform/resolvers": "^3.9.1",
     "@iconify/react": "^4.1.1",
     "@mui/icons-material": "^6.2.1",
+    "@mui/lab": "^6.0.0-beta.31",
     "@mui/material": "^5.16.14",
     "@mui/styled-engine-sc": "^6.0.0-alpha.7",
     "@mui/x-data-grid": "^6.18.7",

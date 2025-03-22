@@ -27,34 +27,31 @@ const CartSummary = ({
 }: TProps) => {
     const theme = useTheme()
 
-    const Row = ({ label, value }: { label: string, value: string }) => (
-        <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ typography: 'subtitle2', lineHeight: 1 }}
-        >
-            <Box component="span" sx={{ typography: 'body2' }}>
-                {label}
-            </Box>
-            {value}
-        </Stack>
-    )
-
     return (
         <Stack
             spacing={3}
             sx={{
                 p: 5,
                 borderRadius: 2,
-                border: `solid 1px ${alpha(theme.palette.grey[500], 0.24)}`,
+                border: (theme) => `solid 1px ${alpha(theme.palette.grey[500], 0.24)}`,
             }}
         >
-            <Typography variant="h6" fontWeight={600}>{t("summary")}</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{t("summary")}</Typography>
 
             <Stack spacing={2}>
-                <Row label={t("subtotal")} value={`${formatPrice(subtotal)}đ`} />
-                <Row label={t("discount")} value={`-${formatPrice(discount)}đ`} />
+                <Stack direction="row" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
+                    <Box component="span" sx={{ typography: 'body2' }}>
+                        {t("subtotal")}
+                    </Box>
+                    {formatPrice(subtotal)}đ
+                </Stack>
+
+                <Stack direction="row" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
+                    <Box component="span" sx={{ typography: 'body2' }}>
+                        {t("discount")}
+                    </Box>
+                    -{formatPrice(discount)}đ
+                </Stack>
             </Stack>
 
             <TextField
@@ -74,24 +71,17 @@ const CartSummary = ({
 
             <Divider sx={{ borderStyle: 'dashed' }} />
 
-            <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-                sx={{ typography: 'subtitle2', lineHeight: 1 }}
-            >
-                <Box component="span" sx={{ typography: 'body2', fontWeight: 600 }}>
-                    {t("total")}
+            <Stack direction="row" justifyContent="space-between" sx={{ typography: 'h6' }}>
+                <Box component="span" sx={{ fontWeight: 'bold' }}>{t("total")}</Box>
+                <Box component="span" sx={{ fontWeight: 'bold' }} color={theme.palette.primary.main}>
+                    {formatPrice(total)}đ
                 </Box>
-                <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main, fontWeight: 600 }}>
-                    {`${formatPrice(total)}đ`}
-                </Typography>
             </Stack>
-
 
             <Button
                 size="large"
                 variant="contained"
+                color="primary"
                 onClick={onCheckout}
                 disabled={total === 0}
             >

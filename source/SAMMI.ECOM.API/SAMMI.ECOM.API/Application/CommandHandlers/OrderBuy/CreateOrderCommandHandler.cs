@@ -176,7 +176,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
             var orderResult = _mapper.Map<OrderDTO>(orderCreated);
-            orderResult.ReturnUrl = paymentReponse.Result.ReturnUrl;
+            var paymentMethod = await _methodRepository.GetByIdAsync(request.PaymentMethodId);
+            if (paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString())
+                orderResult.ReturnUrl = paymentReponse.Result.ReturnUrl;
             actResponse.SetResult(orderResult);
 
             return actResponse;

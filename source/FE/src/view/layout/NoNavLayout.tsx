@@ -35,14 +35,14 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
                 <Toolbar />
                 <Container
                     sx={{
-                        width: "100vw",
-                        // marginTop: '-4rem',
                         maxWidth: "unset !important",
+                        width: "100vw",
                         overflow: "auto",
-                        maxHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight} - 32px)`,
-                        paddingLeft: "0rem !important",
-                        paddingRight: "0rem !important",
-                        // borderRadius: "15px"
+                        px: '0 !important',
+                        maxHeight: {
+                            xs: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 16px)`, // Mobile
+                            md: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 32px)`, // Desktop
+                        },
                     }}>
                     {children}
                 </Container>

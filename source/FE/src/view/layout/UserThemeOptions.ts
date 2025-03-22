@@ -9,7 +9,7 @@ const UserThemeOptions = (): ThemeOptions => {
         sm: 768,
         md: 992,
         lg: 1200,
-        xl: 1920
+        xl: 1440,
       }
     },
     components: {

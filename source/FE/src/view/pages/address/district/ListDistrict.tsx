@@ -40,13 +40,13 @@ const ListDistrictPage: NextPage = () => {
             minWidth: 200,
             renderCell: (params: GridRenderCellParams) => <Typography>{params.row.provinceName}</Typography>,
         },
-        {
-            field: "provinceCode",
-            headerName: t("province_code"),
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => <Typography>{params.row.provinceCode}</Typography>,
-        },
+        // {
+        //     field: "provinceCode",
+        //     headerName: t("province_code"),
+        //     minWidth: 200,
+        //     maxWidth: 200,
+        //     renderCell: (params: GridRenderCellParams) => <Typography>{params.row.provinceCode}</Typography>,
+        // },
 
 
     ];

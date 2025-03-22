@@ -32,6 +32,7 @@ import { useRouter } from 'next/router'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import ProductCartItem from './components/ProductCartItem'
 import CartSummary from './components/CartSummary'
+import CustomBreadcrumbs from 'src/components/custom-breadcrum'
 
 type TProps = {}
 
@@ -43,11 +44,14 @@ const MyCartPage: NextPage<TProps> = () => {
 
     //hooks
     const { user } = useAuth()
-    const { i18n } = useTranslation()
+    const { i18n, t } = useTranslation()
     const router = useRouter()
-
-    //Theme
     const theme = useTheme()
+
+    const breadcrumbItems = [
+        { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
+        { label: t('my_cart'), href: '/my-cart' },
+    ];
 
     //Redux
     const dispatch: AppDispatch = useDispatch()
@@ -70,7 +74,6 @@ const MyCartPage: NextPage<TProps> = () => {
 
     const memoSubtotal = useMemo(() => {
         const total = memoSelectedProduct?.reduce((result: number, current: TItemOrderProduct) => {
-
             const currentPrice = current?.discount && current?.discount > 0 ? (current?.price * (100 - current?.discount * 100)) / 100 : current?.price
             return result + currentPrice * current?.amount
         }, 0)
@@ -134,6 +137,7 @@ const MyCartPage: NextPage<TProps> = () => {
             productId: item.productId,
             amount: item.amount
         })))
+        console.log("formattedData", formattedData)
         router.push({
             pathname: ROUTE_CONFIG.CHECKOUT,
             query: {
@@ -153,24 +157,29 @@ const MyCartPage: NextPage<TProps> = () => {
             maxWidth: '1440px',
             margin: '0 auto',
             width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            height: '100%',
-            mt: 5,
-            padding: '0 2rem'
+            py: { xs: 2, sm: 1, md: 2, lg: 8 },
+            px: { xs: 2, sm: 2, md: 4, lg: 8 },
         }}>
-            <Box sx={{
-                backgroundColor: theme.palette.background.paper,
-                display: 'flex',
+            {/* Breadcrumbs */}
+            <Box sx={{ mb: { xs: 1, sm: 2, md: 4 } }}>
+                <CustomBreadcrumbs items={breadcrumbItems} />
+            </Box>
+
+            {/* Main Content */}
+            <Stack spacing={3} sx={{
                 alignItems: 'center',
-                padding: '4rem',
+                justifyContent: 'center',
+                padding: { xs: 4, sm: 4, md: 4, lg: 8 },
                 borderRadius: '15px',
                 width: '100% !important',
+                backgroundColor: theme.palette.background.paper,
             }}>
-                <Grid container>
-                    {orderItems.length > 0 ? (
-                        <Stack direction="row" spacing={2} sx={{ width: '100%' }} alignItems="center">
+                {orderItems.length > 0 ? (
+                    <Grid container >
+                        {/* Cart Items */}
+                        <Grid item xs={12} md={8} sx={{
+                            pr: { xs: 0, sm: 0, md: 4, lg: 8 },
+                        }}>
                             <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
                                 <Grid container>
                                     <Stack
@@ -178,14 +187,7 @@ const MyCartPage: NextPage<TProps> = () => {
                                         alignItems="center"
                                         sx={{
                                             py: 2,
-                                            minWidth: {
-                                                xs: '100%',
-                                                md: 900
-                                            },
-                                            maxWidth: {
-                                                xs: '100%',
-                                                md: '70%'
-                                            },
+                                            width: '100%',
                                             typography: 'subtitle2',
                                             borderBottom: (theme) => `solid 1px ${theme.palette.divider}`,
                                         }}
@@ -207,40 +209,44 @@ const MyCartPage: NextPage<TProps> = () => {
                                             <Typography fontWeight={600}>{t("price_in_cart")}</Typography>
                                         </Stack>
 
-                                        <Stack sx={{ width: 120, alignItems: 'center' }}>
+                                        <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, alignItems: 'center' }}>
                                             <Typography fontWeight={600}>{t("quantity")}</Typography>
                                         </Stack>
 
-                                        <Stack sx={{ width: 120, alignItems: 'center' }}>
+                                        <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, alignItems: 'center' }}>
                                             <Typography fontWeight={600}>{t("total_item_price")}</Typography>
                                         </Stack>
 
                                         <Stack sx={{ width: 40 }}>
                                             <Tooltip title={t("delete_all")}>
-                                                <span>
+                                                <Typography component="span">
                                                     <IconButton
                                                         onClick={handleDeleteMany}
                                                         disabled={selectedRow.length === 0}>
                                                         <IconifyIcon icon="carbon:trash-can" />
                                                     </IconButton>
-                                                </span>
+                                                </Typography>
                                             </Tooltip>
                                         </Stack>
                                     </Stack>
                                 </Grid>
 
-                                <Grid container spacing={2}>
-                                    {orderItems.map((item: TItemOrderProduct, index: number) => {
-                                        return (
-                                            <ProductCartItem item={item}
-                                                key={item.productId}
-                                                handleChangeCheckBox={handleChangeCheckBox}
-                                                selectedRow={selectedRow}
-                                                index={index} />
-                                        )
-                                    })}
+                                <Grid container item spacing={2}>
+                                    {orderItems.map((item: TItemOrderProduct, index: number) => (
+                                        <ProductCartItem
+                                            item={item}
+                                            key={item.productId}
+                                            handleChangeCheckBox={handleChangeCheckBox}
+                                            selectedRow={selectedRow}
+                                            index={index}
+                                        />
+                                    ))}
                                 </Grid>
                             </Stack>
+                        </Grid>
+
+                        {/* Cart Summary */}
+                        <Grid item xs={12} md={4}>
                             <CartSummary
                                 subtotal={memoSubtotal}
                                 discount={memoDiscount}
@@ -250,19 +256,22 @@ const MyCartPage: NextPage<TProps> = () => {
                                 setDiscountCode={setDiscountCode}
                                 onCheckout={handleNavigateCheckout}
                             />
+                        </Grid>
+                    </Grid>
+                ) : (
+                    <Box sx={{
+                        padding: "20px",
+                        margin: "0 auto",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                        width: "100% !important",
+                    }}>
+                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
+                    </Box>
+                )}
 
-                        </Stack>
-                    ) : (
-                        <Box sx={{
-                            padding: "20px",
-                            width: "fit-content !important",
-                        }}>
-                            <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
-                        </Box>
-                    )}
-
-                </Grid>
-            </Box>
+            </Stack>
         </Box>
     )
 }

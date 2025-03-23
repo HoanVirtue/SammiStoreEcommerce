@@ -35,6 +35,7 @@ import { TItemOrderProduct } from 'src/types/order';
 import { resetInitialState } from 'src/stores/order';
 import WarningModal from './components/WarningModal';
 import AddressModal from './components/AddressModal';
+import { TParamsAddresses, TParamsGetAllAddresses } from 'src/types/address';
 
 // ----------------------------------------------------------------------
 
@@ -59,6 +60,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const { isLoading, isSuccessCreate, isErrorCreate, errorMessageCreate, orderItems } = useSelector(
         (state: RootState) => state.order
     );
+    const { addresses } = useSelector((state: RootState) => state.address);
 
     const breadcrumbItems = [
         { label: t('home'), href: '/', icon: <IconifyIcon color="primary" icon="healthicons:home-outline" /> },
@@ -91,6 +93,13 @@ const CheckoutPage: NextPage<TProps> = () => {
         const shippingPrice = deliveryOptions.find((item) => item.value === selectedDelivery)?.price ?? 0;
         return shippingPrice ? Number(shippingPrice) : 0;
     }, [selectedDelivery]);
+
+    const memoAddressDefault = useMemo(() => {
+        const findAddress = addresses?.data?.find((item: TParamsAddresses) => item.isDefault)
+    
+        return findAddress as TParamsAddresses | undefined
+      }, [addresses])
+
 
     // Fetch API
     const getListPaymentMethod = async () => {
@@ -250,10 +259,10 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 {user ? (
                                     <Stack direction="row" spacing={2} alignItems="center">
                                         <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
-                                           addr
+                                           {memoAddressDefault?.streetAddress}
                                         </Typography>
                                         <Typography sx={{ fontSize: { xs: '14px', md: '18px' } }}>
-                                            user
+                                            {memoAddressDefault?.wardId}
                                         </Typography>
                                         <Button variant="outlined" size="small"
                                             onClick={() => setOpenAddress(true)}>

@@ -8,13 +8,13 @@ import { TParamsCreateAddress, TParamsDeleteMultipleAddresses, TParamsGetAllAddr
 
 export const serviceName = 'address'
 
-export const getAllAddressesAsync = createAsyncThunk(`${serviceName}/get-all`, async (data: { params: TParamsGetAllAddresses }) => {
-    const response = await getAllAddresses(data)
+export const getAllAddressesAsync = createAsyncThunk(`${serviceName}/get-all`, async () => {
+    const response = await getAllAddresses()
     return response
 })
 
-export const getCurrentAddressAsync = createAsyncThunk(`${serviceName}/get-current`, async (data: { params: TParamsGetAllAddresses }) => {
-    const response = await getCurrentAddress(data)
+export const getCurrentAddressAsync = createAsyncThunk(`${serviceName}/get-current`, async () => {
+    const response = await getCurrentAddress()
     return response
 })
 

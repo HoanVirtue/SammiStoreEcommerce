@@ -54,7 +54,7 @@ const CartSummary = ({
                 </Stack>
             </Stack>
 
-            <TextField
+            {/* <TextField
                 hiddenLabel
                 size="small"
                 placeholder={t("voucher_code")}
@@ -67,7 +67,7 @@ const CartSummary = ({
                         </InputAdornment>
                     ),
                 }}
-            />
+            /> */}
 
             <Divider sx={{ borderStyle: 'dashed' }} />
 
@@ -85,7 +85,7 @@ const CartSummary = ({
                 onClick={onCheckout}
                 disabled={total === 0}
             >
-                {t("checkout")}
+                {t("buy_item")}
             </Button>
         </Stack>
     )

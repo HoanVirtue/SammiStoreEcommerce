@@ -17,6 +17,12 @@ export type TParamsGetAllAddresses = {
     propertyFilterModels?: PropertyFilterModel[]; 
 }
 
+export type TParamsAddresses = {
+    streetAddress: string;
+    wardId: number;
+    isDefault?: boolean;
+}
+
 export type TParamsCreateAddress = {
     streetAddress: string;
     wardId: number;

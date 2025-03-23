@@ -137,7 +137,7 @@ const MyCartPage: NextPage<TProps> = () => {
             productId: item.productId,
             amount: item.amount
         })))
-        console.log("formattedData", formattedData)
+
         router.push({
             pathname: ROUTE_CONFIG.CHECKOUT,
             query: {
@@ -195,6 +195,7 @@ const MyCartPage: NextPage<TProps> = () => {
                                         <Stack sx={{ width: 40 }}>
                                             <Tooltip title={t("select_all")}>
                                                 <Checkbox
+                                                
                                                     onChange={handleCheckAll}
                                                     checked={memoListAllProductIds.every((item) => selectedRow.includes(item))}
                                                 />
@@ -231,7 +232,7 @@ const MyCartPage: NextPage<TProps> = () => {
                                     </Stack>
                                 </Grid>
 
-                                <Grid container item spacing={2}>
+                                <Grid container item spacing={2} sx={{ maxWidth: '100%' }}>
                                     {orderItems.map((item: TItemOrderProduct, index: number) => (
                                         <ProductCartItem
                                             item={item}
@@ -246,7 +247,9 @@ const MyCartPage: NextPage<TProps> = () => {
                         </Grid>
 
                         {/* Cart Summary */}
-                        <Grid item xs={12} md={4}>
+                        <Grid item xs={12} md={4} 
+                        // sx={{maxWidth: { xs: '100%', md: '40%' }}}
+                        >
                             <CartSummary
                                 subtotal={memoSubtotal}
                                 discount={memoDiscount}

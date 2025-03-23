@@ -11,12 +11,18 @@ const initialState = {
   isError: false,
   message: '',
   typeError: '',
-  isSuccessCreateUpdate: false,
-  isErrorCreateUpdate: false,
-  errorMessageCreateUpdate: '',
+  isSuccessCreate: false,
+  isErrorCreate: false,
+  errorMessageCreate: '',
+
+  isSuccessUpdate: false,
+  isErrorUpdate: false,
+  errorMessageUpdate: '',
+
   isSuccessDelete: false,
   isErrorDelete: false,
   errorMessageDelete: '',
+  
   isSuccessDeleteMultiple: false,
   isErrorDeleteMultiple: false,
   errorMessageDeleteMultiple: '',
@@ -37,12 +43,19 @@ export const addressesSlice = createSlice({
       state.isError = true
       state.message = ""
       state.typeError = ""
-      state.isSuccessCreateUpdate = false
-      state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = ''
+
+      state.isSuccessCreate = false
+      state.isErrorCreate = true
+      state.errorMessageCreate = ''
+
+      state.isSuccessUpdate = false
+      state.isErrorUpdate = true
+      state.errorMessageUpdate = ''
+      
       state.isSuccessDelete = false
       state.isErrorDelete = true
       state.errorMessageDelete = ''
+
       state.isSuccessDeleteMultiple = false
       state.isErrorDeleteMultiple = true
       state.errorMessageDeleteMultiple = ''
@@ -56,7 +69,7 @@ export const addressesSlice = createSlice({
     })
     builder.addCase(getAllAddressesAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.addresses.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
+      state.addresses.data = Array.isArray(action?.payload?.result) ? action?.payload?.result : [];
       state.addresses.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllAddressesAsync.rejected, (state, action) => {
@@ -71,7 +84,7 @@ export const addressesSlice = createSlice({
     })
     builder.addCase(getCurrentAddressAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.addresses.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
+      state.addresses.data = Array.isArray(action?.payload?.result) ? action?.payload?.result : [];
       state.addresses.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getCurrentAddressAsync.rejected, (state, action) => {
@@ -86,16 +99,16 @@ export const addressesSlice = createSlice({
     })
     builder.addCase(createAddressAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.result?.id
-      state.isErrorCreateUpdate = !action.payload?.result?.id
-      state.errorMessageCreateUpdate = action.payload?.message
+      state.isSuccessCreate = !!action.payload?.result?.id
+      state.isErrorCreate = !action.payload?.result?.id
+      state.errorMessageCreate = action.payload?.message
       state.typeError = action.payload?.errors
     })
     builder.addCase(createAddressAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
       state.isLoading = false
-      state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating Address'
+      state.isErrorCreate = true
+      state.errorMessageCreate = payload?.errors?.errorMessage || 'Error creating Address'
     })
 
     //update Address
@@ -104,15 +117,15 @@ export const addressesSlice = createSlice({
     })
     builder.addCase(updateAddressAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.result?.id
-      state.isErrorCreateUpdate = !action.payload?.result?.id
+      state.isSuccessUpdate = !!action.payload?.result?.id
+      state.isErrorUpdate = !action.payload?.result?.id
       state.typeError = action.payload?.errors
     })
     builder.addCase(updateAddressAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
       state.isLoading = false
-      state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating Address'
+      state.isErrorUpdate = true
+      state.errorMessageUpdate = payload?.errors?.errorMessage || 'Error updating Address'
     })
 
     //delete Address

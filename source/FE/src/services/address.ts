@@ -2,18 +2,18 @@ import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
 import { TParamsCreateAddress, TParamsDeleteMultipleAddresses, TParamsGetAllAddresses, TParamsUpdateAddress } from "src/types/address"
 
-export const getAllAddresses= async (data: {params: TParamsGetAllAddresses}) => {
+export const getAllAddresses= async () => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.CUSTOMER_ADDRESS.INDEX}/get-all-current-address`, data)
+        const res = await instance.get(`${API_ENDPOINT.CUSTOMER_ADDRESS.INDEX}/get-all-current-address`)
         return res.data
     } catch (error) {
         return error
     }
 }
 
-export const getCurrentAddress= async (data: {params: TParamsGetAllAddresses}) => {
+export const getCurrentAddress= async () => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.CUSTOMER_ADDRESS.INDEX}/get-current-address`, data)
+        const res = await instance.get(`${API_ENDPOINT.CUSTOMER_ADDRESS.INDEX}/get-current-address`)
         return res.data
     } catch (error) {
         return error

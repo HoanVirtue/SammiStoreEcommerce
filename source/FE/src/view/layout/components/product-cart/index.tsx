@@ -191,7 +191,7 @@ const ProductCart = (props: TProps) => {
                             <Button type="submit" variant="contained" fullWidth
                                 onClick={handleNavigateMyCart}
                                 sx={{ mt: 3, mb: 2, py: 1.5, mr: 2, borderRadius: "8px" }}>
-                                {t('go_payment')}
+                                {t('view_cart')}
                             </Button>
                         </Box>
                     </Box>

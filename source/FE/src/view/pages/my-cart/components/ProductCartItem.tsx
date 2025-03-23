@@ -120,7 +120,9 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
             >
                 <Stack sx={{ width: 40 }}>
                     <Checkbox
-                        disabled={!itemState?.stockQuantity}
+                        disabled={!itemState?.stockQuantity
+                            // || itemState?.status === 0
+                        }
                         checked={selectedRow.includes(itemState?.productId)}
                         value={itemState?.productId}
                         onChange={(e) => handleChangeCheckBox(e.target.value)}
@@ -148,7 +150,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                     </Stack>
                 </Stack>
 
-                <Stack sx={{ width: 200, alignItems: 'center', flexDirection: { xs: 'column', md: 'column', lg: 'row' }, gap: 2 }}>
+                <Stack sx={{ width: 200, alignItems: 'center', flexDirection: { xs: 'column', md: 'column', lg: 'row' }, gap: 2, justifyContent: 'center' }}>
                     <Typography variant="subtitle2" sx={{
                         color: itemState?.discount && itemState?.discount > 0 ? theme.palette.grey[500] : theme.palette.primary.main,
                         textDecoration: itemState?.discount && itemState?.discount > 0 ? "line-through" : "none",

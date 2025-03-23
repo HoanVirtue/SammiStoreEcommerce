@@ -7,6 +7,7 @@ export type LoginParams = {
 }
 
 export type TUserAddress ={
+  id: number;
   streetAddress: string;
   wardId: number;
   isDefault: boolean;

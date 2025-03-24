@@ -17,6 +17,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<IEnumerable<VoucherDTO>> GetAll(RequestFilterModel? filterModel = null);
         Task<VoucherDTO> GetById(int id);
         Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Voucher);
+        Task<IEnumerable<VoucherDTO>> GetVoucherOfCustomer(int customerId);
     }
     public class VoucherQueries : QueryRepository<Voucher>, IVoucherQueries
     {
@@ -96,6 +97,19 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 );
 
             return $"{code}{(idLast + 1).ToString("D6")}";
+        }
+
+        public Task<IEnumerable<VoucherDTO>> GetVoucherOfCustomer(int customerId)
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.InnerJoin("MyVoucher t2 ON t1.Id = t2.VoucherId AND t2.IsDeleted != 1");
+
+                    sqlBuilder.Where("t1.StartDate <= NOW() AND t1.EndDate > NOW()");
+                    sqlBuilder.Where("t2.CustomerId = @customerId", new { customerId });
+                    return conn.QueryAsync<VoucherDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                });
         }
     }
 }

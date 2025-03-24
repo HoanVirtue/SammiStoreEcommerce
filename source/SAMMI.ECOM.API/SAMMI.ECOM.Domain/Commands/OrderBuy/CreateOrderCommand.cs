@@ -20,8 +20,6 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public DateTime? ActualDeliveryDate { get; set; }
         public int? ShippingCompanyId { get; set; }
         public List<OrderDetailCommand> Details { get; set; }
-        public decimal? TotalAmount { get; set; }
-        public decimal? TotalQuantity { get; set; }
         public bool IsBuyNow { get; set; }
         public int? PaymentMethodId { get; set; }
 

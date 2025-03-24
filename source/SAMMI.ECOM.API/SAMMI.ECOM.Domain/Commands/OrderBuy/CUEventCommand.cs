@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 
 namespace SAMMI.ECOM.Domain.Commands.OrderBuy
 {
@@ -10,7 +12,8 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public string Name { get; set; } = null!;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public string? EventType { get; set; }
+        public PromotionEventType? EventType { get; set; }
+        public CreateImageCommand? ImageCommand { get; set; }
         public int? ImageId { get; set; }
 
 

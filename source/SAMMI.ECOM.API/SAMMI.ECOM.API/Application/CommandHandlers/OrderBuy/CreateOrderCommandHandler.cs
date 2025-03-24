@@ -65,33 +65,34 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.AddError("Mã phường không tồn tại.");
                 return actResponse;
             }
-            request.TotalAmount = 0;
-            request.VoucherId = request.VoucherId == 0 ? null : request.VoucherId;
-            var voucherExist = await _voucherRepository.GetByIdAsync(request.VoucherId);
-            if ((request.VoucherId != 0 && request.VoucherId != null)
-                && voucherExist != null
-                && (voucherExist.StartDate >= DateTime.Now && voucherExist.EndDate <= DateTime.Now))
-            {
-                var validVoucherResponse = await _voucherRepository.ValidVoucher(request.VoucherId ?? 0, request);
-                if (!validVoucherResponse.IsSuccess)
-                {
-                    actResponse.AddError(validVoucherResponse.Message);
-                    return actResponse;
-                }
-                // có thể xử lý giảm giá
-            }
 
             if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
             {
                 actResponse.AddError("Có ít nhất 1 sản phẩm không tồn tại");
                 return actResponse;
             }
+            decimal totalAmount = 0;
+            foreach (var item in request.Details)
+            {
+                item.Price = await _productRepository.GetPrice(item.ProductId);
+                totalAmount += item.Price * item.Quantity;
+            }
 
             // create order from ship & cal shipcost
             request.ShippingCompanyId = (await _shippingRepository.GetShipDefault()).Id;
             request.CostShip = 30000;
-            request.TotalAmount += request.CostShip;
+            totalAmount += request.CostShip ?? 0;
 
+            request.VoucherId = request.VoucherId == 0 ? null : request.VoucherId;
+            if (request.VoucherId != null)
+            {
+                var validVoucherResponse = await _voucherRepository.ValidVoucher(request.VoucherId ?? 0, request.WardId ?? 0, totalAmount, request.Details);
+                if (!validVoucherResponse.IsSuccess)
+                {
+                    actResponse.AddError(validVoucherResponse.Message);
+                    return actResponse;
+                }
+            }
 
             // create order
             request.CustomerId = _currentUser.Id;
@@ -110,6 +111,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             }
             var orderCreated = createOrderRes.Result;
 
+            //create order detai
             foreach (var detail in request.Details)
             {
                 var product = await _productRepository.GetByIdAsync(detail.ProductId);
@@ -118,8 +120,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     actResponse.AddError("Số lượng hàng trong kho không đủ! Vui lòng đặt lại đơn hàng");
                     return actResponse;
                 }
-                detail.Price = await _productRepository.GetPrice(detail.ProductId);
-                request.TotalAmount += detail.Price * detail.Quantity;
                 detail.OrderId = orderCreated.Id;
                 detail.CreatedDate = DateTime.Now;
                 detail.CreatedBy = "System";
@@ -155,8 +155,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             // calculate discount
             if (request.VoucherId != 0 && request.VoucherId != null)
             {
-                var totalDiscount = await _voucherRepository.CalculateDiscount(request.VoucherId ?? 0, request.CostShip ?? 0, request.TotalAmount ?? 0);
-                request.TotalAmount -= totalDiscount;
+                var totalDiscount = await _voucherRepository.CalculateDiscount(request.VoucherId ?? 0, request.CostShip ?? 0, totalAmount);
+                totalAmount -= totalDiscount;
             }
 
             //create payment
@@ -164,7 +164,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             {
                 OrderId = orderCreated.Id,
                 OrderCode = orderCreated.Code,
-                PaymentAmount = request.TotalAmount ?? 0,
+                PaymentAmount = totalAmount,
                 PaymentStatus = PaymentStatusEnum.Pending.ToString(),
                 PaymentMethodId = request.PaymentMethodId
             };

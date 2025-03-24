@@ -30,12 +30,14 @@ import toast from 'react-hot-toast'
 import { resetInitialState, updateProductToCart } from 'src/stores/order'
 import { resetInitialState as resetReview } from 'src/stores/review'
 import IconifyIcon from 'src/components/Icon'
-import { convertUpdateMultipleProductsCard, formatPrice } from 'src/utils'
+import { convertUpdateMultipleProductsCard, formatDate, formatPrice } from 'src/utils'
 import { ORDER_STATUS } from 'src/configs/order'
 import { getOrderDetail } from 'src/services/order'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import WriteReviewModal from './components/WriteReviewModal'
+import { createVNPayPaymentUrl } from 'src/services/payment'
+import { PAYMENT_METHOD } from 'src/configs/payment'
 
 type TProps = {}
 
@@ -63,10 +65,12 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
         userId: "",
         productId: ""
     })
+    const [openCancelDialog, setOpenCancelDialog] = useState<boolean>(false)
+    const paymentData = PAYMENT_METHOD()
 
     //hooks
     const { user } = useAuth()
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const router = useRouter()
 
 
@@ -114,6 +118,33 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                 selected: orderData?.orderItems?.map((item: TItemOrderProduct) => item.product)
             }
         }, ROUTE_CONFIG.MY_CART)
+    }
+
+
+
+    const handlePaymentMethod = (type: string) => {
+        switch (type) {
+            case paymentData.VN_PAYMENT.value: {
+                handlePaymentVNPay()
+                break;
+            }
+            default:
+                break
+        }
+    }
+
+    const handlePaymentVNPay = async () => {
+        setIsLoading(true)
+        await createVNPayPaymentUrl({
+            totalPrice: orderData.totalPrice,
+            orderId: orderData._id,
+            language: i18n.language === "vi" ? "vn" : i18n.language
+        }).then((res) => {
+            if (res.data) {
+                window.open(res.data, "_blank", "noopener,noreferrer")
+            }
+            setIsLoading(false)
+        })
     }
 
     useEffect(() => {
@@ -164,13 +195,23 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, fontWeight: 600, alignItems: 'center' }}>
                     <Button onClick={() => router.back()}
                         startIcon={<IconifyIcon icon='lets-icons:back' />}>
-                        {t('back')}
+                        {t('')}
                     </Button>
-                    <Box sx={{ display: 'flex', gap: 2 }}>
-                        {orderData?.status === 2 && (
+                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+                        {!!orderData?.isDelivered && (
                             <Box sx={{ display: 'flex', gap: 2 }}>
-                                <IconifyIcon icon='carbon:delivery' />
+                                <IconifyIcon color={theme.palette.success.main}
+                                    icon='material-symbols-light:delivery-truck-speed-outline-rounded' />
                                 <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_delivered')}{' | '}</Typography>
+                                {/* <Typography sx={{fontSize: '16px', fontWeight: 'bold'}}>{formatDate(orderData?.deliveryAt, { dateStyle: short })}</Typography> */}
+                            </Box>
+                        )}
+                        {!!orderData?.isPaid && (
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                                <IconifyIcon color={theme.palette.success.main}
+                                    icon='streamline:payment-10' />
+                                <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_paid')}{' | '}</Typography>
+                                {/* <Typography sx={{fontSize: '16px', fontWeight: 'bold'}}>{formatDate(orderData?.paidAt, { dateStyle: short })}</Typography> */}
                             </Box>
                         )}
                         <Typography sx={{ color: theme.palette.primary.main }}>{t((ORDER_STATUS as any)[orderData?.status]?.label)}</Typography>
@@ -298,6 +339,24 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                     gap: 4,
                     mt: 4
                 }}>
+                    {[0].includes(orderData.status) && orderData.paymentMethod.type !== paymentData.PAYMENT_LATER.value && (
+                        <Button variant="contained"
+                            color='error'
+                            onClick={() => handlePaymentMethod(orderData.paymentMethod.type)}
+                            startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                            {t('payment')}
+                        </Button>
+                    )}
+                    {[0, 1].includes(orderData.status) && (
+                        <Button variant="contained"
+                            color='error'
+                            onClick={() => setOpenCancelDialog(true)}
+                            startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                            {t('cancel_order')}
+                        </Button>
+                    )}
                     <Button variant="outlined"
                         color='primary'
                         onClick={() => handleBuyAgain()}

@@ -176,5 +176,23 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
 
             return Ok(await _myVoucherQueries.GetDataInCheckout(UserIdentity.Id, totalAmount, request.Details));
         }
+
+        [HttpPost("apply-voucher/{voucherCode}")]
+        public async Task<IActionResult> ApplyVoucher(string voucherCode, [FromBody] RequestVoucherDTO request)
+        {
+            var voucher = await _voucherRepository.GetByCode(voucherCode);
+            if (voucher == null)
+            {
+                return BadRequest("Phiếu giảm giá không tồn tại.");
+            }
+
+            foreach (var item in request.Details)
+            {
+                item.Price = await _productRepository.GetPrice(item.ProductId);
+            }
+            decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) + request.CostShip ?? 0;
+
+            return Ok(await _myVoucherQueries.AppyVoucherByVoucherCode(voucherCode, UserIdentity.Id, totalAmount, request.Details));
+        }
     }
 }

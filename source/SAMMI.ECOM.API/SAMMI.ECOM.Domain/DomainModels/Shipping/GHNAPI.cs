@@ -24,8 +24,11 @@ namespace SAMMI.ECOM.Domain.DomainModels.Shipping
 
     public class ServiceDTO
     {
+        [JsonPropertyName("service_id")]
         public int ServiceID { get; set; }
+        [JsonPropertyName("short_name")]
         public string ShortName { get; set; }
+        [JsonPropertyName("service_type_id")]
         public int ServiceTypeID { get; set; }
     }
 
@@ -49,6 +52,12 @@ namespace SAMMI.ECOM.Domain.DomainModels.Shipping
         public int ServiceFee { get; set; }
         [JsonPropertyName("insurance_fee")]
         public int InsuranceFee { get; set; }
+        public DateTime LeadTime { get; set; }
+    }
+
+    public class LeadTimeResponseDTO
+    {
+        public long Leadtime { get; set; }
     }
 
     public class GHNResponse<T>

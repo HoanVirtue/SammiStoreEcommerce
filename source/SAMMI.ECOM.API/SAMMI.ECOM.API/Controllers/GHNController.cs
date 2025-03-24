@@ -10,14 +10,17 @@ namespace SAMMI.ECOM.API.Controllers
     {
         private readonly IGHNService _ghnService;
         private readonly IWardRepository _wardRepository;
+        private readonly IConfiguration _config;
         public GHNController(
             IGHNService ghnService,
             IWardRepository wardRepository,
+            IConfiguration config,
             IMediator mediator,
             ILogger<GHNController> logger) : base(mediator, logger)
         {
             _ghnService = ghnService;
             _wardRepository = wardRepository;
+            _config = config;
         }
 
         [HttpGet]
@@ -42,6 +45,18 @@ namespace SAMMI.ECOM.API.Controllers
             if (response == null)
                 return BadRequest();
             return Ok(response);
+        }
+
+        [HttpGet("service/{wardId}")]
+        public async Task<IActionResult> GetService(int wardId)
+        {
+            var ward = await _wardRepository.GetById(wardId);
+            if (ward == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(await _ghnService.GetServices(_config.GetValue<int>("GHN_API:DistrictId"), ward.DistrictId ?? 1));
         }
     }
 }

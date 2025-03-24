@@ -27,7 +27,8 @@ namespace SAMMI.ECOM.Infrastructure.Services.GHN_API
 
         public async Task<FeeResponseDTO> CalculateFee(FeeRequestDTO request)
         {
-            request.ServiceID = 53321;
+            var fromDistrictId = _config.GetValue<int>("DistrictId");
+            request.ServiceID = (await GetServices(fromDistrictId, request.ToDistrictID)).SingleOrDefault(x => x.ServiceTypeID == 2).ServiceID;
             request.Weight = 800;
             request.Width = 15;
             request.Length = 15;
@@ -50,6 +51,19 @@ namespace SAMMI.ECOM.Infrastructure.Services.GHN_API
             var response = await _httpClient.PostAsJsonAsync($"{_config.GetValue<string>("BaseUrl")}v2/shipping-order/fee", requestBody);
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadFromJsonAsync<GHNResponse<FeeResponseDTO>>();
+
+            var leadtimeRequest = new
+            {
+                service_id = request.ServiceID,
+                from_district_id = fromDistrictId,
+                to_district_id = request.ToDistrictID,
+                to_ward_code = request.ToWardCode
+            };
+            var leadtimeResponse = await _httpClient.PostAsJsonAsync($"{_config.GetValue<string>("BaseUrl")}v2/shipping-order/leadtime", leadtimeRequest);
+            leadtimeResponse.EnsureSuccessStatusCode();
+            var leadtimeResult = await leadtimeResponse.Content.ReadFromJsonAsync<GHNResponse<LeadTimeResponseDTO>>();
+
+            result.Data.LeadTime = DateTimeOffset.FromUnixTimeSeconds(leadtimeResult.Data.Leadtime).UtcDateTime.AddHours(7);
             return result?.Data ?? null;
         }
 
@@ -71,7 +85,6 @@ namespace SAMMI.ECOM.Infrastructure.Services.GHN_API
 
         public async Task<List<ServiceDTO>> GetServices(int fromDistrictId, int toDistrictId)
         {
-            fromDistrictId = 1490;
             var request = new
             {
                 shop_id = _config.GetValue<int>("ShopId"),

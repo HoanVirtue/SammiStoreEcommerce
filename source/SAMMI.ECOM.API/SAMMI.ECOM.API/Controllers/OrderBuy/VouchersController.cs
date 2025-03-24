@@ -155,6 +155,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(createRes);
         }
 
+
         [HttpGet("my-voucher")]
         public async Task<IActionResult> GetMyVoucherAsync()
         {
@@ -191,8 +192,28 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 item.Price = await _productRepository.GetPrice(item.ProductId);
             }
             decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) + request.CostShip ?? 0;
-
-            return Ok(await _myVoucherQueries.AppyVoucherByVoucherCode(voucherCode, UserIdentity.Id, totalAmount, request.Details));
+            var voucherValid = await _myVoucherQueries.AppyVoucherByVoucherCode(voucherCode, UserIdentity.Id, totalAmount, request.Details);
+            if (voucherValid != null && voucherValid.IsValid)
+            {
+                if (await _myVoucherRepository.IsExisted(voucher.Id, UserIdentity.Id))
+                {
+                    return BadRequest("Phiếu giảm giá đã được lưu trước đó");
+                }
+                var myVoucherRequest = new MyVoucher
+                {
+                    VoucherId = voucher.Id,
+                    CustomerId = UserIdentity.Id,
+                    IsUsed = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
+                };
+                var createRes = await _myVoucherRepository.CreateAndSave(request);
+                if (!createRes.IsSuccess)
+                {
+                    return BadRequest(createRes);
+                }
+            }
+            return Ok(voucherValid);
         }
     }
 }

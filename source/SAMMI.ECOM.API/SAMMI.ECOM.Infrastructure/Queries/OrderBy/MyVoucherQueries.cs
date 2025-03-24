@@ -11,6 +11,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
     public interface IMyVoucherQueries : IQueryRepository
     {
         Task<List<MyVoucherDTO>> GetDataInCheckout(int customerId, decimal totalAmount, List<CartDetailDTO> details);
+        Task<MyVoucherDTO> AppyVoucherByVoucherCode(string voucherCode, int customerId, decimal totalAmount, List<CartDetailDTO> details);
     }
     public class MyVoucherQueries : QueryRepository<MyVoucher>, IMyVoucherQueries
     {
@@ -27,6 +28,31 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             _voucherRepository = voucherRepository;
             _userRepository = userRepository;
             _addressRepository = addressRepository;
+        }
+
+        public async Task<MyVoucherDTO> AppyVoucherByVoucherCode(string voucherCode, int customerId, decimal totalAmount, List<CartDetailDTO> details)
+        {
+            return await WithDefaultTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("t1.*");
+                    sqlBuilder.Select("t2.Code, t2.Name, t2.DiscountTypeId, t2.DiscountValue, t2.UsageLimit, t2.UsedCount, t2.StartDate, t2.EndDate");
+                    sqlBuilder.Select("t3.Name AS DicountName");
+
+                    sqlBuilder.InnerJoin("Voucher t2 ON t1.VoucherId = t2.Id AND t2.IsDeleted != 1 AND t2.StartDate <= NOW() AND t2.EndDate > NOW()");
+                    sqlBuilder.InnerJoin("DiscountType t3 ON t2.DiscountTypeId = t3.Id AND t3.IsDeleted != 1");
+
+                    sqlBuilder.Where("t1.CustomerId = @customerId", new { customerId });
+                    sqlBuilder.Where("t2.Code = @voucherCode", new { voucherCode });
+                    var voucher = await conn.QueryFirstOrDefaultAsync<MyVoucherDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+
+                    if (voucher == null)
+                        return voucher;
+                    var address = await _addressRepository.GetDefaultByUserId(customerId);
+                    voucher.IsValid = await _voucherRepository.ValidVoucher(voucher.VoucherId, address.WardId ?? 0, totalAmount, details);
+
+                    return voucher;
+                });
         }
 
         public async Task<List<MyVoucherDTO>> GetDataInCheckout(int customerId, decimal totalAmount, List<CartDetailDTO> details)

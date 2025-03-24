@@ -64,35 +64,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.AddError("Mã chương trình khuyến mãi đã tồn tại");
                 return actResponse;
             }
-            if ((request.CategoryId == null || request.CategoryId == 0) &&
-                (request.BrandId == null || request.BrandId == 0) &&
-                (request.ProductId == null || request.ProductId == 0) &&
-                (request.EventId == null || request.EventId == 0))
-            {
-                actResponse.AddError("Phiếu giảm giá phải áp dụng cho ít nhất một danh mục, thương hiệu, sản phẩm hoặc sự kiện.");
-                return actResponse;
-            }
 
-            request.CategoryId = request.CategoryId == 0 ? null : request.CategoryId;
-            request.BrandId = request.BrandId == 0 ? null : request.BrandId;
-            request.ProductId = request.ProductId == 0 ? null : request.ProductId;
-            request.EventId = request.EventId == 0 ? null : request.EventId;
-
-            if ((request.CategoryId != null && request.CategoryId != 0) && !_categoryRepository.IsExisted(request.CategoryId))
-            {
-                actResponse.AddError("Loại sản phẩm không tồn tại");
-                return actResponse;
-            }
-            if ((request.BrandId != null && request.BrandId != 0) && !_brandRepository.IsExisted(request.BrandId))
-            {
-                actResponse.AddError("Thương hiệu không tồn tại");
-                return actResponse;
-            }
-            if ((request.ProductId != null && request.ProductId != 0) && !_productRepository.IsExisted(request.ProductId))
-            {
-                actResponse.AddError("Sản phẩm không tồn tại");
-                return actResponse;
-            }
             if ((request.EventId != null && request.EventId != 0) && !_eventRepository.IsExisted(request.EventId))
             {
                 actResponse.AddError("Chương trình khuyến mãi không tồn tại");
@@ -214,13 +186,25 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .NotEmpty()
                 .WithMessage("Tên chương trình khuyến mãi không được bỏ trống");
 
+            RuleFor(x => x.EventId)
+                .NotEmpty()
+                .NotNull()
+                .Must(x => x > 0)
+                .WithMessage("Chương trình khuyến mãi bắt buộc chọn");
+
             RuleFor(x => x.StartDate)
                 .NotEmpty()
-                .WithMessage("Ngày bắt đầu không được bỏ trống");
+                .WithMessage("Ngày bắt đầu không được bỏ trống")
+                .Must(x => x > DateTime.Now)
+                .WithMessage("Ngày bắt đầu phải lớn hơn ngày hiện tại");
 
             RuleFor(x => x.EndDate)
                 .NotEmpty()
-                .WithMessage("Ngày kết thúc không được bỏ trống");
+                .WithMessage("Ngày kết thúc không được bỏ trống")
+                .Must(x => x > DateTime.Now)
+                .WithMessage("Ngày kết thúc phải lớn hơn ngày hiện tại")
+                .GreaterThanOrEqualTo(x => x.StartDate)
+                .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu");
 
             RuleFor(x => x.UsageLimit)
                 .Must(x => x >= 1)

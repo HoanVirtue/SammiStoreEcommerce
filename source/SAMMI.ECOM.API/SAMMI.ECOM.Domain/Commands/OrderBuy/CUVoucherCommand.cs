@@ -8,14 +8,10 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
-        public int? CategoryId { get; set; }
-        public int? BrandId { get; set; }
-        public int? ProductId { get; set; }
-        public int? EventId { get; set; }
+        public int EventId { get; set; }
         public int DiscountTypeId { get; set; }
         public decimal DiscountValue { get; set; }
         public int UsageLimit { get; set; }
-        public int UsedCount { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public List<VoucherConditionCommand> Conditions { get; set; }

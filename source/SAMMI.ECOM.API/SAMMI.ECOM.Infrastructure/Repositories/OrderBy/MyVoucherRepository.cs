@@ -11,13 +11,14 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     }
     public class MyVoucherRepository : CrudRepository<MyVoucher>, IMyVoucherRepository, IDisposable
     {
+        private bool _disposed;
         public MyVoucherRepository(SammiEcommerceContext context) : base(context)
         {
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
+            _disposed = true;
         }
 
         public async Task<MyVoucher> GetDataByVoucherAndCustomer(int voucherId, int customerId)

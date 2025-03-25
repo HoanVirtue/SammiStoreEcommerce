@@ -19,6 +19,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<CartDetailDTO> GetById(int id);
         Task<IEnumerable<CartDetailDTO>> GetMyCart();
         Task CacheCart(int userId);
+        Task RemoveCartCache(int userId);
     }
     public class CartDetailQueries : QueryRepository<CartDetail>, ICartDetailQueries
     {
@@ -46,6 +47,13 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             {
                 await _redisService.SetCache(GetCartKey(userId), cartItems);
             }
+        }
+
+        public async Task RemoveCartCache(int userId)
+        {
+            if (_redisService == null || !_redisService.IsConnected())
+                return;
+            await _redisService.RemoveCache(GetCartKey(userId));
         }
 
         public Task<IEnumerable<CartDetailDTO>> GetAll(RequestFilterModel? filterModel = null)
@@ -113,5 +121,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 }, request
             );
         }
+
+
     }
 }

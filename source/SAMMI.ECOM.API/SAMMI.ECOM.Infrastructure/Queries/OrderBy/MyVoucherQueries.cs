@@ -49,7 +49,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     if (voucher == null)
                         return voucher;
                     var address = await _addressRepository.GetDefaultByUserId(customerId);
-                    voucher.IsValid = await _voucherRepository.ValidVoucher(voucher.VoucherId, address.WardId ?? 0, totalAmount, details);
+                    voucher.IsValid = await _voucherRepository.ValidVoucher(voucher.VoucherId, customerId, address.WardId ?? 0, totalAmount, details);
 
                     return voucher;
                 });
@@ -73,7 +73,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     var address = await _addressRepository.GetDefaultByUserId(customerId);
                     foreach (var voucher in vouchers)
                     {
-                        voucher.IsValid = await _voucherRepository.ValidVoucher(voucher.VoucherId, address.WardId ?? 0, totalAmount, details);
+                        voucher.IsValid = await _voucherRepository.ValidVoucher(voucher.VoucherId, customerId, address.WardId ?? 0, totalAmount, details);
                     }
 
                     return vouchers.ToList();

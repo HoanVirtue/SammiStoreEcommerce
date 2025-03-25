@@ -16,8 +16,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<bool> CheckExistCode(string code, int? id = 0);
         Task<Voucher> GetByCode(string code);
         //Task<ActionResponse<bool>> ValidVoucher(string orderCode, string voucherCode);
-        Task<ActionResponse<bool>> ValidVoucher(int voucherId, int wardId, decimal totalAmount, List<OrderDetailCommand> details);
-        Task<bool> ValidVoucher(int voucherId, int wardId, decimal totalAmount, List<CartDetailDTO> details);
+        Task<ActionResponse<bool>> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<OrderDetailCommand> details);
+        Task<bool> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<CartDetailDTO> details);
         Task<decimal> CalculateDiscount(int voucherId, decimal costShip, decimal totalPrice);
     }
     public class VoucherRepository : CrudRepository<Voucher>, IVoucherRepository, IDisposable
@@ -27,6 +27,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         private readonly IDiscountTypeRepository _typeRepository;
         private readonly IProductRepository _productRepository;
         private readonly IWardRepository _wardRepository;
+        private readonly IMyVoucherRepository _myVoucherRepository;
         private bool _disposed;
         private static readonly Dictionary<DiscountTypeEnum, List<ConditionTypeEnum>> ValidConditionsByType = new()
         {
@@ -42,6 +43,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             IOrderRepository orderRepository,
             IDiscountTypeRepository typeRepository,
             IProductRepository productRepository,
+            IMyVoucherRepository myVoucherRepository,
             IWardRepository wardRepository) : base(context)
         {
             _context = context;
@@ -49,6 +51,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             _typeRepository = typeRepository;
             _productRepository = productRepository;
             _wardRepository = wardRepository;
+            _myVoucherRepository = myVoucherRepository;
         }
 
         public async Task<bool> CheckExistCode(string code, int? id = 0)
@@ -151,7 +154,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         /// <param name="voucherId"></param>
         /// <param name="order"></param>
         /// <returns></returns>
-        public async Task<ActionResponse<bool>> ValidVoucher(int voucherId, int wardId, decimal totalAmount, List<OrderDetailCommand> details)
+        public async Task<ActionResponse<bool>> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<OrderDetailCommand> details)
         {
             var actResponse = new ActionResponse<bool>();
             var voucher = await GetByIdAsync(voucherId);
@@ -168,6 +171,13 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             if (voucher.UsedCount >= voucher.UsageLimit)
             {
                 actResponse.AddError("Số lượng phiếu giảm giá đã hết.");
+                return actResponse;
+            }
+
+            var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(voucherId, customerId);
+            if (myVoucher.IsUsed)
+            {
+                actResponse.AddError("Phiếu này đã được sử dụng trước đó.");
                 return actResponse;
             }
 
@@ -305,7 +315,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             return totalDiscount > 0 ? totalDiscount : 0;
         }
 
-        public async Task<bool> ValidVoucher(int voucherId, int wardId, decimal totalAmount, List<CartDetailDTO> details)
+        public async Task<bool> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<CartDetailDTO> details)
         {
             var actResponse = new ActionResponse<bool>();
             var voucher = await GetByIdAsync(voucherId);
@@ -323,6 +333,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 return false;
             }
 
+            var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(voucherId, customerId);
+            if (myVoucher.IsUsed)
+            {
+                return false;
+            }
             var discountType = await _typeRepository.FindById(voucher.DiscountTypeId);
             var conditions = await _context.VoucherConditions
                 .Where(x => x.VoucherId == voucher.Id && x.IsDeleted != true)

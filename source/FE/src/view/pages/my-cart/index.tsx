@@ -72,6 +72,7 @@ const MyCartPage: NextPage<TProps> = () => {
         return result
     }, [selectedRow, orderItems])
 
+
     const memoSubtotal = useMemo(() => {
         const total = memoSelectedProduct?.reduce((result: number, current: TItemOrderProduct) => {
             const currentPrice = current?.discount && current?.discount > 0 ? (current?.price * (100 - current?.discount * 100)) / 100 : current?.price
@@ -195,7 +196,6 @@ const MyCartPage: NextPage<TProps> = () => {
                                         <Stack sx={{ width: 40 }}>
                                             <Tooltip title={t("select_all")}>
                                                 <Checkbox
-                                                
                                                     onChange={handleCheckAll}
                                                     checked={memoListAllProductIds.every((item) => selectedRow.includes(item))}
                                                 />

@@ -175,7 +175,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             }
 
             var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(voucherId, customerId);
-            if (myVoucher.IsUsed)
+            if (myVoucher != null && myVoucher.IsUsed)
             {
                 actResponse.AddError("Phiếu này đã được sử dụng trước đó.");
                 return actResponse;
@@ -334,7 +334,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             }
 
             var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(voucherId, customerId);
-            if (myVoucher.IsUsed)
+            if (myVoucher != null && myVoucher.IsUsed)
             {
                 return false;
             }

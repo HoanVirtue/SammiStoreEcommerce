@@ -173,7 +173,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 item.Price = await _productRepository.GetPrice(item.ProductId);
             }
-            decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) + request.CostShip ?? 0;
+            decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) ?? 0;
 
             return Ok(await _myVoucherQueries.GetDataInCheckout(UserIdentity.Id, totalAmount, request.Details));
         }
@@ -191,7 +191,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 item.Price = await _productRepository.GetPrice(item.ProductId);
             }
-            decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) + request.CostShip ?? 0;
+            decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) ?? 0;
             var voucherValid = await _myVoucherQueries.AppyVoucherByVoucherCode(voucherCode, UserIdentity.Id, totalAmount, request.Details);
             if (voucherValid != null && voucherValid.IsValid)
             {

@@ -87,7 +87,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             // create order from ship & cal shipcost
             request.ShippingCompanyId = (await _shippingRepository.GetShipDefault()).Id;
-            request.CostShip = 30000;
+            request.CostShip = request.CostShip == null || request.CostShip == 0 ? 30000 : request.CostShip;
             totalAmount += request.CostShip ?? 0;
 
             request.VoucherId = request.VoucherId == 0 ? null : request.VoucherId;

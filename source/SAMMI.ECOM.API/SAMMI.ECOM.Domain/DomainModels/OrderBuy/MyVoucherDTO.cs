@@ -28,7 +28,6 @@
 
     public class RequestVoucherDTO
     {
-        public decimal CostShip { get; set; }
         public List<CartDetailDTO> Details { get; set; }
     }
 }

@@ -52,17 +52,11 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             return WithPagingTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.Select("t2.Name AS CategoryName");
-                    sqlBuilder.Select("t3.Name AS EventName");
-                    sqlBuilder.Select("t4.Name AS BrandName");
-                    sqlBuilder.Select("t5.Name AS ProductName");
-                    sqlBuilder.Select("t6.Name AS DiscountName");
+                    sqlBuilder.Select("t2.Name AS EventName");
+                    sqlBuilder.Select("t3.Name AS DiscountName");
 
-                    sqlBuilder.LeftJoin("ProductCategory t2 ON t1.CategoryId = t2.Id AND t2.IsDeleted != 1");
-                    sqlBuilder.LeftJoin("Event t3 ON t1.EventId = t3.Id AND t3.IsDeleted != 1");
-                    sqlBuilder.LeftJoin("Brand t4 ON t1.BrandId = t4.Id AND t4.IsDeleted != 1");
-                    sqlBuilder.LeftJoin("Product t5 ON t1.ProductId = t5.Id AND t5.IsDeleted != 1");
-                    sqlBuilder.LeftJoin("DiscountType t6 ON t1.DiscountTypeId = t6.Id AND t6.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Event t2 ON t1.EventId = t2.Id AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("DiscountType t3 ON t1.DiscountTypeId = t3.Id AND t3.IsDeleted != 1");
 
                     return conn.QueryAsync<VoucherDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 },

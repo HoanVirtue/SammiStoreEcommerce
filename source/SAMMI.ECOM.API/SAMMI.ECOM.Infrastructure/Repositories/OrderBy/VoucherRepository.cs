@@ -16,8 +16,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<bool> CheckExistCode(string code, int? id = 0);
         Task<Voucher> GetByCode(string code);
         //Task<ActionResponse<bool>> ValidVoucher(string orderCode, string voucherCode);
-        Task<ActionResponse<bool>> ValidVoucher(int voucherId, int wardId, decimal totalAmount, List<OrderDetailCommand> details);
-        Task<bool> ValidVoucher(int voucherId, int wardId, decimal totalAmount, List<CartDetailDTO> details);
+        Task<ActionResponse<bool>> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<OrderDetailCommand> details);
+        Task<bool> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<CartDetailDTO> details);
         Task<decimal> CalculateDiscount(int voucherId, decimal costShip, decimal totalPrice);
     }
     public class VoucherRepository : CrudRepository<Voucher>, IVoucherRepository, IDisposable

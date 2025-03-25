@@ -93,7 +93,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             request.VoucherId = request.VoucherId == 0 ? null : request.VoucherId;
             if (request.VoucherId != null)
             {
-                var validVoucherResponse = await _voucherRepository.ValidVoucher(request.VoucherId ?? 0, request.WardId ?? 0, totalAmount, request.Details);
+                var validVoucherResponse = await _voucherRepository.ValidVoucher(request.VoucherId ?? 0, _currentUser.Id, request.WardId ?? 0, totalAmount, request.Details);
                 if (!validVoucherResponse.IsSuccess)
                 {
                     actResponse.AddError(validVoucherResponse.Message);

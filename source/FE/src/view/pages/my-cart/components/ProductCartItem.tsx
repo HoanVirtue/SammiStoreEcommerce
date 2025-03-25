@@ -120,12 +120,14 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
             >
                 <Stack sx={{ width: 40 }}>
                     <Checkbox
-                        disabled={!itemState?.stockQuantity
-                            // || itemState?.status === 0
-                        }
-                        checked={selectedRow.includes(itemState?.productId)}
+                        disabled={!itemState?.stockQuantity || itemState?.stockQuantity === 0}
+                        checked={selectedRow.includes(itemState?.productId || '')}
                         value={itemState?.productId}
-                        onChange={(e) => handleChangeCheckBox(e.target.value)}
+                        onChange={(e) => {
+                            if (itemState?.productId) {
+                                handleChangeCheckBox(itemState.productId)
+                            }
+                        }}
                     />
                 </Stack>
 

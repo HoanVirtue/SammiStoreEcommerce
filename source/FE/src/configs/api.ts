@@ -47,7 +47,7 @@ export const API_ENDPOINT = {
   },
   SETTING: {
     PAYMENT_METHOD: {
-      INDEX: `${BASE_URL}/payment-type`,
+      INDEX: `${BASE_URL}/payment-method`,
     },
     DELIVERY_METHOD: {
       INDEX: `${BASE_URL}/delivery-type`,

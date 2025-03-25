@@ -21,6 +21,9 @@ export type TParamsAddresses = {
     streetAddress: string;
     wardId: number;
     isDefault?: boolean;
+    wardName: string;
+    districtName: string;
+    provinceName: string;
 }
 
 export type TParamsCreateAddress = {

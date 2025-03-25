@@ -35,7 +35,6 @@ export type TItemOrderProductMe = {
 }
 
 export type TParamsCreateOrder = {
-    id: number;
     customerId: number;
     code: string,
     displayOrder: number;

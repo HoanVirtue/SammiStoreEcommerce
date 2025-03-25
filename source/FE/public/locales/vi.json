@@ -497,6 +497,13 @@
     "my_cart": "Giỏ hàng",
     "shipping_info": "Thông tin giao hàng",
     "buy_item": "Mua hàng",
+    "update_address": "Cập nhật địa chỉ",
+    "fast_delivery": "Giao hàng nhanh",
+    "normal_delivery": "Giao hàng chậm",
+    "voucher": "Mã giảm giá",
+    "sammi_voucher": "Sammi Voucher",
+    "add_voucher": "Thêm mã giảm giá",
+    "select_voucher": "Chọn mã giảm giá",
 
     "province_id": "Mã Tỉnh/Thành phố"
 }

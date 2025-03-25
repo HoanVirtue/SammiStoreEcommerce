@@ -36,6 +36,8 @@ import { resetInitialState } from 'src/stores/order';
 import WarningModal from './components/WarningModal';
 import AddressModal from './components/AddressModal';
 import { TParamsAddresses, TParamsGetAllAddresses } from 'src/types/address';
+import { getCurrentAddress } from 'src/services/address';
+import VoucherModal from './components/VoucherModal';
 
 // ----------------------------------------------------------------------
 
@@ -50,6 +52,8 @@ const CheckoutPage: NextPage<TProps> = () => {
     const [selectedDelivery, setSelectedDelivery] = useState<string>('');
     const [openWarning, setOpenWarning] = useState(false)
     const [openAddress, setOpenAddress] = useState(false)
+    const [address, setAddress] = useState<TParamsAddresses>()
+    const [openVoucher, setOpenVoucher] = useState(false)
 
     // Hooks
     const { user } = useAuth();
@@ -89,6 +93,10 @@ const CheckoutPage: NextPage<TProps> = () => {
         return result;
     }, [router.query, orderItems]);
 
+    const currentAddress = async () => {
+        await getCurrentAddress()
+    }
+
     const memoShippingPrice = useMemo(() => {
         const shippingPrice = deliveryOptions.find((item) => item.value === selectedDelivery)?.price ?? 0;
         return shippingPrice ? Number(shippingPrice) : 0;
@@ -96,25 +104,35 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     const memoAddressDefault = useMemo(() => {
         const findAddress = addresses?.data?.find((item: TParamsAddresses) => item.isDefault)
-    
+
         return findAddress as TParamsAddresses | undefined
-      }, [addresses])
+    }, [addresses])
 
 
     // Fetch API
     const getListPaymentMethod = async () => {
         setLoading(true);
-        await getAllPaymentMethods({ params: { limit: -1, page: -1, search: '', order: '' } })
+        await getAllPaymentMethods({
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: ""
+            }
+        })
             .then((res) => {
-                if (res?.data) {
+                if (res?.result?.subset) {
                     setPaymentOptions(
-                        res.data.paymentTypes.map((item: { name: string; _id: string; type: string }) => ({
+                        res?.result?.subset.map((item: { name: string; id: string; type: string }) => ({
                             label: item.name,
-                            value: item._id,
+                            value: item.id,
                             type: item.type,
                         }))
                     );
-                    setSelectedPayment(res.data.paymentTypes[0]?._id);
+                    setSelectedPayment(res?.result?.subset[0]?.id);
                 }
                 setLoading(false);
             })
@@ -127,9 +145,9 @@ const CheckoutPage: NextPage<TProps> = () => {
             .then((res) => {
                 if (res?.data) {
                     setDeliveryOptions(
-                        res.data.deliveryTypes.map((item: { name: string; _id: string; price: string }) => ({
+                        res.data.deliveryTypes.map((item: { name: string; id: string; price: string }) => ({
                             label: item.name,
-                            value: item._id,
+                            value: item.id,
                             price: item.price,
                         }))
                     );
@@ -159,7 +177,6 @@ const CheckoutPage: NextPage<TProps> = () => {
         }));
         dispatch(
             createOrderAsync({
-                id: 0,
                 displayOrder: 0,
                 customerId: user ? user.id : 0,
                 code: '1',
@@ -186,7 +203,8 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     useEffect(() => {
         getListPaymentMethod();
-        getListDeliveryMethod();
+        // getListDeliveryMethod();
+        currentAddress()
     }, []);
 
     useEffect(() => {
@@ -220,6 +238,14 @@ const CheckoutPage: NextPage<TProps> = () => {
         }
     }, [isSuccessCreate, isErrorCreate, errorMessageCreate]);
 
+    const deliveryOption = [
+        {
+            label: t('fast_delivery'),
+            value: 'fast_delivery',
+            price: 10000,
+        },
+    ]
+
     return (
         <Box sx={{
             maxWidth: '1440px',
@@ -232,6 +258,7 @@ const CheckoutPage: NextPage<TProps> = () => {
             {loading || (isLoading && <Spinner />)}
             <WarningModal open={openWarning} onClose={() => setOpenAddress(false)} />
             <AddressModal open={openAddress} onClose={() => setOpenAddress(false)} />
+            <VoucherModal open={openVoucher} onClose={() => setOpenVoucher(false)} />
 
             {/* Breadcrumbs */}
             <Box sx={{ mb: { xs: 1, sm: 2, md: 4 } }}>
@@ -259,10 +286,10 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 {user ? (
                                     <Stack direction="row" spacing={2} alignItems="center">
                                         <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
-                                           {memoAddressDefault?.streetAddress}
+                                            {user?.fullName} {user?.phone}
                                         </Typography>
-                                        <Typography sx={{ fontSize: { xs: '14px', md: '18px' } }}>
-                                            {memoAddressDefault?.wardId}
+                                        <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
+                                            {memoAddressDefault?.streetAddress}, {memoAddressDefault?.wardName}, {memoAddressDefault?.districtName}, {memoAddressDefault?.provinceName}
                                         </Typography>
                                         <Button variant="outlined" size="small"
                                             onClick={() => setOpenAddress(true)}>
@@ -294,7 +321,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                         },
                                     }}
                                 >
-                                    {deliveryOptions.map((delivery) => (
+                                    {deliveryOption.map((delivery) => (
                                         <FormControlLabel
                                             key={delivery.value}
                                             value={delivery.value}
@@ -337,6 +364,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                             <Box>
                                 <StepLabel title={t('payment_method')} step="3" />
                                 <RadioGroup
+                                    value={selectedPayment}
                                     aria-labelledby="radio-payment-group"
                                     name="radio-payment-group"
                                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChangePayment(e.target.value)}
@@ -357,7 +385,6 @@ const CheckoutPage: NextPage<TProps> = () => {
                                             control={
                                                 <Radio
                                                     disableRipple
-                                                    checked={selectedPayment === payment.value}
                                                     checkedIcon={<IconifyIcon icon="carbon:checkmark-outline" />}
                                                     sx={{ mx: 1 }}
                                                 />
@@ -389,6 +416,23 @@ const CheckoutPage: NextPage<TProps> = () => {
                                         />
                                     ))}
                                 </RadioGroup>
+                            </Box>
+
+                            {/* Step 4: Voucher */}
+                            <Box>
+                                <StepLabel title={t('voucher')} step="4" />
+                                <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                                    <Stack direction="row" alignItems="center" spacing={1}>
+                                        <IconifyIcon icon="pepicons-pencil:ticket" color={theme.palette.customColors.main} />
+                                        <Typography variant="subtitle1" sx={{ flexGrow: 1, ml: 1 }}>
+                                            {t('sammi_voucher')}
+                                        </Typography>
+                                    </Stack>
+                                    <Button variant="outlined" size="small"
+                                        onClick={() => setOpenVoucher(true)}>
+                                        {t('select_voucher')}
+                                    </Button>
+                                </Stack>
                             </Box>
                         </Stack>
                     </Grid>

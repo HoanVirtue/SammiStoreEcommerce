@@ -1,9 +1,14 @@
-﻿using MediatR;
+﻿using AutoMapper;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
+using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
+using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
 namespace SAMMI.ECOM.API.Controllers.OrderBuy
 {
@@ -13,14 +18,28 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
     {
         private readonly IVoucherQueries _voucherQueries;
         private readonly IVoucherRepository _voucherRepository;
+        private readonly IMyVoucherRepository _myVoucherRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IMyVoucherQueries _myVoucherQueries;
+        private readonly IMapper _mapper;
         public VouchersController(
             IVoucherQueries voucherQueries,
             IVoucherRepository voucherRepository,
+            IMyVoucherRepository myVoucherRepository,
+            IProductRepository productRepository,
+            UserIdentity currentUser,
+            IMyVoucherQueries myVoucherQueries,
+            IMapper mapper,
             IMediator mediator,
             ILogger<UsersController> logger) : base(mediator, logger)
         {
             _voucherQueries = voucherQueries;
             _voucherRepository = voucherRepository;
+            UserIdentity = currentUser;
+            _myVoucherRepository = myVoucherRepository;
+            _productRepository = productRepository;
+            _myVoucherQueries = myVoucherQueries;
+            _mapper = mapper;
         }
 
         [HttpGet]
@@ -107,6 +126,73 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         public async Task<IActionResult> GetCodeByLastId()
         {
             return Ok(await _voucherQueries.GetCodeByLastId());
+        }
+
+        [HttpPost("save-voucher")]
+        public async Task<IActionResult> PostMyVoucherAsync([FromBody] int voucherId)
+        {
+            var voucher = await _voucherRepository.GetByIdAsync(voucherId);
+            if (voucher == null)
+                return NotFound();
+
+            if (await _myVoucherRepository.IsExisted(voucherId, UserIdentity.Id))
+            {
+                return BadRequest("Phiếu giảm giá đã được lưu trước đó");
+            }
+            var request = new MyVoucher
+            {
+                VoucherId = voucherId,
+                CustomerId = UserIdentity.Id,
+                IsUsed = false,
+                CreatedDate = DateTime.Now,
+                CreatedBy = "System"
+            };
+            var createRes = await _myVoucherRepository.CreateAndSave(request);
+            if (createRes.IsSuccess)
+            {
+                return Ok(_mapper.Map<MyVoucherDTO>(createRes.Result));
+            }
+            return BadRequest(createRes);
+        }
+
+        [HttpGet("my-voucher")]
+        public async Task<IActionResult> GetMyVoucherAsync()
+        {
+            return Ok(await _voucherQueries.GetVoucherOfCustomer(UserIdentity.Id));
+        }
+
+        [HttpPost("my-voucher-apply")]
+        public async Task<IActionResult> GetMyVoucherApplyAsync([FromBody] RequestVoucherDTO request)
+        {
+            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
+            {
+                return BadRequest("Có ít nhất 1 sản phẩm không tồn tại");
+            }
+            foreach (var item in request.Details)
+            {
+                item.Price = await _productRepository.GetPrice(item.ProductId);
+            }
+            decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) + request.CostShip ?? 0;
+
+            return Ok(await _myVoucherQueries.GetDataInCheckout(UserIdentity.Id, totalAmount, request.Details));
+        }
+
+        [HttpPost("apply-voucher/{voucherCode}")]
+        public async Task<IActionResult> ApplyVoucher(string voucherCode, [FromBody] RequestVoucherDTO request)
+        {
+            var voucher = await _voucherRepository.GetByCode(voucherCode);
+            if (voucher == null)
+            {
+                return BadRequest("Phiếu giảm giá không tồn tại.");
+            }
+
+            foreach (var item in request.Details)
+            {
+                item.Price = await _productRepository.GetPrice(item.ProductId);
+            }
+            decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) + request.CostShip ?? 0;
+
+            return Ok(await _myVoucherQueries.AppyVoucherByVoucherCode(voucherCode, UserIdentity.Id, totalAmount, request.Details));
         }
     }
 }

@@ -68,7 +68,9 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 
             CreateMap<CUCustomerAddressCommand, CustomerAddress>();
             CreateMap<CustomerAddress, CustomerAddressDTO>();
-            //CreateMap<>();
+
+
+            CreateMap<MyVoucher, MyVoucherDTO>();
             //CreateMap<>();
         }
     }

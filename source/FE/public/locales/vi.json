@@ -504,6 +504,8 @@
     "sammi_voucher": "Sammi Voucher",
     "add_voucher": "Thêm mã giảm giá",
     "select_voucher": "Chọn mã giảm giá",
+    "end_date": "Ngày kết thúc",
+    "minimum_order": "Đơn hàng tối thiểu",
 
     "province_id": "Mã Tỉnh/Thành phố"
 }

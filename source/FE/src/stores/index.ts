@@ -20,6 +20,8 @@ import employee from 'src/stores/employee'
 import customer from 'src/stores/customer'
 import supplier from 'src/stores/supplier'
 import address from 'src/stores/address'
+import voucher from 'src/stores/voucher'
+
 
 export const store = configureStore({
   reducer: {
@@ -40,7 +42,8 @@ export const store = configureStore({
     employee,
     customer,
     supplier,
-    address
+    address,
+    voucher
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

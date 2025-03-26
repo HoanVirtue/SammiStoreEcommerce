@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -17,16 +17,58 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import IconifyIcon from 'src/components/Icon';
+import { useDispatch, useSelector } from 'react-redux';
+import { getAllVouchersAsync } from 'src/stores/voucher/action';
+import { RootState } from 'src/stores';
+import { getAllVouchers, getMyVouchers } from 'src/services/voucher';
+import { TParamsVouchers } from 'src/types/voucher';
 
 type VoucherModalProps = {
     open: boolean;
     onClose: () => void;
+    onSelectVoucher: (voucherId: string) => void;
 };
 
-const VoucherModal = ({ open, onClose }: VoucherModalProps) => {
+const VoucherModal = ({ open, onClose, onSelectVoucher }: VoucherModalProps) => {
+
+    //Hook
     const { t } = useTranslation();
     const theme = useTheme();
-    const [selectedVoucher, setSelectedVoucher] = React.useState('');
+
+    //Redux
+    const dispatch = useDispatch();
+
+    //State
+    const [vouchers, setVouchers] = useState([]);
+    const [selectedVoucher, setSelectedVoucher] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const fetchVouchers = async () => {
+        setLoading(true);
+        await getMyVouchers({
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: "",
+            },
+        })
+            .then((res) => {
+                const data = res?.result
+                if (data) {
+                    setVouchers(data);
+                }
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        fetchVouchers();
+    }, []);
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -63,69 +105,40 @@ const VoucherModal = ({ open, onClose }: VoucherModalProps) => {
                             value={selectedVoucher}
                             onChange={(e) => setSelectedVoucher(e.target.value)}
                         >
-                            {/* Voucher Item */}
-                            <Box
-                                sx={{
-                                    p: 2,
-                                    border: `1px solid ${theme.palette.divider}`,
-                                    borderRadius: 1,
-                                    cursor: 'pointer',
-                                    '&:hover': {
-                                        borderColor: theme.palette.primary.main,
-                                    }
-                                }}
-                            >
-                                <Stack direction="row" alignItems="center" spacing={2}>
-                                    <IconifyIcon
-                                        icon="pepicons-pencil:ticket"
-                                        width={40}
-                                        color={theme.palette.primary.main}
-                                    />
-                                    <Stack spacing={0.5} flex={1}>
-                                        <Typography variant="subtitle2">
-                                            Giảm 50K
-                                        </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Đơn tối thiểu 500K
-                                        </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            HSD: 31/12/2023
-                                        </Typography>
+                            {vouchers.map((voucher: TParamsVouchers) => (
+                                <Box
+                                    key={voucher.id}
+                                    sx={{
+                                        p: 2,
+                                        border: `1px solid ${theme.palette.divider}`,
+                                        borderRadius: 1,
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            borderColor: theme.palette.primary.main,
+                                        }
+                                    }}
+                                >
+                                    <Stack direction="row" alignItems="center" spacing={2}>
+                                        <IconifyIcon
+                                            icon="pepicons-pencil:ticket"
+                                            width={40}
+                                            color={theme.palette.primary.main}
+                                        />
+                                        <Stack spacing={0.5} flex={1}>
+                                            <Typography variant="subtitle2">
+                                                {voucher.name}
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                {t('minimum_order')}: {voucher.discountValue}
+                                            </Typography>
+                                            <Typography variant="caption" color="text.secondary">
+                                                {t('end_date')}: {new Date(voucher.endDate).toLocaleDateString()}
+                                            </Typography>
+                                        </Stack>
+                                        <Radio value={voucher.id} />
                                     </Stack>
-                                    <Radio value="voucher2" />
-                                </Stack>
-                            </Box>
-                            <Box
-                                sx={{
-                                    p: 2,
-                                    border: `1px solid ${theme.palette.divider}`,
-                                    borderRadius: 1,
-                                    cursor: 'pointer',
-                                    '&:hover': {
-                                        borderColor: theme.palette.primary.main,
-                                    }
-                                }}
-                            >
-                                <Stack direction="row" alignItems="center" spacing={2}>
-                                    <IconifyIcon
-                                        icon="pepicons-pencil:ticket"
-                                        width={40}
-                                        color={theme.palette.primary.main}
-                                    />
-                                    <Stack spacing={0.5} flex={1}>
-                                        <Typography variant="subtitle2">
-                                            Giảm 50K
-                                        </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            Đơn tối thiểu 500K
-                                        </Typography>
-                                        <Typography variant="caption" color="text.secondary">
-                                            HSD: 31/12/2023
-                                        </Typography>
-                                    </Stack>
-                                    <Radio value="voucher1" />
-                                </Stack>
-                            </Box>
+                                </Box>
+                            ))}
                         </RadioGroup>
 
                     </Stack>
@@ -136,7 +149,11 @@ const VoucherModal = ({ open, onClose }: VoucherModalProps) => {
                 <Button onClick={onClose} variant="outlined" color="inherit">
                     {t('cancel')}
                 </Button>
-                <Button variant="contained" disabled={!selectedVoucher}>
+                <Button variant="contained" disabled={!selectedVoucher}
+                    onClick={() => {
+                        onSelectVoucher(selectedVoucher);
+                        onClose();
+                    }}>
                     {t('confirm')}
                 </Button>
             </DialogActions>

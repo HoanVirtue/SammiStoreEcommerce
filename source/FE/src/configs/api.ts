@@ -20,6 +20,9 @@ export const API_ENDPOINT = {
   CART: {
     INDEX: `${BASE_URL}/carts`,
   },
+  VOUCHER: {
+    INDEX: `${BASE_URL}/vouchers`,
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,

@@ -17,6 +17,7 @@ import TextMaxLine from 'src/components/text-max-line';
 type Props = {
     totalPrice: number;
     shippingPrice: number;
+    voucherDiscount: number;
     selectedProduct: any[];
     loading?: boolean;
     onSubmit?: () => void;
@@ -25,6 +26,7 @@ type Props = {
 export default function CheckoutSummary({
     totalPrice,
     shippingPrice,
+    voucherDiscount,
     selectedProduct,
     loading,
     onSubmit
@@ -90,14 +92,14 @@ export default function CheckoutSummary({
                     <Box component="span" sx={{ typography: 'body2' }}>
                         {t('shipping_fee')}
                     </Box>
-                    {formatPrice(shippingPrice)}đ
+                    +{formatPrice(shippingPrice)}đ
                 </Stack>
 
                 <Stack direction="row" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
                     <Box component="span" sx={{ typography: 'body2' }}>
                         {t('discount')}
                     </Box>
-                    -{formatPrice(0)}đ
+                    -{formatPrice(voucherDiscount)}đ
                 </Stack>
             </Stack>
 
@@ -117,7 +119,7 @@ export default function CheckoutSummary({
 
             <Stack direction="row" justifyContent="space-between" sx={{ typography: 'h6' }}>
                 <Box component="span" sx={{ fontWeight: 'bold' }}>{t('total')}</Box>
-                <Box component="span" sx={{ fontWeight: 'bold' }} color={theme.palette.primary.main}>{formatPrice(totalPrice + shippingPrice)}đ
+                <Box component="span" sx={{ fontWeight: 'bold' }} color={theme.palette.primary.main}>{formatPrice(Number(totalPrice) + Number(shippingPrice) - Number(voucherDiscount))}đ
                 </Box>
             </Stack>
 

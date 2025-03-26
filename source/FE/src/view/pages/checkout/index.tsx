@@ -38,15 +38,25 @@ import AddressModal from './components/AddressModal';
 import { TParamsAddresses, TParamsGetAllAddresses } from 'src/types/address';
 import { getCurrentAddress } from 'src/services/address';
 import VoucherModal from './components/VoucherModal';
+import { createVNPayPaymentUrl } from 'src/services/payment';
+import { PAYMENT_METHOD } from 'src/configs/payment';
+import { getVoucherDetail } from 'src/services/voucher';
 
 // ----------------------------------------------------------------------
 
 type TProps = {};
 
+interface PaymentOption {
+    label: string;
+    value: string;
+    type: string;
+    id: string;
+}
+
 const CheckoutPage: NextPage<TProps> = () => {
     // States
     const [loading, setLoading] = useState<boolean>(false);
-    const [paymentOptions, setPaymentOptions] = useState<{ label: string; value: string; type: string }[]>([]);
+    const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([]);
     const [deliveryOptions, setDeliveryOptions] = useState<{ label: string; value: string; price: string }[]>([]);
     const [selectedPayment, setSelectedPayment] = useState<string>('');
     const [selectedDelivery, setSelectedDelivery] = useState<string>('');
@@ -54,6 +64,11 @@ const CheckoutPage: NextPage<TProps> = () => {
     const [openAddress, setOpenAddress] = useState(false)
     const [address, setAddress] = useState<TParamsAddresses>()
     const [openVoucher, setOpenVoucher] = useState(false)
+
+    const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+    const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
+
+    const PAYMENT_DATA = PAYMENT_METHOD()
 
     // Hooks
     const { user } = useAuth();
@@ -70,6 +85,14 @@ const CheckoutPage: NextPage<TProps> = () => {
         { label: t('home'), href: '/', icon: <IconifyIcon color="primary" icon="healthicons:home-outline" /> },
         { label: t('checkout'), href: '/checkout' },
     ];
+
+    const deliveryOption = [
+        {
+            label: t('fast_delivery'),
+            value: 'fast_delivery',
+            price: 10000,
+        },
+    ]
 
     const handleFormatProductData = (items: any) => {
         const objectMap: Record<string, TItemOrderProduct> = {};
@@ -98,7 +121,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     }
 
     const memoShippingPrice = useMemo(() => {
-        const shippingPrice = deliveryOptions.find((item) => item.value === selectedDelivery)?.price ?? 0;
+        const shippingPrice = deliveryOption.find((item) => item.value === selectedDelivery)?.price ?? 0;
         return shippingPrice ? Number(shippingPrice) : 0;
     }, [selectedDelivery]);
 
@@ -108,6 +131,19 @@ const CheckoutPage: NextPage<TProps> = () => {
         return findAddress as TParamsAddresses | undefined
     }, [addresses])
 
+    const memoVoucherDiscountPrice = useMemo(() => {
+        let discountPrice = 0;
+        
+        if (selectedVoucherId) {
+            getVoucherDetail(selectedVoucherId).then(res => {
+                const discountPercent = res?.result?.discountValue || 0;
+                discountPrice = (Number(memoQueryProduct.totalPrice) * Number(discountPercent)) / 100;
+                setVoucherDiscount(discountPrice);
+            });
+        }
+        
+        return discountPrice;
+    }, [selectedVoucherId, memoQueryProduct.totalPrice]);
 
     // Fetch API
     const getListPaymentMethod = async () => {
@@ -130,6 +166,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                             label: item.name,
                             value: item.id,
                             type: item.type,
+                            id: item.id
                         }))
                     );
                     setSelectedPayment(res?.result?.subset[0]?.id);
@@ -162,11 +199,37 @@ const CheckoutPage: NextPage<TProps> = () => {
     const onChangeDelivery = (value: string) => setSelectedDelivery(value);
     const onChangePayment = (value: string) => setSelectedPayment(value);
 
+    const handlePaymentVNPay = async (data: { orderId: string; totalPrice: number }) => {
+        setLoading(true)
+        await createVNPayPaymentUrl({
+            totalPrice: data.totalPrice,
+            orderId: data?.orderId,
+            language: i18n.language === 'vi' ? 'vn' : i18n.language
+        }).then(res => {
+            if (res?.result) {
+                window.open(res?.result, '_blank')
+            }
+            setLoading(false)
+        })
+            .catch(() => setLoading(false))
+    }
+
+    const handlePaymentTypeOrder = (id: string, data: { orderId: string; totalPrice: number }) => {
+        switch (id) {
+            case PAYMENT_DATA.VN_PAYMENT.value: {
+                handlePaymentVNPay(data)
+                break
+            }
+            default:
+                break
+        }
+    }
 
     const handlePlaceOrder = () => {
-        const totalPrice = Number(memoShippingPrice)
-            ? Number(memoQueryProduct.totalPrice) + Number(memoShippingPrice)
-            : Number(memoQueryProduct.totalPrice);
+        const subtotal = Number(memoQueryProduct.totalPrice);
+        const shipping = Number(memoShippingPrice);
+        const totalPrice = Number(subtotal) + Number(shipping) - Number(voucherDiscount);
+
         const orderDetails = memoQueryProduct.selectedProduct.map((item: TItemOrderProduct) => ({
             orderId: 0,
             productId: Number(item.productId),
@@ -175,6 +238,7 @@ const CheckoutPage: NextPage<TProps> = () => {
             id: 0,
             amount: item.price * item.amount * (item.discount ? (100 - item.discount) / 100 : 1),
         }));
+
         dispatch(
             createOrderAsync({
                 displayOrder: 0,
@@ -183,22 +247,31 @@ const CheckoutPage: NextPage<TProps> = () => {
                 paymentStatus: 'pending',
                 orderStatus: 'pending',
                 shippingStatus: 'pending',
-                voucherId: 0,
+                voucherId: Number(selectedVoucherId),
                 wardId: 20,
-                customerAddress: '',
+                customerAddress: `${memoAddressDefault?.streetAddress}, ${memoAddressDefault?.wardName}, ${memoAddressDefault?.districtName}, ${memoAddressDefault?.provinceName}`,
                 costShip: memoShippingPrice,
-                trackingNumber: '',
+                trackingNumber: '', 
                 estimatedDeliveryDate: '2025-03-20T11:40:42.001Z',
                 actualDeliveryDate: '2025-03-20T11:40:42.001Z',
                 shippingCompanyId: 0,
                 details: orderDetails,
                 totalAmount: totalPrice,
                 totalQuantity: 2,
-                discountAmount: 0,
+                discountAmount: voucherDiscount,
                 isBuyNow: false,
                 paymentMethodId: Number(selectedPayment),
             })
-        );
+        ).then(res => {
+            console.log("respa", res)
+            const idPaymentMethod = res?.payload?.subset?.id
+            const orderId = res?.payload?.subset?.id
+            const totalPrice = res?.payload?.subset?.totalPrice
+            const findPayment = paymentOptions.find(item => item.id === idPaymentMethod)
+            if (findPayment) {
+                handlePaymentTypeOrder(findPayment.id, { totalPrice, orderId })
+            }
+        })
     };
 
     useEffect(() => {
@@ -238,13 +311,6 @@ const CheckoutPage: NextPage<TProps> = () => {
         }
     }, [isSuccessCreate, isErrorCreate, errorMessageCreate]);
 
-    const deliveryOption = [
-        {
-            label: t('fast_delivery'),
-            value: 'fast_delivery',
-            price: 10000,
-        },
-    ]
 
     return (
         <Box sx={{
@@ -258,7 +324,10 @@ const CheckoutPage: NextPage<TProps> = () => {
             {loading || (isLoading && <Spinner />)}
             <WarningModal open={openWarning} onClose={() => setOpenAddress(false)} />
             <AddressModal open={openAddress} onClose={() => setOpenAddress(false)} />
-            <VoucherModal open={openVoucher} onClose={() => setOpenVoucher(false)} />
+            <VoucherModal open={openVoucher} onClose={() => setOpenVoucher(false)}
+                onSelectVoucher={(voucherId) => {
+                    setSelectedVoucherId(voucherId);
+                }} />
 
             {/* Breadcrumbs */}
             <Box sx={{ mb: { xs: 1, sm: 2, md: 4 } }}>
@@ -442,6 +511,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                         <CheckoutSummary
                             totalPrice={memoQueryProduct.totalPrice}
                             shippingPrice={memoShippingPrice}
+                            voucherDiscount={voucherDiscount}
                             selectedProduct={memoQueryProduct.selectedProduct}
                             onSubmit={handlePlaceOrder}
                         />

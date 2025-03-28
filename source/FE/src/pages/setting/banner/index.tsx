@@ -1,18 +1,17 @@
 import { NextPage } from 'next'
 import React from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListProvincePage from 'src/view/pages/address/province/ListProvince'
-import ListDeliveryMethod from 'src/view/pages/setting/delivery-method/ListDeliveryMethod'
+import ListBanner from 'src/view/pages/setting/banner/ListBanner'
 
 //views
 
 type TProps = {}
 
 const Banner: NextPage<TProps> = () => {
-    return <ListProvincePage />
+    return <ListBanner />
 }
 
 export default Banner
 
-Banner.permission = [PERMISSIONS.SETTING.DELIVERY_METHOD.VIEW]
+Banner.permission = [PERMISSIONS.SETTING.BANNER.VIEW]
 

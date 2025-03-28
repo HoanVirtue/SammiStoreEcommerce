@@ -23,13 +23,11 @@ export type BannerImage = {
     publicId: string;
     typeImage: string;
     value: string;
-    id: number;
-    displayOrder: number;
 }
 
 export type TParamsCreateBanner = {
     name?: string;
-    level?: string;
+    level?: number;
     imageCommand?: BannerImage;
 }
 

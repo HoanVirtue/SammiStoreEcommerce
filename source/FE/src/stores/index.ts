@@ -22,6 +22,10 @@ import supplier from 'src/stores/supplier'
 import address from 'src/stores/address'
 import voucher from 'src/stores/voucher'
 import receipt from 'src/stores/receipt'
+import banner from 'src/stores/banner'
+
+
+
 
 export const store = configureStore({
   reducer: {
@@ -44,7 +48,8 @@ export const store = configureStore({
     supplier,
     address,
     voucher,
-    receipt
+    receipt,
+    banner
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

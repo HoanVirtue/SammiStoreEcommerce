@@ -20,7 +20,6 @@ const PaymentPage = () => {
   const router = useRouter()
   const { vnp_SecureHash, vnp_ResponseCode, vnp_TxnRef, ...rests } = router.query
 
-
   const fetchGetIpnVNPay = async (param: any) => {
     await getVNPayPaymentIpn({
       params: {

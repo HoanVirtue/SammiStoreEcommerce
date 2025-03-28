@@ -117,7 +117,6 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                         : theme.palette.background.paper,
                             }}
                             onClick={() => {
-                                console.log(!!item.children, isActive)
                                 if (item.children) {
                                     handleClick(item.title)
                                 }
@@ -153,15 +152,15 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                 </Box>
                             </ListItemIcon>
                             {!disabled && (
-                                // <Tooltip title={item?.title}>
-                                <StyledListItemText
-                                    primary={item?.title}
-                                    active={isActive}
-                                    hasActiveChild={!!item.children?.length && hasActiveChild(item)}
-                                    isOpen={openItem[item.title]}
-                                    isParent={!!item.children}
-                                />
-                                // </Tooltip>
+                                <Tooltip title={item?.title}>
+                                    <StyledListItemText
+                                        primary={item?.title}
+                                        active={isActive}
+                                        hasActiveChild={!!item.children?.length && hasActiveChild(item)}
+                                        isOpen={openItem[item.title]}
+                                        isParent={!!item.children}
+                                    />
+                                </Tooltip>
                             )}
                             {item?.children && item?.children.length > 0 && (
                                 <>
@@ -184,7 +183,8 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                                             ? `${theme.palette.primary.main}`
                                                             : `rgba(${theme.palette.customColors.main}, 0.78)`,
                                                     transition: "transform 0.3s ease",
-                                                }} />
+                                                }}
+                                            />
                                         )
                                     }
                                 </>

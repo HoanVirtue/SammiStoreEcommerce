@@ -4,6 +4,7 @@ export const ROUTE_CONFIG = {
     MY_PROFILE: "/my-profile",
     MY_PRODUCT: "/my-product",
     LOGIN: "/login",
+    PAYMENT: "/payment/vnpay",
     REGISTER: "/register",
     CHANGE_PASSWORD: "/change-password",
     MY_CART: "/my-cart",
@@ -38,5 +39,8 @@ export const ROUTE_CONFIG = {
         PROVINCE: "/address/province",
         DISTRICT: "/address/district",
         WARD: "/address/ward"
-    }
+    },
+    GOODS_RECEIPT: {
+        RECEIPT: "/goods-receipt/receipt",
+    },
 }

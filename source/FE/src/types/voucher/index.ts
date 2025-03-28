@@ -50,6 +50,20 @@ export type TParamsCreateVoucher = {
     }
 }
 
+export type TParamsFetchListApplyVoucher = {
+    details: Array<{
+        cartId: number;
+        productId: number;
+        productName: string;
+        price: number;
+        quantity: number;
+    }>
+}
+
+export interface TParamsApplyMyVoucher extends TParamsFetchListApplyVoucher {
+}
+
+
 export type TParamsApplyVoucher = {
     name: string;
     categoryId: number;

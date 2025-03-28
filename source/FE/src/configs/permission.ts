@@ -95,6 +95,14 @@ export const PERMISSIONS: any = {
         DELETE: "ADDRESS.WARD.DELETE",
       },
     },
+    GOODS_RECEIPT: {
+      RECEIPT_LIST: {
+        VIEW: "GOODS_RECEIPT.RECEIPT_LIST.VIEW",
+        CREATE: "GOODS_RECEIPT.RECEIPT_LIST.CREATE",
+        UPDATE: "GOODS_RECEIPT.RECEIPT_LIST.UPDATE",
+        DELETE: "GOODS_RECEIPT.RECEIPT_LIST.DELETE",
+      },
+    },
   };
 
 export const LIST_PERMISSION_DATA: any = [

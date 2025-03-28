@@ -23,6 +23,9 @@ export const API_ENDPOINT = {
   VOUCHER: {
     INDEX: `${BASE_URL}/vouchers`,
   },
+  GOODS_RECEIPT: {
+    INDEX: `${BASE_URL}/goods-receipts`,
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,

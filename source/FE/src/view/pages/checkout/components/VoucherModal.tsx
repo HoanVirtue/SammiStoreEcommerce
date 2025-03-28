@@ -20,16 +20,22 @@ import IconifyIcon from 'src/components/Icon';
 import { useDispatch, useSelector } from 'react-redux';
 import { getAllVouchersAsync } from 'src/stores/voucher/action';
 import { RootState } from 'src/stores';
-import { getAllVouchers, getMyVouchers } from 'src/services/voucher';
+import { applyVoucher, fetchListApplyVoucher, getAllVouchers, getMyVouchers } from 'src/services/voucher';
 import { TParamsVouchers } from 'src/types/voucher';
 
 type VoucherModalProps = {
     open: boolean;
     onClose: () => void;
     onSelectVoucher: (voucherId: string) => void;
+    cartDetails?: Array<{
+        productId: number;
+        discount: number;
+        amount: number;
+        price: number;
+    }>;
 };
 
-const VoucherModal = ({ open, onClose, onSelectVoucher }: VoucherModalProps) => {
+const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherModalProps) => {
 
     //Hook
     const { t } = useTranslation();
@@ -42,20 +48,21 @@ const VoucherModal = ({ open, onClose, onSelectVoucher }: VoucherModalProps) => 
     const [vouchers, setVouchers] = useState([]);
     const [selectedVoucher, setSelectedVoucher] = useState('');
     const [loading, setLoading] = useState(false);
+    const [voucherCode, setVoucherCode] = useState('');
+    const [applyLoading, setApplyLoading] = useState(false);
 
     const fetchVouchers = async () => {
         setLoading(true);
-        await getMyVouchers({
-            params: {
-                take: -1,
-                skip: 0,
-                paging: false,
-                orderBy: "name",
-                dir: "asc",
-                keywords: "''",
-                filters: "",
-            },
-        })
+        const formattedDetails = {
+            details: cartDetails?.map(item => ({
+                cartId: 0,
+                productId: Number(item.productId),
+                productName: "",
+                price: Number(item.price),
+                quantity: Number(item.amount),
+            })) || []
+        };
+        await fetchListApplyVoucher(formattedDetails)
             .then((res) => {
                 const data = res?.result
                 if (data) {
@@ -69,6 +76,34 @@ const VoucherModal = ({ open, onClose, onSelectVoucher }: VoucherModalProps) => 
     useEffect(() => {
         fetchVouchers();
     }, []);
+    
+
+    const handleApplyVoucher = async () => {
+        if (!voucherCode.trim()) return;
+
+        setApplyLoading(true);
+        try {
+            const formattedDetails = {
+                details: cartDetails?.map(item => ({
+                    cartId: 0,
+                    productId: Number(item.productId),
+                    productName: "",
+                    price: Number(item.price),
+                    quantity: Number(item.amount),
+                })) || []
+            };
+
+            const response = await applyVoucher(voucherCode, formattedDetails);
+            if (response?.status === "success") {
+                onSelectVoucher(voucherCode);
+                onClose();
+            }
+        } catch (error) {
+            console.error('Error applying voucher:', error);
+        } finally {
+            setApplyLoading(false);
+        }
+    };
 
     return (
         <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -83,15 +118,21 @@ const VoucherModal = ({ open, onClose, onSelectVoucher }: VoucherModalProps) => 
 
             <DialogContent>
                 <Stack spacing={3}>
-                    {/* Voucher Input */}
                     <Stack direction="row" spacing={1}>
                         <TextField
                             fullWidth
                             placeholder={t('enter_voucher_code')}
                             size="small"
+                            value={voucherCode}
+                            onChange={(e) => setVoucherCode(e.target.value)}
                         />
-                        <Button variant="contained" sx={{ textWrap: 'nowrap' }}>
-                            {t('apply_voucher')}
+                        <Button
+                            variant="contained"
+                            sx={{ textWrap: 'nowrap' }}
+                            onClick={handleApplyVoucher}
+                            disabled={!voucherCode.trim() || applyLoading}
+                        >
+                            {applyLoading ? t('applying...') : t('apply_voucher')}
                         </Button>
                     </Stack>
 

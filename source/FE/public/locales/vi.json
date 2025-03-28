@@ -506,6 +506,17 @@
     "select_voucher": "Chọn mã giảm giá",
     "end_date": "Ngày kết thúc",
     "minimum_order": "Đơn hàng tối thiểu",
+    "goods_receipt": "Phiếu nhập hàng",
+    "receipt_list": "Danh sách phiếu nhập hàng",
+    "receipt_code": "Mã phiếu nhập hàng",
+    "no_data_receipt": "Không có dữ liệu về phiếu nhập hàng",
+    "create_receipt": "Thêm mới phiếu nhập hàng",
+    "update_receipt": "Cập nhật phiếu nhập hàng",
+    "delete_receipt": "Xóa phiếu nhập hàng",
+    "create_receipt_success": "Thêm mới phiếu nhập hàng thành công",
+    "update_receipt_success": "Cập nhật phiếu nhập hàng thành công",
+    "delete_receipt_success": "Xóa phiếu nhập hàng thành công",
+    "list_receipt": "Danh sách phiếu nhập hàng",
 
     "province_id": "Mã Tỉnh/Thành phố"
 }

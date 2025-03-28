@@ -150,5 +150,17 @@ export const VerticalLayoutItems = () => {
                 },
             ]
         },
+        {
+            title: t('goods_receipt'),
+            icon: 'fluent:receipt-bag-20-regular',
+            children: [
+                {
+                    title: t('receipt_list'),
+                    icon: 'material-symbols-light:receipt-long-outline-rounded',
+                    path: ROUTE_CONFIG.GOODS_RECEIPT.RECEIPT,
+                    // permission: PERMISSIONS.GOODS_RECEIPT.RECEIPT_LIST.VIEW
+                },
+            ]
+        },
     ]
 }

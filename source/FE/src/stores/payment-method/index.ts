@@ -4,6 +4,9 @@ import { createSlice } from '@reduxjs/toolkit'
 // ** Action Imports
 import { createPaymentMethodAsync, deleteMultiplePaymentMethodsAsync, deletePaymentMethodAsync, getAllPaymentMethodsAsync, serviceName, updatePaymentMethodAsync } from './action'
 
+// Add ReduxPayload import
+import { ReduxPayload } from 'src/types/payload'
+
 const initialState = {
   isLoading: false,
   isSuccess: false,
@@ -61,8 +64,8 @@ export const paymentMethodSlice = createSlice({
     })
     builder.addCase(getAllPaymentMethodsAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.paymentMethods.data = Array.isArray(action?.payload?.data?.paymentTypes) ? action?.payload?.data?.paymentTypes : [];
-      state.paymentMethods.total = action?.payload?.data?.totalCount
+      state.paymentMethods.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
+      state.paymentMethods.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllPaymentMethodsAsync.rejected, (state, action) => {
       state.isLoading = false
@@ -76,15 +79,16 @@ export const paymentMethodSlice = createSlice({
     })
     builder.addCase(createPaymentMethodAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
-      state.isErrorCreateUpdate = !action.payload?.isSuccess
+      state.isSuccessCreateUpdate = !!action.payload?.result?.id
+      state.isErrorCreateUpdate = !action.payload?.result?.id
       state.errorMessageCreateUpdate = action.payload?.message
-      state.typeError = action.payload?.typeError
+      state.typeError = action.payload?.errors
     })
     builder.addCase(createPaymentMethodAsync.rejected, (state, action) => {
+      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = action?.error?.message || 'Error creating PaymentMethod'
+      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating PaymentMethod'
     })
 
     //update PaymentMethod
@@ -93,15 +97,15 @@ export const paymentMethodSlice = createSlice({
     })
     builder.addCase(updatePaymentMethodAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
-      state.isErrorCreateUpdate = !action.payload?.isSuccess
-      state.errorMessageCreateUpdate = action.payload?.message
-      state.typeError = action.payload?.typeError
+      state.isSuccessCreateUpdate = !!action.payload?.result?.id
+      state.isErrorCreateUpdate = !action.payload?.result?.id
+      state.typeError = action.payload?.errors
     })
     builder.addCase(updatePaymentMethodAsync.rejected, (state, action) => {
+      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = action.error.message || 'Error updating PaymentMethod'
+      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating PaymentMethod'
     })
 
     //delete PaymentMethod
@@ -113,7 +117,7 @@ export const paymentMethodSlice = createSlice({
       state.isSuccessDelete = !!action.payload?.isSuccess
       state.isErrorDelete = !action.payload?.isSuccess
       state.errorMessageDelete = action.payload?.message
-      state.typeError = action.payload?.typeError
+      state.typeError = action.payload?.result?.errorMessage
     })
     builder.addCase(deletePaymentMethodAsync.rejected, (state, action) => {
       state.isLoading = false

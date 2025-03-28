@@ -11,12 +11,15 @@ const initialState = {
   isError: false,
   message: '',
   typeError: '',
+
   isSuccessCreateUpdate: false,
   isErrorCreateUpdate: false,
   errorMessageCreateUpdate: '',
+
   isSuccessDelete: false,
   isErrorDelete: false,
   errorMessageDelete: '',
+  
   isSuccessDeleteMultiple: false,
   isErrorDeleteMultiple: false,
   errorMessageDeleteMultiple: '',

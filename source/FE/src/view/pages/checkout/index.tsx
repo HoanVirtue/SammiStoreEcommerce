@@ -133,7 +133,7 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     const memoVoucherDiscountPrice = useMemo(() => {
         let discountPrice = 0;
-        
+
         if (selectedVoucherId) {
             getVoucherDetail(selectedVoucherId).then(res => {
                 const discountPercent = res?.result?.discountValue || 0;
@@ -141,7 +141,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 setVoucherDiscount(discountPrice);
             });
         }
-        
+
         return discountPrice;
     }, [selectedVoucherId, memoQueryProduct.totalPrice]);
 
@@ -251,7 +251,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 wardId: 20,
                 customerAddress: `${memoAddressDefault?.streetAddress}, ${memoAddressDefault?.wardName}, ${memoAddressDefault?.districtName}, ${memoAddressDefault?.provinceName}`,
                 costShip: memoShippingPrice,
-                trackingNumber: '', 
+                trackingNumber: '',
                 estimatedDeliveryDate: '2025-03-20T11:40:42.001Z',
                 actualDeliveryDate: '2025-03-20T11:40:42.001Z',
                 shippingCompanyId: 0,
@@ -263,15 +263,14 @@ const CheckoutPage: NextPage<TProps> = () => {
                 paymentMethodId: Number(selectedPayment),
             })
         ).then(res => {
-            console.log("respa", res)
-            const idPaymentMethod = res?.payload?.subset?.id
-            const orderId = res?.payload?.subset?.id
-            const totalPrice = res?.payload?.subset?.totalPrice
-            const findPayment = paymentOptions.find(item => item.id === idPaymentMethod)
-            if (findPayment) {
-                handlePaymentTypeOrder(findPayment.id, { totalPrice, orderId })
+            // Check if there's a returnUrl in the response
+            const returnUrl = res?.payload?.result?.returnUrl;
+            if (returnUrl) {
+                window.location.href = returnUrl;
+            } else {
+                router.push(ROUTE_CONFIG.PAYMENT)
             }
-        })
+        });
     };
 
     useEffect(() => {
@@ -287,29 +286,29 @@ const CheckoutPage: NextPage<TProps> = () => {
         }
     }, [router.query])
 
-    useEffect(() => {
-        if (isSuccessCreate) {
-            Swal.fire({
-                title: t('congratulation!'),
-                text: t('create_order_success'),
-                icon: 'success',
-                confirmButtonText: t('confirm'),
-                background: theme.palette.background.paper,
-                color: theme.palette.customColors.main,
-            }).then(() => router.push(ROUTE_CONFIG.MY_ORDER));
-            dispatch(resetInitialState());
-        } else if (isErrorCreate && errorMessageCreate) {
-            Swal.fire({
-                title: t('opps!'),
-                text: t(errorMessageCreate),
-                icon: 'error',
-                confirmButtonText: t('confirm'),
-                background: theme.palette.background.paper,
-                color: theme.palette.customColors.main,
-            });
-            dispatch(resetInitialState());
-        }
-    }, [isSuccessCreate, isErrorCreate, errorMessageCreate]);
+    // useEffect(() => {
+    //     if (isSuccessCreate) {
+    //         Swal.fire({
+    //             title: t('congratulation!'),
+    //             text: t('create_order_success'),
+    //             icon: 'success',
+    //             confirmButtonText: t('confirm'),
+    //             background: theme.palette.background.paper,
+    //             color: theme.palette.customColors.main,
+    //         }).then(() => router.push(ROUTE_CONFIG.MY_ORDER));
+    //         dispatch(resetInitialState());
+    //     } else if (isErrorCreate && errorMessageCreate) {
+    //         Swal.fire({
+    //             title: t('opps!'),
+    //             text: t(errorMessageCreate),
+    //             icon: 'error',
+    //             confirmButtonText: t('confirm'),
+    //             background: theme.palette.background.paper,
+    //             color: theme.palette.customColors.main,
+    //         });
+    //         dispatch(resetInitialState());
+    //     }
+    // }, [isSuccessCreate, isErrorCreate, errorMessageCreate]);
 
 
     return (
@@ -324,10 +323,14 @@ const CheckoutPage: NextPage<TProps> = () => {
             {loading || (isLoading && <Spinner />)}
             <WarningModal open={openWarning} onClose={() => setOpenAddress(false)} />
             <AddressModal open={openAddress} onClose={() => setOpenAddress(false)} />
-            <VoucherModal open={openVoucher} onClose={() => setOpenVoucher(false)}
+            <VoucherModal
+                open={openVoucher}
+                onClose={() => setOpenVoucher(false)}
                 onSelectVoucher={(voucherId) => {
                     setSelectedVoucherId(voucherId);
-                }} />
+                }}
+                cartDetails={memoQueryProduct.selectedProduct}
+            />
 
             {/* Breadcrumbs */}
             <Box sx={{ mb: { xs: 1, sm: 2, md: 4 } }}>

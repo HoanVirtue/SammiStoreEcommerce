@@ -59,7 +59,7 @@ export const API_ENDPOINT = {
       INDEX: `${BASE_URL}/delivery-type`,
     },
     BANNER: {
-      INDEX: `${BASE_URL}/banner`,
+      INDEX: `${BASE_URL}/banners`,
     },
   },
   ADDRESS:{

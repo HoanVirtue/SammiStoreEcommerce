@@ -12,13 +12,11 @@ export type TParamsGetAllPaymentMethods = {
 
 export type TParamsCreatePaymentMethod = {
     name: string,
-    type: string
 }
 
 export type TParamsUpdatePaymentMethod = {
     id: string,
     name: string,
-    type: string
 }
 
 export type TParamsDeletePaymentMethod = {

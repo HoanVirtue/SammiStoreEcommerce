@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { NextPage } from "next";
-import { Box, Grid, useTheme } from "@mui/material";
+import { Box, Grid, useTheme, Tabs, Tab } from "@mui/material";
 import { GridColDef, GridRowSelectionModel, GridSortModel, GridRenderCellParams } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
@@ -32,10 +32,15 @@ type AdminPageProps = {
   deleteAction: (id: string) => any;
   deleteMultipleAction: (ids: { [key: string]: string[] }) => any;
   resetAction: () => any;
-  CreateUpdateComponent: React.FC<any>;
+  CreateUpdateComponent?: React.FC<any>;
   permissionKey: string;
   fieldMapping?: { [key: string]: string };
-  noDataText?: string
+  noDataText?: string;
+
+  showTabs?: boolean;
+  currentTab?: number;
+  onTabChange?: (newTab: number) => void;
+  onAddClick?: () => void;
 };
 
 const AdminPage: NextPage<AdminPageProps> = ({
@@ -51,7 +56,10 @@ const AdminPage: NextPage<AdminPageProps> = ({
   permissionKey,
   fieldMapping = {},
   noDataText,
-  
+  showTabs = false,
+  currentTab = 0,
+  onTabChange,
+  onAddClick,
 }) => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
@@ -235,16 +243,31 @@ const AdminPage: NextPage<AdminPageProps> = ({
         title={t(`confirm_delete_multiple_${entityName}s`)}
         description={t(`are_you_sure_delete_multiple_${entityName}s`)}
       />
-      <CreateUpdateComponent
-        id={openCreateUpdate.id}
-        open={openCreateUpdate.open}
-        onClose={handleCloseCreateUpdate}
-      />
+      {CreateUpdateComponent && (
+        <CreateUpdateComponent
+          id={openCreateUpdate.id}
+          open={openCreateUpdate.open}
+          onClose={handleCloseCreateUpdate}
+        />
+      )}
+
       <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", minHeight: "100vh" }}>
+        {showTabs && (
+          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+            <Tabs value={currentTab} onChange={(_, newValue) => onTabChange?.(newValue)}>
+              <Tab label={t(`list_${entityName}`)} />
+              <Tab label={t(`create_${entityName}`)} />
+            </Tabs>
+          </Box>
+        )}
+
         <Grid container>
           {!selectedRow.length && (
             <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 4, gap: 4, width: "100%" }}>
-              <GridCreate addText={t(`create_${entityName}`)} onClick={() => setOpenCreateUpdate({ open: true, id: "" })} />
+              <GridCreate
+                addText={t(`create_${entityName}`)}
+                onClick={() => onAddClick ? onAddClick() : setOpenCreateUpdate({ open: true, id: "" })}
+              />
             </Box>
           )}
           {selectedRow.length > 0 && (

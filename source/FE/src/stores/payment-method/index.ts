@@ -10,12 +10,15 @@ const initialState = {
   isError: false,
   message: '',
   typeError: '',
+
   isSuccessCreateUpdate: false,
   isErrorCreateUpdate: false,
   errorMessageCreateUpdate: '',
+
   isSuccessDelete: false,
   isErrorDelete: false,
   errorMessageDelete: '',
+
   isSuccessDeleteMultiple: false,
   isErrorDeleteMultiple: false,
   errorMessageDeleteMultiple: '',
@@ -36,12 +39,15 @@ export const paymentMethodSlice = createSlice({
       state.isError = true
       state.message = ""
       state.typeError = ""
+
       state.isSuccessCreateUpdate = false
       state.isErrorCreateUpdate = true
       state.errorMessageCreateUpdate = ''
+
       state.isSuccessDelete = false
       state.isErrorDelete = true
       state.errorMessageDelete = ''
+      
       state.isSuccessDeleteMultiple = false
       state.isErrorDeleteMultiple = true
       state.errorMessageDeleteMultiple = ''

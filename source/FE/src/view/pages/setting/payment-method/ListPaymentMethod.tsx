@@ -20,20 +20,20 @@ import { useTranslation } from 'react-i18next'
 
 //components
 import CreateUpdatePaymentMethod from './components/CreateUpdatePaymentMethod'
-import Spinner from 'src/components/spinner'
+
 
 
 import { deleteMultiplePaymentMethodsAsync, deletePaymentMethodAsync, getAllPaymentMethodsAsync } from 'src/stores/payment-method/action'
 import { resetInitialState } from 'src/stores/payment-method'
 import { formatDate } from 'src/utils'
-import { PAYMENT_METHOD } from 'src/configs/payment'
+
 import AdminPage from 'src/components/admin-page'
 import { getPaymentMethodFields } from 'src/configs/gridConfig'
 type TProps = {}
 
 const ListPaymentMethod: NextPage<TProps> = () => {
     const { t } = useTranslation()
-    const ObjectPaymentMethod: any = PAYMENT_METHOD()
+
 
     const columns: GridColDef[] = [
         {

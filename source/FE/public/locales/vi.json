@@ -517,6 +517,37 @@
     "update_receipt_success": "Cập nhật phiếu nhập hàng thành công",
     "delete_receipt_success": "Xóa phiếu nhập hàng thành công",
     "list_receipt": "Danh sách phiếu nhập hàng",
+    "banner_level": "Cấp banner",
+    "enter_banner_level": "Nhập cấp banner",
+    "required_banner_level": "Cấp banner không được để trống",
+    "banner_name": "Tên banner",
+    "enter_banner_name": "Nhập tên banner",
+    "required_banner_name": "Tên banner không được để trống",
+    "banner_image": "Hình ảnh banner",
+    "enter_banner_image": "Nhập hình ảnh banner",
+    "required_banner_image": "Hình ảnh banner không được để trống",
+    "banner_list": "Danh sách banner",
+    "create_banner_success": "Thêm mới banner thành công",
+    "update_banner_success": "Cập nhật banner thành công",
+    "delete_banner_success": "Xóa banner thành công",
+    "confirm_delete_banner": "Xác nhận xóa banner",
+    "confirm_delete_banner_description": "Bạn có chắc muốn xóa banner này?",
+    "confirm_delete_multiple_banners": "Xác nhận xóa nhiều banner",
+    "confirm_delete_multiple_banners_description": "Bạn có chắc muốn xóa nhiều banner này?",
+    "are_you_sure_delete_banner": "Bạn có chắc muốn xóa banner này?",
+    "are_you_sure_delete_multiple_banners": "Bạn có chắc muốn xóa nhiều banner này?",
+    "change_banner_image": "Thay đổi hình ảnh banner",
+    "upload_banner_image": "Tải hình ảnh banner",
+    "banner_image_required": "Hình ảnh banner không được để trống",
+    "banner_name_required": "Tên banner không được để trống",
+    "banner_level_required": "Cấp banner không được để trống",
+
+
+
+
+
+
+
 
     "province_id": "Mã Tỉnh/Thành phố"
 }

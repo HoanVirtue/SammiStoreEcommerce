@@ -144,7 +144,7 @@ const HotSale = () => {
     const theme = useTheme();
     const { t } = useTranslation();
 
-    const saleEndTime = '2025-03-11T23:59:59';
+    const saleEndTime = '2025-03-29T23:59:59';
     const [publicProducts, setPublicProducts] = useState({
         data: [],
         total: 0
@@ -168,7 +168,7 @@ const HotSale = () => {
             if (res?.result) {
                 setLoading(false)
                 setPublicProducts({
-                    data: res?.result?.subset,
+                    data: res?.result?.subset?.filter((item: TProduct) => item.status === 1),
                     total: res?.result?.totalItemCount
                 })
             }

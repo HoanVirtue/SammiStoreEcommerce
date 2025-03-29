@@ -7,7 +7,7 @@ import { Box, Container, CssBaseline, Toolbar, useTheme, } from "@mui/material";
 
 //views
 import HorizontalLayout from "./HorizontalLayout";
-
+import Footer from "./components/footer";
 
 type TProps = {
     children: React.ReactNode
@@ -25,11 +25,12 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
                     backgroundColor:
                         theme => theme.palette.mode === 'light'
                             ? theme.palette.grey[100]
-                            // ? theme.palette.background.paper
                             : theme.palette.grey[900],
                     flexGrow: 1,
                     height: '100vh',
-                    overflow: 'auto'
+                    overflow: 'auto',
+                    overflowX: 'hidden', // Prevent horizontal scroll
+                    width: '100%' // Ensure width is constrained
                 }}
             >
                 <Toolbar />
@@ -47,6 +48,7 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
                     {children}
                 </Container>
             </Box>
+            <Footer />
         </Box >
     )
 }

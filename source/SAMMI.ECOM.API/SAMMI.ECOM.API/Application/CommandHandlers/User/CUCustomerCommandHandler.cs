@@ -139,17 +139,34 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
     {
         public CUCustomerCommandValidator()
         {
+            RuleFor(x => x.FirstName)
+                .NotEmpty()
+                .WithMessage("Họ không được bỏ trống");
+
+            RuleFor(x => x.LastName)
+                .NotEmpty()
+                .WithMessage("Tên không được bỏ trống");
+
             RuleFor(x => x.Phone)
                 .NotEmpty()
-                .WithMessage("Điện thoại không được bỏ trống");
+                .WithMessage("Điện thoại không được bỏ trống")
+                .Length(10)
+                .WithMessage("Điện thoại phải có đúng 10 chữ số")
+                .Matches(@"^\d{10}$")
+                .WithMessage("Điện thoại chỉ được chứa chữ số");
 
             RuleFor(x => x.Email)
-                .NotEmpty()
-                .WithMessage("Email không được bỏ trống");
+                .EmailAddress()
+                .WithMessage("Email không đúng định dạng")
+                .When(x => !string.IsNullOrEmpty(x.Email));
 
-            RuleFor(x => x.RoleId)
-                .Must(x => x != 0 && x != null)
-                .WithMessage("Chọn vai trò là bắt buộc");
+            RuleFor(x => x.Username)
+                .NotEmpty()
+                .WithMessage("Tên tài khoản không bỏ trống");
+
+            RuleFor(x => x.Password)
+                .NotEmpty()
+                .WithMessage("Mật khẩu không được bỏ trống");
         }
     }
 }

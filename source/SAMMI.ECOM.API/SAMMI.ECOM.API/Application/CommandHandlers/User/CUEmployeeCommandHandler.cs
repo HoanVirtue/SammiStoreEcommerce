@@ -185,6 +185,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             }
             actionResponse.SetResult(_mapper.Map<EmployeeDTO>(employeeUpdate.Result));
             return actionResponse;
+
         }
     }
 
@@ -192,17 +193,43 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
     {
         public CreateEmployeeCommandValidator()
         {
+            RuleFor(x => x.FirstName)
+                .NotEmpty()
+                .WithMessage("Họ không được bỏ trống");
+
+            RuleFor(x => x.LastName)
+                .NotEmpty()
+                .WithMessage("Tên không được bỏ trống");
+
             RuleFor(x => x.Phone)
                 .NotEmpty()
-                .WithMessage("Điện thoại không được bỏ trống");
+                .WithMessage("Điện thoại không được bỏ trống")
+                .Length(10)
+                .WithMessage("Điện thoại phải có đúng 10 chữ số")
+                .Matches(@"^\d{10}$")
+                .WithMessage("Điện thoại chỉ được chứa chữ số");
 
             RuleFor(x => x.Email)
-                .NotEmpty()
-                .WithMessage("Email không được bỏ trống");
+                .EmailAddress()
+                .WithMessage("Email không đúng định dạng")
+                .When(x => !string.IsNullOrEmpty(x.Email));
+
 
             RuleFor(x => x.IdCardNumber)
                 .NotEmpty()
-                .WithMessage("CCCD không được bỏ trống");
+                .WithMessage("CCCD không được bỏ trống")
+                .Length(12)
+                .WithMessage("Số CCCD phải có đúng 12 chữ số")
+                .Matches(@"^\d{12}$")
+                .WithMessage("Số CCCD chỉ được chứa chữ số");
+
+            RuleFor(x => x.Username)
+                .NotEmpty()
+                .WithMessage("Tên tài khoản không bỏ trống");
+
+            RuleFor(x => x.Password)
+                .NotEmpty()
+                .WithMessage("Mật khẩu không được bỏ trống");
 
             RuleFor(x => x.RoleId)
                 .Must(x => x != 0 && x != null)
@@ -214,17 +241,35 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
     {
         public UpdateEmployeeCommandValidator()
         {
+            RuleFor(x => x.FirstName)
+                .NotEmpty()
+                .WithMessage("Họ không được bỏ trống");
+
+            RuleFor(x => x.LastName)
+                .NotEmpty()
+                .WithMessage("Tên không được bỏ trống");
+
             RuleFor(x => x.Phone)
                 .NotEmpty()
-                .WithMessage("Điện thoại không được bỏ trống");
+                .WithMessage("Điện thoại không được bỏ trống")
+                .Length(10)
+                .WithMessage("Điện thoại phải có đúng 10 chữ số")
+                .Matches(@"^\d{10}$")
+                .WithMessage("Điện thoại chỉ được chứa chữ số");
 
             RuleFor(x => x.Email)
-                .NotEmpty()
-                .WithMessage("Email không được bỏ trống");
+                .EmailAddress()
+                .WithMessage("Email không đúng định dạng")
+                .When(x => !string.IsNullOrEmpty(x.Email));
+
 
             RuleFor(x => x.IdCardNumber)
                 .NotEmpty()
-                .WithMessage("CCCD không được bỏ trống");
+                .WithMessage("CCCD không được bỏ trống")
+                .Length(12)
+                .WithMessage("Số CCCD phải có đúng 12 chữ số")
+                .Matches(@"^\d{12}$")
+                .WithMessage("Số CCCD chỉ được chứa chữ số");
 
             RuleFor(x => x.RoleId)
                 .Must(x => x != 0 && x != null)

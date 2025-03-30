@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 
-[Table("Order")]
+[Table("Orders")]
 public partial class Order : Entity
 {
     [Column("Code")]

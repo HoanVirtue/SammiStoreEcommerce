@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Authorizations;
@@ -9,14 +8,13 @@ using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.VNPay;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Services.VNPay;
 
 namespace SAMMI.ECOM.API.Controllers.OrderBuy
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Authorize]
     [Route("api/order-buy")]
     [ApiController]
     public class OrderBuysController : CustomBaseController
@@ -29,6 +27,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         private readonly IMapper _mapper;
         private readonly IUsersRepository _userRepository;
         private readonly IConfiguration _config;
+        private readonly IOrderQueries _orderQueries;
         public OrderBuysController(IMediator mediator,
             IVNPayService vNPayService,
             IPaymentRepository paymentRepository,
@@ -38,6 +37,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             UserIdentity currentUser,
             IUsersRepository usersRepository,
             IConfiguration config,
+            IOrderQueries orderQueries,
             IMapper mapper,
             ILogger<OrderBuysController> logger) : base(mediator, logger)
         {
@@ -50,6 +50,29 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             UserIdentity = currentUser;
             _userRepository = usersRepository;
             _config = config;
+            _orderQueries = orderQueries;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrdersAsync([FromQuery] RequestFilterModel request)
+        {
+            if (request.Type == RequestType.Grid)
+            {
+                return Ok(await _orderQueries.GetList(request));
+            }
+            return Ok();
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetOrder(int id)
+        {
+            return default;
+        }
+
+        [HttpPost]
+        public IActionResult UpdateOrderStatus()
+        {
+            return default;
         }
 
         [HttpPost("create-order")]

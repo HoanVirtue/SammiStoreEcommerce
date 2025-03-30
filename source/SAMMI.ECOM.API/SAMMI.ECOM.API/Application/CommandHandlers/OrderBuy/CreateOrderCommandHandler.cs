@@ -7,6 +7,7 @@ using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
@@ -25,6 +26,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly IMediator _mediator;
         private readonly IPaymentMethodRepository _methodRepository;
         private readonly IShippingCompanyRepository _shippingRepository;
+        private readonly ICartDetailQueries _cartDetailQueries;
+        private readonly IMyVoucherRepository _myVoucherRepository;
         public CreateOrderCommandHandler(
             IOrderRepository orderRepository,
             IOrderDetailRepository detailRepository,
@@ -36,6 +39,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             IMediator mediator,
             IPaymentMethodRepository methodRepository,
             IShippingCompanyRepository shippingCompanyRepository,
+            ICartDetailQueries cartDetailQueries,
+            IMyVoucherRepository myVoucherRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -49,6 +54,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             _mediator = mediator;
             _methodRepository = methodRepository;
             _shippingRepository = shippingCompanyRepository;
+            _cartDetailQueries = cartDetailQueries;
+            _myVoucherRepository = myVoucherRepository;
         }
 
         public override async Task<ActionResponse<OrderDTO>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
@@ -80,13 +87,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             // create order from ship & cal shipcost
             request.ShippingCompanyId = (await _shippingRepository.GetShipDefault()).Id;
-            request.CostShip = 30000;
+            request.CostShip = request.CostShip == null || request.CostShip == 0 ? 30000 : request.CostShip;
             totalAmount += request.CostShip ?? 0;
 
             request.VoucherId = request.VoucherId == 0 ? null : request.VoucherId;
             if (request.VoucherId != null)
             {
-                var validVoucherResponse = await _voucherRepository.ValidVoucher(request.VoucherId ?? 0, request.WardId ?? 0, totalAmount, request.Details);
+                var validVoucherResponse = await _voucherRepository.ValidVoucher(request.VoucherId ?? 0, _currentUser.Id, request.WardId ?? 0, totalAmount, request.Details);
                 if (!validVoucherResponse.IsSuccess)
                 {
                     actResponse.AddError(validVoucherResponse.Message);
@@ -139,6 +146,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                             return actResponse;
 
                         product.StockQuantity -= cartDetail.Quantity;
+                        await _cartDetailQueries.RemoveCartCache(_currentUser.Id);
                     }
                 }
                 else
@@ -157,6 +165,22 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             {
                 var totalDiscount = await _voucherRepository.CalculateDiscount(request.VoucherId ?? 0, request.CostShip ?? 0, totalAmount);
                 totalAmount -= totalDiscount;
+                // update kho voucher
+                var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(request.VoucherId ?? 0, _currentUser.Id);
+                if (myVoucher != null)
+                {
+                    myVoucher.IsUsed = true;
+                    myVoucher.UpdatedDate = DateTime.Now;
+                    myVoucher.UpdatedBy = "System";
+
+                    actResponse.Combine(await _myVoucherRepository.UpdateAndSave(myVoucher));
+                    if (!actResponse.IsSuccess)
+                        return actResponse;
+                }
+                // update voucher
+                var voucher = await _voucherRepository.GetByIdAsync(request.VoucherId);
+                voucher.UsedCount++;
+                actResponse.Combine(await _voucherRepository.UpdateAndSave(voucher));
             }
 
             //create payment

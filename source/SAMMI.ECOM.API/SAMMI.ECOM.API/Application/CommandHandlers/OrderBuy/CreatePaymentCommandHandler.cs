@@ -43,6 +43,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
 
+            request.CreatedDate = DateTime.Now;
+            request.CreatedBy = "System";
             if (paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString())
             {
                 request.UserIdentity = (await _userRepository.FindById(_currentUser.Id)).IdentityGuid;
@@ -53,17 +55,17 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     return actResponse;
                 }
 
-                request.CreatedDate = DateTime.Now;
-                request.CreatedBy = "System";
                 var createPaymentRes = await _paymentRepository.CreateAndSave(request);
                 actResponse.Combine(createPaymentRes);
                 var paymentDTO = _mapper.Map<PaymentDTO>(createPaymentRes.Result);
                 paymentDTO.ReturnUrl = returnUrl;
                 actResponse.SetResult(paymentDTO);
             }
-            else if (paymentMethod.Code == PaymentMethodEnum.COD.ToString())
+            else
             {
-
+                var createPaymentRes = await _paymentRepository.CreateAndSave(request);
+                actResponse.Combine(createPaymentRes);
+                actResponse.SetResult(_mapper.Map<PaymentDTO>(createPaymentRes.Result));
             }
 
             return actResponse;

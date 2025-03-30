@@ -28,6 +28,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         private readonly IVNPayService _vnpService;
         private readonly IMapper _mapper;
         private readonly IUsersRepository _userRepository;
+        private readonly IConfiguration _config;
         public OrderBuysController(IMediator mediator,
             IVNPayService vNPayService,
             IPaymentRepository paymentRepository,
@@ -36,6 +37,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             IVNPayService vnpService,
             UserIdentity currentUser,
             IUsersRepository usersRepository,
+            IConfiguration config,
             IMapper mapper,
             ILogger<OrderBuysController> logger) : base(mediator, logger)
         {
@@ -47,6 +49,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _mapper = mapper;
             UserIdentity = currentUser;
             _userRepository = usersRepository;
+            _config = config;
         }
 
         [HttpPost("create-order")]
@@ -92,9 +95,10 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             payment.PaymentDate = paymentResult.PaymentDate;
             var paymentUpdateRes = await _paymentRepository.UpdateAndSave(payment);
             _orderRepository.UpdateStatus(OrderStatusEnum.Processing, code: orderCode);
-            if (paymentUpdateRes.IsSuccess)
-                return Ok(paymentResult);
-            return BadRequest(paymentUpdateRes);
+            if (!paymentUpdateRes.IsSuccess)
+                return Redirect($"{_config.GetValue<string>("VNPAYOptions:RedirectUrl")}?payment-status=0");
+
+            return Redirect($"{_config.GetValue<string>("VNPAYOptions:RedirectUrl")}?payment-status=1");
         }
 
         [HttpPost("pay-back")]

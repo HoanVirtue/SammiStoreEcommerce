@@ -70,6 +70,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             var detail = await _cartDetailRepository.GetByCartIdAndProductId(cart.Id, request.ProductId);
             if (detail == null)
             {
+                if (request.Quantity > productExist.StockQuantity)
+                {
+                    request.Quantity = productExist.StockQuantity;
+                }
                 request.CartId = cart.Id;
                 request.CreatedDate = DateTime.Now;
                 request.CreatedBy = "System";

@@ -84,7 +84,7 @@ public partial class User : Entity
     [Column("IdCardNumber")]
     public string? IdCardNumber { get; set; } // căn cước công dân
     [ForeignKey("Role")]
-    public int RoleId { get; set; }
+    public int? RoleId { get; set; }
 
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 

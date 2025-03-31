@@ -7,6 +7,9 @@ namespace SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
 [Table("PurchaseOrder")]
 public partial class PurchaseOrder : Entity
 {
+    [Column("Code")]
+    [StringLength(50)]
+    public string Code { get; set; }
     [ForeignKey("Employee")]
     public int EmployeeId { get; set; }
 

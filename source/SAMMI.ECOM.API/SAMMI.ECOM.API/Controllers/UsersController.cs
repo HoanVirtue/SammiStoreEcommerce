@@ -207,6 +207,10 @@ namespace SAMMI.ECOM.API.Controllers
         [HttpGet("get-code-by-last-id")]
         public async Task<IActionResult> GetCodeByLastIdAsync([FromQuery] CodeEnum type = CodeEnum.Employee)
         {
+            if (type != CodeEnum.Employee && type != CodeEnum.Customer && type != CodeEnum.Supplier)
+            {
+                return BadRequest();
+            }
             return Ok(await _usersQueries.GetCodeByLastId(type));
         }
 

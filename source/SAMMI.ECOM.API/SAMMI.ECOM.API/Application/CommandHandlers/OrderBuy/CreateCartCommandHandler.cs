@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
@@ -126,6 +127,29 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
 
             return actResponse;
+        }
+    }
+
+    public class CreateCartCommandValidator : AbstractValidator<CreateCartDetailCommand>
+    {
+        public CreateCartCommandValidator()
+        {
+            RuleFor(x => x.ProductId)
+                .NotNull()
+                .WithMessage("Sản phẩm bắt buộc chọn");
+
+            RuleFor(x => x.Quantity)
+                .NotNull()
+                .WithMessage("Số lượng không được bỏ trống")
+                .GreaterThan(0)
+                .WithMessage("Số lượng phải lớn hơn 0");
+
+            RuleFor(x => x.Operation)
+                .NotNull()
+                .WithMessage("Loại phép tính không được bỏ trống")
+                .IsInEnum()
+                .WithMessage("Loại phép tính không đúng định dạng");
+
         }
     }
 }

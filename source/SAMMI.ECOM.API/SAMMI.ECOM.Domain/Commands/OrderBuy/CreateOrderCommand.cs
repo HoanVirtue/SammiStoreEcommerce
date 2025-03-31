@@ -8,7 +8,6 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
     {
         public string Code { get; set; } = null!;
         public int CustomerId { get; set; }
-        public string? PaymentStatus { get; set; }
         public string? OrderStatus { get; set; }
         public string? ShippingStatus { get; set; }
         public int? VoucherId { get; set; }

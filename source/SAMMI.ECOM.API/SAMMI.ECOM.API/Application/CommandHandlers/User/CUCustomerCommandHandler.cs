@@ -10,6 +10,7 @@ using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Repositories.Permission;
 using SAMMI.ECOM.Infrastructure.Services.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Helpers;
+using SAMMI.ECOM.Utility;
 using System.Security.Cryptography;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.User
@@ -156,7 +157,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 .WithMessage("Điện thoại chỉ được chứa chữ số");
 
             RuleFor(x => x.Email)
-                .EmailAddress()
+                .Must(x => StringExtensions.IsValidEmail(x))
                 .WithMessage("Email không đúng định dạng")
                 .When(x => !string.IsNullOrEmpty(x.Email));
 

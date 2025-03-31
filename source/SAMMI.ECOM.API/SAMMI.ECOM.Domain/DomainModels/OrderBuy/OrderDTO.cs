@@ -20,6 +20,7 @@
         public decimal? TotalPrice { get; set; }
         public int? TotalQuantity { get; set; }
         public string? ReturnUrl { get; set; }
+        public List<OrderDetailDTO>? Details { get; set; }
 
 
         public int Id { get; set; }

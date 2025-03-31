@@ -57,7 +57,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                         sqlBuilder.Where("LOWER(t1.Email) = LOWER(@email)", new { email });
                     }
 
-                    return conn.QueryFirst<EmployeeDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                    return conn.QueryFirstOrDefault<EmployeeDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }
             );
         }
@@ -81,7 +81,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                         sqlBuilder.Where("LOWER(t1.Email) = LOWER(@email)", new { email });
                     }
 
-                    return conn.QueryFirst<CustomerDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                    return conn.QueryFirstOrDefault<CustomerDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 });
         }
 

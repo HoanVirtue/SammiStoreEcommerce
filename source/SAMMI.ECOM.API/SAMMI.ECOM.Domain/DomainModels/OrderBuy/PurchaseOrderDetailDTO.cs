@@ -1,12 +1,12 @@
 ﻿namespace SAMMI.ECOM.Domain.DomainModels.OrderBuy
 {
-    public class OrderDetailDTO
+    public class PurchaseOrderDetailDTO
     {
-        public int OrderId { get; set; }
+        public int PurchaseOrderId { get; set; }
         public int ProductId { get; set; }
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public decimal? UnitPrice { get; set; }
         public decimal? Tax { get; set; }
 
 

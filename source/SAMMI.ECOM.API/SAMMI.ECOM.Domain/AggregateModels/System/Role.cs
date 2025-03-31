@@ -22,5 +22,5 @@ public partial class Role : Entity
     public bool? IsLock { get; set; }
 
     public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<User>? Users { get; set; } = new List<User>();
 }

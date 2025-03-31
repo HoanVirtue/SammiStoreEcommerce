@@ -20,6 +20,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
             CancellationToken cancellationToken = default(CancellationToken));
         Task<User?> FindByUserNameAsync(string userName);
         Task<UserDTO> GetUserById(int id);
+        Task<bool> IsExistedType(int id, TypeUserEnum? type = TypeUserEnum.Employee);
     }
     public class UsersRepository : CrudRepository<User>, IUsersRepository, IDisposable
     {
@@ -144,6 +145,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         public async Task<UserDTO> GetUserById(int id)
         {
             return _mapper.Map<UserDTO>(await GetByIdAsync(id));
+        }
+
+        public async Task<bool> IsExistedType(int id, TypeUserEnum? type = TypeUserEnum.Employee)
+        {
+            return await DbSet.SingleOrDefaultAsync(x => x.Id == id && x.Type == type.ToString() && x.IsDeleted != true) != null;
         }
     }
 }

@@ -31,6 +31,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         [DefaultValue(false)]
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }
+
     }
 
     public class CreateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
@@ -54,6 +55,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
 
     public class CUCustomerCommand : CUUserCommand, IRequest<ActionResponse<CustomerDTO>>
     {
+
         public string Username { get; set; }
         public string? Password { get; set; }
         public string? SecurityStamp { get; set; }

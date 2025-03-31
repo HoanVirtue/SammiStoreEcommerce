@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.User;
@@ -7,6 +8,7 @@ using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Services.Auth;
+using SAMMI.ECOM.Utility;
 using System.Security.Cryptography;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.User
@@ -23,7 +25,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             IUsersRepository userRepository,
             IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
             IWardRepository wardRepository,
-            UserIdentity currentUser, IMapper mapper) : base(currentUser, mapper)
+            UserIdentity currentUser,
+            IMapper mapper) : base(currentUser, mapper)
         {
             _authService = authService;
             _userRepository = userRepository;
@@ -36,7 +39,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             #region validate
             if (await _userRepository.IsExistCode(request.Code, request.Id))
             {
-                actionResponse.AddError("Mã khách hàng đã tồn tại");
+                actionResponse.AddError("Mã nhà cung cấp đã tồn tại");
                 return actionResponse;
             }
 
@@ -74,25 +77,25 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 {
                     return actionResponse;
                 }
-                actionResponse.SetResult(_mapper.Map<SupplierDTO>(createResponse));
+                actionResponse.SetResult(_mapper.Map<SupplierDTO>(createResponse.Result));
             }
             else
             {
-                var supplier = await _userRepository.FindById(request.Id);
+                //var supplier = await _userRepository.FindById(request.Id);
 
-                supplier.UpdatedDate = DateTime.Now;
-                supplier.UpdatedBy = _currentUser.UserName;
-                supplier.Code = request.Code;
-                supplier.FirstName = request.FirstName;
-                supplier.LastName = request.LastName;
-                supplier.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
-                supplier.Email = request.Email;
-                supplier.Phone = request.Phone;
-                supplier.StreetAddress = request.StreetAddress;
-                supplier.WardId = request.WardId;
-                supplier.Gender = request.Gender;
+                request.UpdatedDate = DateTime.Now;
+                request.UpdatedBy = _currentUser.UserName;
+                request.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
+                //supplier.Code = request.Code;
+                //supplier.FirstName = request.FirstName;
+                //supplier.LastName = request.LastName;
+                //supplier.Email = request.Email;
+                //supplier.Phone = request.Phone;
+                //supplier.StreetAddress = request.StreetAddress;
+                //supplier.WardId = request.WardId;
+                //supplier.Gender = request.Gender;
 
-                var supplierUpdate = await _userRepository.UpdateAndSave(supplier);
+                var supplierUpdate = await _userRepository.UpdateAndSave(request);
                 actionResponse.Combine(supplierUpdate);
                 if (!supplierUpdate.IsSuccess)
                 {
@@ -101,6 +104,33 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 actionResponse.SetResult(_mapper.Map<SupplierDTO>(supplierUpdate.Result));
             }
             return actionResponse;
+        }
+    }
+
+    public class CUSupplierCommandValidator : AbstractValidator<CUSupplierCommand>
+    {
+        public CUSupplierCommandValidator()
+        {
+            RuleFor(x => x.FirstName)
+                .NotEmpty()
+                .WithMessage("Họ không được bỏ trống");
+
+            RuleFor(x => x.LastName)
+                .NotEmpty()
+                .WithMessage("Tên không được bỏ trống");
+
+            RuleFor(x => x.Phone)
+                .NotEmpty()
+                .WithMessage("Điện thoại không được bỏ trống")
+                .Length(10)
+                .WithMessage("Điện thoại phải có đúng 10 chữ số")
+                .Matches(@"^\d{10}$")
+                .WithMessage("Điện thoại chỉ được chứa chữ số");
+
+            RuleFor(x => x.Email)
+                .Must(x => StringExtensions.IsValidEmail(x))
+                .WithMessage("Email không đúng định dạng")
+                .When(x => !string.IsNullOrEmpty(x.Email));
         }
     }
 }

@@ -38,4 +38,14 @@
         Delivered, // (Đã nhận)	Khách hàng đã nhận được hàng.
         Lost, // (Mất hàng)	Đơn hàng bị thất lạc trong quá trình vận chuyển.
     }
+
+    public enum PurchaseOrderStatus
+    {
+        Draft,          // Bản nháp
+        PendingApproval, // Chờ duyệt
+        Approved,       // Duyệt
+        Processing,      // Đang xử lý
+        Completed,        // Hoàn tất
+        Canceled        // Hủy
+    }
 }

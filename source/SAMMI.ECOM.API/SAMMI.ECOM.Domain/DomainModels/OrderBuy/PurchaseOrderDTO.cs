@@ -2,6 +2,7 @@
 {
     public class PurchaseOrderDTO
     {
+        public string Code { get; set; }
         public int EmployeeId { get; set; }
         public string? EmployeeName { get; set; }
         public int SupplierId { get; set; }

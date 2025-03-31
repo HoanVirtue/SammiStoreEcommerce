@@ -33,10 +33,51 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         public async Task<OrderDTO> GetById(int id)
         {
             return await WithDefaultTemplateAsync(
-                (conn, sqlBuilder, sqlTemplate) =>
+                async (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    sqlBuilder.Select("t2.FullName AS CustomerName, t2.Phone AS PhoneNumber");
+                    sqlBuilder.Select("CONCAT(t1.CustomerAddress, ', ', t4.Name, ', ', t5.Name, ', ', t6.Name) AS CustomerAddress");
+                    sqlBuilder.Select("t8.PaymentStatus");
+                    sqlBuilder.Select("t7.*");
+                    sqlBuilder.Select("t9.Name AS ProductName");
+
+                    sqlBuilder.InnerJoin("Users t2 ON t1.CustomerId = t2.Id");
+                    sqlBuilder.LeftJoin("Voucher t3 ON t1.VoucherId = t3.Id");
+                    sqlBuilder.InnerJoin("Ward t4 ON t1.WardId = t4.Id");
+                    sqlBuilder.LeftJoin("District t5 ON t4.DistrictId = t5.Id");
+                    sqlBuilder.LeftJoin("Province t6 ON t5.ProvinceId = t5.Id");
+                    sqlBuilder.InnerJoin("OrderDetail t7 ON t1.Id = t7.OrderId");
+                    sqlBuilder.LeftJoin("Payment t8 ON t1.Id = t8.OrderId AND t8.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Product t9 ON t7.ProductId = t9.Id");
+
                     sqlBuilder.Where("t1.Id = @id", new { id });
-                    return conn.QueryFirstOrDefaultAsync<OrderDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                    var orderDictonary = new Dictionary<int, OrderDTO>();
+
+                    var orders = await conn.QueryAsync<OrderDTO, OrderDetailDTO, OrderDTO>(sqlTemplate.RawSql,
+                        (order, detail) =>
+                        {
+                            if (!orderDictonary.TryGetValue(order.Id, out var orderEntry))
+                            {
+                                orderEntry = order;
+                                orderEntry.Details = new List<OrderDetailDTO>();
+                                orderDictonary[order.Id] = orderEntry;
+                            }
+
+                            if (detail != null && orderEntry.Details.All(x => x.Id != detail.Id))
+                            {
+                                orderEntry.Details ??= new();
+                                orderEntry.Details.Add(detail);
+                            }
+
+                            return orderEntry;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "Id");
+
+                    var orderDTO = orders.FirstOrDefault();
+                    orderDTO.TotalQuantity = orderDTO.Details.Sum(x => x.Quantity);
+                    orderDTO.TotalPrice = orderDTO.Details.Sum(x => x.Quantity * x.Price);
+                    return orderDTO;
                 }
             );
         }

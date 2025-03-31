@@ -64,9 +64,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         [HttpGet("{id}")]
-        public IActionResult GetOrder(int id)
+        public async Task<IActionResult> GetOrderAsync(int id)
         {
-            return default;
+            if (!_orderRepository.IsExisted(id))
+            {
+                return BadRequest("Mã đơn hàng không tồn tại");
+            }
+            return Ok(await _orderQueries.GetById(id));
         }
 
         [HttpPost]

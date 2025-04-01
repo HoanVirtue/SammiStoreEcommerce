@@ -13,7 +13,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<OrderDTO> GetByCode(int? id = 0, string? code = null);
         Task<ActionResponse<Order>> UpdateStatus(OrderStatusEnum status, int? id = 0, string? code = null);
         Task<decimal> CalculateTotalPrice(int orderId);
-        Task<ActionResponse> UpdateOrderStatus(int id, OrderStatusEnum newStatus, TypeUserEnum type);
+        Task<ActionResponse> UpdateOrderStatus(int id, OrderStatusEnum newStatus, TypeUserEnum type, string? code = null);
     }
     public class OrderRepository : CrudRepository<Order>, IOrderRepository, IDisposable
     {
@@ -21,13 +21,17 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         private bool _disposed;
         private readonly IMapper _mapper;
         private readonly Lazy<IVoucherRepository> _voucherRepository;
-        public OrderRepository(SammiEcommerceContext context,
+        private readonly Lazy<IPaymentRepository> _paymentRepository;
+        public OrderRepository(
+            SammiEcommerceContext context,
             Lazy<IVoucherRepository> voucherRepository,
+            Lazy<IPaymentRepository> paymentRepository,
             IMapper mapper) : base(context)
         {
             _context = context;
             _mapper = mapper;
             _voucherRepository = voucherRepository;
+            _paymentRepository = paymentRepository;
         }
 
         public void Dispose()
@@ -171,18 +175,37 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             }
         }
 
-        public async Task<ActionResponse> UpdateOrderStatus(int id, OrderStatusEnum newStatus, TypeUserEnum type)
+        public async Task<ActionResponse> UpdateOrderStatus(int id, OrderStatusEnum newStatus, TypeUserEnum type, string? code = null)
         {
             var actRes = new ActionResponse();
-            var order = await GetByIdAsync(id);
+            Order order = null;
+            if (string.IsNullOrEmpty(code))
+                order = await GetByIdAsync(id);
+            else
+                order = await FindByCode(code);
             if (order != null
                 && Enum.TryParse<OrderStatusEnum>(order.OrderStatus, true, out OrderStatusEnum currentStatus)
-                && IsValidOrderStatus(currentStatus, newStatus))
+                && IsValidOrderStatus(currentStatus, newStatus, type))
             {
                 order.OrderStatus = newStatus.ToString();
+                order.ShippingStatus = newStatus == OrderStatusEnum.Completed
+                    ? ShippingStatusEnum.Delivered.ToString()
+                    : order.ShippingStatus;
                 order.UpdatedDate = DateTime.Now;
                 order.UpdatedBy = type == TypeUserEnum.Customer ? "Customer" : UserIdentity.UserName;
                 actRes.Combine(await UpdateAndSave(order));
+                if (!actRes.IsSuccess)
+                {
+                    return actRes;
+                }
+                if (newStatus == OrderStatusEnum.Completed)
+                {
+                    var payment = await _paymentRepository.Value.GetByIdAsync(id);
+                    payment.PaymentStatus = PaymentStatusEnum.Paid.ToString();
+                    payment.UpdatedDate = DateTime.Now;
+                    payment.UpdatedBy = type == TypeUserEnum.Customer ? "Customer" : UserIdentity.UserName;
+                    actRes.Combine(await _paymentRepository.Value.UpdateAndSave(payment));
+                }
             }
             else
             {

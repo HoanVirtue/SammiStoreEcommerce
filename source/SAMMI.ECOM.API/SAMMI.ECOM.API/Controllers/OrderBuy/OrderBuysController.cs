@@ -95,7 +95,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         // thêm hủy đơn, xác nhận đơn hàng thành công
-        [HttpGet("customer/update-status-order/{code}")]
+        [HttpPost("customer/update-status-order/{code}")]
         public async Task<IActionResult> UpdateStatusOrderCustomerAsync(string code, OrderStatusEnum status = OrderStatusEnum.Cancelled)
         {
             if (status != OrderStatusEnum.Cancelled && status != OrderStatusEnum.Completed)
@@ -143,7 +143,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpGet("vnpay/payment-callback")]
         public async Task<IActionResult> PaymentCallback()
         {
-            var actRes = new ActionResponse();
+            string redirectUrl = _config.GetValue<string>("VNPAYOptions:RedirectUrl");
             var paymentResponse = _vnpayService.PaymentExecute(Request.Query);
             if (!paymentResponse.IsSuccess)
             {
@@ -155,13 +155,12 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var payment = await _paymentRepository.GetByOrderCode(orderCode);
             if (payment == null)
             {
-                actRes.AddError("Không tồn tại giao dịch");
-                return BadRequest(actRes);
+                return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString("Giao dịch không tồn tại")}");
             }
             if (paymentResult.VnPayResponseCode != "00")
             {
                 _paymentRepository.UpdateStatus(payment.Id, PaymentStatusEnum.Unpaid);
-                return BadRequest(paymentResult);
+                return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString("Giao dịch không thành công.")}");
             }
 
             // update info payment
@@ -169,9 +168,15 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             payment.PaymentStatus = PaymentStatusEnum.Paid.ToString();
             payment.PaymentDate = paymentResult.PaymentDate;
             var paymentUpdateRes = await _paymentRepository.UpdateAndSave(payment);
-            _orderRepository.UpdateStatus(OrderStatusEnum.Processing, code: orderCode);
             if (!paymentUpdateRes.IsSuccess)
-                return Redirect($"{_config.GetValue<string>("VNPAYOptions:RedirectUrl")}?payment-status=0");
+            {
+                return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString("Lỗi cập nhật trạng thái thanh toán.")}");
+            }
+            var orderUpdateRes = await _orderRepository.UpdateOrderStatus(0, OrderStatusEnum.Processing, TypeUserEnum.Customer, code: orderCode);
+            if (!orderUpdateRes.IsSuccess)
+            {
+                return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString("Lỗi cập nhật trạng thái đơn hàng.")}");
+            }
 
             return Redirect($"{_config.GetValue<string>("VNPAYOptions:RedirectUrl")}?payment-status=1");
         }

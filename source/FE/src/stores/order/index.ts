@@ -67,8 +67,8 @@ export const orderSlice = createSlice({
     })
     builder.addCase(getAllOrdersAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.orders.data = Array.isArray(action?.payload?.data?.orders) ? action?.payload?.data?.orders : [];
-      state.orders.total = action?.payload?.data?.totalCount
+      state.orders.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
+      state.orders.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllOrdersAsync.rejected, (state, action) => {
       state.isLoading = false
@@ -112,12 +112,12 @@ export const orderSlice = createSlice({
 
     //get all order admin
     builder.addCase(getAllManageOrderAsync.pending, (state, action) => {
-      state.isLoading = true
+      state.isLoading = true  
     })
     builder.addCase(getAllManageOrderAsync.fulfilled, (state, action) => {
-      state.isLoading = false
-      state.orderProducts.data = Array.isArray(action?.payload?.data?.orders) ? action?.payload?.data?.orders : [];
-      state.orderProducts.total = action?.payload?.data?.totalCount
+      state.isLoading = false 
+      state.orderProducts.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
+      state.orderProducts.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllManageOrderAsync.rejected, (state, action) => {
       state.isLoading = false

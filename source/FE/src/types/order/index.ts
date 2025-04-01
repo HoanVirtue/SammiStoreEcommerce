@@ -80,37 +80,25 @@ export type TParamsUpdateOrder ={
 }
 
 export type TOrderItem = {
-    _id: string,
-    shippingAddress: {
-        fullName: string,
-        address: string,
-        city: {
-            _id: string,
-            name: string
-        },
-        phone: string,
-    },
-    orderItems: TItemOrderProduct[],
-    paymentMethod: {
-        _id: string,
-        name: string,
-        type: string,
-    },
-    deliveryMethod: {
-        _id: string,
-        name: string,
-        price: string,
-    },
-    itemsPrice: number,
-    shippingPrice: number,
+    code: string,
+    customerId: number,
+    customerName: string,
+    phoneNumber: string,
+    paymentStatus: string,
+    shippingStatus: string,
+    orderStatus: string,
+    voucherId: number,
+    wardId: number,
+    customerAddress: string,
+    costShip: number,
+    trackingNumber: string,
+    estimatedDeliveryDate: Date,
+    actualDeliveryDate: Date,
+    shippingCompanyId: number,
     totalPrice: number,
-    isPaid: number,
-    isDelivered: number,
-    status: number,
-    user: {
-        _id: string,
-        firstName: string,
-        middleName: string,
-        lastName: string,
-    }
+    totalQuantity: number,
+
+    returnUrl: string,
+    details: TItemOrderProduct[],
+    
 }

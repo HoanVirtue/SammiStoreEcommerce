@@ -63,9 +63,6 @@ export const API_ENDPOINT = {
     },
   },
   ADDRESS:{
-    CITY: {
-      INDEX: `${BASE_URL}/city`,
-    },
     PROVINCE: {
       INDEX: `${BASE_URL}/provinces`,
     },

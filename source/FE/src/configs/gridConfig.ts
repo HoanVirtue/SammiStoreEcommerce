@@ -126,5 +126,10 @@ export const getBannerFields = (): FieldConfig[] => [
     { value: "code", label: i18n.t("banner_code"), type: "string", operators: getStringOperators() },
 ];
 
+export const getOrderFields = (): FieldConfig[] => [
+    { value: "name", label: i18n.t("order_name"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("order_code"), type: "string", operators: getStringOperators() },
+];
+
 
 export const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50, 100];

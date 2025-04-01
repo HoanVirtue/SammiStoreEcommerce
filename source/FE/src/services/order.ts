@@ -6,7 +6,7 @@ import { TParamsCreateOrder, TParamsGetAllOrders, TParamsUpdateOrder } from "src
 
 export const getAllOrders = async (data: {params: TParamsGetAllOrders  }) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/me`, data)
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}`, data)
         return res.data
     } catch (error) {
         return error
@@ -15,7 +15,7 @@ export const getAllOrders = async (data: {params: TParamsGetAllOrders  }) => {
 
 export const getOrderDetail = async (id: string) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/me/${id}`)
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/${id}`)
         return res.data
     } catch (error) {
         return error

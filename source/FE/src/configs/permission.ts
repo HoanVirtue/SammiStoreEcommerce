@@ -200,14 +200,6 @@ export const LIST_PERMISSION_DATA: any = [
     value: "SETTING",
   },
   {
-    id: 11,
-    name: "city",
-    isParent: false,
-    value: "CITY",
-    parentValue: "SETTING",
-    isHideView: true,
-  },
-  {
     id: 12,
     name: "delivery_type",
     isParent: false,

@@ -1,7 +1,7 @@
 "use client"
 
 //React
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
@@ -39,17 +39,23 @@ import toast from 'react-hot-toast'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import IconifyIcon from 'src/components/Icon'
 import TablePermission from './components/TablePermission'
-import { getRoleDetail } from 'src/services/role'
+import { deleteRole, getRoleDetail } from 'src/services/role'
 import { PERMISSIONS } from 'src/configs/permission'
 import { getAllValuesOfObject } from 'src/utils'
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
 import { usePermission } from 'src/hooks/usePermission'
 import { OBJECT_TYPE_ERROR } from 'src/configs/error'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from 'src/configs/queryKey'
+import { useMutationEditRole } from 'src/queries/role'
+import { useGetListRoles } from 'src/queries/role'
 
 
 type TProps = {}
 
 const ListRolePage: NextPage<TProps> = () => {
+
+
     //States
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
@@ -78,23 +84,71 @@ const ListRolePage: NextPage<TProps> = () => {
     //Translation
     const { t } = useTranslation();
 
+    const queryClient = useQueryClient()
+
     //Redux
-    const { roles, isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
+    const { isSuccessCreateUpdate, isErrorCreateUpdate, isLoading,
         errorMessageCreateUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.role)
     const dispatch: AppDispatch = useDispatch();
 
+    // ** Ref
+    const refActionGrid = useRef<boolean>(false)
 
     //Theme
     const theme = useTheme();
 
+    const fetchRole = async (searchBy: string, sortBy: string) => {
+        const res = await getAllRolesAsync({ params: { limit: -1, page: -1, search: searchBy, order: sortBy } })
+        return res
+    }
+
+    // ** fetch api
+    const fetchDeleteRole = async (id: string) => {
+        const res = await deleteRole(id)
+
+        return res?.data
+    }
+
+    const { isPending: isLoadingEdit, mutate: mutateEditRole } = useMutationEditRole({
+        onSuccess: () => {
+            queryClient.refetchQueries({ queryKey: [queryKeys.role_list, sortBy, searchBy, -1, -1] })
+            toast.success(t('Update_role_success'))
+        },
+        onError: () => {
+            toast.success(t('Update_role_error'))
+        }
+    })
+
+    const handleUpdateRole = () => {
+        mutateEditRole({ name: selectedRow.name, id: selectedRow.id, permissions: selectedPermissions })
+    }
+
+    const { data: rolesList, isPending } = useGetListRoles(
+        { limit: -1, page: -1, search: searchBy, order: sortBy },
+        {
+            select: data => data?.roles,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
+            staleTime: 10000 // thời gian mà dữ liệu được coi là còn mới, sau thời gian này thì dữ liệu sẽ được fetch lại
+        }
+    )
+
+    const { isPending: isLoadingDelete, mutate: mutateDeleteRole } = useMutation({
+        mutationFn: fetchDeleteRole,
+        mutationKey: [queryKeys.delete_role],
+        onSuccess: () => {
+            queryClient.refetchQueries({ queryKey: [queryKeys.role_list, sortBy, searchBy, -1, -1] })
+            handleCloseDeleteDialog()
+            toast.success(t('Delete_role_success'))
+        },
+        onError: () => {
+            toast.success(t('Delete_role_error'))
+        }
+    })
 
     //api 
     const handleGetListRole = () => {
         dispatch(getAllRolesAsync({ params: { limit: -1, page: -1, search: searchBy, order: sortBy } }));
-    }
-
-    const handleUpdateRole = () => {
-        dispatch(updateRoleAsync({ name: selectedRow.name, id: selectedRow.id, permissions: selectedPermissions }));
     }
 
     //handlers
@@ -106,19 +160,21 @@ const ListRolePage: NextPage<TProps> = () => {
         setSortBy(`${sortOption.field} ${sortOption.sort}`)
     }
 
-    const handleCloseCreateUpdateRole = () => {
+    const handleCloseCreateUpdateRole = useCallback(() => {
         setOpenCreateUpdateRole({
             open: false,
             id: ""
         })
-    }
+        refActionGrid.current = false
+    }, [])
 
-    const handleCloseDeleteDialog = () => {
+    const handleCloseDeleteDialog = useCallback(() => {
         setOpenDeleteRole({
             open: false,
             id: ""
         })
-    }
+        refActionGrid.current = false
+    }, [])
 
     const handleDeleteRole = () => {
         dispatch(deleteRoleAsync(openDeleteRole.id))
@@ -166,17 +222,26 @@ const ListRolePage: NextPage<TProps> = () => {
                             <>
                                 <GridUpdate
                                     disabled={!UPDATE}
-                                    onClick={() => setOpenCreateUpdateRole({
-                                        open: true,
-                                        id: String(params.id)
-                                    })}
+                                    onClick={() => {
+                                        refActionGrid.current = true
+                                        setOpenCreateUpdateRole({
+                                            open: true,
+                                            id: String(params.id)
+                                        })
+                                    }}
                                 />
                                 <GridDelete
                                     disabled={!DELETE}
-                                    onClick={() => setOpenDeleteRole({
-                                        open: true,
-                                        id: String(params.id)
-                                    })} />
+
+                                    onClick={() => {
+                                        refActionGrid.current = true
+                                        setOpenDeleteRole({
+                                            open: true,
+                                            id: String(params.id)
+                                        })
+                                    }
+                                    }
+                                />
                             </>
                         ) : (
                             <Box sx={{ paddingLeft: "5px" }}>
@@ -195,11 +260,11 @@ const ListRolePage: NextPage<TProps> = () => {
             pageSizeOptions={PAGE_SIZE_OPTIONS}
             onChangePagination={handleOnChangePagination}
             page={page}
-            rowLength={roles.total} />
+            rowLength={rolesList.length} />
     };
 
     useEffect(() => {
-        handleGetListRole();
+        // handleGetListRole();
     }, [sortBy, searchBy])
 
     useEffect(() => {
@@ -246,7 +311,8 @@ const ListRolePage: NextPage<TProps> = () => {
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
 
     return (
-        <>{loading && <Spinner />}
+        <>
+            {isPending && <Spinner />}
             <ConfirmDialog
                 open={openDeleteRole.open}
                 onClose={handleCloseDeleteDialog}
@@ -259,8 +325,10 @@ const ListRolePage: NextPage<TProps> = () => {
                 idRole={openCreateUpdateRole.id}
                 open={openCreateUpdateRole.open}
                 onClose={handleCloseCreateUpdateRole}
+                sortBy={sortBy}
+                searchBy={searchBy}
             />
-            {isLoading && <Spinner />}
+
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 display: 'flex',
@@ -285,10 +353,11 @@ const ListRolePage: NextPage<TProps> = () => {
                             <GridCreate onClick={() => {
                                 setOpenCreateUpdateRole({ open: true, id: "" })
                             }}
+                                addText={t("add_role")}
                             />
                         </Box>
                         <CustomDataGrid
-                            rows={roles.data}
+                            rows={rolesList}
                             columns={columns}
                             pageSizeOptions={[5]}
                             // checkboxSelection
@@ -305,8 +374,9 @@ const ListRolePage: NextPage<TProps> = () => {
                             disableColumnFilter
                             disableColumnMenu
                             onRowClick={row => {
-                                setSelectedRow({ id: String(row.id), name: row?.row?.name })
-                                // setOpenCreateUpdateRole({ open: false, id: String(row.id) })
+                                if (!refActionGrid.current) {
+                                    setSelectedRow({ id: String(row.id), name: row?.row?.name })
+                                }
                             }}
                             getRowClassName={(row: GridRowClassNameParams) => {
                                 return row.id === selectedRow.id ? 'selected-row' : ''

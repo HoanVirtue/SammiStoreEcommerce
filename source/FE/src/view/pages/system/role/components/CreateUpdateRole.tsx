@@ -17,7 +17,7 @@ import Spinner from "src/components/spinner"
 import CustomTextField from "src/components/text-field"
 
 //services
-import { getRoleDetail } from "src/services/role"
+import { createRole, getRoleDetail } from "src/services/role"
 
 //translation
 import { useTranslation } from "../../../../../../node_modules/react-i18next"
@@ -26,11 +26,19 @@ import { useTranslation } from "../../../../../../node_modules/react-i18next"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "src/stores"
 import { createRoleAsync, updateRoleAsync } from "src/stores/role/action"
+import { queryKeys } from "src/configs/queryKey";
+import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+import { TParamsCreateRole } from "src/types/role";
+import { useMutationEditRole } from "src/queries/role";
+import { PERMISSIONS } from "src/configs/permission";
 
 interface TCreateUpdateRole {
     open: boolean
     onClose: () => void
     idRole?: string
+    sortBy: string
+    searchBy: string
 }
 
 const CreateUpdateRole = (props: TCreateUpdateRole) => {
@@ -39,7 +47,9 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
     const [loading, setLoading] = useState(false)
 
     //props
-    const { open, onClose, idRole } = props
+    const { open, onClose, idRole, sortBy, searchBy } = props
+
+    const queryClient = useQueryClient()
 
     //translation
     const { t } = useTranslation()
@@ -64,6 +74,99 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
         resolver: yupResolver(schema)
     });
 
+    
+  const fetchCreateRole = async (data: TParamsCreateRole) => {
+    const res = await createRole(data)
+
+    return res.data
+  }
+
+    const fetchDetailRole = async (id: string) => {
+        const res = await getRoleDetail(id)
+        return res?.data
+    }
+
+    const {
+        isPending: isLoadingCreate,
+        mutate: mutateCreateRole,
+      } = useMutation({
+        mutationFn: fetchCreateRole,
+        mutationKey: [queryKeys.create_role],
+        onSuccess: (newRole) => {
+          queryClient.setQueryData([queryKeys.role_list, sortBy, searchBy, -1, -1], (oldData: any) => {
+    
+            return { ...oldData, roles: [...oldData.roles, newRole] }
+          }) // thay vì refetchQueries thì update data trên cache dùng setQueryData
+          onClose()
+          toast.success(t('Create_role_success'))
+        },
+        onError: () => {
+          toast.success(t('Create_role_error'))
+        },
+      })
+    
+      const {
+        isPending: isLoadingEdit,
+        mutate: mutateEditRole,
+      } = useMutationEditRole({
+        onSuccess: (newRole) => {
+          queryClient.setQueryData([queryKeys.role_list, sortBy, searchBy, -1, -1], (oldData: any) => {
+            const editedRole = oldData?.roles?.find((item: any) => item._id == newRole._id)
+            if (editedRole) {
+              editedRole.name = newRole?.name
+            }
+    
+            return oldData
+          })
+          onClose()
+          toast.success(t('Update_role_success'))
+        },
+        onError: (errr) => {
+          toast.error(t('Update_role_error'))
+        },
+      })
+
+    const {
+        data: roleDetail,
+        isPending: isPendingRoleList,
+
+    } = useQuery(
+        {
+            queryKey: [queryKeys.role_list, idRole],
+            queryFn: () => fetchDetailRole(idRole || ""),
+            select: (data) => data?.roles,
+            // retry: 2,
+            // retryDelay: 1000,
+            refetchOnWindowFocus: false,
+            refetchOnReconnect: false,
+            staleTime: 1000 * 60 * 5,
+            gcTime: 1000 * 5,
+            initialData: [],
+            placeholderData: () => {
+                const roles = (queryClient.getQueryData([queryKeys.role_list, sortBy, searchBy]) as any)?.roles
+
+                return roles?.find((item: { _id: string }) => item._id === idRole)
+            },
+        },
+    )
+
+    useEffect(() => {
+        if (!open) {
+            reset({
+                name: ""
+            })
+        }
+    }, [open, idRole])
+
+    useEffect(() => {
+        if (roleDetail) {
+            reset({
+                name: roleDetail?.name
+            })
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [roleDetail])
+
 
     const onSubmit = (data: { name: string }) => {
         if (!Object.keys(errors)?.length) {
@@ -72,37 +175,11 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
                 dispatch(updateRoleAsync({ name: data?.name, id: idRole }))
             } else {
                 //create
-                dispatch(createRoleAsync({ name: data?.name }))
+                // dispatch(createRoleAsync({ name: data?.name }))
+                mutateCreateRole({ name: data?.name, permissions: [PERMISSIONS.DASHBOARD] })
             }
         }
     }
-
-    const fetchDetailRole = async (id: string) => {
-        setLoading(true)
-        await getRoleDetail(id).then((res) => {
-            if (res?.data) {
-                reset({
-                    name: res?.data?.name
-                })
-            }
-            setLoading(false)
-        }).catch((e) => {
-            setLoading(false)
-        })
-    }
-
-    useEffect(() => {
-        if (!open) {
-            reset({
-                name: ""
-            })
-        } else {
-            if (idRole) {
-                fetchDetailRole(idRole)
-            }
-        }
-    }, [open, idRole])
-
 
     return (
         <>

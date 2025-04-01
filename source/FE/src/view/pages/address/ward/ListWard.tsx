@@ -1,9 +1,6 @@
 "use client";
 
 import { NextPage } from "next";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { useTranslation } from "react-i18next";
-import { Typography } from "@mui/material";
 import { getWardFields } from "src/configs/gridConfig";
 import CreateUpdateWard from "./components/CreateUpdateWard";
 import {
@@ -14,43 +11,10 @@ import {
 import { resetInitialState } from "src/stores/ward";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
+import { getWardColumns } from "src/configs/gridColumn";
 
 const ListWardPage: NextPage = () => {
-    const { t } = useTranslation();
-
-    const columns: GridColDef[] = [
-        {
-            field: "ward_name",
-            headerName: t("ward_name"),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>,
-        },
-        {
-            field: "ward_code",
-            headerName: t("ward_code"),
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
-        },
-        {
-            field: "district_name",
-            headerName: t("district_name"),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => <Typography>{params.row.districtName}</Typography>,
-        },
-        {
-            field: "district_code",
-            headerName: t("district_code"),
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => <Typography>{params.row.districtCode}</Typography>,
-        },
-
-
-    ];
-
+    const columns = getWardColumns();
     return (
         <AdminPage
             entityName="ward"

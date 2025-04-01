@@ -14,72 +14,11 @@ import {
 import { resetInitialState } from "src/stores/product-category";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
-
+import { getProductCategoryColumns } from "src/configs/gridColumn";
 const ListProductCategoryPage: NextPage = () => {
     const { t } = useTranslation();
 
-    const columns: GridColDef[] = [
-        {
-            field: 'code',
-            headerName: t('product_category_code'),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.code}</Typography>
-                )
-            }
-        },
-        {
-            field: 'name',
-            headerName: t('product_category_name'),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.name}</Typography>
-                )
-            }
-        },
-        {
-            field: 'parentName',
-            headerName: t('parent_name'),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.parentName}</Typography>
-                )
-            }
-        },
-        {
-            field: 'level',
-            headerName: t('category_level'),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.level}</Typography>
-                )
-            }
-        },
-        // {
-        //     field: 'slug',
-        //     headerName: t('slug'),
-        //     minWidth: 200,
-        //     maxWidth: 200,
-        //     renderCell: (params: GridRenderCellParams) => {
-        //         const { row } = params
-        //         return (
-        //             <Typography>{row?.slug}</Typography>
-        //         )
-        //     }
-        // },
-    ];
+    const columns = getProductCategoryColumns();
 
     return (
         <AdminPage

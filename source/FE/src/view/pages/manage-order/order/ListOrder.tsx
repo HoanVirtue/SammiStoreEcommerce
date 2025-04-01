@@ -23,6 +23,7 @@ import OrderDetail from './components/OrderDetail'
 import AdminPage from 'src/components/admin-page'
 import { getOrderFields } from 'src/configs/gridConfig'
 import { formatDate } from 'src/utils'
+import { getOrderColumns } from 'src/configs/gridColumn'
 
 type TProps = {}
 
@@ -68,112 +69,7 @@ const ListOrderPage: NextPage<TProps> = () => {
         },
     }
 
-    const columns: GridColDef[] = [
-        {
-            field: 'customerName',
-            headerName: t('customer_name'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.customerName}</Typography>
-                )
-            }
-        },
-        {
-            field: 'customerAddress',
-            headerName: t('customer_address'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography sx={{ textWrap: 'wrap' }}>{row?.customerAddress}</Typography>
-                )
-            }
-        },
-        {
-            field: 'customerPhone',
-            headerName: t('customer_phone'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.phoneNumber}</Typography>
-                )
-            }
-        },
-        {
-            field: 'orderDate',
-            headerName: t('place_order_date'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}</Typography>
-                )
-            }
-        },
-        {
-            field: 'total_price',
-            headerName: t('total_price'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.totalPrice}</Typography>
-                )
-            }
-        },
-        {
-            field: 'paymentStatus',
-            headerName: t('payment_status'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.orderStatus}</Typography>
-                )
-            }
-        },
-        {
-            field: 'shippingStatus',
-            headerName: t('shipping_status'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.shippingStatus}</Typography>
-                )
-            }
-        },
-        {
-            field: 'orderStatus',
-            headerName: t('order_status'),
-            flex: 1,
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => {
-                const { row } = params
-                return (
-                    <Typography>{row?.orderStatus}</Typography>
-                )
-            }
-        },
-    ]
+    const columns = getOrderColumns()
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setCurrentTab(newValue);

@@ -14,42 +14,12 @@ import {
 import { resetInitialState } from "src/stores/district";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
+import { getDistrictColumns } from "src/configs/gridColumn";
 
 const ListDistrictPage: NextPage = () => {
     const { t } = useTranslation();
 
-    const columns: GridColDef[] = [
-        {
-            field: "name",
-            headerName: t("district_name"),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>,
-        },
-        {
-            field: "code",
-            headerName: t("district_code"),
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
-        },
-        {
-            field: "provinceId",
-            headerName: t("province_name"),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => <Typography>{params.row.provinceName}</Typography>,
-        },
-        // {
-        //     field: "provinceCode",
-        //     headerName: t("province_code"),
-        //     minWidth: 200,
-        //     maxWidth: 200,
-        //     renderCell: (params: GridRenderCellParams) => <Typography>{params.row.provinceCode}</Typography>,
-        // },
-
-
-    ];
+    const columns = getDistrictColumns();
 
     return (
         <AdminPage

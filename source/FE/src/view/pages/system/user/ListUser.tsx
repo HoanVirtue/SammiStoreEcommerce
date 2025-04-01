@@ -491,6 +491,7 @@ const ListUserPage: NextPage<TProps> = () => {
                             <GridCreate onClick={() => {
                                 setOpenCreateUpdateUser({ open: true, id: "" })
                             }}
+                                addText={t("add_user")}
                             />
                         </Box>
                     )}

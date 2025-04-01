@@ -18,6 +18,7 @@
       }
     },
     "web": {
+      "port": 19006,
       "bundler": "metro",
       "output": "static",
       "favicon": "./assets/images/favicon.png"

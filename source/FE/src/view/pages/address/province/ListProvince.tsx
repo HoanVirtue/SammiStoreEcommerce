@@ -14,35 +14,12 @@ import {
 import { resetInitialState } from "src/stores/province";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
+import { getProvinceColumns } from "src/configs/gridColumn";
 
 const ListProvincePage: NextPage = () => {
   const { t } = useTranslation();
 
-  const columns: GridColDef[] = [
-    {
-      field: "province_name",
-      headerName: t("province_name"),
-      flex: 1,
-      minWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>,
-    },
-    {
-      field: "province_code",
-      headerName: t("province_code"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
-    },
-    {
-      field: "postal_code",
-      headerName: t("postal_code"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.postalCode}</Typography>,
-    },
-
-  ];
-
+  const columns = getProvinceColumns();
   return (
     <AdminPage
       entityName="province"

@@ -26,53 +26,13 @@ import { formatDate } from 'src/utils'
 import AdminPage from 'src/components/admin-page'
 import { getBannerFields } from 'src/configs/gridConfig'
 import Image from 'src/components/image'
-
+import { getBannerColumns } from 'src/configs/gridColumn'
 type TProps = {}
 
 const ListBanner: NextPage<TProps> = () => {
     const { t } = useTranslation()
 
-    const columns: GridColDef[] = [
-        {
-            field: 'name',
-            headerName: t('banner_name'),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => (
-                <Typography>{params.row.name}</Typography>
-            )
-        },
-
-        {
-            field: 'level',
-            headerName: t('banner_level'),
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => (
-                <Typography>{params.row.level}</Typography>
-            )
-        },
-
-        {
-            field: 'imageCommand',
-            headerName: t('banner_image'),
-            minWidth: 200,
-            maxWidth: 200,
-            renderCell: (params: GridRenderCellParams) => (
-                <Image src={params.row.imageUrl} alt={params.row.name} width={50} height={50} />
-            )
-        },
-
-        {
-            field: 'createdAt',
-            headerName: t('created_at'),
-            minWidth: 220,
-            maxWidth: 220,
-            renderCell: (params: GridRenderCellParams) => (
-                <Typography>{formatDate(params.row.createdDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
-            )
-        }
-    ]
+    const columns = getBannerColumns()
 
     return (
         <AdminPage

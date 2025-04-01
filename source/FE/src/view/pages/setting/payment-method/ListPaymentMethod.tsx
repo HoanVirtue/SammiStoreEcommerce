@@ -29,32 +29,12 @@ import { formatDate } from 'src/utils'
 
 import AdminPage from 'src/components/admin-page'
 import { getPaymentMethodFields } from 'src/configs/gridConfig'
+import { getPaymentMethodColumns } from 'src/configs/gridColumn'
 type TProps = {}
 
 const ListPaymentMethod: NextPage<TProps> = () => {
-    const { t } = useTranslation()
 
-
-    const columns: GridColDef[] = [
-        {
-            field: 'name',
-            headerName: t('payment_method_name'),
-            flex: 1,
-            minWidth: 200,
-            renderCell: (params: GridRenderCellParams) => (
-                <Typography>{params.row.name}</Typography>
-            )
-        },
-        {
-            field: 'createdAt',
-            headerName: t('created_at'),
-            minWidth: 220,
-            maxWidth: 220,
-            renderCell: (params: GridRenderCellParams) => (
-                <Typography>{formatDate(params.row.createdDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
-            )
-        }
-    ]
+    const columns = getPaymentMethodColumns()
 
     return (
         <AdminPage

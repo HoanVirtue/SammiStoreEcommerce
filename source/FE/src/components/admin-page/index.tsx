@@ -17,11 +17,12 @@ import Spinner from "src/components/spinner";
 import ConfirmDialog from "src/components/confirm-dialog";
 import TableHeader from "src/components/table-header";
 import GridCreate from "src/components/grid-create";
-import GridUpdate from "src/components/grid-update"; // Import GridUpdate
-import GridDelete from "src/components/grid-delete"; // Import GridDelete
+import GridUpdate from "src/components/grid-update";
+import GridDelete from "src/components/grid-delete";
 import AdminFilter from "src/components/admin-filter";
 import { TFilter } from "src/configs/filter";
 import { usePermission } from "src/hooks/usePermission";
+import GridDetail from "../grid-detail";
 
 type AdminPageProps = {
   entityName: string;
@@ -36,11 +37,14 @@ type AdminPageProps = {
   permissionKey: string;
   fieldMapping?: { [key: string]: string };
   noDataText?: string;
-
-  showTabs?: boolean;
+  DetailComponent?: React.FC<any>;
+  showCreateTab?: boolean;
+  showDetailTab?: boolean;
   currentTab?: number;
   onTabChange?: (newTab: number) => void;
   onAddClick?: () => void;
+  onDetailClick?: (id: string) => void;
+  hiddenAddButton?: boolean;
 };
 
 const AdminPage: NextPage<AdminPageProps> = ({
@@ -53,13 +57,17 @@ const AdminPage: NextPage<AdminPageProps> = ({
   deleteMultipleAction,
   resetAction,
   CreateUpdateComponent,
+  DetailComponent,
   permissionKey,
   fieldMapping = {},
   noDataText,
-  showTabs = false,
+  showCreateTab = false,
+  showDetailTab = false,
   currentTab = 0,
   onTabChange,
   onAddClick,
+  onDetailClick,
+  hiddenAddButton = false,
 }) => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
@@ -70,6 +78,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const [filters, setFilters] = useState<TFilter[]>([]);
   const [selectedRow, setSelectedRow] = useState<string[]>([]);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [selectedDetailId, setSelectedDetailId] = useState<string>("");
 
   const debouncedFilters = useDebounce(filters, 500);
   const { t } = useTranslation();
@@ -183,7 +192,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
       setSelectedRow([]);
       setIsDeleting(false);
     } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-      toast.error(t(`delete_multiple_${entityName}_error`));
+      toast.error(t(`delete_multiple_${entityName}s_error`));
       dispatch(resetAction());
       setIsDeleting(false);
     }
@@ -212,6 +221,12 @@ const AdminPage: NextPage<AdminPageProps> = ({
     align: "left",
     renderCell: (params: GridRenderCellParams) => (
       <>
+        <GridDetail
+          onClick={() => {
+            setSelectedDetailId(params.row.id);
+            onDetailClick?.(params.row.id);
+          }}
+        />
         <GridUpdate
           onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
         />
@@ -252,70 +267,88 @@ const AdminPage: NextPage<AdminPageProps> = ({
       )}
 
       <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", minHeight: "100vh" }}>
-        {showTabs && (
+        {(showCreateTab || showDetailTab) && (
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
             <Tabs value={currentTab} onChange={(_, newValue) => onTabChange?.(newValue)}>
               <Tab label={t(`list_${entityName}`)} />
-              <Tab label={t(`create_${entityName}`)} />
+              {showCreateTab && <Tab label={t(`create_${entityName}`)} />}
+              {showDetailTab && <Tab label={t(`detail_${entityName}`)} />}
             </Tabs>
           </Box>
         )}
 
         <Grid container>
-          {!selectedRow.length && (
-            <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 4, gap: 4, width: "100%" }}>
-              <GridCreate
-                addText={t(`create_${entityName}`)}
-                onClick={() => onAddClick ? onAddClick() : setOpenCreateUpdate({ open: true, id: "" })}
+          {currentTab === 0 && (
+            <>
+              {!selectedRow.length && !hiddenAddButton && (
+                <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 4, gap: 4, width: "100%" }}>
+                  <GridCreate
+                    addText={t(`create_${entityName}`)}
+                    onClick={() => onAddClick ? onAddClick() : setOpenCreateUpdate({ open: true, id: "" })}
+                  />
+                </Box>
+              )}
+              {selectedRow.length > 0 && (
+                <TableHeader
+                  selectedRowNumber={selectedRow.length}
+                  onClear={() => setSelectedRow([])}
+                  actions={[{ label: t("delete"), value: "delete" }]}
+                  handleAction={handleAction}
+                />
+              )}
+              <CustomDataGrid
+                rows={data}
+                columns={allColumns}
+                checkboxSelection
+                getRowId={(row) => row.id}
+                disableRowSelectionOnClick
+                autoHeight
+                sortingOrder={["desc", "asc"]}
+                sortingMode="server"
+                onSortModelChange={handleSort}
+                slots={{
+                  pagination: PaginationComponent,
+                  toolbar: AdminFilter,
+                  noRowsOverlay: () => <Box sx={{ p: 2, textAlign: "center" }}>{t(`${noDataText}`)}</Box>,
+                }}
+                slotProps={{ toolbar: { fields, onFilterChange: handleFilterChange } }}
+                disableColumnFilter
+                disableColumnMenu
+                sx={{
+                  ".selected-row": {
+                    backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
+                    color: `${theme.palette.primary.main} !important`,
+                  },
+                  "& .MuiDataGrid-root": { border: `1px solid ${theme.palette.divider}` },
+                  "& .MuiDataGrid-columnHeaders": {
+                    backgroundColor: theme.palette.grey[100],
+                    borderBottom: `1px solid ${theme.palette.divider}`,
+                  },
+                  "& .MuiDataGrid-row:hover": { backgroundColor: theme.palette.action.hover },
+                  "& .MuiDataGrid-row.Mui-selected": {
+                    backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
+                    color: `${theme.palette.primary.main} !important`,
+                  },
+                  "& .MuiDataGrid-cell": { borderBottom: `1px solid ${theme.palette.divider}` },
+                }}
+                onRowSelectionModelChange={(row: GridRowSelectionModel) => setSelectedRow(row as string[])}
+                rowSelectionModel={selectedRow}
               />
-            </Box>
+            </>
           )}
-          {selectedRow.length > 0 && (
-            <TableHeader
-              selectedRowNumber={selectedRow.length}
-              onClear={() => setSelectedRow([])}
-              actions={[{ label: t("delete"), value: "delete" }]}
-              handleAction={handleAction}
+          {currentTab === 1 && showCreateTab && CreateUpdateComponent && (
+            <CreateUpdateComponent
+              id={openCreateUpdate.id}
+              open={true}
+              onClose={() => onTabChange?.(0)}
             />
           )}
-          <CustomDataGrid
-            rows={data}
-            columns={allColumns}
-            checkboxSelection
-            getRowId={(row) => row.id}
-            disableRowSelectionOnClick
-            autoHeight
-            sortingOrder={["desc", "asc"]}
-            sortingMode="server"
-            onSortModelChange={handleSort}
-            slots={{
-              pagination: PaginationComponent,
-              toolbar: AdminFilter,
-              noRowsOverlay: () => <Box sx={{ p: 2, textAlign: "center" }}>{t(`${noDataText}`)}</Box>,
-            }}
-            slotProps={{ toolbar: { fields, onFilterChange: handleFilterChange } }}
-            disableColumnFilter
-            disableColumnMenu
-            sx={{
-              ".selected-row": {
-                backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
-                color: `${theme.palette.primary.main} !important`,
-              },
-              "& .MuiDataGrid-root": { border: `1px solid ${theme.palette.divider}` },
-              "& .MuiDataGrid-columnHeaders": {
-                backgroundColor: theme.palette.grey[100],
-                borderBottom: `1px solid ${theme.palette.divider}`,
-              },
-              "& .MuiDataGrid-row:hover": { backgroundColor: theme.palette.action.hover },
-              "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
-                color: `${theme.palette.primary.main} !important`,
-              },
-              "& .MuiDataGrid-cell": { borderBottom: `1px solid ${theme.palette.divider}` },
-            }}
-            onRowSelectionModelChange={(row: GridRowSelectionModel) => setSelectedRow(row as string[])}
-            rowSelectionModel={selectedRow}
-          />
+          {currentTab === 2 && showDetailTab && DetailComponent && (
+            <DetailComponent
+              id={selectedDetailId}
+              onClose={() => onTabChange?.(0)}
+            />
+          )}
         </Grid>
       </Box>
     </>

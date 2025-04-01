@@ -72,7 +72,7 @@ const HomePage: NextPage<TProps> = () => {
         total: 0
     });
     const [selectedProductCategory, setSelectedProductCategory] = React.useState('');
-    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
+
 
     const firstRender = useRef<boolean>(false)
 

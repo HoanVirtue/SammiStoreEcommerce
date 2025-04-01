@@ -72,7 +72,7 @@ export const VerticalLayoutItems = () => {
                     title: t('order_list'),
                     icon: 'lsicon:order-outline',
                     path: ROUTE_CONFIG.MANAGE_ORDER.ORDER,
-                    permission: PERMISSIONS.MANAGE_ORDER.ORDER.VIEW
+                    // permission: PERMISSIONS.MANAGE_ORDER.ORDER.VIEW
                 },
                 {
                     title: t('review_list'),
@@ -128,11 +128,6 @@ export const VerticalLayoutItems = () => {
             title: t('address'),
             icon: 'fluent:location-settings-20-regular',
             children: [
-                // {
-                //     title: t('city'),
-                //     icon: 'healthicons:city-outline',
-                //     path: ROUTE_CONFIG.ADDRESS.CITY,
-                // },
                 {
                     title: t('province'),
                     icon: 'healthicons:city-outline',

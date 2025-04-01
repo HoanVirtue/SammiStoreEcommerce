@@ -1,4 +1,3 @@
-import { ProductImage } from "../product";
 
 export type TParamsGetAllCarts = {
     skip?: number;
@@ -19,18 +18,6 @@ export type TItemCartProduct = {
     operation: number,
 }
 
-export type TItemCartProductMe = {
-    name: string,
-    amount: number,
-    image: string,
-    price: number,
-    discount: number,
-    product: {
-        _id: string,
-        countInStock: number,
-        slug: string
-    }
-}
 
 export type TParamsCreateCart = {
     cartId: string,
@@ -39,52 +26,3 @@ export type TParamsCreateCart = {
     operation: number,
 }
 
-export type TParamsUpdateCart ={
-    shippingAddress: {
-        address: string,
-        city: string,
-        phone: string,
-        fullName: string
-    },
-    id: string
-    isPaid: number,
-    isDelivery: number,
-    paymentMethod: string,
-    deliveryMethod: string
-}
-
-export type TCartItem = {
-    _id: string,
-    shippingAddress: {
-        fullName: string,
-        address: string,
-        city: {
-            _id: string,
-            name: string
-        },
-        phone: string,
-    },
-    cartItems: TItemCartProduct[],
-    paymentMethod: {
-        _id: string,
-        name: string,
-        type: string,
-    },
-    deliveryMethod: {
-        _id: string,
-        name: string,
-        price: string,
-    },
-    itemsPrice: number,
-    shippingPrice: number,
-    totalPrice: number,
-    isPaid: number,
-    isDelivered: number,
-    status: number,
-    user: {
-        _id: string,
-        firstName: string,
-        middleName: string,
-        lastName: string,
-    }
-}

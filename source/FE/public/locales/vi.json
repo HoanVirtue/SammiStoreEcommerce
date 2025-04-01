@@ -541,12 +541,18 @@
     "banner_image_required": "Hình ảnh banner không được để trống",
     "banner_name_required": "Tên banner không được để trống",
     "banner_level_required": "Cấp banner không được để trống",
-
-
-
-
-
-
+    "place_order_date": "Ngày đặt hàng",
+    "payment_status": "Trạng thái thanh toán",
+    "shipping_status": "Trạng thái giao hàng",
+    "order_detail": "Chi tiết đơn hàng",
+    "list_order": "Danh sách đơn hàng",
+    "customer_address": "Địa chỉ khách hàng",
+    "customer_phone": "Số điện thoại khách hàng",
+    "customer_information": "Thông tin khách hàng",
+    "delivery_information": "Thông tin giao hàng",
+    "order_information": "Thông tin đơn hàng",
+    "payment_delivery_information": "Thông tin thanh toán và giao hàng",
+    "delivery_status": "Trạng thái giao hàng",
 
 
     "province_id": "Mã Tỉnh/Thành phố"

@@ -18,7 +18,7 @@ const GridCreate = (props: TGridCreate) => {
     const theme = useTheme()
 
     return (
-        <Tooltip title="Thêm mới">
+        <Tooltip title={t('create')}>
             <Button
                 onClick={onClick}
                 disabled={disabled}

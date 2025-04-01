@@ -103,18 +103,6 @@ export default function CheckoutSummary({
                 </Stack>
             </Stack>
 
-            {/* <TextField
-                hiddenLabel
-                placeholder={t('voucher_code')}
-                InputProps={{
-                    endAdornment: (
-                        <InputAdornment position="end">
-                            <Button>{t('apply_voucher')}</Button>
-                        </InputAdornment>
-                    ),
-                }}
-            /> */}
-
             <Divider sx={{ borderStyle: 'dashed' }} />
 
             <Stack direction="row" justifyContent="space-between" sx={{ typography: 'h6' }}>

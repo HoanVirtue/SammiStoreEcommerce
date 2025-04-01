@@ -41,6 +41,7 @@ import VoucherModal from './components/VoucherModal';
 import { createVNPayPaymentUrl } from 'src/services/payment';
 import { PAYMENT_METHOD } from 'src/configs/payment';
 import { getVoucherDetail } from 'src/services/voucher';
+import StepLabel from 'src/components/step-label';
 
 // ----------------------------------------------------------------------
 
@@ -527,34 +528,5 @@ const CheckoutPage: NextPage<TProps> = () => {
 
 // ----------------------------------------------------------------------
 
-type StepLabelProps = {
-    step: string;
-    title: string;
-};
-
-function StepLabel({ step, title }: StepLabelProps) {
-    return (
-        <Stack direction="row" alignItems="center" sx={{ mb: 3, typography: 'h6' }}>
-            <Box
-                sx={{
-                    mr: 1.5,
-                    width: 28,
-                    height: 28,
-                    flexShrink: 0,
-                    display: 'flex',
-                    typography: 'h6',
-                    borderRadius: '50%',
-                    alignItems: 'center',
-                    bgcolor: 'primary.main',
-                    justifyContent: 'center',
-                    color: 'primary.contrastText',
-                }}
-            >
-                {step}
-            </Box>
-            {title}
-        </Stack>
-    );
-}
 
 export default CheckoutPage;

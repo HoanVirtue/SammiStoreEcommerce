@@ -2,25 +2,25 @@ import { Box, IconButton, Tooltip } from "@mui/material"
 import { ModalProps } from "@mui/material"
 import { Modal, styled, Typography } from "@mui/material"
 import IconifyIcon from "../Icon"
-import { useTranslation } from "../../../node_modules/react-i18next"
+import { useTranslation } from "react-i18next"
 
-interface TGridDelete {
+interface TGridDetail {
     onClick: () => void
     disabled?: boolean
 }
 
-const GridDelete = (props: TGridDelete) => {
+const GridDetail = (props: TGridDetail) => {
 
     const { onClick, disabled } = props
     const { t } = useTranslation()
 
     return (
-        <Tooltip title={t('delete')}>
+        <Tooltip title={t('view_detail')}>
             <IconButton onClick={onClick} disabled={disabled}>
-                <IconifyIcon icon="fluent:delete-48-regular" />
+                <IconifyIcon icon="lucide:eye" />
             </IconButton>
         </Tooltip>
     )
 }
 
-export default GridDelete
+export default GridDetail

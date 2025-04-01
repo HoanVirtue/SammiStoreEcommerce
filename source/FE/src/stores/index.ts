@@ -5,7 +5,6 @@ import { configureStore } from '@reduxjs/toolkit'
 import user from 'src/stores/user'
 import auth from 'src/stores/auth'
 import role from 'src/stores/role'
-import city from 'src/stores/city'
 import deliveryMethod from 'src/stores/delivery-method'
 import paymentMethod from 'src/stores/payment-method'
 import province from 'src/stores/province'
@@ -32,7 +31,6 @@ export const store = configureStore({
     user,
     auth,
     role,
-    city,
     deliveryMethod,
     paymentMethod,
     province,

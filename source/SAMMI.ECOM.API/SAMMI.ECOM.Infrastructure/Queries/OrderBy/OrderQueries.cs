@@ -38,6 +38,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.Select("t2.FullName AS CustomerName, t2.Phone AS PhoneNumber");
                     sqlBuilder.Select("CONCAT(t1.CustomerAddress, ', ', t4.Name, ', ', t5.Name, ', ', t6.Name) AS CustomerAddress");
                     sqlBuilder.Select("t8.PaymentStatus");
+                    sqlBuilder.Select("t10.Name AS PaymentMethod");
                     sqlBuilder.Select("t7.*");
                     sqlBuilder.Select("t9.Name AS ProductName");
 
@@ -49,6 +50,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.InnerJoin("OrderDetail t7 ON t1.Id = t7.OrderId");
                     sqlBuilder.LeftJoin("Payment t8 ON t1.Id = t8.OrderId AND t8.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Product t9 ON t7.ProductId = t9.Id");
+                    sqlBuilder.LeftJoin("PaymentMethod t10 ON t8.PaymentMethodId = t10.Id");
 
                     sqlBuilder.Where("t1.Id = @id", new { id });
                     var orderDictonary = new Dictionary<int, OrderDTO>();
@@ -91,6 +93,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.Select("CONCAT(t1.CustomerAddress, ', ', t4.Name, ', ', t5.Name, ', ', t6.Name) AS CustomerAddress");
                     sqlBuilder.Select("SUM(t7.Quantity) AS TotalQuantity, SUM(t7.Quantity * t7.Price) AS TotalPrice");
                     sqlBuilder.Select("t8.PaymentStatus");
+                    sqlBuilder.Select("t9.Name AS PaymentMethod");
 
                     sqlBuilder.InnerJoin("Users t2 ON t1.CustomerId = t2.Id");
                     sqlBuilder.LeftJoin("Voucher t3 ON t1.VoucherId = t3.Id");
@@ -99,6 +102,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.LeftJoin("Province t6 ON t5.ProvinceId = t5.Id");
                     sqlBuilder.InnerJoin("OrderDetail t7 ON t1.Id = t7.OrderId");
                     sqlBuilder.LeftJoin("Payment t8 ON t1.Id = t8.OrderId AND t8.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("PaymentMethod t9 ON t8.PaymentMethodId = t9.Id");
 
                     sqlBuilder.GroupBy(@"t1.Id,
                         t1.Code,
@@ -120,7 +124,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                         t1.IsActive,
                         t1.IsDeleted,
                         t1.DisplayOrder");
-                    sqlBuilder.GroupBy("t2.FullName, t2.Phone, t4.Name, t5.Name, t6.Name, t8.PaymentStatus");
+                    sqlBuilder.GroupBy("t2.FullName, t2.Phone, t4.Name, t5.Name, t6.Name, t8.PaymentStatus, t9.Name");
                     return conn.QueryAsync<OrderDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 },
                 filterModel);

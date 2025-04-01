@@ -38,6 +38,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             IUsersRepository usersRepository,
             IConfiguration config,
             IOrderQueries orderQueries,
+            UserIdentity userIdentity,
             IMapper mapper,
             ILogger<OrderBuysController> logger) : base(mediator, logger)
         {
@@ -51,7 +52,11 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _userRepository = usersRepository;
             _config = config;
             _orderQueries = orderQueries;
+            UserIdentity = userIdentity;
         }
+
+
+
 
         [HttpGet]
         public async Task<IActionResult> GetOrdersAsync([FromQuery] RequestFilterModel request)
@@ -71,6 +76,47 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 return BadRequest("Mã đơn hàng không tồn tại");
             }
             return Ok(await _orderQueries.GetById(id));
+        }
+
+        [HttpGet("customer/{code}")]
+        public async Task<IActionResult> GetOrderAsync(string code)
+        {
+            var order = await _orderRepository.GetByCode(code: code);
+            if (order == null)
+            {
+                return BadRequest("Mã đơn hàng không tồn tại");
+            }
+            if (order != null && order.CustomerId != UserIdentity.Id)
+            {
+                return BadRequest("Bạn không có quyền cho đơn hàng này.");
+            }
+
+            return Ok(await _orderQueries.GetById(order.Id));
+        }
+
+        // thêm hủy đơn, xác nhận đơn hàng thành công
+        [HttpGet("customer/update-status-order/{code}")]
+        public async Task<IActionResult> UpdateStatusOrderCustomerAsync(string code, OrderStatusEnum status = OrderStatusEnum.Cancelled)
+        {
+            if (status != OrderStatusEnum.Cancelled && status != OrderStatusEnum.Completed)
+            {
+                return BadRequest("Trạng thái đơn hàng không hợp lệ");
+            }
+            var order = await _orderRepository.GetByCode(code: code);
+            if (order == null)
+            {
+                return BadRequest("Mã đơn hàng không tồn tại");
+            }
+            if (order != null && order.CustomerId != UserIdentity.Id)
+            {
+                return BadRequest("Bạn không có quyền cho đơn hàng này.");
+            }
+            var updateOrderRes = await _orderRepository.UpdateOrderStatus(order.Id, status, TypeUserEnum.Customer);
+            if (updateOrderRes.IsSuccess)
+            {
+                return Ok(updateOrderRes);
+            }
+            return BadRequest(updateOrderRes);
         }
 
         [HttpPost]
@@ -97,6 +143,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpGet("vnpay/payment-callback")]
         public async Task<IActionResult> PaymentCallback()
         {
+            var actRes = new ActionResponse();
             var paymentResponse = _vnpayService.PaymentExecute(Request.Query);
             if (!paymentResponse.IsSuccess)
             {
@@ -108,7 +155,8 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var payment = await _paymentRepository.GetByOrderCode(orderCode);
             if (payment == null)
             {
-                return BadRequest("Không tồn tại giao dịch");
+                actRes.AddError("Không tồn tại giao dịch");
+                return BadRequest(actRes);
             }
             if (paymentResult.VnPayResponseCode != "00")
             {

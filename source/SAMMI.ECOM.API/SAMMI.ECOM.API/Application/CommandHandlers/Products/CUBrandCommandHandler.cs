@@ -55,7 +55,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                     }
                     request.ImageId = imageRes.Result.Id;
                 }
-                // set value for image
+                else
+                {
+                    request.ImageId = null;
+                }
 
                 request.CreatedDate = DateTime.Now;
                 request.CreatedBy = _currentUser.UserName;

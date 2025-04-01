@@ -13,6 +13,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<OrderDTO> GetByCode(int? id = 0, string? code = null);
         Task<ActionResponse<Order>> UpdateStatus(OrderStatusEnum status, int? id = 0, string? code = null);
         Task<decimal> CalculateTotalPrice(int orderId);
+        Task<ActionResponse> UpdateOrderStatus(int id, OrderStatusEnum newStatus, TypeUserEnum type);
     }
     public class OrderRepository : CrudRepository<Order>, IOrderRepository, IDisposable
     {
@@ -143,6 +144,51 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 amount -= totalDiscount;
             }
             return amount;
+        }
+
+        private bool IsValidOrderStatus(OrderStatusEnum currentStatus, OrderStatusEnum newStatus, TypeUserEnum? type = TypeUserEnum.Employee)
+        {
+            switch (currentStatus)
+            {
+                case OrderStatusEnum.Pending:
+                    return newStatus == OrderStatusEnum.WaitingForPayment || newStatus == OrderStatusEnum.Cancelled;
+                case OrderStatusEnum.WaitingForPayment:
+                    return newStatus == OrderStatusEnum.Processing || newStatus == OrderStatusEnum.Cancelled;
+                case OrderStatusEnum.Processing:
+                    if (type == TypeUserEnum.Employee)
+                        return newStatus == OrderStatusEnum.WaitingForPayment || newStatus == OrderStatusEnum.Cancelled;
+                    return newStatus == OrderStatusEnum.WaitingForPayment;
+                case OrderStatusEnum.WaitingForShipment:
+                    if (type == TypeUserEnum.Employee)
+                        return newStatus == OrderStatusEnum.Completed || newStatus == OrderStatusEnum.Cancelled;
+                    return newStatus == OrderStatusEnum.Completed;
+                case OrderStatusEnum.Completed:
+                    return false;
+                case OrderStatusEnum.Cancelled:
+                    return false;
+                default:
+                    return false;
+            }
+        }
+
+        public async Task<ActionResponse> UpdateOrderStatus(int id, OrderStatusEnum newStatus, TypeUserEnum type)
+        {
+            var actRes = new ActionResponse();
+            var order = await GetByIdAsync(id);
+            if (order != null
+                && Enum.TryParse<OrderStatusEnum>(order.OrderStatus, true, out OrderStatusEnum currentStatus)
+                && IsValidOrderStatus(currentStatus, newStatus))
+            {
+                order.OrderStatus = newStatus.ToString();
+                order.UpdatedDate = DateTime.Now;
+                order.UpdatedBy = type == TypeUserEnum.Customer ? "Customer" : UserIdentity.UserName;
+                actRes.Combine(await UpdateAndSave(order));
+            }
+            else
+            {
+                actRes.AddError("Trạng thái đơn hàng không hợp lệ.");
+            }
+            return actRes;
         }
     }
 }

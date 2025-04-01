@@ -19,7 +19,6 @@
         public int? ProvinceId { get; set; }
         public string? ProvinceName { get; set; }
         public string? Username { get; set; }
-        public int? Gender { get; set; }
         public bool? IsLock { get; set; }
 
 
@@ -34,12 +33,16 @@
 
     public class EmployeeDTO : UserDTO
     {
+        public int? Gender { get; set; }
+
         public bool? IsAdmin { get; set; }
         public int RoleId { get; set; }
     }
 
     public class CustomerDTO : UserDTO
     {
+        public int? Gender { get; set; }
+
         public int RoleId { get; set; }
     }
 

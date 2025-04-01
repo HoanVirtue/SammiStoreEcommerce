@@ -39,6 +39,38 @@
         Lost, // (Mất hàng)	Đơn hàng bị thất lạc trong quá trình vận chuyển.
     }
 
+
+    // 1. Cod
+    // b1. mới tạo đơn: OrderStatusEnum = Pending, PaymentStatusEnum = Unpaid, ShippingStatusEnum = Notshipped
+    // cửa hàng đang xử lý đơn hàng, chuẩn bị hàng ...
+    // b2. chuẩn bị đơn hàng: OrderStatusEnum = Processing, PaymentStatusEnum = Unpaid, ShippingStatusEnum = Notshipped
+    // b3. Gửi đơn cho khách: OrderStatusEnum = WaitingForShipment, PaymentStatusEnum = Unpaid, ShippingStatusEnum = Processing
+    // đang gửi đơn cho khách
+    // cho update status ShippingStatusEnum sang mất hàng hoặc đã nhận
+    // -> khách đã nhận được hàng và thanh toán
+    // OrderStatusEnum = Completed, PaymentStatusEnum = Paid, ShippingStatusEnum = Delivered
+
+    // 2. VNPay
+    // b1. mới tạo đơn: OrderStatusEnum = WaitingForPayment, PaymentStatusEnum = Pending, ShippingStatusEnum = Notshipped
+    // đang thanh toán đơn hàng:
+    // cho update status PaymentStatusEnum Paid, Failed
+    // -> khách hàng thanh toán thành công
+    // b2. chuẩn bị đơn hàng: OrderStatusEnum = Processing, PaymentStatusEnum = Paid, ShippingStatusEnum = Notshipped
+    // b3. Gửi đơn cho khách: OrderStatusEnum = WaitingForShipment, PaymentStatusEnum = Paid, ShippingStatusEnum = Processing
+    // đang gửi đơn cho khách
+    // cho update status ShippingStatusEnum sang mất hàng hoặc đã nhận
+    // -> khách đã nhận được hàng
+    // OrderStatusEnum = Completed, PaymentStatusEnum = Paid, ShippingStatusEnum = Delivered
+
+
+
+    // mua tại cửa hàng: không phải phương thức thanh toán nhưng nó ảnh hưởng tới logic bên trên
+    // ShippingStatusEnum = Processing, PaymentStatusEnum = pending, OrderStatusEnum = Processing
+    // 1.cod
+    // khách thanh toán xong -> PaymentStatusEnum = paid//update
+    // update status OrderStatusEnum = Completed
+
+
     public enum PurchaseOrderStatus
     {
         Draft,          // Bản nháp

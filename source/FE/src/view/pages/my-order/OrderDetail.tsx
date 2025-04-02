@@ -248,7 +248,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                             textDecoration: item?.discount > 0 ? "line-through" : "normal",
                                             fontSize: "12px"
                                         }}>
-                                            {formatPrice(item?.price)}đ
+                                            {formatPrice(item?.price)}
                                         </Typography>
                                     </Box>
                                     <Box>
@@ -259,11 +259,11 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                         }}>
                                             {item?.discount > 0 ? (
                                                 <>
-                                                    {formatPrice(item?.price * (100 - item?.discount) / 100)}đ
+                                                    {formatPrice(item?.price * (100 - item?.discount) / 100)}
                                                 </>
                                             ) : (
                                                 <>
-                                                    {formatPrice(item?.price)}đ
+                                                    {formatPrice(item?.price)}
                                                 </>
                                             )}
                                         </Typography>
@@ -310,7 +310,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('product_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {formatPrice(orderData?.itemsPrice)}đ
+                                {formatPrice(orderData?.itemsPrice)}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
@@ -318,7 +318,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('shipping_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {formatPrice(orderData?.shippingPrice)}đ
+                                {formatPrice(orderData?.shippingPrice)}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
@@ -326,7 +326,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('total_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.primary.main }}>
-                                {formatPrice(orderData?.totalPrice)}đ
+                                {formatPrice(orderData?.totalPrice)}
                             </Typography>
                         </Box>
                     </Box>

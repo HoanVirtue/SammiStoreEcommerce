@@ -56,7 +56,7 @@ const CardProductPopular = (props: TProps) => {
               </Typography>
               <Typography color='secondary'>{product?.type?.name}</Typography>
             </Box>
-            <Typography>{formatPrice(product?.price)} VND</Typography>
+            <Typography>{formatPrice(product?.price)}</Typography>
           </MenuItem>
         )
       })}

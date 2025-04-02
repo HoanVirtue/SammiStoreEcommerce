@@ -67,7 +67,7 @@ export default function CheckoutSummary({
                                 </TextMaxLine>
 
                                 <Typography variant="subtitle2" sx={{ mt: 0.5, mb: 1.5 }}>
-                                    {formatPrice(product.price * (100 - product.discount * 100) / 100)}đ
+                                    {formatPrice(product.price * (100 - product.discount * 100) / 100)}
                                 </Typography>
                             </Stack>
                             <Typography variant="subtitle2" sx={{ mt: 0.5, mb: 1.5 }}>
@@ -85,21 +85,21 @@ export default function CheckoutSummary({
                     <Box component="span" sx={{ typography: 'body2' }}>
                         {t('subtotal')}
                     </Box>
-                    {formatPrice(totalPrice)}đ
+                    {formatPrice(totalPrice)}
                 </Stack>
 
                 <Stack direction="row" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
                     <Box component="span" sx={{ typography: 'body2' }}>
                         {t('shipping_fee')}
                     </Box>
-                    +{formatPrice(shippingPrice)}đ
+                    +{formatPrice(shippingPrice)}
                 </Stack>
 
                 <Stack direction="row" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
                     <Box component="span" sx={{ typography: 'body2' }}>
                         {t('discount')}
                     </Box>
-                    -{formatPrice(voucherDiscount)}đ
+                    -{formatPrice(voucherDiscount)}
                 </Stack>
             </Stack>
 
@@ -107,7 +107,7 @@ export default function CheckoutSummary({
 
             <Stack direction="row" justifyContent="space-between" sx={{ typography: 'h6' }}>
                 <Box component="span" sx={{ fontWeight: 'bold' }}>{t('total')}</Box>
-                <Box component="span" sx={{ fontWeight: 'bold' }} color={theme.palette.primary.main}>{formatPrice(Number(totalPrice) + Number(shippingPrice) - Number(voucherDiscount))}đ
+                <Box component="span" sx={{ fontWeight: 'bold' }} color={theme.palette.primary.main}>{formatPrice(Number(totalPrice) + Number(shippingPrice) - Number(voucherDiscount))}
                 </Box>
             </Stack>
 

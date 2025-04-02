@@ -157,14 +157,14 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                         color: itemState?.discount && itemState?.discount > 0 ? theme.palette.grey[500] : theme.palette.primary.main,
                         textDecoration: itemState?.discount && itemState?.discount > 0 ? "line-through" : "none",
                     }}>
-                        {formatPrice(itemState?.price)}đ
+                        {formatPrice(itemState?.price)}
                     </Typography>
                     <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main }}>
                         {itemState?.discount && itemState?.discount > 0 ? (
                             formatPrice(itemState?.price * (100 - itemState?.discount * 100) / 100)
                         ) : (
                             formatPrice(itemState?.price)
-                        )}đ
+                        )}
                     </Typography>
                 </Stack>
 
@@ -211,7 +211,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
 
                 <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, alignItems: 'center' }}>
                     <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main, fontWeight: 600 }}>
-                        {formatPrice(totalPrice)}đ
+                        {formatPrice(totalPrice)}
                     </Typography>
                 </Stack>
 

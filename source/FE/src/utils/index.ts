@@ -131,11 +131,7 @@ export const convertHTMLToDraft = (html: string) => {
 
 export const formatPrice = (value: number | string) => {
     try {
-        return Number(value).toLocaleString(
-            "vi-VN", {
-            minimumFractionDigits: 0
-        }
-        )
+        return Number(value).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
     } catch (error) {
         return value
     }

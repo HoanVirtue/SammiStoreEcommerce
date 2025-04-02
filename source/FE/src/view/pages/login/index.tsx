@@ -35,7 +35,7 @@ import clsx from 'clsx'
 
 //hooks
 import { useAuth } from 'src/hooks/useAuth'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { useTranslation } from '../../../../node_modules/react-i18next'
 
 type TProps = {}
@@ -125,7 +125,7 @@ const LoginPage: NextPage<TProps> = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 flex: 1,
-               
+
             }}>
                 <CssBaseline />
                 <Box sx={{
@@ -136,7 +136,7 @@ const LoginPage: NextPage<TProps> = () => {
                 }}>
                     <Typography component="h1" variant="h5">{t("login")}</Typography>
                     <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
-                        <Box sx={{ mt: 4}}  width={{ md: '18rem', xs: '20rem' }}>
+                        <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                             <Controller
                                 control={control}
                                 rules={{ required: true }}
@@ -156,7 +156,7 @@ const LoginPage: NextPage<TProps> = () => {
                                 name='username'
                             />
                         </Box>
-                        <Box sx={{ mt: 4}}  width={{ md: '18rem', xs: '20rem' }}>
+                        <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                             <Controller
                                 control={control}
                                 rules={{ required: true }}

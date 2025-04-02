@@ -18,9 +18,6 @@ import 'src/configs/i18n'
 import { defaultACLObj } from 'src/configs/acl'
 import themeConfig from 'src/configs/themeConfig'
 
-// ** Third Party Import
-import { Toaster } from 'react-hot-toast'
-
 // ** Contexts
 import { AuthProvider } from 'src/contexts/AuthContext'
 
@@ -33,7 +30,8 @@ import AuthGuard from 'src/components/auth/AuthGuard'
 import FallbackSpinner from 'src/components/fall-back'
 import { SettingsConsumer, SettingsProvider } from 'src/contexts/SettingsContext'
 import AclGuard from 'src/components/auth/AclGuard'
-import ReactHotToast from 'src/components/react-hot-toast'
+
+import CustomToastContainer from 'src/components/react-toastify'
 import { useSettings } from 'src/hooks/useSettings'
 import ThemeComponent from 'src/theme/ThemeComponent'
 import UserLayout from 'src/view/layout/UserLayout'
@@ -97,20 +95,6 @@ export default function App(props: ExtendedAppProps) {
 
   const permission = Component.permission ?? []
 
-  const toastOptions = {
-    success: {
-      className: 'react-hot-toast',
-      style: {
-        background: '#DDF6E8'
-      }
-    },
-    error: {
-      className: 'react-hot-toast',
-      style: {
-        background: '#FDE4D5'
-      }
-    }
-  }
 
   return (
     <Provider store={store}>
@@ -125,7 +109,7 @@ export default function App(props: ExtendedAppProps) {
       </Head>
 
       <QueryClientProvider client={queryClient}>
-      <ReactQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />
+        <ReactQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />
         <AuthProvider>
           <AxiosInterceptor>
             <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
@@ -138,9 +122,7 @@ export default function App(props: ExtendedAppProps) {
                           {getLayout(<Component {...pageProps} />)}
                         </AclGuard>
                       </Guard>
-                      <ReactHotToast>
-                        <Toaster position={settings.toastPosition} toastOptions={toastOptions} />
-                      </ReactHotToast>
+                      <CustomToastContainer />
                     </ThemeComponent>
                   )
                 }}

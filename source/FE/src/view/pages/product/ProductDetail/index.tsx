@@ -41,7 +41,7 @@ import { ROUTE_CONFIG } from 'src/configs/route'
 import { getAllReviews } from 'src/services/review'
 import { TReviewItem } from 'src/types/review'
 import ReviewCard from '../components/ReviewCard'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { resetInitialState } from 'src/stores/review'
 
 type TProps = {}

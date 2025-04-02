@@ -115,8 +115,11 @@ export const getSupplierFields = (): FieldConfig[] => [
 ];
 
 export const getReceiptFields = (): FieldConfig[] => [
-    { value: "code", label: i18n.t("receipt_code"), type: "string", operators: getStringOperators() },
-    { value: "postalCode", label: i18n.t("postal_code"), type: "string", operators: getStringOperators() },
+    { value: "receiptCode", label: i18n.t("receipt_code"), type: "string", operators: getStringOperators() },
+    { value: "receiptDate", label: i18n.t("receipt_date"), type: "date", operators: getDateOperators() },
+    { value: "supplierName", label: i18n.t("supplier_name"), type: "string", operators: getStringOperators() },
+    { value: "totalPrice", label: i18n.t("total_price"), type: "number", operators: getNumberOperators() },
+    { value: "status", label: i18n.t("status"), type: "string", operators: getStringOperators() },
 ];
 
 export const getPaymentMethodFields = (): FieldConfig[] => [

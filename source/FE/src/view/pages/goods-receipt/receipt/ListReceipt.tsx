@@ -16,15 +16,23 @@ import { resetInitialState } from "src/stores/receipt";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
 import CreateUpdateReceipt from "./components/CreateUpdateReceipt";
+import ReceiptDetail from "./components/ReceiptDetail";
 import { getReceiptColumns } from "src/configs/gridColumn";
+
 const ListReceiptPage: NextPage = () => {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = React.useState(0);
+  const [selectedReceiptId, setSelectedReceiptId] = React.useState<string>("");
 
   const columns = getReceiptColumns()
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);
+  };
+
+  const handleDetailClick = (id: string) => {
+    setSelectedReceiptId(id);
+    setCurrentTab(2); // Switch to detail tab
   };
 
   return (
@@ -33,6 +41,7 @@ const ListReceiptPage: NextPage = () => {
         <Tabs value={currentTab} onChange={handleTabChange}>
           <Tab label={t("list_receipt")} />
           <Tab label={t("create_receipt")} />
+          <Tab label={t("receipt_detail")} />
         </Tabs>
       </Box>
 
@@ -59,9 +68,13 @@ const ListReceiptPage: NextPage = () => {
             }}
             noDataText="no_data_receipt"
             onAddClick={() => setCurrentTab(1)}
+            onDetailClick={handleDetailClick}
+            showDetailButton={true}
           />
-        ) : (
+        ) : currentTab === 1 ? (
           <CreateUpdateReceipt />
+        ) : (
+          <ReceiptDetail id={selectedReceiptId} onClose={() => setCurrentTab(0)} />
         )}
       </Box>
     </Box>

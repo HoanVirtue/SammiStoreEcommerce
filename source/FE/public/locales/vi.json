@@ -560,6 +560,8 @@
     "enter_employee_name": "Nhập tên nhân viên",
     "enter_supplier_name": "Nhập tên nhà cung cấp",
     "enter_status": "Nhập trạng thái",
+    "login_error": "Đăng nhập thất bại",
+    "add_to_cart_success": "Thêm sản phẩm vào giỏ hàng thành công",
 
 
     "province_id": "Mã Tỉnh/Thành phố"

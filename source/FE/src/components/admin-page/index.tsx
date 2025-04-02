@@ -7,7 +7,7 @@ import { GridColDef, GridRowSelectionModel, GridSortModel, GridRenderCellParams 
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
 import { useTranslation } from "react-i18next";
-import toast from "react-hot-toast";
+import { toast } from 'react-toastify'
 import { hexToRGBA } from "src/utils/hex-to-rgba";
 import { useDebounce } from "src/hooks/useDebounce";
 import { PAGE_SIZE_OPTIONS } from "src/configs/gridConfig";
@@ -45,6 +45,7 @@ type AdminPageProps = {
   onAddClick?: () => void;
   onDetailClick?: (id: string) => void;
   hiddenAddButton?: boolean;
+  showDetailButton?: boolean;
 };
 
 const AdminPage: NextPage<AdminPageProps> = ({
@@ -61,6 +62,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   permissionKey,
   fieldMapping = {},
   noDataText,
+
   showCreateTab = false,
   showDetailTab = false,
   currentTab = 0,
@@ -68,6 +70,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   onAddClick,
   onDetailClick,
   hiddenAddButton = false,
+  showDetailButton = false,
 }) => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
@@ -221,12 +224,14 @@ const AdminPage: NextPage<AdminPageProps> = ({
     align: "left",
     renderCell: (params: GridRenderCellParams) => (
       <>
-        <GridDetail
-          onClick={() => {
-            setSelectedDetailId(params.row.id);
-            onDetailClick?.(params.row.id);
-          }}
-        />
+        {showDetailButton && (
+          <GridDetail
+            onClick={() => {
+              setSelectedDetailId(params.row.id);
+              onDetailClick?.(params.row.id);
+            }}
+          />
+        )}
         <GridUpdate
           onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
         />

@@ -44,7 +44,7 @@ import { updateAuthMeAsync } from 'src/stores/auth/action'
 import { resetInitialState } from 'src/stores/auth'
 
 //Other
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import FallbackSpinner from 'src/components/fall-back'
 import Spinner from 'src/components/spinner'
 import CustomSelect from 'src/components/custom-select'

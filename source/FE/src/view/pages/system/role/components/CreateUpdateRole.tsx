@@ -28,7 +28,7 @@ import { AppDispatch } from "src/stores"
 import { createRoleAsync, updateRoleAsync } from "src/stores/role/action"
 import { queryKeys } from "src/configs/queryKey";
 import { QueryClient, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { toast } from 'react-toastify'
 import { TParamsCreateRole } from "src/types/role";
 import { useMutationEditRole } from "src/queries/role";
 import { PERMISSIONS } from "src/configs/permission";
@@ -74,12 +74,12 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
         resolver: yupResolver(schema)
     });
 
-    
-  const fetchCreateRole = async (data: TParamsCreateRole) => {
-    const res = await createRole(data)
 
-    return res.data
-  }
+    const fetchCreateRole = async (data: TParamsCreateRole) => {
+        const res = await createRole(data)
+
+        return res.data
+    }
 
     const fetchDetailRole = async (id: string) => {
         const res = await getRoleDetail(id)
@@ -89,42 +89,42 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
     const {
         isPending: isLoadingCreate,
         mutate: mutateCreateRole,
-      } = useMutation({
+    } = useMutation({
         mutationFn: fetchCreateRole,
         mutationKey: [queryKeys.create_role],
         onSuccess: (newRole) => {
-          queryClient.setQueryData([queryKeys.role_list, sortBy, searchBy, -1, -1], (oldData: any) => {
-    
-            return { ...oldData, roles: [...oldData.roles, newRole] }
-          }) // thay vì refetchQueries thì update data trên cache dùng setQueryData
-          onClose()
-          toast.success(t('Create_role_success'))
+            queryClient.setQueryData([queryKeys.role_list, sortBy, searchBy, -1, -1], (oldData: any) => {
+
+                return { ...oldData, roles: [...oldData.roles, newRole] }
+            }) // thay vì refetchQueries thì update data trên cache dùng setQueryData
+            onClose()
+            toast.success(t('Create_role_success'))
         },
         onError: () => {
-          toast.success(t('Create_role_error'))
+            toast.success(t('Create_role_error'))
         },
-      })
-    
-      const {
+    })
+
+    const {
         isPending: isLoadingEdit,
         mutate: mutateEditRole,
-      } = useMutationEditRole({
+    } = useMutationEditRole({
         onSuccess: (newRole) => {
-          queryClient.setQueryData([queryKeys.role_list, sortBy, searchBy, -1, -1], (oldData: any) => {
-            const editedRole = oldData?.roles?.find((item: any) => item._id == newRole._id)
-            if (editedRole) {
-              editedRole.name = newRole?.name
-            }
-    
-            return oldData
-          })
-          onClose()
-          toast.success(t('Update_role_success'))
+            queryClient.setQueryData([queryKeys.role_list, sortBy, searchBy, -1, -1], (oldData: any) => {
+                const editedRole = oldData?.roles?.find((item: any) => item._id == newRole._id)
+                if (editedRole) {
+                    editedRole.name = newRole?.name
+                }
+
+                return oldData
+            })
+            onClose()
+            toast.success(t('Update_role_success'))
         },
         onError: (errr) => {
-          toast.error(t('Update_role_error'))
+            toast.error(t('Update_role_error'))
         },
-      })
+    })
 
     const {
         data: roleDetail,

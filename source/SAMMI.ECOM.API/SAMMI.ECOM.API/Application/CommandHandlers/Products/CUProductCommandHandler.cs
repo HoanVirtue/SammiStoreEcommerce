@@ -112,12 +112,77 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             }
 
             actResponse.SetResult(_mapper.Map<ProductDTO>(createRes.Result));
-
-
             return actResponse;
         }
-
     }
+
+    public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
+    {
+        private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
+        private readonly string[] _allowedMimeTypes = { "image/jpeg", "image/png", "image/gif", "image/bmp" };
+        private const int MaxFileSize = 5 * 1024 * 1024;
+        public CreateProductCommandValidator()
+        {
+            RuleFor(x => x.Name)
+                .NotEmpty()
+                .WithMessage("Tên sản phẩm không được bỏ trống");
+
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithMessage("Mã sản phẩm không được bỏ trống");
+
+            RuleFor(x => x.Discount)
+                .GreaterThan(0)
+                .WithMessage("Giảm giá phải lớn hơn 0 nếu có ngày bắt đầu và ngày kết thúc")
+                .When(x => x.StartDate.HasValue && x.EndDate.HasValue);
+
+            RuleFor(x => x.StartDate)
+                .NotEmpty()
+                .WithMessage("Phải nhập ngày bắt đầu nếu đã nhập ngày kết thúc hoặc có giảm giá")
+                .When(x => x.EndDate.HasValue || (x.Discount.HasValue && x.Discount > 0));
+
+            RuleFor(x => x.EndDate)
+                .NotEmpty()
+                .WithMessage("Phải nhập ngày kết thúc nếu đã nhập ngày bắt đầu hoặc có giảm giá")
+                .When(x => x.StartDate.HasValue || (x.Discount.HasValue && x.Discount > 0));
+
+            RuleFor(x => x.EndDate)
+                .GreaterThanOrEqualTo(x => x.StartDate)
+                .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu")
+                .When(x => x.StartDate.HasValue);
+
+            RuleFor(x => x.StartDate)
+                .NotEmpty()
+                .WithMessage("Ngày bắt đầu không được để trống khi có giảm giá")
+                .Must(x => x.HasValue && x >= DateTime.Now)
+                .WithMessage("Ngày bắt đầu phải lớn hơn hoặc bằng ngày hiện tại")
+                .When(x => x.Discount.HasValue && x.Discount > 0);
+
+            RuleFor(x => x.EndDate)
+                .NotEmpty()
+                .WithMessage("Ngày kết thúc không được để trống khi có giảm giá")
+                .Must(x => x.HasValue && x > DateTime.Now)
+                .WithMessage("Ngày kết thúc phải lớn hơn ngày hiện tại")
+                .When(x => x.Discount.HasValue && x.Discount > 0);
+
+            RuleFor(x => x.Images)
+                .NotEmpty()
+                .WithMessage("Danh sách hình ảnh không được bỏ trống")
+                .Must(x => x != null && x.Any())
+                .WithMessage("Phải có ít nhất 1 hình ảnh")
+                .Must(images => images.All(x => x.DisplayOrder.HasValue && x.DisplayOrder > 0))
+                .WithMessage("Tất cả hình ảnh thứ tự phải lớn hơn 0")
+                .Must(images => images.All(image => IsValidBase64(image.ImageBase64)))
+                .WithMessage("Tất cả hình ảnh phải là chuỗi Base64 hợp lệ.");
+        }
+
+        public static bool IsValidBase64(string base64)
+        {
+            Span<byte> buffer = new Span<byte>(new byte[base64.Length]);
+            return Convert.TryFromBase64String(base64, buffer, out int bytesParsed);
+        }
+    }
+
 
     public class UpdateProductCommandHandler : CustombaseCommandHandler<UpdateProductCommand, ProductDTO>
     {
@@ -243,72 +308,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         }
     }
 
-    public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
-    {
-        private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".bmp" };
-        private readonly string[] _allowedMimeTypes = { "image/jpeg", "image/png", "image/gif", "image/bmp" };
-        private const int MaxFileSize = 5 * 1024 * 1024;
-        public CreateProductCommandValidator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty()
-                .WithMessage("Tên sản phẩm không được bỏ trống");
-
-            RuleFor(x => x.Code)
-                .NotEmpty()
-                .WithMessage("Mã sản phẩm không được bỏ trống");
-
-            RuleFor(x => x.Discount)
-                .GreaterThan(0)
-                .WithMessage("Giảm giá phải lớn hơn 0 nếu có ngày bắt đầu và ngày kết thúc")
-                .When(x => x.StartDate.HasValue && x.EndDate.HasValue);
-
-            RuleFor(x => x.StartDate)
-                .NotEmpty()
-                .WithMessage("Phải nhập ngày bắt đầu nếu đã nhập ngày kết thúc hoặc có giảm giá")
-                .When(x => x.EndDate.HasValue || (x.Discount.HasValue && x.Discount > 0));
-
-            RuleFor(x => x.EndDate)
-                .NotEmpty()
-                .WithMessage("Phải nhập ngày kết thúc nếu đã nhập ngày bắt đầu hoặc có giảm giá")
-                .When(x => x.StartDate.HasValue || (x.Discount.HasValue && x.Discount > 0));
-
-            RuleFor(x => x.EndDate)
-                .GreaterThanOrEqualTo(x => x.StartDate)
-                .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu")
-                .When(x => x.StartDate.HasValue);
-
-            RuleFor(x => x.StartDate)
-                .NotEmpty()
-                .WithMessage("Ngày bắt đầu không được để trống khi có giảm giá")
-                .Must(x => x.HasValue && x >= DateTime.Now)
-                .WithMessage("Ngày bắt đầu phải lớn hơn hoặc bằng ngày hiện tại")
-                .When(x => x.Discount.HasValue && x.Discount > 0);
-
-            RuleFor(x => x.EndDate)
-                .NotEmpty()
-                .WithMessage("Ngày kết thúc không được để trống khi có giảm giá")
-                .Must(x => x.HasValue && x > DateTime.Now)
-                .WithMessage("Ngày kết thúc phải lớn hơn ngày hiện tại")
-                .When(x => x.Discount.HasValue && x.Discount > 0);
-
-            RuleFor(x => x.Images)
-                .NotEmpty()
-                .WithMessage("Danh sách hình ảnh không được bỏ trống")
-                .Must(x => x != null && x.Any())
-                .WithMessage("Phải có ít nhất 1 hình ảnh")
-                .Must(images => images.All(x => x.DisplayOrder.HasValue && x.DisplayOrder > 0))
-                .WithMessage("Tất cả hình ảnh thứ tự phải lớn hơn 0")
-                .Must(images => images.All(image => IsValidBase64(image.ImageBase64)))
-                .WithMessage("Tất cả hình ảnh phải là chuỗi Base64 hợp lệ.");
-        }
-
-        public static bool IsValidBase64(string base64)
-        {
-            Span<byte> buffer = new Span<byte>(new byte[base64.Length]);
-            return Convert.TryFromBase64String(base64, buffer, out int bytesParsed);
-        }
-    }
+    
 
     public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
     {

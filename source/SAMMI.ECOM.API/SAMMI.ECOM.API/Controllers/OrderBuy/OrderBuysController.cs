@@ -119,7 +119,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(updateOrderRes);
         }
 
-        [HttpPost]
+        [HttpPost("update-status-order")]
         public IActionResult UpdateOrderStatus()
         {
             return default;

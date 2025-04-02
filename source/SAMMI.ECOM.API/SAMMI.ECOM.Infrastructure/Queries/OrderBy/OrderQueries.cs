@@ -3,6 +3,8 @@ using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.DomainModels.Products;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.GlobalModels.Common;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
@@ -51,10 +53,11 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.LeftJoin("Payment t8 ON t1.Id = t8.OrderId AND t8.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Product t9 ON t7.ProductId = t9.Id");
                     sqlBuilder.LeftJoin("PaymentMethod t10 ON t8.PaymentMethodId = t10.Id");
+                    sqlBuilder.LeftJoin("ProductImage t11 ON t9.Id = t11.ProductId AND t11.IsDeleted != 1");
 
                     sqlBuilder.Where("t1.Id = @id", new { id });
                     var orderDictonary = new Dictionary<int, OrderDTO>();
-
+                    var imageDictonary = new Dictionary<int, ImageDTO>();
                     var orders = await conn.QueryAsync<OrderDTO, OrderDetailDTO, OrderDTO>(sqlTemplate.RawSql,
                         (order, detail) =>
                         {
@@ -64,6 +67,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                 orderEntry.Details = new List<OrderDetailDTO>();
                                 orderDictonary[order.Id] = orderEntry;
                             }
+
 
                             if (detail != null && orderEntry.Details.All(x => x.Id != detail.Id))
                             {

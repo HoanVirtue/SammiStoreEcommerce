@@ -13,7 +13,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
 import NoData from "src/components/no-data";
-import toast from "react-hot-toast";
+import { toast } from 'react-toastify'
 import { resetInitialState } from "src/stores/address";
 import { createAddressAsync, getAllAddressesAsync, updateAddressAsync } from "src/stores/address/action";
 import CustomSelect from "src/components/custom-select";
@@ -499,9 +499,9 @@ const AddressModal = (props: TAddressModal) => {
                                     {t('cancel')}
                                 </Button>
                             )}
-                            <Button 
-                                type={activeTab === 2 ? "submit" : "button"} 
-                                variant="contained" 
+                            <Button
+                                type={activeTab === 2 ? "submit" : "button"}
+                                variant="contained"
                                 sx={{ mt: 3, mb: 2, py: 1.5 }}
                                 onClick={() => activeTab === 1 && handleAddressSubmit()}
                             >

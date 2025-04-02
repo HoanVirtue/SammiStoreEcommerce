@@ -18,7 +18,6 @@ import {
     IconButton,
     styled,
     useTheme,
-    Autocomplete,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -30,6 +29,7 @@ import { getAllSuppliers } from 'src/services/supplier';
 import { getAllEmployees } from 'src/services/employee';
 import { getAllProducts } from 'src/services/product';
 import CustomTextField from 'src/components/text-field';
+import CustomAutocomplete from 'src/components/custom-autocomplete';
 import Spinner from 'src/components/spinner';
 import { useDispatch } from 'react-redux';
 import { createReceiptAsync } from 'src/stores/receipt/action';
@@ -229,7 +229,7 @@ const CreateUpdateReceipt: React.FC = () => {
 
             const result = await dispatch(createReceiptAsync(receiptData));
 
-            if (result?.payload?.result?.id) {
+            if (result?.payload?.result) {
                 // Success notification or redirect
                 router.push('/goods-receipt/receipt');
             }
@@ -356,26 +356,16 @@ const CreateUpdateReceipt: React.FC = () => {
                                     name="supplierId"
                                     control={control}
                                     render={({ field: { onChange, value } }) => (
-
-                                        <Autocomplete
-                                            fullWidth
-                                            size="small"
+                                        <CustomAutocomplete
                                             options={supplierOptions}
                                             value={supplierOptions.find(option => option.value === value) || null}
-                                            onChange={(_, newValue) => {
+                                            onChange={(newValue) => {
                                                 onChange(newValue?.value || '');
                                             }}
-                                            getOptionLabel={(option) => option.label}
-                                            isOptionEqualToValue={(option, value) => option.value === value.value}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label={t("supplier_name")}
-                                                    error={!!errors.supplierId}
-                                                    helperText={errors.supplierId?.message}
-                                                    placeholder={t("enter_supplier_name")}
-                                                />
-                                            )}
+                                            label={t("supplier_name")}
+                                            error={!!errors.supplierId}
+                                            helperText={errors.supplierId?.message}
+                                            placeholder={t("enter_supplier_name")}
                                         />
                                     )}
                                 />
@@ -386,25 +376,16 @@ const CreateUpdateReceipt: React.FC = () => {
                                     name="employeeId"
                                     control={control}
                                     render={({ field: { onChange, value } }) => (
-                                        <Autocomplete
-                                            fullWidth
-                                            size="small"
+                                        <CustomAutocomplete
                                             options={employeeOptions}
                                             value={employeeOptions.find(option => option.value === value) || null}
-                                            onChange={(_, newValue) => {
+                                            onChange={(newValue) => {
                                                 onChange(newValue?.value || '');
                                             }}
-                                            getOptionLabel={(option) => option.label}
-                                            isOptionEqualToValue={(option, value) => option.value === value.value}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    label={t("employee_name")}
-                                                    error={!!errors.employeeId}
-                                                    helperText={errors.employeeId?.message}
-                                                    placeholder={t("enter_employee_name")}
-                                                />
-                                            )}
+                                            label={t("employee_name")}
+                                            error={!!errors.employeeId}
+                                            helperText={errors.employeeId?.message}
+                                            placeholder={t("enter_employee_name")}
                                         />
                                     )}
                                 />
@@ -457,51 +438,21 @@ const CreateUpdateReceipt: React.FC = () => {
                                                     control={control}
                                                     render={({ field: { onChange, value } }) => (
                                                         <Box>
-                                                            <Autocomplete
-                                                                fullWidth
-                                                                size="small"
+                                                            <CustomAutocomplete
                                                                 options={productOptions}
                                                                 value={productOptions.find(option => option.id === value) || null}
-                                                                onChange={(_, newValue) => {
-                                                                    console.log("Autocomplete onChange:", newValue);
-                                                                    if (newValue) {
+                                                                onChange={(newValue) => {
+                                                                    if (newValue && newValue.id !== undefined) {
                                                                         onChange(newValue.id);
                                                                         handleProductChange(index, newValue.id);
                                                                     } else {
                                                                         onChange(0);
                                                                     }
                                                                 }}
-                                                                getOptionLabel={(option) => option.label}
-                                                                isOptionEqualToValue={(option, value) => option.id === value.id}
-                                                                filterOptions={(options, { inputValue }) => {
-                                                                    return options.filter(option =>
-                                                                        option.label.toLowerCase().includes(inputValue.toLowerCase())
-                                                                    );
-                                                                }}
-                                                                renderInput={(params) => (
-                                                                    <TextField
-                                                                        {...params}
-                                                                        error={!!errors.items?.[index]?.productId}
-                                                                        helperText={errors.items?.[index]?.productId?.message}
-                                                                        placeholder={t("enter_product_name")}
-                                                                        required
-                                                                    />
-                                                                )}
-                                                                renderOption={(props, option) => (
-                                                                    <li {...props}>
-                                                                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                                                                            <Typography variant="body2">{option.label}</Typography>
-                                                                            <Typography variant="caption" color="text.secondary">
-                                                                                {t("product_id")}: {option.id}
-                                                                            </Typography>
-                                                                        </Box>
-                                                                    </li>
-                                                                )}
-                                                                noOptionsText={t("no_products_found")}
-                                                                loadingText={t("loading_products")}
-                                                                openText={t("open")}
-                                                                closeText={t("close")}
-                                                                clearText={t("clear")}
+                                                                error={!!errors.items?.[index]?.productId}
+                                                                helperText={errors.items?.[index]?.productId?.message}
+                                                                placeholder={t("enter_product_name")}
+                                                                required
                                                             />
                                                         </Box>
                                                     )}
@@ -558,7 +509,7 @@ const CreateUpdateReceipt: React.FC = () => {
                                                     disabled
                                                 />
                                             </StyledTableCell>
-                                            <StyledTableCell width="5%" sx={{padding: '6px 24px 6px 16px'}}>
+                                            <StyledTableCell width="5%" sx={{ padding: '6px 24px 6px 16px' }}>
                                                 <IconButton
                                                     color="error"
                                                     onClick={() => handleRemoveItem(index)}

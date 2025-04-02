@@ -31,7 +31,7 @@ import SearchField from 'src/components/search-field'
 import Spinner from 'src/components/spinner'
 
 //toast
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import { OBJECT_TYPE_ERROR } from 'src/configs/error'
 

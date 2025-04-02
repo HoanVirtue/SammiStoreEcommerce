@@ -32,7 +32,7 @@ import CustomPagination from 'src/components/custom-pagination'
 import { TabsProps } from '@mui/material'
 import Spinner from 'src/components/spinner'
 import SearchField from 'src/components/search-field'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { resetInitialState } from 'src/stores/order'
 
 type TProps = {}

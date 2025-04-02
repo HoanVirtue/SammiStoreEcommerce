@@ -24,7 +24,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { resetInitialState } from 'src/stores/product'
 
 //Other
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import Spinner from 'src/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
 import { Tabs } from '@mui/material'
@@ -111,7 +111,7 @@ const MyProductPage: NextPage<TProps> = () => {
         setPage(page)
         setPageSize(pageSize)
         setSearchBy("")
-        handleGetListData(); 
+        handleGetListData();
     }
 
     useEffect(() => {
@@ -227,7 +227,7 @@ const MyProductPage: NextPage<TProps> = () => {
                                     <Box sx={{
                                         padding: "20px",
                                         width: "100%",
-                                       
+
                                     }}>
                                         <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
                                     </Box>

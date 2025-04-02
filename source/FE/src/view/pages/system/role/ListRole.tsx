@@ -35,7 +35,7 @@ import CreateUpdateRole from './components/CreateUpdateRole'
 import Spinner from 'src/components/spinner'
 
 //toast
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import IconifyIcon from 'src/components/Icon'
 import TablePermission from './components/TablePermission'

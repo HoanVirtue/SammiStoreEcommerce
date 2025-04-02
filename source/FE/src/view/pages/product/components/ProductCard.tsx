@@ -20,6 +20,7 @@ import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/stor
 import { useAuth } from 'src/hooks/useAuth';
 import { likeProductAsync, unlikeProductAsync } from 'src/stores/product/action';
 import { ButtonGroup } from '@mui/material';
+import { toast } from 'react-toastify';
 
 interface TProductCard {
     item: TProduct
@@ -96,6 +97,7 @@ const ProductCard = (props: any) => {
                     orderItems: listOrderItems
                 })
             )
+            toast.success(t('add_to_cart_success'))
             setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
         } else {
             router.replace({

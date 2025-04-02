@@ -116,6 +116,7 @@ const ListOrderPage: NextPage<TProps> = () => {
                         DetailComponent={OrderDetail}
                         onDetailClick={handleDetailClick}
                         hiddenAddButton={true}
+                        showDetailButton={true}
                     />
                 ) : (
                     <OrderDetail id={selectedOrderId} onClose={() => setCurrentTab(0)} />

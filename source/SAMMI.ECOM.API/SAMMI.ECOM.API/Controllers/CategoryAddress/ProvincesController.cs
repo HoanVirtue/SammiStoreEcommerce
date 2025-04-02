@@ -17,7 +17,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             IProvinceQueries provinceQueries,
             IProvinceRepository provinRepository,
             IMediator mediator,
-            ILogger<UsersController> logger) : base(mediator, logger)
+            ILogger<ProvincesController> logger) : base(mediator, logger)
         {
             _provinceQueries = provinceQueries;
             _provinRepository = provinRepository;

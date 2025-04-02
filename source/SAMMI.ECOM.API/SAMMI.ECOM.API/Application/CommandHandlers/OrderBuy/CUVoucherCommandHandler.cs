@@ -154,18 +154,18 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
                         vCondi.ConditionValue = regionFormated;
                         break;
-                    //case ConditionTypeEnum.TierLevels:
-                    //    var tierLevels = c.ConditionType.ToString().DeserializeJson<List<TierLevelCommand>>();
-                    //    string valueFormated = string.Join(",", tierLevels.Select(t => $"{t.Level}:{t.Discount}"));
-
-                    //    vCondi.ConditionValue = valueFormated;
-                    //    break;
                     case ConditionTypeEnum.RequiredProducts:
                         var products = c.ConditionType.ToString().DeserializeJson<List<RequiredProductCommand>>();
                         string productFormated = string.Join(",", products.Select(r => r.ProductId));
 
                         vCondi.ConditionValue = productFormated;
                         break;
+                    //case ConditionTypeEnum.TierLevels:
+                    //    var tierLevels = c.ConditionType.ToString().DeserializeJson<List<TierLevelCommand>>();
+                    //    string valueFormated = string.Join(",", tierLevels.Select(t => $"{t.Level}:{t.Discount}"));
+
+                    //    vCondi.ConditionValue = valueFormated;
+                    //    break;
                 }
 
                 listCondition.Add(vCondi);
@@ -187,7 +187,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .WithMessage("Tên chương trình khuyến mãi không được bỏ trống");
 
             RuleFor(x => x.EventId)
-                .NotEmpty()
                 .NotNull()
                 .Must(x => x > 0)
                 .WithMessage("Chương trình khuyến mãi bắt buộc chọn");

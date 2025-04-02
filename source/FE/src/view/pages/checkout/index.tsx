@@ -413,7 +413,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                                         <Typography variant="subtitle1" sx={{ flexGrow: 1, ml: 1 }}>
                                                             {delivery.label}
                                                         </Typography>
-                                                        <Typography variant="h6">{formatPrice(Number(delivery.price))}đ</Typography>
+                                                        <Typography variant="h6">{formatPrice(Number(delivery.price))}</Typography>
                                                     </Stack>
                                                 </Stack>
                                             }

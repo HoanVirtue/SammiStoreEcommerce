@@ -121,27 +121,51 @@ const AuthProvider = ({ children }: Props) => {
     }
   };
 
+
+
+  // const handleLogout = () => {
+  //   logoutAuth().then((res) => {
+  //     setUser(null)
+  //     removeLocalUserData()
+  //     delete instance.defaults.headers.common['Authorization'];
+  //     dispatch(updateProductToCart({
+  //       orderItems: []
+  //     }))
+  //     if (!LIST_PUBLIC_PAGE?.some((item) => router.asPath.includes(item))) {
+  //       if (router.asPath !== '/') {
+  //         router.replace({
+  //           pathname: '/login',
+  //           query: {
+  //             returnUrl: router.asPath
+  //           }
+  //         })
+  //       } else {
+  //         router.replace('/login')
+  //       }
+  //     }
+  //   })
+  // }
+
   const handleLogout = () => {
-    logoutAuth().then((res) => {
-      setUser(null)
-      removeLocalUserData()
-      delete instance.defaults.headers.common['Authorization'];
-      dispatch(updateProductToCart({
-        orderItems: []
-      }))
-      // if (!LIST_PUBLIC_PAGE?.some((item) => router.asPath.includes(item))) {
-      //   if (router.asPath !== '/') {
-      //     router.replace({
-      //       pathname: '/login',
-      //       query: {
-      //         returnUrl: router.asPath
-      //       }
-      //     })
-      //   } else {
-      //     router.replace('/login')
-      //   }
-      // }
-    })
+
+    setUser(null)
+    removeLocalUserData()
+    delete instance.defaults.headers.common['Authorization'];
+    dispatch(updateProductToCart({
+      orderItems: []
+    }))
+    // if (!LIST_PUBLIC_PAGE?.some((item) => router.asPath.includes(item))) {
+    //   if (router.asPath !== '/') {
+    //     router.replace({
+    //       pathname: '/login',
+    //       query: {
+    //         returnUrl: router.asPath
+    //       }
+    //     })
+    //   } else {
+    //     router.replace('/login')
+    //   }
+    // }
   }
 
   const values = {

@@ -160,11 +160,11 @@ const ProductCart = (props: TProps) => {
                                             }}>
                                                 {item.discount && item?.discount > 0 ? (
                                                     <>
-                                                        {formatPrice(item?.price * (100 - item?.discount*100) / 100)}đ
+                                                        {formatPrice(item?.price * (100 - item?.discount*100) / 100)}
                                                     </>
                                                 ) : (
                                                     <>
-                                                        {formatPrice(item?.price)}đ
+                                                        {formatPrice(item?.price)}
                                                     </>
                                                 )}
                                             </Typography>
@@ -175,7 +175,7 @@ const ProductCart = (props: TProps) => {
                                                     textDecoration: "line-through",
                                                     fontSize: "10px"
                                                 }}>
-                                                    {formatPrice(item?.price)}đ
+                                                    {formatPrice(item?.price)}
                                                 </Typography>
                                             ) : ''}
 

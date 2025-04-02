@@ -553,6 +553,13 @@
     "order_information": "Thông tin đơn hàng",
     "payment_delivery_information": "Thông tin thanh toán và giao hàng",
     "delivery_status": "Trạng thái giao hàng",
+    "receipt_date": "Ngày nhập hàng",
+    "unit_price": "Giá sản phẩm",
+    "total_product_price": "Tổng giá",
+    "enter_receipt_code": "Nhập mã phiếu nhập hàng",
+    "enter_employee_name": "Nhập tên nhân viên",
+    "enter_supplier_name": "Nhập tên nhà cung cấp",
+    "enter_status": "Nhập trạng thái",
 
 
     "province_id": "Mã Tỉnh/Thành phố"

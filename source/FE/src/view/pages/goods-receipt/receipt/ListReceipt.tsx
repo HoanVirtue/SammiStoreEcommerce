@@ -16,35 +16,12 @@ import { resetInitialState } from "src/stores/receipt";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
 import CreateUpdateReceipt from "./components/CreateUpdateReceipt";
-
+import { getReceiptColumns } from "src/configs/gridColumn";
 const ListReceiptPage: NextPage = () => {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = React.useState(0);
 
-  const columns: GridColDef[] = [
-    {
-      field: "receipt_name",
-      headerName: t("receipt_name"),
-      flex: 1,
-      minWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>,
-    },
-    {
-      field: "receipt_code",
-      headerName: t("receipt_code"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
-    },
-    {
-      field: "postal_code",
-      headerName: t("postal_code"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.postalCode}</Typography>,
-    },
-
-  ];
+  const columns = getReceiptColumns()
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setCurrentTab(newValue);

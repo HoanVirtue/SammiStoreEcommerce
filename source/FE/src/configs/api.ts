@@ -24,7 +24,7 @@ export const API_ENDPOINT = {
     INDEX: `${BASE_URL}/vouchers`,
   },
   GOODS_RECEIPT: {
-    INDEX: `${BASE_URL}/goods-receipts`,
+    INDEX: `${BASE_URL}/purchase-order`,
   },
   SYSTEM: {
     ROLE: {

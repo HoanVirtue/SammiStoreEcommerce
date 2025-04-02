@@ -47,7 +47,7 @@ const PaymentPage = () => {
       <Card sx={{ padding: 4, borderRadius: "15px" }}>
         <Box sx={{display: 'flex', justifyContent: 'center'}}>
           <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "26px", color: theme.palette.primary.main }}>
-            {formatPrice(paymentData?.totalPrice)} VND
+            {formatPrice(paymentData?.totalPrice)}
           </Typography>
         </Box>
         {paymentData.status === "00" ? (

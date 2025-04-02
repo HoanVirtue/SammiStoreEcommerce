@@ -247,11 +247,11 @@ const ProductCard = (props: any) => {
                     }}>
                         {item?.discount > 0 && memoCheckExpire ? (
                             <>
-                                {formatPrice(item?.price * (100 - item?.discount * 100) / 100)}đ
+                                {formatPrice(item?.price * (100 - item?.discount * 100) / 100)}
                             </>
                         ) : (
                             <>
-                                {formatPrice(item?.price)}đ
+                                {formatPrice(item?.price)}
                             </>
                         )}
                     </Typography>
@@ -262,7 +262,7 @@ const ProductCard = (props: any) => {
                             textDecoration: "line-through",
                             fontSize: "14px"
                         }}>
-                            {formatPrice(item?.price)}đ
+                            {formatPrice(item?.price)}
                         </Typography>
                     )}
                     {item?.discount > 0 && memoCheckExpire && (

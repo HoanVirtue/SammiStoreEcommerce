@@ -43,14 +43,14 @@ const CartSummary = ({
                     <Box component="span" sx={{ typography: 'body2' }}>
                         {t("subtotal")}
                     </Box>
-                    {formatPrice(subtotal)}đ
+                    {formatPrice(subtotal)}
                 </Stack>
 
                 <Stack direction="row" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
                     <Box component="span" sx={{ typography: 'body2' }}>
                         {t("discount")}
                     </Box>
-                    -{formatPrice(discount)}đ
+                    -{formatPrice(discount)}
                 </Stack>
             </Stack>
 
@@ -74,7 +74,7 @@ const CartSummary = ({
             <Stack direction="row" justifyContent="space-between" sx={{ typography: 'h6' }}>
                 <Box component="span" sx={{ fontWeight: 'bold' }}>{t("total")}</Box>
                 <Box component="span" sx={{ fontWeight: 'bold' }} color={theme.palette.primary.main}>
-                    {formatPrice(total)}đ
+                    {formatPrice(total)}
                 </Box>
             </Stack>
 

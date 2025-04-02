@@ -357,11 +357,11 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     }}>
                                         {productData?.discount > 0 && memoCheckExpire ? (
                                             <>
-                                                {formatPrice(productData?.price - (productData?.price * productData?.discount * 100 / 100))}đ
+                                                {formatPrice(productData?.price - (productData?.price * productData?.discount * 100 / 100))}
                                             </>
                                         ) : (
                                             <>
-                                                {formatPrice(productData?.price)}đ
+                                                {formatPrice(productData?.price)}
                                             </>
                                         )}
                                     </Typography>
@@ -372,7 +372,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             textDecoration: "line-through",
                                             fontSize: "18px"
                                         }}>
-                                            {formatPrice(productData?.price)}đ
+                                            {formatPrice(productData?.price)}
                                         </Typography>
                                     )}
                                     {productData?.discount > 0 && memoCheckExpire && (

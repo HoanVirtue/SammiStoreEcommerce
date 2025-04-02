@@ -129,7 +129,7 @@ const OrderDetail = (props: TOrderDetail) => {
                                     </Stack>
 
                                     <Typography variant="subtitle2">
-                                        {formatPrice(item.price)}đ
+                                        {formatPrice(item.price)}
                                     </Typography>
                                 </Stack>
                             ))}
@@ -140,7 +140,7 @@ const OrderDetail = (props: TOrderDetail) => {
                                 <Stack direction="row" justifyContent="space-between">
                                     <Typography variant="body2">{t('subtotal')}</Typography>
                                     <Typography variant="subtitle2">
-                                        {formatPrice(orderData?.totalPrice)}đ
+                                        {formatPrice(orderData?.totalPrice)}
                                     </Typography>
                                 </Stack>
 
@@ -148,13 +148,13 @@ const OrderDetail = (props: TOrderDetail) => {
                                     <Typography variant="body2">
                                         {t('shipping_price')}
                                     </Typography>
-                                    <Typography variant="subtitle2">{formatPrice(orderData?.shippingFee || 0)}đ</Typography>
+                                    <Typography variant="subtitle2">{formatPrice(orderData?.shippingFee || 0)}</Typography>
                                 </Stack>
 
                                 <Stack direction="row" justifyContent="space-between">
                                     <Typography variant="body2">{t('discount')}</Typography>
                                     <Typography variant="subtitle2">
-                                        {formatPrice(orderData?.discount || 0)}đ
+                                        {formatPrice(orderData?.discount || 0)}
                                     </Typography>
                                 </Stack>
 
@@ -163,7 +163,7 @@ const OrderDetail = (props: TOrderDetail) => {
                                 <Stack direction="row" justifyContent="space-between">
                                     <Typography variant="subtitle1" fontWeight='bold'>{t('total')}</Typography>
                                     <Typography variant="subtitle1" fontWeight='bold'>
-                                        {formatPrice(orderData?.totalPrice + (orderData?.shippingFee || 0) - (orderData?.discount || 0))}đ
+                                        {formatPrice(orderData?.totalPrice + (orderData?.shippingFee || 0) - (orderData?.discount || 0))}
                                     </Typography>
                                 </Stack>
                             </Stack>

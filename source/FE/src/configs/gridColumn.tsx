@@ -284,7 +284,7 @@ export const getProductColumns = (): GridColDef[] => {
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
-          <Typography>{`${formatPrice(row?.price)} VND`}</Typography>
+          <Typography>{`${formatPrice(row?.price)}`}</Typography>
         )
       }
     },
@@ -459,4 +459,46 @@ export const getPaymentMethodColumns = (): GridColDef[] => {
       )
     }
   ]
+}
+
+export const getReceiptColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  return [
+    {
+      field: "receipt_code",
+      headerName: t("receipt_code"),
+      flex: 1,
+      minWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
+    },
+    {
+      field: "receipt_date",
+      headerName: t("receipt_date"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.createdDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
+    },
+    {
+      field: "supplier_name",
+      headerName: t("supplier_name"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.supplierName}</Typography>,
+    },
+    {
+      field: "total_price",
+      headerName: t("total_price"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatPrice(params.row.totalPrice)}</Typography>,
+    },
+    {
+      field: "status",
+      headerName: t("status"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.status}</Typography>,
+    },
+  ];
 }

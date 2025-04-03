@@ -56,8 +56,6 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
 
-
-
         [HttpGet]
         public async Task<IActionResult> GetOrdersAsync([FromQuery] RequestFilterModel request)
         {
@@ -96,13 +94,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
 
         // thêm hủy đơn, xác nhận đơn hàng thành công
         [HttpPost("customer/update-status-order/{code}")]
-        public async Task<IActionResult> UpdateStatusOrderCustomerAsync(string code, OrderStatusEnum status = OrderStatusEnum.Cancelled)
+        public async Task<IActionResult> UpdateStatusOrderCustomerAsync(string code, [FromBody]OrderStatusEnum status = OrderStatusEnum.Cancelled)
         {
             if (status != OrderStatusEnum.Cancelled && status != OrderStatusEnum.Completed)
             {
                 return BadRequest("Trạng thái đơn hàng không hợp lệ");
             }
-            var order = await _orderRepository.GetByCode(code: code);
+            var order = await _orderRepository.FindByCode(code);
             if (order == null)
             {
                 return BadRequest("Mã đơn hàng không tồn tại");
@@ -120,9 +118,19 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         [HttpPost("update-status-order")]
-        public IActionResult UpdateOrderStatus()
+        public async Task<IActionResult> UpdateOrderStatusAsync([FromBody]UpdateOrderStatusCommand request)
         {
-            return default;
+            if(!_orderRepository.IsExisted(request.OrderId))
+            {
+                return BadRequest("Mã đơn hàng không tồn tại.");
+            }
+
+            var updateStatus = await _orderRepository.UpdateOrderStatus(request);
+            if (updateStatus.IsSuccess)
+            {
+                return Ok(updateStatus);
+            }
+            return BadRequest(updateStatus);
         }
 
         [HttpPost("create-order")]

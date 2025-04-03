@@ -11,6 +11,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     {
         Task<Payment> GetByOrderCode(string orderCode);
         Task<ActionResponse<Payment>> UpdateStatus(int id, PaymentStatusEnum status);
+        bool IsValidPaymentStatus(PaymentStatusEnum currentStatus, PaymentStatusEnum newStatus);
     }
     public class PaymentRepository : CrudRepository<Payment>, IPaymentRepository, IDisposable
     {
@@ -77,6 +78,20 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 actRes.AddError("Không tìm thấy thông tin thanh toán/trạng thái thanh toán không hợp lệ");
             }
             return actRes;
+        }
+
+        bool IPaymentRepository.IsValidPaymentStatus(PaymentStatusEnum currentStatus, PaymentStatusEnum newStatus)
+        {
+            switch(currentStatus)
+            {
+                case PaymentStatusEnum.Pending:
+                case PaymentStatusEnum.Unpaid:
+                    return newStatus == PaymentStatusEnum.Paid || newStatus == PaymentStatusEnum.Failed;
+                case PaymentStatusEnum.Paid:
+                case PaymentStatusEnum.Failed:
+                default:
+                    return false;
+            }
         }
     }
 }

@@ -101,11 +101,16 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 }
             }
 
+            var paymentMethod = await _methodRepository.GetByIdAsync(request.PaymentMethodId);
+
+
             // create order
             request.CustomerId = _currentUser.Id;
             request.Code = Guid.NewGuid().ToString();
-            request.OrderStatus = OrderStatusEnum.WaitingForPayment.ToString();
             request.ShippingStatus = ShippingStatusEnum.NotShipped.ToString();
+            request.OrderStatus = paymentMethod.Code == PaymentMethodEnum.COD.ToString()
+                ? OrderStatusEnum.WaitingForPayment.ToString()
+                : OrderStatusEnum.Pending.ToString();
             request.CreatedDate = DateTime.Now;
             request.CreatedBy = "System";
 
@@ -188,7 +193,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 OrderId = orderCreated.Id,
                 OrderCode = orderCreated.Code,
                 PaymentAmount = totalAmount,
-                PaymentStatus = PaymentStatusEnum.Pending.ToString(),
+                PaymentStatus = paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString()
+                    ? PaymentStatusEnum.Pending.ToString()
+                    : PaymentStatusEnum.Unpaid.ToString(),
                 PaymentMethodId = request.PaymentMethodId
             };
 
@@ -199,7 +206,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
             var orderResult = _mapper.Map<OrderDTO>(orderCreated);
-            var paymentMethod = await _methodRepository.GetByIdAsync(request.PaymentMethodId);
             if (paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString())
                 orderResult.ReturnUrl = paymentReponse.Result.ReturnUrl;
             actResponse.SetResult(orderResult);

@@ -49,7 +49,10 @@ type AdminPageProps = {
   onTabChange?: (newTab: number) => void;
   onAddClick?: () => void;
   onDetailClick?: (id: string) => void;
-  hiddenAddButton?: boolean;
+  hideAddButton?: boolean;
+  disableUpdateButton?: boolean;
+  disableDeleteButton?: boolean;
+
   showDetailButton?: boolean;
   onCloseCreateTab?: () => void;
   onCloseUpdateTab?: () => void;
@@ -80,7 +83,9 @@ const AdminPage: NextPage<AdminPageProps> = ({
   onTabChange,
   onAddClick,
   onDetailClick,
-  hiddenAddButton = false,
+  hideAddButton = false,
+  disableUpdateButton = false,
+  disableDeleteButton = false,
   showDetailButton = false,
   onCloseCreateTab,
   onCloseUpdateTab,
@@ -247,12 +252,16 @@ const AdminPage: NextPage<AdminPageProps> = ({
             }}
           />
         )}
+
         <GridUpdate
+          disabled={disableUpdateButton}
           onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
         />
         <GridDelete
+          disabled={disableDeleteButton}
           onClick={() => setOpenDelete({ open: true, id: params.row.id })}
         />
+
       </>
     ),
   };
@@ -344,7 +353,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
         <Grid container>
           {currentTab === 0 && (
             <>
-              {!selectedRow.length && !hiddenAddButton && (
+              {!selectedRow.length && !hideAddButton && (
                 <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 4, gap: 4, width: "100%" }}>
                   <GridCreate
                     addText={t(`create_${entityName}`)}

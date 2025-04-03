@@ -571,6 +571,12 @@
     "start_date": "Ngày bắt đầu",
     "event_type": "Loại sự kiện",
     "receipt_detail": "Chi tiết phiếu nhập hàng",
+    "receipt_items": "Danh sách sản phẩm",
+    "draft": "Bản nháp",
+    "pending_approval": "Chờ duyệt",
+    "approved": "Đã duyệt",
+    "processing": "Đang xử lý",
+    "canceled": "Đã hủy bỏ",
 
 
     "province_id": "Mã Tỉnh/Thành phố"

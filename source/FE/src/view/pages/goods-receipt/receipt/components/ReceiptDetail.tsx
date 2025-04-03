@@ -37,7 +37,7 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
     }, [id]);
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: 3, width: '100%' }}>
             {loading && <Spinner />}
             <Paper sx={{ p: 3 }}>
                 <Typography variant="h5" sx={{ mb: 3 }}>{t("receipt_detail")}</Typography>

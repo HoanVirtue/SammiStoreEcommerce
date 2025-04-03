@@ -78,19 +78,19 @@ const ListOrderPage: NextPage<TProps> = () => {
         if (newTab === 0) {
             setSelectedOrderId("")
         }
-      };
-    
-      const handleDetailClick = (id: string) => {
+    };
+
+    const handleDetailClick = (id: string) => {
         setSelectedOrderId(id);
         setShowDetailTab(true);
         setCurrentTab(3);
-      };
-    
-      const handleAddClick = () => {
+    };
+
+    const handleAddClick = () => {
         setCurrentTab(1);
         setShowCreateTab(true);
-      };
-    
+    };
+
 
     return (
         <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
@@ -119,7 +119,10 @@ const ListOrderPage: NextPage<TProps> = () => {
                 currentTab={currentTab}
                 onTabChange={handleTabChange}
                 onDetailClick={handleDetailClick}
-                hiddenAddButton={true}
+                hideAddButton={true}
+                disableUpdateButton={true}
+                disableDeleteButton={true}
+
                 showDetailButton={true}
             />
         </Box>

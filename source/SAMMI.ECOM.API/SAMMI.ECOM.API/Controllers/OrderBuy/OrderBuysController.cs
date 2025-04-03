@@ -76,6 +76,12 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _orderQueries.GetById(id));
         }
 
+        [HttpGet("customer/get-my-orders")]
+        public async Task<IActionResult> GetMyOrders()
+        {
+            return Ok(await _orderQueries.GetOrdersByCustomerId(UserIdentity.Id));
+        }
+
         [HttpGet("customer/{code}")]
         public async Task<IActionResult> GetOrderAsync(string code)
         {

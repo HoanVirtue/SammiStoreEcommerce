@@ -98,5 +98,6 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     return purchaseDTO;
                 });
         }
+
     }
 }

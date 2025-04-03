@@ -502,3 +502,52 @@ export const getReceiptColumns = (): GridColDef[] => {
     },
   ];
 }
+
+export const getEventColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  return [
+    {
+      field: "event_image ",
+      headerName: t("event_image"),
+      flex: 1,
+      minWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Image src={params.row.imageUrl} alt={params.row.name} width={50} height={50} />,
+    },
+    {
+      field: "event_code",
+      headerName: t("event_code"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
+    },
+    {
+      field: "event_name",
+      headerName: t("event_name"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>
+    },
+    {
+      field: "start_date",
+      headerName: t("start_date"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.startDate, { dateStyle: "short", timeStyle: "short" })}</Typography>,
+    },
+    {
+      field: "end_date",
+      headerName: t("end_date"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.endDate, { dateStyle: "short", timeStyle: "short" })}</Typography>,
+    },
+    {
+      field: "event_type",
+      headerName: t("event_type"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.eventType}</Typography>,
+    },
+  ];
+}

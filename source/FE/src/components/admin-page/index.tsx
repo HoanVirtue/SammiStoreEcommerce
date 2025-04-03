@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { NextPage } from "next";
-import { Box, Grid, useTheme, Tabs, Tab } from "@mui/material";
+import { Box, Grid, useTheme, Tabs, Tab, IconButton } from "@mui/material";
 import { GridColDef, GridRowSelectionModel, GridSortModel, GridRenderCellParams } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
@@ -23,6 +23,7 @@ import AdminFilter from "src/components/admin-filter";
 import { TFilter } from "src/configs/filter";
 import { usePermission } from "src/hooks/usePermission";
 import GridDetail from "../grid-detail";
+import CloseIcon from '@mui/icons-material/Close';
 
 type AdminPageProps = {
   entityName: string;
@@ -34,11 +35,15 @@ type AdminPageProps = {
   deleteMultipleAction: (ids: { [key: string]: string[] }) => any;
   resetAction: () => any;
   CreateUpdateComponent?: React.FC<any>;
+  CreateUpdateTabComponent?: React.FC<any>;
   permissionKey: string;
   fieldMapping?: { [key: string]: string };
   noDataText?: string;
   DetailComponent?: React.FC<any>;
+
+  showTab?: boolean;
   showCreateTab?: boolean;
+  showUpdateTab?: boolean;
   showDetailTab?: boolean;
   currentTab?: number;
   onTabChange?: (newTab: number) => void;
@@ -46,6 +51,9 @@ type AdminPageProps = {
   onDetailClick?: (id: string) => void;
   hiddenAddButton?: boolean;
   showDetailButton?: boolean;
+  onCloseCreateTab?: () => void;
+  onCloseUpdateTab?: () => void;
+  onCloseDetailTab?: () => void;
 };
 
 const AdminPage: NextPage<AdminPageProps> = ({
@@ -58,12 +66,15 @@ const AdminPage: NextPage<AdminPageProps> = ({
   deleteMultipleAction,
   resetAction,
   CreateUpdateComponent,
+  CreateUpdateTabComponent,
   DetailComponent,
   permissionKey,
   fieldMapping = {},
   noDataText,
 
+  showTab = false,
   showCreateTab = false,
+  showUpdateTab = false,
   showDetailTab = false,
   currentTab = 0,
   onTabChange,
@@ -71,6 +82,10 @@ const AdminPage: NextPage<AdminPageProps> = ({
   onDetailClick,
   hiddenAddButton = false,
   showDetailButton = false,
+  onCloseCreateTab,
+  onCloseUpdateTab,
+  onCloseDetailTab,
+
 }) => {
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
@@ -263,6 +278,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
         title={t(`confirm_delete_multiple_${entityName}s`)}
         description={t(`are_you_sure_delete_multiple_${entityName}s`)}
       />
+
       {CreateUpdateComponent && (
         <CreateUpdateComponent
           id={openCreateUpdate.id}
@@ -272,12 +288,55 @@ const AdminPage: NextPage<AdminPageProps> = ({
       )}
 
       <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", minHeight: "100vh" }}>
-        {(showCreateTab || showDetailTab) && (
+        {showTab && (
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
             <Tabs value={currentTab} onChange={(_, newValue) => onTabChange?.(newValue)}>
-              <Tab label={t(`list_${entityName}`)} />
-              {showCreateTab && <Tab label={t(`create_${entityName}`)} />}
-              {showDetailTab && <Tab label={t(`detail_${entityName}`)} />}
+              <Tab value={0} label={t(`list_${entityName}`)} />
+              {showCreateTab && <Tab value={1} label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {t(`create_${entityName}`)}
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTabChange?.(0);
+                      onCloseCreateTab?.();
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              } />}
+              {showUpdateTab && <Tab value={2} label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {t(`update_${entityName}`)}
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTabChange?.(0);
+                      onCloseUpdateTab?.();
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              } />}
+              {showDetailTab && <Tab value={3} label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {t(`${entityName}_detail`)}
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTabChange?.(0);
+                      onCloseDetailTab?.();
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              } />}
             </Tabs>
           </Box>
         )}
@@ -341,17 +400,33 @@ const AdminPage: NextPage<AdminPageProps> = ({
               />
             </>
           )}
-          {currentTab === 1 && showCreateTab && CreateUpdateComponent && (
-            <CreateUpdateComponent
-              id={openCreateUpdate.id}
+          {currentTab === 1 && CreateUpdateTabComponent && (
+            <CreateUpdateTabComponent
+              id={""}
               open={true}
-              onClose={() => onTabChange?.(0)}
+              onClose={() => {
+                onTabChange?.(0);
+                onCloseCreateTab?.();
+              }}
             />
           )}
-          {currentTab === 2 && showDetailTab && DetailComponent && (
+          {currentTab === 2 && CreateUpdateTabComponent && (
+            <CreateUpdateTabComponent
+              id={openCreateUpdate.id}
+              open={true}
+              onClose={() => {
+                onTabChange?.(0);
+                onCloseUpdateTab?.();
+              }}
+            />
+          )}
+          {currentTab === 3 && showDetailTab && DetailComponent && (
             <DetailComponent
               id={selectedDetailId}
-              onClose={() => onTabChange?.(0)}
+              onClose={() => {
+                onTabChange?.(0);
+                onCloseDetailTab?.();
+              }}
             />
           )}
         </Grid>

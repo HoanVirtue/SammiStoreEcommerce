@@ -42,4 +42,8 @@ export const ROUTE_CONFIG = {
     GOODS_RECEIPT: {
         RECEIPT: "/goods-receipt/receipt",
     },
+    MANAGE_PROMOTION: {
+        EVENT: "/manage-promotion/event",
+        VOUCHER: "/manage-promotion/voucher",
+    },
 }

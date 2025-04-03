@@ -26,6 +26,9 @@ export const API_ENDPOINT = {
   GOODS_RECEIPT: {
     INDEX: `${BASE_URL}/purchase-order`,
   },
+  EVENT: {
+    INDEX: `${BASE_URL}/events`,
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,

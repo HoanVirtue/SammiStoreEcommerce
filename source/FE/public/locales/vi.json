@@ -562,6 +562,15 @@
     "enter_status": "Nhập trạng thái",
     "login_error": "Đăng nhập thất bại",
     "add_to_cart_success": "Thêm sản phẩm vào giỏ hàng thành công",
+    "voucher_list": "Danh sách mã giảm giá",
+    "event_list": "Danh sách sự kiện",
+    "manage_promotion": "Quản lý khuyến mãi",
+    "event_image": "Hình ảnh sự kiện",
+    "event_code": "Mã sự kiện",
+    "event_name": "Tên sự kiện",
+    "start_date": "Ngày bắt đầu",
+    "event_type": "Loại sự kiện",
+    "receipt_detail": "Chi tiết phiếu nhập hàng",
 
 
     "province_id": "Mã Tỉnh/Thành phố"

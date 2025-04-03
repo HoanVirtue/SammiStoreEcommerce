@@ -157,5 +157,23 @@ export const VerticalLayoutItems = () => {
                 },
             ]
         },
+        {
+            title: t('manage_promotion'),
+            icon: 'lsicon:badge-promotion-outline',
+            children: [
+                {
+                    title: t('event_list'),
+                    icon: 'carbon:event',
+                    path: ROUTE_CONFIG.MANAGE_PROMOTION.EVENT,
+                    // permission: PERMISSIONS.MANAGE_PROMOTION.EVENT.VIEW
+                },
+                {
+                    title: t('voucher_list'),
+                    icon: 'ci:ticket-voucher',
+                    path: ROUTE_CONFIG.MANAGE_PROMOTION.VOUCHER,
+                    // permission: PERMISSIONS.MANAGE_PROMOTION.VOUCHER.VIEW
+                },
+            ]
+        },
     ]
 }

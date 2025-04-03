@@ -57,11 +57,18 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.Select("t3.FullName AS SupplierName");
                     sqlBuilder.Select("t4.*");
                     sqlBuilder.Select("t5.Name AS ProductName");
+                    sqlBuilder.Select("t6.ImageUrl");
 
                     sqlBuilder.InnerJoin("Users t2 ON t1.EmployeeId = t2.Id");
                     sqlBuilder.InnerJoin("Users t3 ON t1.SupplierId = t3.Id");
                     sqlBuilder.LeftJoin("PurchaseOrderDetail t4 ON t1.Id = t4.PurchaseOrderId");
                     sqlBuilder.LeftJoin("Product t5 ON t4.ProductId = t5.Id");
+                    sqlBuilder.LeftJoin(@"(SELECT pi.ProductId, i.ImageUrl
+                                        FROM ProductImage pi
+                                        INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                        WHERE pi.IsDeleted != 1
+                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        ) t6 ON t5.Id = t6.ProductId");
 
                     sqlBuilder.Where("t1.Id = @id", new { id });
                     var purchaseDictionary = new Dictionary<int, PurchaseOrderDTO>();

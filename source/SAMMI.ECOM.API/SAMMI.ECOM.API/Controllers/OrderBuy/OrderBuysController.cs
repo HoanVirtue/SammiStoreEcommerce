@@ -84,7 +84,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 return BadRequest("Mã đơn hàng không tồn tại");
             }
-            if (order != null && order.CustomerId != UserIdentity.Id)
+            if (order.CustomerId != UserIdentity.Id)
             {
                 return BadRequest("Bạn không có quyền cho đơn hàng này.");
             }

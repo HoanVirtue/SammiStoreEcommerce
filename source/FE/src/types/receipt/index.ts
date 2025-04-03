@@ -33,6 +33,11 @@ export type TParamsUpdateReceipt = {
     provinceId?: string,
 }
 
+export type TParamsUpdateReceiptStatus = {
+    purchaseOrderId: number,
+    newStatus: number,
+}
+
 export type TParamsDeleteReceipt = {
     id: string,
 }

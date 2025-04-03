@@ -127,7 +127,7 @@ const UserMenu = (props: TProps) => {
                             variant="dot"
                         >
                             <Avatar sx={{ width: 32, height: 32 }}>
-                                {
+                                {/* {
                                     user?.avatar ? (
                                         <Image src={user?.avatar || ""}
                                             alt={user?.fullName || ""}
@@ -137,10 +137,10 @@ const UserMenu = (props: TProps) => {
                                             height={0} />
                                     )
                                         :
-                                        (
+                                        ( */}
                                             <IconifyIcon icon="ph:user-thin" />
-                                        )
-                                }
+                                        {/* )
+                                } */}
                             </Avatar>
                         </StyledBadge>
                     </IconButton>
@@ -191,7 +191,7 @@ const UserMenu = (props: TProps) => {
                     >
 
                         <Avatar sx={{ width: 32, height: 32 }}>
-                            {
+                            {/* {
                                 user?.avatar ? (
                                     <Image src={user?.avatar || ""}
                                         alt={user?.fullName || ""}
@@ -200,10 +200,10 @@ const UserMenu = (props: TProps) => {
                                         height={0} />
                                 )
                                     :
-                                    (
+                                    ( */}
                                         <IconifyIcon icon="ph:user-thin" />
-                                    )
-                            }
+                                    {/* )
+                            } */}
                         </Avatar>
                     </StyledBadge>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>

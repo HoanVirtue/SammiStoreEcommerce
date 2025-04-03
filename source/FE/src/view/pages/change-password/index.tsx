@@ -29,7 +29,9 @@ import RegisterLight from '/public/images/register-light.png'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import { changePasswordAsync, registerAuthAsync } from 'src/stores/auth/action'
-import toast from 'react-hot-toast'
+
+import { toast } from 'react-toastify'
+
 import FallbackSpinner from 'src/components/fall-back'
 import { resetInitialState } from 'src/stores/auth'
 import { useRouter } from 'next/navigation'

@@ -22,33 +22,12 @@ import address from 'src/stores/address'
 import voucher from 'src/stores/voucher'
 import receipt from 'src/stores/receipt'
 import banner from 'src/stores/banner'
-
+import event from 'src/stores/event'
 
 
 
 export const store = configureStore({
-  reducer: {
-    user,
-    auth,
-    role,
-    deliveryMethod,
-    paymentMethod,
-    province,
-    district,
-    productCategory,
-    product,
-    order,
-    review,
-    ward,
-    brand,
-    employee,
-    customer,
-    supplier,
-    address,
-    voucher,
-    receipt,
-    banner
-  },
+  reducer: { user, auth, role, deliveryMethod, paymentMethod, province, district, productCategory, product, order, review, ward, brand, employee, customer, supplier, address, voucher, receipt, banner, event },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false

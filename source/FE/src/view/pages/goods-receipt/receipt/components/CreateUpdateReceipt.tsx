@@ -32,9 +32,11 @@ import CustomTextField from 'src/components/text-field';
 import CustomAutocomplete from 'src/components/custom-autocomplete';
 import Spinner from 'src/components/spinner';
 import { useDispatch } from 'react-redux';
-import { createReceiptAsync } from 'src/stores/receipt/action';
+import { createReceiptAsync, updateReceiptAsync } from 'src/stores/receipt/action';
 import { useRouter } from 'next/router';
 import { AppDispatch } from 'src/stores';
+import { getReceiptDetail } from 'src/services/receipt';
+import { toast } from 'react-toastify';
 
 interface ReceiptItem {
     id: number;
@@ -53,6 +55,11 @@ interface ReceiptFormData {
     items: ReceiptItem[];
 }
 
+interface CreateUpdateReceiptProps {
+    id?: string;
+    onClose: () => void;
+}
+
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     padding: theme.spacing(1),
     '& .MuiTextField-root': {
@@ -61,15 +68,15 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
 }));
 
-const CreateUpdateReceipt: React.FC = () => {
+const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose }) => {
     const { t } = useTranslation();
     const theme = useTheme();
     const dispatch: AppDispatch = useDispatch();
-    const router = useRouter();
     const [loading, setLoading] = useState(false);
     const [supplierOptions, setSupplierOptions] = useState<{ label: string, value: string }[]>([]);
     const [employeeOptions, setEmployeeOptions] = useState<{ label: string, value: string }[]>([]);
     const [productOptions, setProductOptions] = useState<{ label: string, value: number, price: number, id: number }[]>([]);
+    const [isEditMode, setIsEditMode] = useState(false);
 
     const schema = yup.object().shape({
         receiptCode: yup.string().required(t("receipt_code_required")),
@@ -114,7 +121,7 @@ const CreateUpdateReceipt: React.FC = () => {
         defaultValues,
         mode: 'onChange',
         resolver: yupResolver(schema) as any,
-    })
+    });
 
     const items = watch('items');
 
@@ -204,11 +211,48 @@ const CreateUpdateReceipt: React.FC = () => {
         }
     };
 
+    const fetchReceiptDetail = async (receiptId: string) => {
+        setLoading(true);
+        try {
+            const res = await getReceiptDetail(receiptId);
+            if (res?.result) {
+                const data = res.result;
+                setValue('receiptCode', data.code);
+                setValue('receiptDate', new Date(data.receiptDate));
+                setValue('supplierId', data.supplierId.toString());
+                setValue('employeeId', data.employeeId.toString());
+                setValue('status', data.status.toString());
+                setValue('items', data.details.map((detail: any) => ({
+                    id: detail.id,
+                    productId: detail.productId,
+                    quantity: detail.quantity,
+                    unitPrice: detail.unitPrice,
+                    total: detail.quantity * detail.unitPrice
+                })));
+            }
+        } catch (err) {
+            console.error('Error fetching receipt detail:', err);
+            toast.error(t('error_fetching_receipt_detail'));
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
         fetchAllSupplier();
         fetchAllEmployee();
         fetchAllProducts();
     }, []);
+
+    useEffect(() => {
+        if (id) {
+            setIsEditMode(true);
+            fetchReceiptDetail(id);
+        } else {
+            setIsEditMode(false);
+            reset(defaultValues);
+        }
+    }, [id]);
 
     const onSubmit: SubmitHandler<ReceiptFormData> = async (data) => {
         setLoading(true);
@@ -227,15 +271,22 @@ const CreateUpdateReceipt: React.FC = () => {
                 }))
             };
 
-            const result = await dispatch(createReceiptAsync(receiptData));
-
-            if (result?.payload?.result) {
-                // Success notification or redirect
-                router.push('/goods-receipt/receipt');
+            if (isEditMode && id) {
+                const result = await dispatch(updateReceiptAsync({ id, ...receiptData }));
+                if (result?.payload?.result) {
+                    toast.success(t('update_receipt_success'));
+                    onClose();
+                }
+            } else {
+                const result = await dispatch(createReceiptAsync(receiptData));
+                if (result?.payload?.result) {
+                    toast.success(t('create_receipt_success'));
+                    onClose();
+                }
             }
         } catch (error) {
-            console.error('Error creating receipt:', error);
-            // Error notification
+            console.error('Error saving receipt:', error);
+            toast.error(t('error_saving_receipt'));
         } finally {
             setLoading(false);
         }
@@ -260,14 +311,8 @@ const CreateUpdateReceipt: React.FC = () => {
     };
 
     const handleProductChange = (index: number, productId: number) => {
-        console.log("Product selected:", productId);
-        console.log("Available products:", productOptions);
-
         const selectedProduct = productOptions.find(option => option.id === productId);
-        console.log("Selected product:", selectedProduct);
-
         if (selectedProduct) {
-            console.log("Setting values for product:", selectedProduct);
             setValue(`items.${index}.productId`, selectedProduct.id);
             setValue(`items.${index}.quantity`, 1);
             setValue(`items.${index}.unitPrice`, selectedProduct.price);
@@ -299,10 +344,13 @@ const CreateUpdateReceipt: React.FC = () => {
                     <form onSubmit={handleSubmit(onSubmit)}>
                         {/* Header */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                            <Typography variant="h5">{t("goods_receipt")}</Typography>
+                            <Typography variant="h5">{isEditMode ? t("update_receipt") : t("create_receipt")}</Typography>
                             <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Button variant="outlined" onClick={onClose}>
+                                    {t("cancel")}
+                                </Button>
                                 <Button type="submit" variant="contained" color="primary">
-                                    {t("create")}
+                                    {isEditMode ? t("update") : t("create")}
                                 </Button>
                             </Box>
                         </Box>
@@ -324,6 +372,7 @@ const CreateUpdateReceipt: React.FC = () => {
                                             placeholder={t("enter_receipt_code")}
                                             error={!!errors.receiptCode}
                                             helperText={errors.receiptCode?.message}
+                                            disabled={isEditMode}
                                         />
                                     )}
                                 />
@@ -335,7 +384,6 @@ const CreateUpdateReceipt: React.FC = () => {
                                     render={({ field: { onChange, value } }) => (
                                         <DateTimePicker
                                             value={value}
-                                            disabled
                                             onChange={(newValue) => onChange(newValue)}
                                             slotProps={{
                                                 textField: {

@@ -1,9 +1,7 @@
 "use client";
 
 import { NextPage } from "next";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { useTranslation } from "react-i18next";
-import { Typography } from "@mui/material";
+
 import { getDistrictFields } from "src/configs/gridConfig";
 import CreateUpdateDistrict from "./components/CreateUpdateDistrict";
 import {
@@ -17,7 +15,6 @@ import AdminPage from "src/components/admin-page";
 import { getDistrictColumns } from "src/configs/gridColumn";
 
 const ListDistrictPage: NextPage = () => {
-    const { t } = useTranslation();
 
     const columns = getDistrictColumns();
 

@@ -144,5 +144,13 @@ export const getOrderFields = (): FieldConfig[] => [
     { value: "orderStatus", label: i18n.t("order_status"), type: "string", operators: getStringOperators() },
 ];
 
+export const getEventFields = (): FieldConfig[] => [
+    { value: "event_code", label: i18n.t("event_code"), type: "string", operators: getStringOperators() },
+    { value: "name", label: i18n.t("event_name"), type: "string", operators: getStringOperators() },
+    { value: "start_date", label: i18n.t("start_date"), type: "date", operators: getDateOperators() },
+    { value: "end_date", label: i18n.t("end_date"), type: "date", operators: getDateOperators() },
+    { value: "status", label: i18n.t("status"), type: "string", operators: getStringOperators() },
+];
+
 
 export const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50, 100];

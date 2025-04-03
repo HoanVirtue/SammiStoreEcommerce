@@ -95,7 +95,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                             ProductId = product.Id,
                             ImageId = createImage.Result.Id,
                             CreatedDate = DateTime.Now,
-                            CreatedBy = "System"
+                            CreatedBy = "System",
+                            DisplayOrder = image.DisplayOrder
                         };
                         actResponse.Combine(await _productImageRepository.CreateAndSave(createProductImage));
                         if (!actResponse.IsSuccess)

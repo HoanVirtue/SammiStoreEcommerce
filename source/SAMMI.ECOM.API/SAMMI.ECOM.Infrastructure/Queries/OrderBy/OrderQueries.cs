@@ -43,6 +43,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.Select("t10.Name AS PaymentMethod");
                     sqlBuilder.Select("t7.*");
                     sqlBuilder.Select("t9.Name AS ProductName");
+                    sqlBuilder.Select("t11.ImageUrl");
 
                     sqlBuilder.InnerJoin("Users t2 ON t1.CustomerId = t2.Id");
                     sqlBuilder.LeftJoin("Voucher t3 ON t1.VoucherId = t3.Id");
@@ -53,11 +54,15 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.LeftJoin("Payment t8 ON t1.Id = t8.OrderId AND t8.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Product t9 ON t7.ProductId = t9.Id");
                     sqlBuilder.LeftJoin("PaymentMethod t10 ON t8.PaymentMethodId = t10.Id");
-                    sqlBuilder.LeftJoin("ProductImage t11 ON t9.Id = t11.ProductId AND t11.IsDeleted != 1");
+                    sqlBuilder.LeftJoin(@"(SELECT pi.ProductId, i.ImageUrl
+                                        FROM ProductImage pi
+                                        INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                        WHERE pi.IsDeleted != 1
+                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        ) t11 ON t9.Id = t11.ProductId");
 
                     sqlBuilder.Where("t1.Id = @id", new { id });
                     var orderDictonary = new Dictionary<int, OrderDTO>();
-                    var imageDictonary = new Dictionary<int, ImageDTO>();
                     var orders = await conn.QueryAsync<OrderDTO, OrderDetailDTO, OrderDTO>(sqlTemplate.RawSql,
                         (order, detail) =>
                         {
@@ -83,6 +88,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     var orderDTO = orders.FirstOrDefault();
                     orderDTO.TotalQuantity = orderDTO.Details.Sum(x => x.Quantity);
                     orderDTO.TotalPrice = orderDTO.Details.Sum(x => x.Quantity * x.Price);
+                    
                     return orderDTO;
                 }
             );

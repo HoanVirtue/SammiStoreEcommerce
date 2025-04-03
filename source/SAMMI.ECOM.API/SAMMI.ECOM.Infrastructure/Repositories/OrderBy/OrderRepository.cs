@@ -1,9 +1,13 @@
-﻿using AutoMapper;
+﻿using System.Runtime.CompilerServices;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
+using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
@@ -14,6 +18,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<ActionResponse<Order>> UpdateStatus(OrderStatusEnum status, int? id = 0, string? code = null);
         Task<decimal> CalculateTotalPrice(int orderId);
         Task<ActionResponse> UpdateOrderStatus(int id, OrderStatusEnum newStatus, TypeUserEnum type, string? code = null);
+        Task<ActionResponse> UpdateOrderStatus(UpdateOrderStatusCommand orderStatus);
+        Task<Order> FindByCode(string code);
     }
     public class OrderRepository : CrudRepository<Order>, IOrderRepository, IDisposable
     {
@@ -22,16 +28,19 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         private readonly IMapper _mapper;
         private readonly Lazy<IVoucherRepository> _voucherRepository;
         private readonly Lazy<IPaymentRepository> _paymentRepository;
+        private readonly UserIdentity _currentUser;
         public OrderRepository(
             SammiEcommerceContext context,
             Lazy<IVoucherRepository> voucherRepository,
             Lazy<IPaymentRepository> paymentRepository,
+            UserIdentity currentUser,
             IMapper mapper) : base(context)
         {
             _context = context;
             _mapper = mapper;
             _voucherRepository = voucherRepository;
             _paymentRepository = paymentRepository;
+            _currentUser = currentUser;
         }
 
         public void Dispose()
@@ -103,7 +112,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             return await orderQuery.FirstAsync();
         }
 
-        private async Task<Order> FindByCode(string code)
+        public async Task<Order> FindByCode(string code)
         {
             return await DbSet.FirstOrDefaultAsync(x => x.Code.ToLower() == code.ToLower() && x.IsDeleted != true);
         }
@@ -162,10 +171,6 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                     if (type == TypeUserEnum.Employee)
                         return newStatus == OrderStatusEnum.WaitingForPayment || newStatus == OrderStatusEnum.Cancelled;
                     return newStatus == OrderStatusEnum.WaitingForPayment;
-                case OrderStatusEnum.WaitingForShipment:
-                    if (type == TypeUserEnum.Employee)
-                        return newStatus == OrderStatusEnum.Completed || newStatus == OrderStatusEnum.Cancelled;
-                    return newStatus == OrderStatusEnum.Completed;
                 case OrderStatusEnum.Completed:
                     return false;
                 case OrderStatusEnum.Cancelled:
@@ -211,6 +216,87 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             {
                 actRes.AddError("Trạng thái đơn hàng không hợp lệ.");
             }
+            return actRes;
+        }
+
+        private bool IsValidShippingStatus(ShippingStatusEnum currentStatus, ShippingStatusEnum newStatus)
+        {
+            switch(currentStatus)
+            {
+                case ShippingStatusEnum.NotShipped:
+                case ShippingStatusEnum.Processing:
+                    return newStatus == ShippingStatusEnum.Delivered || newStatus == ShippingStatusEnum.Lost;
+                case ShippingStatusEnum.Delivered:
+                case ShippingStatusEnum.Lost:
+                    return false;
+                default:
+                    return false;
+            }
+        }
+
+        public async Task<ActionResponse> UpdateOrderStatus(UpdateOrderStatusCommand orderStatus)
+        {
+            var actRes = new ActionResponse();
+            var order = await GetByIdAsync(orderStatus.OrderId);
+            if(Enum.TryParse<ShippingStatusEnum>(order.ShippingStatus, true, out ShippingStatusEnum currentShip)
+                && !IsValidShippingStatus(currentShip, orderStatus.ShippingStatus))
+            {
+                actRes.AddError("Trạng thái vận chuyển không hợp lệ");
+                return actRes;
+            }
+
+            var payment = await _paymentRepository.Value.GetByOrderCode(order.Code);
+            if (Enum.TryParse<PaymentStatusEnum>(payment.PaymentStatus, true, out PaymentStatusEnum currentPayment)
+                && !_paymentRepository.Value.IsValidPaymentStatus(currentPayment, orderStatus.PaymentStatus))
+            {
+                actRes.AddError("Trạng thái thanh toán không hợp lệ");
+                return actRes;
+            }
+
+            if (orderStatus.PaymentStatus == PaymentStatusEnum.Paid
+                && orderStatus.ShippingStatus == ShippingStatusEnum.Processing)
+            {
+                order.ShippingStatus = orderStatus.ShippingStatus.ToString();
+                order.OrderStatus = OrderStatusEnum.Processing.ToString();
+                payment.PaymentStatus = orderStatus.PaymentStatus.ToString();
+            }
+            else if (orderStatus.PaymentStatus == PaymentStatusEnum.Paid
+                && orderStatus.ShippingStatus == ShippingStatusEnum.Delivered)
+            {
+                order.ShippingStatus = orderStatus.ShippingStatus.ToString();
+                order.OrderStatus = OrderStatusEnum.Completed.ToString();
+                payment.PaymentStatus = orderStatus.PaymentStatus.ToString();
+            }
+            else if (orderStatus.PaymentStatus == PaymentStatusEnum.Paid
+                && orderStatus.ShippingStatus == ShippingStatusEnum.Lost)
+            {
+                order.ShippingStatus = orderStatus.ShippingStatus.ToString();
+                order.OrderStatus = OrderStatusEnum.Cancelled.ToString();
+                payment.PaymentStatus = orderStatus.PaymentStatus.ToString();
+            }
+            else if (orderStatus.PaymentStatus == PaymentStatusEnum.Unpaid
+                && orderStatus.ShippingStatus == ShippingStatusEnum.Processing)
+            {
+                order.ShippingStatus = orderStatus.ShippingStatus.ToString();
+                order.OrderStatus = OrderStatusEnum.Processing.ToString();
+                payment.PaymentStatus = orderStatus.PaymentStatus.ToString();
+            }
+            else
+            {
+                actRes.AddError("Cập nhật trạng thái đơn hàng không hợp lệ.");
+                return actRes;
+            }
+
+            order.UpdatedBy = _currentUser.UserName;
+            order.UpdatedDate = DateTime.Now;
+            actRes.Combine(await UpdateAndSave(order));
+            if (!actRes.IsSuccess)
+            {
+                return actRes;
+            }
+            payment.UpdatedBy = _currentUser.UserName;
+            payment.UpdatedDate = DateTime.Now;
+            actRes.Combine(await _paymentRepository.Value.UpdateAndSave(payment));
             return actRes;
         }
     }

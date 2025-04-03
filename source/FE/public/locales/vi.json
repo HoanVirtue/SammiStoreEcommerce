@@ -577,6 +577,8 @@
     "approved": "Đã duyệt",
     "processing": "Đang xử lý",
     "canceled": "Đã hủy bỏ",
+    "apply": "Áp dụng",
+    "status_updated_successfully": "Cập nhật trạng thái phiếu nhập hàng thành công",
 
 
     "province_id": "Mã Tỉnh/Thành phố"

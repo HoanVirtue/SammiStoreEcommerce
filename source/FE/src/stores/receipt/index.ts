@@ -80,7 +80,7 @@ export const receiptSlice = createSlice({
       state.isLoading = false
       state.receipts.data = []
       state.receipts.total = 0
-    })
+    })  
 
     //create Receipt
     builder.addCase(createReceiptAsync.pending, (state, action) => {

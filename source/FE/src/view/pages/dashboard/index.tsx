@@ -120,19 +120,19 @@ const DashboardPage = () => {
       })
   }
 
-  const fetchListProductPopular = async () => {
-    setLoading(true)
-    await getAllProducts({ params: { limit: 5, page: 1, order: 'sold desc' } })
-      .then(res => {
-        const data = res?.data
-        setLoading(false)
-        setListProductPopular(data?.products)
-      })
+  // const fetchListProductPopular = async () => {
+  //   setLoading(true)
+  //   await getAllProducts({ params: { limit: 5, page: 1, order: 'sold desc' } })
+  //     .then(res => {
+  //       const data = res?.data
+  //       setLoading(false)
+  //       setListProductPopular(data?.products)
+  //     })
 
-      .catch(e => {
-        setLoading(false)
-      })
-  }
+  //     .catch(e => {
+  //       setLoading(false)
+  //     })
+  // }
 
   useEffect(() => {
     fetchAllCountRecords()
@@ -140,7 +140,7 @@ const DashboardPage = () => {
     fetchAllTotalRevenues()
     fetchAllCountUserType()
     fetchAllCountStatusOrder()
-    fetchListProductPopular()
+    // fetchListProductPopular()
   }, [])
 
   return (

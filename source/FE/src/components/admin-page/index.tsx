@@ -24,6 +24,9 @@ import { TFilter } from "src/configs/filter";
 import { usePermission } from "src/hooks/usePermission";
 import GridDetail from "../grid-detail";
 import CloseIcon from '@mui/icons-material/Close';
+import StatusUpdateHeader from "../status-update-header";
+import { RECEIPT_STATUS } from "src/configs/receipt";
+import { updateReceiptStatusAsync } from "src/stores/receipt/action";
 
 type AdminPageProps = {
   entityName: string;
@@ -174,6 +177,18 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const handleDeleteMultiple = () => {
     setIsDeleting(true);
     dispatch(deleteMultipleAction({ [`${entityName}Ids`]: selectedRow }));
+  };
+
+  const statusOptions = Object.values(RECEIPT_STATUS());
+
+  const handleStatusUpdate = (newStatus: string) => {
+    selectedRow.forEach(id => {
+      dispatch(updateReceiptStatusAsync({
+        purchaseOrderId: parseInt(id),
+        newStatus: parseInt(newStatus)
+      }));
+    });
+    setSelectedRow([]);
   };
 
   const handleAction = (action: string) => action === "delete" && DELETE && setOpenDeleteMultiple(true);
@@ -367,8 +382,17 @@ const AdminPage: NextPage<AdminPageProps> = ({
                   onClear={() => setSelectedRow([])}
                   actions={[{ label: t("delete"), value: "delete" }]}
                   handleAction={handleAction}
+                  selectedRows={selectedRow}
                 />
               )}
+              {/* {selectedRow.length > 0 && (
+                <StatusUpdateHeader
+                  selectedRows={selectedRow}
+                  onStatusUpdate={handleStatusUpdate}
+                  statusOptions={statusOptions}
+                  onClear={() => setSelectedRow([])}
+                />
+              )} */}
               <CustomDataGrid
                 rows={data}
                 columns={allColumns}

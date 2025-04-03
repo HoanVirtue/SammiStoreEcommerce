@@ -1,10 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 //services
-import { createReceipt, deleteMultipleReceipts, deleteReceipt, getAllReceipts, updateReceipt } from "src/services/receipt";
+import { createReceipt, deleteMultipleReceipts, deleteReceipt, getAllReceipts, updateReceipt, updateReceiptStatus } from "src/services/receipt";
 
 //types
-import { TParamsCreateReceipt, TParamsDeleteMultipleReceipts, TParamsGetAllReceipts, TParamsUpdateReceipt } from "src/types/receipt";
+import { TParamsCreateReceipt, TParamsDeleteMultipleReceipts, TParamsGetAllReceipts, TParamsUpdateReceipt, TParamsUpdateReceiptStatus } from "src/types/receipt";
 
 export const serviceName = 'receipt'
 
@@ -15,6 +15,11 @@ export const getAllReceiptsAsync = createAsyncThunk(`${serviceName}/get-all`, as
 
 export const createReceiptAsync = createAsyncThunk(`${serviceName}/create`, async (data: TParamsCreateReceipt) => {
     const response = await createReceipt(data)
+    return response
+})
+
+export const updateReceiptStatusAsync = createAsyncThunk(`${serviceName}/update-status`, async (data: TParamsUpdateReceiptStatus) => {
+    const response = await updateReceiptStatus(data)
     return response
 })
 

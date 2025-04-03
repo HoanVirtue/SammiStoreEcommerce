@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateReceipt, TParamsDeleteMultipleReceipts, TParamsGetAllReceipts, TParamsUpdateReceipt } from "src/types/receipt"
+import { TParamsCreateReceipt, TParamsDeleteMultipleReceipts, TParamsGetAllReceipts, TParamsUpdateReceipt, TParamsUpdateReceiptStatus } from "src/types/receipt"
 
 export const getAllReceipts = async (data: { params: TParamsGetAllReceipts }) => {
     try {
@@ -14,6 +14,16 @@ export const getAllReceipts = async (data: { params: TParamsGetAllReceipts }) =>
 export const createReceipt = async (data: TParamsCreateReceipt) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}`, data)
+        return res.data
+    }
+    catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const updateReceiptStatus = async (data: TParamsUpdateReceiptStatus) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/update-status`, data)
         return res.data
     }
     catch (error: any) {

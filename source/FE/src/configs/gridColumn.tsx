@@ -4,6 +4,7 @@ import { styled, Chip, ChipProps, Typography, useTheme } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { formatDate, formatPrice } from 'src/utils'
 import Image from 'src/components/image'
+import { getReceiptStatusLabel } from 'src/configs/receipt'
 
 const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   backgroundColor: "#28c76f29",
@@ -498,7 +499,7 @@ export const getReceiptColumns = (): GridColDef[] => {
       headerName: t("status"),
       minWidth: 200,
       maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.status}</Typography>,
+      renderCell: (params: GridRenderCellParams) => <Typography>{getReceiptStatusLabel(params.row.status)}</Typography>,
     },
   ];
 }

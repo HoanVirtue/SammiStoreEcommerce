@@ -37,6 +37,7 @@ import { useRouter } from 'next/router';
 import { AppDispatch } from 'src/stores';
 import { getReceiptDetail } from 'src/services/receipt';
 import { toast } from 'react-toastify';
+import { RECEIPT_STATUS } from 'src/configs/receipt';
 
 interface ReceiptItem {
     id: number;
@@ -77,6 +78,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose }
     const [employeeOptions, setEmployeeOptions] = useState<{ label: string, value: string }[]>([]);
     const [productOptions, setProductOptions] = useState<{ label: string, value: number, price: number, id: number }[]>([]);
     const [isEditMode, setIsEditMode] = useState(false);
+    const statusOptions = RECEIPT_STATUS();
 
     const schema = yup.object().shape({
         receiptCode: yup.string().required(t("receipt_code_required")),
@@ -280,7 +282,6 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose }
             } else {
                 const result = await dispatch(createReceiptAsync(receiptData));
                 if (result?.payload?.result) {
-                    toast.success(t('create_receipt_success'));
                     onClose();
                 }
             }
@@ -442,17 +443,17 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose }
                                 <Controller
                                     name="status"
                                     control={control}
-                                    render={({ field: { onChange, onBlur, value } }) => (
-                                        <CustomTextField
-                                            fullWidth
-                                            required
+                                    render={({ field: { onChange, value } }) => (
+                                        <CustomAutocomplete
+                                            options={Object.values(statusOptions)}
+                                            value={Object.values(statusOptions).find(option => option.value === value) || null}
+                                            onChange={(newValue) => {
+                                                onChange(newValue?.value || '');
+                                            }}
                                             label={t("status")}
-                                            onChange={onChange}
-                                            onBlur={onBlur}
-                                            value={value}
-                                            placeholder={t("enter_status")}
                                             error={!!errors.status}
                                             helperText={errors.status?.message}
+                                            placeholder={t("select_status")}
                                         />
                                     )}
                                 />

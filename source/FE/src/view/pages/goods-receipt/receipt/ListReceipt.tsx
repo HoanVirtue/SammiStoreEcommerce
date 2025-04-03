@@ -79,7 +79,9 @@ const ListReceiptPage: NextPage = () => {
         onTabChange={handleTabChange}
         onAddClick={handleAddClick}
         onDetailClick={handleDetailClick}
-        hiddenAddButton={false}
+        hideAddButton={false}
+        disableUpdateButton={true}
+        disableDeleteButton={true}  
         showDetailButton={true}
         onCloseCreateTab={() => setShowCreateTab(false)}
         onCloseDetailTab={() => setShowDetailTab(false)}

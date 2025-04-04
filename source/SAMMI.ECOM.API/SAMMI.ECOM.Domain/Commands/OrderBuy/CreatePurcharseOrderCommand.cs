@@ -34,6 +34,12 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public PurchaseOrderStatus NewStatus { get; set; }
     }
 
+    public class UpdatePurchasesStatusCommand
+    {
+        public List<int> PurchaseOrderIds { get; set; }
+        public PurchaseOrderStatus NewStatus { get; set; }
+    }
+
     public class PurchaseOrderDetailCommand
     {
         public int PurchaseOrderId { get; set; }

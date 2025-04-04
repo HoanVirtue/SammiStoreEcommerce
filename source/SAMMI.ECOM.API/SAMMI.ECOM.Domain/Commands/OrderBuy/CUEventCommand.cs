@@ -6,7 +6,7 @@ using SAMMI.ECOM.Domain.Enums;
 
 namespace SAMMI.ECOM.Domain.Commands.OrderBuy
 {
-    public class CUEventCommand : IRequest<ActionResponse<EventDTO>>
+    public class UpdateEventCommand : IRequest<ActionResponse<EventDTO>>
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
@@ -25,5 +25,10 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }
+    }
+
+    public class CreateEventCommand : UpdateEventCommand
+    {
+        public List<CUVoucherCommand> Vouchers { get; set; }
     }
 }

@@ -504,6 +504,77 @@ export const getReceiptColumns = (): GridColDef[] => {
   ];
 }
 
+
+export const getVoucherColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  return [
+    {
+      field: "voucher_code",
+      headerName: t("voucher_code"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
+    },
+    {
+      field: "voucher_name",
+      headerName: t("voucher_name"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>
+    },
+    {
+      field: "event_name",
+      headerName: t("event_name"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.eventName}</Typography>
+    },
+    {
+      field: "start_date",
+      headerName: t("start_date"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.startDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
+    },
+    {
+      field: "end_date",
+      headerName: t("end_date"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.endDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
+    },  
+    {
+      field: "discount_name",
+      headerName: t("discount_name"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.discountName}</Typography>,
+    },
+    {
+      field: "discount_value",
+      headerName: t("discount_value"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.discountValue}</Typography>,
+    },
+    {
+      field: "usage_limit",
+      headerName: t("usage_limit"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.usageLimit}</Typography>,
+    },
+    {
+      field: "used_count",
+      headerName: t("used_count"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.usedCount}</Typography>,
+    },
+  ];
+}
+
 export const getEventColumns = (): GridColDef[] => {
   const { t } = useTranslation()
   const theme = useTheme()

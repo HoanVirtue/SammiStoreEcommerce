@@ -10,6 +10,8 @@ import { updateReceiptStatus } from 'src/services/receipt'
 import CustomAutocomplete from '../custom-autocomplete'
 import { AutocompleteOption } from '../custom-autocomplete'
 import { toast } from 'react-toastify'
+import { useSelector } from 'react-redux'
+import { RootState } from 'src/stores'
 
 const StyledTableHeader = styled(Box)(({ theme }) => ({
     borderRadius: "15px",
@@ -34,6 +36,8 @@ const TableHeader = (props: TProp) => {
     //Props
     const { selectedRowNumber, onClear, actions, handleAction, selectedRows } = props
 
+    const { isSuccessUpdateStatus, errorMessageUpdateStatus } = useSelector((state: RootState) => state.receipt)
+
     // ** Hook
     const theme = useTheme()
     const { t } = useTranslation()
@@ -49,18 +53,22 @@ const TableHeader = (props: TProp) => {
     const handleApplyStatus = async () => {
         if (selectedStatus && selectedRows.length > 0) {
             try {
-                await Promise.all(selectedRows.map(row =>
+                const res: any = await Promise.all(selectedRows.map(row =>
                     updateReceiptStatus({
                         purchaseOrderId: parseInt(row),
                         newStatus: parseInt(selectedStatus.value as string)
                     })
                 ))
-                toast   .success(t("status_updated_successfully"))
 
+                if (res[0].isSuccess) {
+                    toast.success(t("status_updated_successfully"))
+                } else {
+                    toast.error(res[0].message)
+                }
                 setSelectedStatus(null)
                 onClear()
             } catch (error) {
-                console.error('Error updating status:', error)
+                toast.error(t("error_updating_status"))
             }
         }
     }

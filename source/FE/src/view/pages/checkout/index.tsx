@@ -63,7 +63,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const [selectedDelivery, setSelectedDelivery] = useState<string>('');
     const [openWarning, setOpenWarning] = useState(false)
     const [openAddress, setOpenAddress] = useState(false)
-    const [address, setAddress] = useState<TParamsAddresses>()
+    const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>()
     const [openVoucher, setOpenVoucher] = useState(false)
 
     const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
@@ -80,7 +80,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const { isLoading, isSuccessCreate, isErrorCreate, errorMessageCreate, orderItems } = useSelector(
         (state: RootState) => state.order
     );
-    const { addresses } = useSelector((state: RootState) => state.address);
+    const { addresses, currentAddress } = useSelector((state: RootState) => state.address);
 
     const breadcrumbItems = [
         { label: t('home'), href: '/', icon: <IconifyIcon color="primary" icon="healthicons:home-outline" /> },
@@ -117,8 +117,9 @@ const CheckoutPage: NextPage<TProps> = () => {
         return result;
     }, [router.query, orderItems]);
 
-    const currentAddress = async () => {
-        await getCurrentAddress()
+    const getMyCurrentAddress = async () => {
+        const res = await getCurrentAddress()
+        setMyCurrentAddress(res?.result)
     }
 
     const memoShippingPrice = useMemo(() => {
@@ -126,11 +127,6 @@ const CheckoutPage: NextPage<TProps> = () => {
         return shippingPrice ? Number(shippingPrice) : 0;
     }, [selectedDelivery]);
 
-    const memoAddressDefault = useMemo(() => {
-        const findAddress = addresses?.data?.find((item: TParamsAddresses) => item.isDefault)
-
-        return findAddress as TParamsAddresses | undefined
-    }, [addresses])
 
     const memoVoucherDiscountPrice = useMemo(() => {
         let discountPrice = 0;
@@ -226,6 +222,11 @@ const CheckoutPage: NextPage<TProps> = () => {
         }
     }
 
+    useEffect(() => {
+        getListPaymentMethod();
+        getMyCurrentAddress()
+    }, []);
+
     const handlePlaceOrder = () => {
         const subtotal = Number(memoQueryProduct.totalPrice);
         const shipping = Number(memoShippingPrice);
@@ -250,7 +251,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 shippingStatus: 'pending',
                 voucherId: Number(selectedVoucherId),
                 wardId: 20,
-                customerAddress: `${memoAddressDefault?.streetAddress}, ${memoAddressDefault?.wardName}, ${memoAddressDefault?.districtName}, ${memoAddressDefault?.provinceName}`,
+                customerAddress: `${myCurrentAddress?.streetAddress}, ${myCurrentAddress?.wardName}, ${myCurrentAddress?.districtName}, ${myCurrentAddress?.provinceName}`,
                 costShip: memoShippingPrice,
                 trackingNumber: '',
                 estimatedDeliveryDate: '2025-03-20T11:40:42.001Z',
@@ -274,11 +275,6 @@ const CheckoutPage: NextPage<TProps> = () => {
         });
     };
 
-    useEffect(() => {
-        getListPaymentMethod();
-        // getListDeliveryMethod();
-        currentAddress()
-    }, []);
 
     useEffect(() => {
         const data: any = router.query
@@ -362,7 +358,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                             {user?.fullName} {user?.phone}
                                         </Typography>
                                         <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
-                                            {memoAddressDefault?.streetAddress}, {memoAddressDefault?.wardName}, {memoAddressDefault?.districtName}, {memoAddressDefault?.provinceName}
+                                            {myCurrentAddress?.streetAddress}, {myCurrentAddress?.wardName}, {myCurrentAddress?.districtName}, {myCurrentAddress?.provinceName}
                                         </Typography>
                                         <Button variant="outlined" size="small"
                                             onClick={() => setOpenAddress(true)}>

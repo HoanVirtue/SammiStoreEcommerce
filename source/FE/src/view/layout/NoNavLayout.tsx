@@ -27,10 +27,10 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
                             ? theme.palette.grey[100]
                             : theme.palette.grey[900],
                     flexGrow: 1,
-                    height: '100vh',
+                    // height: '100vh',
                     overflow: 'auto',
-                    overflowX: 'hidden', // Prevent horizontal scroll
-                    width: '100%' // Ensure width is constrained
+                    overflowX: 'hidden', 
+                    width: '100%' 
                 }}
             >
                 <Toolbar />

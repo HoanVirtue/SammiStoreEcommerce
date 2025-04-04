@@ -1,7 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 //services
-import { createVoucher, deleteMultipleVouchers, deleteVoucher, getAllVouchers, updateVoucher } from "src/services/voucher";
+import { createVoucher, deleteMultipleVouchers, deleteVoucher, getAllVouchers, updateVoucher, getVoucherCode } from "src/services/voucher";
 
 //types
 import { TParamsCreateVoucher, TParamsDeleteMultipleVouchers, TParamsGetAllVouchers, TParamsUpdateVoucher } from "src/types/voucher";
@@ -10,6 +10,11 @@ export const serviceName = 'voucher'
 
 export const getAllVouchersAsync = createAsyncThunk(`${serviceName}/get-all`, async (data: {params: TParamsGetAllVouchers}) => {
     const response = await getAllVouchers(data)
+    return response
+})
+
+export const getVoucherCodeAsync = createAsyncThunk(`${serviceName}/get-code`, async (data: {params: TParamsGetAllVouchers}) => {
+    const response = await getVoucherCode(data)
     return response
 })
 

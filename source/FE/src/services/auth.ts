@@ -14,7 +14,7 @@ export const loginAuth = async (data: TLoginAuth) => {
         password: data.password,
         rememberMe: data.rememberMe || true,
         returnUrl: data.returnUrl || '/',   
-        isEmployee: data.isEmployee || true,
+        isEmployee: data.isEmployee || false,
       });
 
       return res.data;

@@ -30,6 +30,10 @@ const initialState = {
   addresses: {
     data: [],
     total: 0
+  },
+  currentAddress: {
+    data: [],
+    total: 0
   }
 }
 
@@ -84,13 +88,13 @@ export const addressesSlice = createSlice({
     })
     builder.addCase(getCurrentAddressAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.addresses.data = Array.isArray(action?.payload?.result) ? action?.payload?.result : [];
-      state.addresses.total = action?.payload?.result?.totalItemCount
+      state.currentAddress.data = Array.isArray(action?.payload?.result) ? action?.payload?.result : [];
+      state.currentAddress.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getCurrentAddressAsync.rejected, (state, action) => {
       state.isLoading = false
-      state.addresses.data = []
-      state.addresses.total = 0
+      state.currentAddress.data = []
+      state.currentAddress.total = 0
     })
 
     //create Address

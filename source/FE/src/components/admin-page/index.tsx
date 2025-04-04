@@ -281,7 +281,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
     ),
   };
 
-  const allColumns = [...columns, actionColumn];
+  const allColumns = [actionColumn,...columns];
 
   return (
     <>

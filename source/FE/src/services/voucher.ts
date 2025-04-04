@@ -20,6 +20,15 @@ export const getMyVouchers = async (data: { params: TParamsGetAllVouchers }) => 
     }
 }
 
+export const getVoucherCode = async (data: { params: TParamsGetAllVouchers }) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.VOUCHER.INDEX}/get-code-by-last-id`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const createVoucher = async (data: TParamsCreateVoucher) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.VOUCHER.INDEX}`, data)

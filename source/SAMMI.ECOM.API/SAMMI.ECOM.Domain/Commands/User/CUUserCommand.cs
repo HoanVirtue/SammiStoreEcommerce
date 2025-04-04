@@ -57,7 +57,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
     public class CUCustomerCommand : CUUserCommand, IRequest<ActionResponse<CustomerDTO>>
     {
         public int? Gender { get; set; }
-        public string Username { get; set; }
+        public string? Username { get; set; }
         public string? Password { get; set; }
         public string? SecurityStamp { get; set; }
         public int? RoleId { get; set; }

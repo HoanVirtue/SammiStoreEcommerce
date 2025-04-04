@@ -40,7 +40,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CUEventCommand request)
+        public async Task<IActionResult> Post([FromBody] CreateEventCommand request)
         {
             if (request.Id != 0)
             {
@@ -55,7 +55,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CUEventCommand request)
+        public async Task<IActionResult> Put(int id, [FromBody] UpdateEventCommand request)
         {
             if (id != request.Id)
             {

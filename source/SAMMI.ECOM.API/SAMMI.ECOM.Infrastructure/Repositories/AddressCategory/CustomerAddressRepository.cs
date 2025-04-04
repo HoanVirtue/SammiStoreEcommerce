@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels;
 using SAMMI.ECOM.Domain.DomainModels.CategoryAddress;
 using SAMMI.ECOM.Repository.GenericRepositories;
@@ -9,6 +10,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.AddressCategory
     public interface ICustomerAddressRepository : ICrudRepository<CustomerAddress>
     {
         Task<CustomerAddressDTO> GetDefaultByUserId(int userId);
+        Task<List<CustomerAddress>> GetByUserId(int userId);
     }
     public class CustomerAddressRepository : CrudRepository<CustomerAddress>, ICustomerAddressRepository, IDisposable
     {
@@ -37,6 +39,28 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.AddressCategory
                 addressDefault = await DbSet.SingleOrDefaultAsync(x => x.CustomerId == userId && x.IsDeleted != true);
             }
             return _mapper.Map<CustomerAddressDTO>(addressDefault);
+        }
+
+        public async Task<ActionResponse> UpdateDefault(int userId)
+        {
+            var actRes = new ActionResponse();
+            var addresses = DbSet.Where(x => x.CustomerId == userId && x.IsDeleted != true);
+            foreach(var address in addresses)
+            {
+                address.IsDefault = false;
+                actRes.Combine(Update(address));
+                if(!actRes.IsSuccess)
+                {
+                    return actRes;
+                }    
+            }
+            await SaveChangeAsync();
+            return actRes;
+        }
+
+        public async Task<List<CustomerAddress>> GetByUserId(int userId)
+        {
+            return await DbSet.Where(x => x.CustomerId == userId && x.IsDeleted != true).ToListAsync();
         }
     }
 }

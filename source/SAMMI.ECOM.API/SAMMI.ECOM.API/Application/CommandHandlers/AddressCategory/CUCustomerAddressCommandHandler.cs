@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.Commands;
 using SAMMI.ECOM.Domain.DomainModels.CategoryAddress;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
@@ -33,12 +35,26 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
                 return actResponse;
             }
 
+            if (request.IsDefault == true)
+            {
+                var addresses = await _addressRepository.GetByUserId(_currentUser.Id);
+                foreach (var address in addresses)
+                {
+                    address.IsDefault = false;
+                    actResponse.Combine(_addressRepository.Update(address));
+                    if (!actResponse.IsSuccess)
+                    {
+                        return actResponse;
+                    }
+                }
+            }
+
             if (request.Id == 0)
             {
                 request.CustomerId = _currentUser.Id;
                 request.CreatedDate = DateTime.Now;
                 request.CreatedBy = _currentUser.UserName;
-                var createResponse = await _addressRepository.CreateAndSave(request);
+                var createResponse = _addressRepository.Create(request);
                 actResponse.Combine(createResponse);
                 actResponse.SetResult(_mapper.Map<CustomerAddressDTO>(createResponse.Result));
             }
@@ -47,11 +63,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
                 request.UpdatedDate = DateTime.Now;
                 request.UpdatedBy = _currentUser.UserName;
 
-                var updateRes = await _addressRepository.UpdateAndSave(request);
+                var updateRes = _addressRepository.Update(request);
                 actResponse.Combine(updateRes);
                 actResponse.SetResult(_mapper.Map<CustomerAddressDTO>(updateRes.Result));
             }
-
+            await _addressRepository.SaveChangeAsync();
             return actResponse;
         }
     }

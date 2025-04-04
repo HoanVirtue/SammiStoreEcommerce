@@ -17,10 +17,9 @@ import AdminPage from "src/components/admin-page";
 import { getProvinceColumns } from "src/configs/gridColumn";
 
 const ListProvincePage: NextPage = () => {
-  const { t } = useTranslation();
-
   const columns = getProvinceColumns();
   return (
+  
     <AdminPage
       entityName="province"
       columns={columns}

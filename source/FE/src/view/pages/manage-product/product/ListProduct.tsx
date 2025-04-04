@@ -38,6 +38,7 @@ const ListProductPage: NextPage = () => {
                 "province_code": "provinceCode",
             }}
             noDataText="no_data_product"
+            showTab={true}
         />
     );
 };

@@ -1,6 +1,7 @@
 import { NextPage } from 'next'
 import React from 'react'
 import BlankLayout from 'src/view/layout/BlankLayout'
+import NoNavLayout from 'src/view/layout/NoNavLayout'
 
 //views
 import PaymentPage from 'src/view/pages/payment/vnpay'
@@ -14,5 +15,5 @@ const Payment: NextPage<TProps> = () => {
 
 export default Payment
 
-Payment.getLayout = (page: React.ReactNode) => <BlankLayout>{page}</BlankLayout>
+Payment.getLayout = (page: React.ReactNode) => <NoNavLayout>{page}</NoNavLayout>
 

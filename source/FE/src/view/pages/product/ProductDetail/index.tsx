@@ -84,6 +84,8 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const [activeTab, setActiveTab] = useState(0);
     const [selectedImage, setSelectedImage] = useState(0);
     const [isZoomed, setIsZoomed] = useState(false);
+    const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
+    const [showZoom, setShowZoom] = useState(false);
 
     //hooks
     const { user } = useAuth()
@@ -252,12 +254,19 @@ const ProductDetailPage: NextPage<TProps> = () => {
         setSelectedImage(index);
     };
 
-    const handleImageHover = () => {
-        setIsZoomed(true);
-    };
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const container = e.currentTarget;
+        const rect = container.getBoundingClientRect();
 
-    const handleImageLeave = () => {
-        setIsZoomed(false);
+        // Calculate position relative to the container
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        // Calculate percentage position
+        const xPercent = (x / rect.width) * 100;
+        const yPercent = (y / rect.height) * 100;
+
+        setZoomPosition({ x: xPercent, y: yPercent });
     };
 
     return (
@@ -283,31 +292,62 @@ const ProductDetailPage: NextPage<TProps> = () => {
                         <Grid container spacing={5}>
                             <Grid item md={5} xs={12}>
                                 <Box sx={{
-                                    position: 'relative',
-                                    width: '100%',
-                                    height: { xs: '300px', md: '400px' },
-                                    borderRadius: '15px',
-                                    overflow: 'hidden',
-                                    boxShadow: theme.shadows[2],
-                                    mb: 2
+                                    display: 'flex',
+                                    gap: 2,
+                                    flexDirection: { xs: 'column', md: 'row' },
+                                    position: 'relative'
                                 }}>
-                                    <Image
-                                        src={productData?.images[selectedImage]?.imageUrl}
-                                        alt={productData?.name}
-                                        sx={{
-                                            width: '100%',
-                                            height: '100%',
-                                            objectFit: 'contain',
-                                            transition: 'transform 0.3s ease',
-                                            transform: isZoomed ? 'scale(1.5)' : 'scale(1)',
-                                            cursor: 'zoom-in',
-                                            '&:hover': {
-                                                transform: 'scale(1.5)',
-                                            }
-                                        }}
-                                        onMouseEnter={handleImageHover}
-                                        onMouseLeave={handleImageLeave}
-                                    />
+                                    <Box sx={{
+                                        position: 'relative',
+                                        width: { xs: '100%', md: '70%' },
+                                        height: { xs: '300px', md: '350px' },
+                                        borderRadius: '15px',
+                                        overflow: 'hidden',
+                                        boxShadow: theme.shadows[2],
+                                        mb: 2
+                                    }}>
+                                        <Image
+                                            src={productData?.images[selectedImage]?.imageUrl}
+                                            alt={productData?.name}
+                                            sx={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'contain',
+                                                cursor: 'crosshair'
+                                            }}
+                                            onMouseMove={handleMouseMove}
+                                            onMouseEnter={() => setShowZoom(true)}
+                                            onMouseLeave={() => setShowZoom(false)}
+                                        />
+                                    </Box>
+                                    {showZoom && (
+                                        <Box sx={{
+                                            display: { xs: 'none', md: 'block' },
+                                            position: 'absolute',
+                                            width: '400px',
+                                            height: '400px',
+                                            borderRadius: '15px',
+                                            overflow: 'hidden',
+                                            boxShadow: theme.shadows[4],
+                                            right: '-420px',
+                                            top: '50%',
+                                            transform: 'translateY(-50%)',
+                                            zIndex: 2,
+                                            border: `1px solid ${theme.palette.divider}`,
+                                            backgroundColor: theme.palette.background.paper
+                                        }}>
+                                            <Box sx={{
+                                                position: 'absolute',
+                                                width: '100%',
+                                                height: '100%',
+                                                backgroundImage: `url(${productData?.images[selectedImage]?.imageUrl})`,
+                                                backgroundSize: '200%',
+                                                backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                                                backgroundRepeat: 'no-repeat',
+                                                transition: 'background-position 0.1s ease'
+                                            }} />
+                                        </Box>
+                                    )}
                                 </Box>
                                 <Box sx={{
                                     display: 'flex',

@@ -23,8 +23,8 @@ export const createReceipt = async (data: TParamsCreateReceipt) => {
 
 export const updateReceiptStatus = async (data: TParamsUpdateReceiptStatus) => {
     try {
-        const res = await instance.post(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/update-status`, data)
-        return res.data
+        const res: any = await instance.post(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/update-status`, data)
+        return res
     }
     catch (error: any) {
         return error?.response?.data

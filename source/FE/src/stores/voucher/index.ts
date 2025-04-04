@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
-import { createVoucherAsync, deleteMultipleVouchersAsync, deleteVoucherAsync, getAllVouchersAsync, serviceName, updateVoucherAsync } from './action'
+import { createVoucherAsync, deleteMultipleVouchersAsync, deleteVoucherAsync, getAllVouchersAsync, getVoucherCodeAsync, serviceName, updateVoucherAsync } from './action'
 import { ReduxPayload } from 'src/types/payload'
 
 const initialState = {
@@ -30,7 +30,8 @@ const initialState = {
   vouchers: {
     data: [],
     total: 0
-  }
+  },
+  voucherCode: ''  
 }
 
 export const voucherSlice = createSlice({
@@ -63,19 +64,32 @@ export const voucherSlice = createSlice({
   },
   extraReducers: builder => {
 
-    //get all Voucheres
+    //get all Vouchers
     builder.addCase(getAllVouchersAsync.pending, (state, action) => {
       state.isLoading = true
     })
     builder.addCase(getAllVouchersAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.vouchers.data = Array.isArray(action?.payload?.result) ? action?.payload?.result : [];
+      state.vouchers.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
       state.vouchers.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllVouchersAsync.rejected, (state, action) => {
       state.isLoading = false
       state.vouchers.data = []
       state.vouchers.total = 0
+    })
+
+    //get Voucher Code
+    builder.addCase(getVoucherCodeAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(getVoucherCodeAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.voucherCode = action?.payload?.result
+    })
+    builder.addCase(getVoucherCodeAsync.rejected, (state, action) => {
+      state.isLoading = false
+      state.voucherCode = ''
     })
 
     //create Voucher

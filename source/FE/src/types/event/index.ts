@@ -21,9 +21,8 @@ export type EventImage = {
     imageUrl: string;
     imageBase64: string;
     publicId: string;
-    typeImage: string;
+    typeImage: number;
     value: string;
-    id: number;
     displayOrder: number;
 }
 

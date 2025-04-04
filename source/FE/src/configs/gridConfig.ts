@@ -57,7 +57,6 @@ const getDateOperators = (): Operator[] => [
 ];
 
 
-// Định nghĩa fields cho ListDistrictPage
 export const getProvinceFields = (): FieldConfig[] => [
     { value: "name", label: i18n.t("province_name"), type: "string", operators: getStringOperators() },
     { value: "code", label: i18n.t("province_code"), type: "string", operators: getStringOperators() },
@@ -150,6 +149,18 @@ export const getEventFields = (): FieldConfig[] => [
     { value: "start_date", label: i18n.t("start_date"), type: "date", operators: getDateOperators() },
     { value: "end_date", label: i18n.t("end_date"), type: "date", operators: getDateOperators() },
     { value: "status", label: i18n.t("status"), type: "string", operators: getStringOperators() },
+];
+
+export const getVoucherFields = (): FieldConfig[] => [
+    { value: "voucher_code", label: i18n.t("voucher_code"), type: "string", operators: getStringOperators() },
+    { value: "name", label: i18n.t("voucher_name"), type: "string", operators: getStringOperators() },
+    { value: "event_name", label: i18n.t("event_name"), type: "string", operators: getStringOperators() },
+    { value: "start_date", label: i18n.t("start_date"), type: "date", operators: getDateOperators() },
+    { value: "end_date", label: i18n.t("end_date"), type: "date", operators: getDateOperators() },
+    { value: "discount_name", label: i18n.t("discount_name"), type: "string", operators: getStringOperators() },
+    { value: "discount_value", label: i18n.t("discount_value"), type: "number", operators: getNumberOperators() },
+    { value: "usage_limit", label: i18n.t("usage_limit"), type: "number", operators: getNumberOperators() },
+    { value: "used_count", label: i18n.t("used_count"), type: "number", operators: getNumberOperators() },
 ];
 
 

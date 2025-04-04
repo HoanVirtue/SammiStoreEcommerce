@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Castle.Core.Resource;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Authorizations;
@@ -7,6 +8,7 @@ using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
+using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
@@ -22,6 +24,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         private readonly IProductRepository _productRepository;
         private readonly IMyVoucherQueries _myVoucherQueries;
         private readonly IMapper _mapper;
+        private readonly ICustomerAddressRepository _addressRepository;
         public VouchersController(
             IVoucherQueries voucherQueries,
             IVoucherRepository voucherRepository,
@@ -30,6 +33,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             UserIdentity currentUser,
             IMyVoucherQueries myVoucherQueries,
             IMapper mapper,
+            ICustomerAddressRepository customerAddressRepository,
             IMediator mediator,
             ILogger<UsersController> logger) : base(mediator, logger)
         {
@@ -40,6 +44,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _productRepository = productRepository;
             _myVoucherQueries = myVoucherQueries;
             _mapper = mapper;
+            _addressRepository = customerAddressRepository;
         }
 
         [HttpGet]
@@ -165,9 +170,11 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpPost("my-voucher-apply")]
         public async Task<IActionResult> GetMyVoucherApplyAsync([FromBody] RequestVoucherDTO request)
         {
+            var actRes = new ActionResponse();
             if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
             {
-                return BadRequest("Có ít nhất 1 sản phẩm không tồn tại");
+                actRes.AddError("Có ít nhất 1 sản phẩm không tồn tại");
+                return BadRequest(actRes);
             }
             foreach (var item in request.Details)
             {
@@ -181,12 +188,18 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpPost("apply-voucher/{voucherCode}")]
         public async Task<IActionResult> ApplyVoucher(string voucherCode, [FromBody] RequestVoucherDTO request)
         {
+            var actRes = new ActionResponse<MyVoucherDTO>();
             var voucher = await _voucherRepository.GetByCode(voucherCode);
             if (voucher == null)
             {
-                return BadRequest("Phiếu giảm giá không tồn tại.");
+                actRes.AddError("Phiếu giảm giá không tồn tại.");
+                return BadRequest(actRes);
             }
-
+            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
+            {
+                actRes.AddError("Có ít nhất 1 sản phẩm không tồn tại");
+                return BadRequest(actRes);
+            }
             foreach (var item in request.Details)
             {
                 item.Price = await _productRepository.GetPrice(item.ProductId);
@@ -194,7 +207,8 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) ?? 0;
             if (await _myVoucherRepository.IsExisted(voucher.Id, UserIdentity.Id))
             {
-                return BadRequest("Phiếu giảm giá đã được lưu trước đó");
+                actRes.AddError("Phiếu giảm giá đã được lưu trước đó");
+                return BadRequest(actRes);
             }
 
             var myVoucherRequest = new MyVoucher
@@ -206,12 +220,17 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 CreatedBy = "System"
             };
             var createRes = await _myVoucherRepository.CreateAndSave(myVoucherRequest);
+            actRes.Combine(createRes);
             if (!createRes.IsSuccess)
             {
-                return BadRequest(createRes);
+                return BadRequest(actRes);
             }
-            var voucherValid = await _myVoucherQueries.AppyVoucherByVoucherCode(voucherCode, UserIdentity.Id, totalAmount, request.Details);
-            return Ok(voucherValid);
+            var myVoucherResult = _mapper.Map<MyVoucherDTO>(createRes.Result);
+            var address = await _addressRepository.GetDefaultByUserId(UserIdentity.Id);
+            myVoucherResult.IsValid = await _voucherRepository.ValidVoucher(myVoucherResult.VoucherId, UserIdentity.Id, address.WardId ?? 0, totalAmount, request.Details);
+            //var voucherValid = await _myVoucherQueries.AppyVoucherByVoucherCode(voucherCode, UserIdentity.Id, totalAmount, request.Details);
+            actRes.SetResult(myVoucherResult);
+            return Ok(actRes);
         }
     }
 }

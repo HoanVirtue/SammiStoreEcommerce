@@ -15,6 +15,7 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public PromotionEventType? EventType { get; set; }
         public CreateImageCommand? ImageCommand { get; set; }
         public int? ImageId { get; set; }
+        public string? Description { get; set; }
 
 
         public int Id { get; set; }

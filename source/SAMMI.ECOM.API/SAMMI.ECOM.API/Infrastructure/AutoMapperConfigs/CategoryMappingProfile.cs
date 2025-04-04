@@ -51,7 +51,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<PaymentMethod, PaymentMethodDTO>();
 
             // event
-            CreateMap<CUEventCommand, Event>();
+            CreateMap<UpdateEventCommand, Event>();
+            CreateMap<CreateEventCommand, Event>();
             CreateMap<Event, EventDTO>();
 
             // voucher

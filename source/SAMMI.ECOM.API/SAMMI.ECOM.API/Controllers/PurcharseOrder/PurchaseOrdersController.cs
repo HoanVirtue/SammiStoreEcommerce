@@ -71,5 +71,27 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             }
             return Ok(updateStatusRes);
         }
+
+        [HttpPost("update-purchases-status")]
+        public async Task<IActionResult> UpdatePurchasesStatus([FromBody] UpdatePurchasesStatusCommand request)
+        {
+            var actRes = new ActionResponse();
+            if (!request.PurchaseOrderIds.All(x => _purchaseRepository.IsExisted(x)))
+            {
+                actRes.AddError("Có ít nhất một mã đơn nhập không tồn tại");
+                return BadRequest(actRes);
+            }
+
+            foreach(var id in request.PurchaseOrderIds)
+            {
+                var updateStatusRes = await _purchaseRepository.UpdateStatus(id, request.NewStatus);
+                if (!updateStatusRes.IsSuccess)
+                {
+                    return BadRequest(updateStatusRes);
+                }
+            }
+            
+            return Ok(ActionResponse.Success);
+        }
     }
 }

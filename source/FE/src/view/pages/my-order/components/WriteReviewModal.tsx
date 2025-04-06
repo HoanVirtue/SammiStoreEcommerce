@@ -31,8 +31,8 @@ import { createReviewAsync } from "src/stores/review/action";
 interface TWriteReviewModal {
     open: boolean
     onClose: () => void
-    productId?: string
-    userId?: string
+    productId?: number
+    userId?: number
 }
 
 type TDefaultValues = {
@@ -79,7 +79,7 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
             //update 
             if (productId && userId) {
                 dispatch(createReviewAsync({
-                    product: productId,
+                    productId: productId,
                     user: userId,
                     content: data?.content,
                     star: data?.star,

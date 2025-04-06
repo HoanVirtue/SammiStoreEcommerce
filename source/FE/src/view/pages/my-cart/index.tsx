@@ -39,7 +39,7 @@ type TProps = {}
 const MyCartPage: NextPage<TProps> = () => {
     //States
     const [loading, setLoading] = useState<boolean>(false)
-    const [selectedRow, setSelectedRow] = useState<string[]>([])
+    const [selectedRow, setSelectedRow] = useState<number[]>([])
     const [discountCode, setDiscountCode] = useState('')
 
     //hooks
@@ -55,22 +55,22 @@ const MyCartPage: NextPage<TProps> = () => {
 
     //Redux
     const dispatch: AppDispatch = useDispatch()
-    const { orderItems } = useSelector((state: RootState) => state.order)
+    const { details } = useSelector((state: RootState) => state.order)
 
     const memoListAllProductIds = useMemo(() => {
-        return orderItems?.map((item: TItemOrderProduct) => item.productId)
-    }, [orderItems])
+        return details?.map((item: TItemOrderProduct) => item.productId)
+    }, [details])
 
     const memoSelectedProduct = useMemo(() => {
         const result: TItemOrderProduct[] = []
         selectedRow.forEach((selectedId) => {
-            const findItems: any = orderItems?.find((item: TItemOrderProduct) => item.productId === selectedId)
+            const findItems: any = details?.find((item: TItemOrderProduct) => item.productId === selectedId)
             if (findItems) {
                 result.push(findItems)
             }
         })
         return result
-    }, [selectedRow, orderItems])
+    }, [selectedRow, details])
 
 
     const memoSubtotal = useMemo(() => {
@@ -87,19 +87,21 @@ const MyCartPage: NextPage<TProps> = () => {
         return memoSubtotal - memoDiscount
     }, [memoSubtotal, memoDiscount])
 
+    console.log("router", router)
+
     useEffect(() => {
-        const selectedProduct = router.query.selected as string
+        const selectedProduct = router.query.selected
         if (selectedProduct) {
-            if (typeof selectedProduct === "string") {
-                setSelectedRow([selectedProduct])
-            } else {
-                setSelectedRow([...selectedProduct])
+            if (typeof selectedProduct === 'string') {
+                setSelectedRow([+selectedProduct])
+            } else if (Array.isArray(selectedProduct)) {
+                setSelectedRow(selectedProduct.map(item => +item))
             }
         }
     }, [router.query])
 
     //Handler
-    const handleChangeCheckBox = (value: string) => {
+    const handleChangeCheckBox = (value: number) => {
         const isChecked = selectedRow.includes(value)
         if (isChecked) {
             const filtered = selectedRow.filter((item) => item !== value)
@@ -110,7 +112,7 @@ const MyCartPage: NextPage<TProps> = () => {
     }
 
     const handleCheckAll = () => {
-        const isCheckAll = memoListAllProductIds.every((item) => selectedRow.includes(item))
+        const isCheckAll = memoListAllProductIds.every((item: number) => selectedRow.includes(item))
         if (isCheckAll) {
             setSelectedRow([])
         } else {
@@ -121,12 +123,12 @@ const MyCartPage: NextPage<TProps> = () => {
     const handleDeleteMany = () => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
-        const cloneOrderItem = cloneDeep(orderItems)
+        const cloneOrderItem = cloneDeep(details)
         const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => !selectedRow.includes(item.productId))
         if (user) {
             dispatch(
                 updateProductToCart({
-                    orderItems: filteredItem
+                    details: filteredItem
                 })
             )
             setLocalProductToCart({ ...parseData, [user?.id]: filteredItem })
@@ -175,7 +177,7 @@ const MyCartPage: NextPage<TProps> = () => {
                 width: '100% !important',
                 backgroundColor: theme.palette.background.paper,
             }}>
-                {orderItems.length > 0 ? (
+                {details.length > 0 ? (
                     <Grid container >
                         {/* Cart Items */}
                         <Grid item xs={12} md={8} sx={{
@@ -233,7 +235,7 @@ const MyCartPage: NextPage<TProps> = () => {
                                 </Grid>
 
                                 <Grid container item spacing={2} sx={{ maxWidth: '100%' }}>
-                                    {orderItems.map((item: TItemOrderProduct, index: number) => (
+                                    {details.map((item: TItemOrderProduct, index: number) => (
                                         <ProductCartItem
                                             item={item}
                                             key={item.productId}
@@ -247,7 +249,7 @@ const MyCartPage: NextPage<TProps> = () => {
                         </Grid>
 
                         {/* Cart Summary */}
-                        <Grid item xs={12} md={4} 
+                        <Grid item xs={12} md={4}
                         // sx={{maxWidth: { xs: '100%', md: '40%' }}}
                         >
                             <CartSummary

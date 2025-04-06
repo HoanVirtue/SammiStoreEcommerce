@@ -110,7 +110,7 @@ export const deleteMultipleProducts = async (data: TParamsDeleteMultipleProducts
 }
 
 
-export const likeProduct = async (data: {productId: string }) => {
+export const likeProduct = async (data: {productId: number}) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/like`, data)
         if(res?.data?.status === "Success") {

@@ -22,11 +22,11 @@ import { useDispatch, useSelector } from 'react-redux'
 //Other
 
 import { convertUpdateMultipleProductsCard, convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils'
-import { TItemOrderProduct, TOrderItem } from 'src/types/order'
+import { TItemOrderProduct, TOrderDetail, TOrderItem } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import { cancelOrderAsync } from 'src/stores/order/action'
-import { ORDER_STATUS } from 'src/configs/order'
+import { OrderStatus, PaymentStatus } from 'src/configs/order'
 import { Chip } from '@mui/material'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import { TProduct } from 'src/types/product'
@@ -37,6 +37,7 @@ import { ROUTE_CONFIG } from 'src/configs/route'
 import { PAYMENT_METHOD } from 'src/configs/payment'
 import { createVNPayPaymentUrl, getVNPayPaymentIpn } from 'src/services/payment'
 import Spinner from 'src/components/spinner'
+import Image from 'src/components/image'
 
 
 type TProps = {
@@ -61,43 +62,44 @@ const OrderCard: NextPage<TProps> = (props) => {
 
     //redux
     const dispatch: AppDispatch = useDispatch();
-    const { isSuccessCancel, orderItems } = useSelector((state: RootState) => state.order)
+    const { isSuccessCancel, details } = useSelector((state: RootState) => state.order)
 
     //Theme
     const theme = useTheme();
 
     const handleConfirm = () => {
-        dispatch(cancelOrderAsync(orderData._id))
+        dispatch(cancelOrderAsync(orderData.id))
     }
 
-    const handleUpdateProductToCart = (items: TItemOrderProduct[]) => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        const listOrderItems = convertUpdateMultipleProductsCard(orderItems, items)
+    // const handleUpdateProductToCart = (items: TItemOrderProduct[]) => {
+    //     const productCart = getLocalProductFromCart()
+    //     const parseData = productCart ? JSON.parse(productCart) : {}
+    //     const listOrderItems = convertUpdateMultipleProductsCard(details, items)
 
 
-        if (user?._id) {
-            dispatch(
-                updateProductToCart({
-                    orderItems: listOrderItems
-                })
-            )
-            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
-        }
-    }
+    //     if (user?.id) {
+    //         dispatch(
+    //             updateProductToCart({
+    //                 details: listOrderItems
+    //             })
+    //         )
+    //         setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
+    //     }
+    // }
 
-    const handleBuyAgain = () => {
-        handleUpdateProductToCart(orderData.orderItems)
-        router.push({
-            pathname: ROUTE_CONFIG.MY_CART,
-            query: {
-                selected: orderData?.orderItems?.map((item: TItemOrderProduct) => item.product)
-            }
-        }, ROUTE_CONFIG.MY_CART)
-    }
+
+    // const handleBuyAgain = () => {
+    //     handleUpdateProductToCart(orderData.details)
+    //     router.push({
+    //         pathname: ROUTE_CONFIG.MY_CART,
+    //         query: {
+    //             selected: orderData?.details?.map((item: TOrderDetail) => item.productId)
+    //         }
+    //     }, ROUTE_CONFIG.MY_CART)
+    // }
 
     const handleNavigateDetail = () => {
-        router.push(`${ROUTE_CONFIG.MY_ORDER}/${orderData._id}`)
+        router.push(`${ROUTE_CONFIG.MY_ORDER}/${orderData.id}`)
     }
 
     const handlePaymentMethod = (type: string) => {
@@ -115,7 +117,7 @@ const OrderCard: NextPage<TProps> = (props) => {
         setLoading(true)
         await createVNPayPaymentUrl({
             totalPrice: orderData.totalPrice,
-            orderId: orderData._id,
+            orderId: orderData.id,
             language: i18n.language === "vi" ? "vn" : i18n.language
         }).then((res) => {
             if (res.data) {
@@ -134,8 +136,8 @@ const OrderCard: NextPage<TProps> = (props) => {
     }, [isSuccessCancel])
 
     const memoDisableBuyAgain = useMemo(() => {
-        // return orderData.orderItems?.some((item)=> !item.product.countInStock )
-    }, [orderData.orderItems])
+        return orderData.details?.some((item) => !item.quantity)
+    }, [orderData.details])
 
     return (
         <>
@@ -155,43 +157,33 @@ const OrderCard: NextPage<TProps> = (props) => {
                 width: "100%",
             }}>
                 <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                    {!!orderData?.isDelivered && (
+                    {!!(orderData?.orderStatus === OrderStatus.Completed.label) && (
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <IconifyIcon color={theme.palette.success.main}
                                 icon='material-symbols-light:delivery-truck-speed-outline-rounded' />
                             <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_delivered')}{' | '}</Typography>
                         </Box>
                     )}
-                    {!!orderData?.isPaid && (
+                    {!!(orderData?.paymentStatus === PaymentStatus.Paid.label) && (
                         <Box sx={{ display: 'flex', gap: 2 }}>
                             <IconifyIcon color={theme.palette.success.main}
                                 icon='streamline:payment-10' />
                             <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_paid')}{' | '}</Typography>
                         </Box>
                     )}
-                    <Typography sx={{ color: theme.palette.primary.main }}>{t((ORDER_STATUS as any)[orderData?.status]?.label)}</Typography>
+                    <Typography sx={{ color: theme.palette.primary.main }}>{t((OrderStatus as any)[orderData?.orderStatus]?.label)}</Typography>
                 </Box>
                 <Divider />
                 <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
-                    {orderData?.orderItems.map((item: TItemOrderProduct) => {
+                    {orderData?.details?.map((item: TOrderDetail) => {
                         return (
-                            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-start", gap: 3 }} key={item.product}>
+                            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-start", gap: 3 }} key={item.productId}>
                                 <Box sx={{ border: `1px solid ${theme.palette.customColors.borderColor}`, height: 'fit-content' }}>
-                                    <Avatar src={item?.image} sx={{ width: "80px", height: "80px" }} />
+                                    <Image src={item?.imageUrl} sx={{ width: "80px", height: "80px" }} />
                                 </Box>
                                 <Box>
                                     <Box>
-                                        <Typography fontSize={"18px"}>{item?.name}</Typography>
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="h6" sx={{
-                                            color: item?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
-                                            fontWeight: "bold",
-                                            textDecoration: item?.discount > 0 ? "line-through" : "normal",
-                                            fontSize: "12px"
-                                        }}>
-                                            {formatPrice(item?.price)}
-                                        </Typography>
+                                        <Typography fontSize={"18px"}>{item?.productName}</Typography>
                                     </Box>
                                     <Box>
                                         <Typography variant="h4" sx={{
@@ -199,19 +191,12 @@ const OrderCard: NextPage<TProps> = (props) => {
                                             fontWeight: "bold",
                                             fontSize: "16px"
                                         }}>
-                                            {item?.discount > 0 ? (
-                                                <>
-                                                    {formatPrice(item?.price * (100 - item?.discount) / 100)}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {formatPrice(item?.price)}
-                                                </>
-                                            )}
+
+                                            {formatPrice(item?.price)}
                                         </Typography>
                                     </Box>
                                     <Box>
-                                        <Typography fontSize={"16px"}>x{item?.amount}</Typography>
+                                        <Typography fontSize={"16px"}>x{item?.quantity}</Typography>
                                     </Box>
                                 </Box>
                             </Box>
@@ -235,16 +220,16 @@ const OrderCard: NextPage<TProps> = (props) => {
                     gap: 4,
                     mt: 4
                 }}>
-                    {[0].includes(orderData.status) && orderData.paymentMethod.type !== paymentData.PAYMENT_LATER.value && (
+                    {orderData.paymentStatus !== PaymentStatus.Paid.label && (
                         <Button variant="contained"
                             color='error'
-                            onClick={() => handlePaymentMethod(orderData.paymentMethod.type)}
+                            onClick={() => handlePaymentMethod(orderData.paymentMethod)}
                             startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
                             sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                             {t('payment')}
                         </Button>
                     )}
-                    {[0, 1].includes(orderData.status) && (
+                    {orderData.orderStatus !== OrderStatus.Completed.label && (
                         <Button variant="contained"
                             color='error'
                             onClick={() => setOpenCancelDialog(true)}
@@ -255,7 +240,7 @@ const OrderCard: NextPage<TProps> = (props) => {
                     )}
                     <Button variant="contained"
                         color='primary'
-                        onClick={() => handleBuyAgain()}
+                        // onClick={() => handleBuyAgain()}
                         // disabled={!orderData?.countInStock}
                         startIcon={<IconifyIcon icon="bx:cart" />}
                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>

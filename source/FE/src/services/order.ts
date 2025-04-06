@@ -13,7 +13,16 @@ export const getAllOrders = async (data: {params: TParamsGetAllOrders  }) => {
     }
 }
 
-export const getOrderDetail = async (id: string) => {
+export const getMyOrders = async (data: {params: TParamsGetAllOrders  }) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/customer/get-my-orders`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+export const getOrderDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/${id}`)
         return res.data
@@ -34,7 +43,7 @@ export const createOrder = async (data: TParamsCreateOrder) => {
 }
 
 
-export const cancelOrder = async (id: string) => {
+export const cancelOrder = async (id: number) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/me/cancel/${id}`)
         return res.data
@@ -45,7 +54,7 @@ export const cancelOrder = async (id: string) => {
 
 
 //admin
-export const deleteOrder = async (id: string) => {
+export const deleteOrder = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/${id}`)
         return res.data
@@ -54,7 +63,7 @@ export const deleteOrder = async (id: string) => {
     }
 }
 
-export const getManageOrderDetail = async (id: string) => {
+export const getManageOrderDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/${id}`)
         return res.data

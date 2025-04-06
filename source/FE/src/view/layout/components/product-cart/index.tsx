@@ -39,7 +39,7 @@ const StyledMenuItem = styled(MenuItem)<MenuItemProps>(({ theme }) => ({
 const ProductCart = (props: TProps) => {
     const { user } = useAuth()
 
-    const { orderItems } = useSelector((state: RootState) => state.order)
+    const { details } = useSelector((state: RootState) => state.order)
     const dispatch: AppDispatch = useDispatch()
 
     //Translation
@@ -58,8 +58,8 @@ const ProductCart = (props: TProps) => {
         setAnchorEl(null);
     };
 
-    const handleNavigateProductDetail = (slug: string) => {
-        router.push(`${ROUTE_CONFIG.PRODUCT}/${slug}`)
+    const handleNavigateProductDetail = (id: number) => {
+        router.push(`${ROUTE_CONFIG.PRODUCT}/${id}`)
     }
 
     const handleNavigateMyCart = () => {
@@ -71,17 +71,17 @@ const ProductCart = (props: TProps) => {
         const parseData = productCart ? JSON.parse(productCart) : {}
         if (user?.id) {
             dispatch(updateProductToCart({
-                orderItems: parseData[user?.id] || []
+                details: parseData[user?.id] || []
             }))
         }
     }, [user])
 
     const totalItems = useMemo(() => {
-        const total = orderItems.reduce((result, current: TItemOrderProduct) => {
+        const total = details.reduce((result, current: TItemOrderProduct) => {
             return result + current.amount
         }, 0)
         return total
-    }, [orderItems])
+    }, [details])
 
 
     return (
@@ -96,7 +96,7 @@ const ProductCart = (props: TProps) => {
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}
                     >
-                        {!!orderItems.length ? (
+                        {!!details.length ? (
                             <Badge color="primary" badgeContent={totalItems}>
                                 <IconifyIcon icon="flowbite:cart-outline" />
                             </Badge>
@@ -143,11 +143,11 @@ const ProductCart = (props: TProps) => {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                {orderItems.length > 0 ? (
+                {details.length > 0 ? (
                     <Box sx={{ maxHeight: "300px", maxWidth: "300px", overflow: "auto" }}>
-                        {orderItems.map((item: TItemOrderProduct) => {
+                        {details.map((item: TItemOrderProduct) => {
                             return (
-                                <StyledMenuItem key={item.productId} onClick={() => handleNavigateProductDetail(item.productId)}>
+                                <StyledMenuItem key={item.productId} onClick={() => handleNavigateProductDetail(+item.productId)}>
                                     <Avatar src={item?.images[0].imageUrl} />
                                     <Box sx={{ ml: 1 }}>
 

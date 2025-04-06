@@ -18,8 +18,8 @@ import Image from "src/components/image"
 type TProps = {
     item: TItemOrderProduct
     index: number
-    handleChangeCheckBox: (value: string) => void
-    selectedRow: string[]
+    handleChangeCheckBox: (value: number) => void
+    selectedRow: number[]
 }
 
 interface TItemOrderProductState extends TItemOrderProduct {
@@ -30,7 +30,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     const { user } = useAuth()
     const theme = useTheme()
     const dispatch: AppDispatch = useDispatch()
-    const { orderItems } = useSelector((state: RootState) => state.order)
+    const { details } = useSelector((state: RootState) => state.order)
 
     const productCart = getLocalProductFromCart()
     const parseData = productCart ? JSON.parse(productCart) : {}
@@ -38,7 +38,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
 
     const [itemState, setItemState] = useState<TItemOrderProductState>({ ...item, amount: lastAmount || item.amount || 1 })
 
-    const fetchProductDetail = async (id: string) => {
+    const fetchProductDetail = async (id: number) => {
         const res = await getProductDetail(id)
         const data = res?.result
 
@@ -69,7 +69,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     const handleChangeQuantity = (item: TItemOrderProduct, amount: number) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
-        const listOrderItems = convertUpdateProductToCart(orderItems, {
+        const listOrderItems = convertUpdateProductToCart(details, {
             name: item?.name,
             amount: amount,
             images: item?.images,
@@ -83,10 +83,10 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
         }
     }
 
-    const handleDeleteProductInCart = (id: string) => {
+    const handleDeleteProductInCart = (id: number) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
-        const cloneOrderItem = cloneDeep(orderItems)
+        const cloneOrderItem = cloneDeep(details)
         const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => item.productId !== id)
         if (user) {
             dispatch(updateProductToCart({ orderItems: filteredItem }))
@@ -121,7 +121,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                 <Stack sx={{ width: 40 }}>
                     <Checkbox
                         disabled={!itemState?.stockQuantity || itemState?.stockQuantity === 0}
-                        checked={selectedRow.includes(itemState?.productId || '')}
+                        checked={selectedRow.includes(itemState?.productId || 0)}
                         value={itemState?.productId}
                         onChange={(e) => {
                             if (itemState?.productId) {

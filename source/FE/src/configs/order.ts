@@ -1,23 +1,73 @@
+export const PaymentStatus = {
+    Pending: {
+        value: 0,
+        title: 'pending',
+        label: 'Pending'
+    },
+    Unpaid: {
+        value: 1,
+        title: 'unpaid',
+        label: 'Unpaid'
+    },
+    Paid: {
+        value: 2,
+        title: 'paid',
+        label: 'Paid'
+    },
+    Failed: {
+        value: 3,
+        title: 'failed',
+        label: 'Failed'
+    }
+} as const;
 
-export const ORDER_STATUS = {
-    0:{
-        label: 'wait_payment',
-        value: "0"
+export const ShippingStatus = {
+    NotShipped: {
+        value: 0,
+        title: 'not_shipped',
+        label: 'NotShipped'
     },
-    1:{
-        label: 'wait_delivery',
-        value: "1"
+    Processing: {
+        value: 1,
+        title: 'processing',
+        label: 'Processing'
     },
-    2:{
-        label: 'completed',
-        value: "2"
+    Delivered: {
+        value: 2,
+        title: 'delivered',
+        label: 'Delivered'
     },
-    3:{
-        label: 'cancelled',
-        value: "3"
+    Lost: {
+        value: 3,
+        title: 'lost',
+        label: 'Lost'
+    }
+} as const;
+
+export const OrderStatus = {
+    Pending: {
+        value: 0,
+        title: 'pending',
+        label: 'Pending'
     },
-    4:{
-        label: 'all',
-        value: "4"
+    WaitingForPayment: {
+        value: 1,
+        title: 'waiting_for_payment',
+        label: 'WaitingForPayment'
     },
-}
+    Processing: {
+        value: 2,
+        title: 'processing',
+        label: 'Processing'
+    },
+    Completed: {
+        value: 3,
+        title: 'completed',
+        label: 'Completed'
+    },
+    Cancelled: {
+        value: 4,
+        title: 'cancelled',
+        label: 'Cancelled'
+    }
+} as const;

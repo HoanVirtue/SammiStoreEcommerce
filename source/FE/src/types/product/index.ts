@@ -38,7 +38,7 @@ export type TParamsGetAllProducts = {
 // }
 
 export type TProduct = {
-    id: string;
+    id: number;
     code: string;
     name: string;
     stockQuantity: number;
@@ -73,7 +73,7 @@ export type TParamsCreateProduct = {
 };
 
 export interface TParamsUpdateProduct{
-    id: string,
+    id: number,
     code: string;
     name: string;
     stockQuantity: number;
@@ -108,11 +108,11 @@ export interface TParamsUpdateProduct{
 // }
 
 export type TParamsDeleteProduct = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleProducts = {
-    productIds: string[],
+    productIds: number[],
 }
 
 // export type TProduct = {

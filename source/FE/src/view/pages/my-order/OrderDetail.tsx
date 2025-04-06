@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux'
 //Other
 
 import { useAuth } from 'src/hooks/useAuth'
-import { TItemOrderProduct, TOrderItem } from 'src/types/order'
+import { TItemOrderProduct, TOrderDetail, TOrderItem } from 'src/types/order'
 import { useRouter } from 'next/router'
 import { TabsProps } from '@mui/material'
 import Spinner from 'src/components/spinner'
@@ -31,13 +31,14 @@ import { resetInitialState, updateProductToCart } from 'src/stores/order'
 import { resetInitialState as resetReview } from 'src/stores/review'
 import IconifyIcon from 'src/components/Icon'
 import { convertUpdateMultipleProductsCard, formatDate, formatPrice } from 'src/utils'
-import { ORDER_STATUS } from 'src/configs/order'
+
 import { getOrderDetail } from 'src/services/order'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import WriteReviewModal from './components/WriteReviewModal'
 import { createVNPayPaymentUrl } from 'src/services/payment'
 import { PAYMENT_METHOD } from 'src/configs/payment'
+import { OrderStatus, PaymentStatus, ShippingStatus } from 'src/configs/order'
 
 type TProps = {}
 
@@ -62,8 +63,8 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [openReview, setOpenReview] = useState({
         open: false,
-        userId: "",
-        productId: ""
+        userId: 0,
+        productId: 0
     })
     const [openCancelDialog, setOpenCancelDialog] = useState<boolean>(false)
     const paymentData = PAYMENT_METHOD()
@@ -79,11 +80,13 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
 
     //Dispatch
     const dispatch: AppDispatch = useDispatch();
-    const { isSuccessCancel, orderItems, isErrorCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
+    const { isSuccessCancel, details, isErrorCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
 
     const { isSuccessCreate, isErrorCreate, errorMessageCreate, isLoading: reviewLoading } = useSelector((state: RootState) => state.review)
 
-    const orderId = router.query.orderId as string
+    console.log("detaorouter", router)
+
+    const orderId = typeof router.query.orderId === 'string' ? +router.query.orderId : 0
 
     //Fetch API
     const handleGetOrderDetail = async () => {
@@ -97,28 +100,30 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
     const handleUpdateProductToCart = (items: TItemOrderProduct[]) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
-        const listOrderItems = convertUpdateMultipleProductsCard(orderItems, items)
+        const listOrderItems = convertUpdateMultipleProductsCard(details, items)
 
 
-        if (user?._id) {
+        if (user?.id) {
             dispatch(
                 updateProductToCart({
-                    orderItems: listOrderItems
+                    details: listOrderItems
                 })
             )
-            setLocalProductToCart({ ...parseData, [user?._id]: listOrderItems })
+            setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
         }
     }
 
-    const handleBuyAgain = () => {
-        handleUpdateProductToCart(orderData?.orderItems)
-        router.push({
-            pathname: ROUTE_CONFIG.MY_CART,
-            query: {
-                selected: orderData?.orderItems?.map((item: TItemOrderProduct) => item.product)
-            }
-        }, ROUTE_CONFIG.MY_CART)
-    }
+    console.log("orderData", orderData?.details?.map((item: TOrderDetail) => item.productId))
+
+    // const handleBuyAgain = () => {
+    //     handleUpdateProductToCart(orderData?.details?.map((item: TOrderDetail) => item.productId))
+    //     router.push({
+    //         pathname: ROUTE_CONFIG.MY_CART,
+    //         query: {
+    //             selected: orderData?.details?.map((item: TItemOrderProduct) => item.productId)
+    //         }
+    //     }, ROUTE_CONFIG.MY_CART)
+    // }
 
 
 
@@ -137,7 +142,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
         setIsLoading(true)
         await createVNPayPaymentUrl({
             totalPrice: orderData.totalPrice,
-            orderId: orderData._id,
+            orderId: orderData.id,
             language: i18n.language === "vi" ? "vn" : i18n.language
         }).then((res) => {
             if (res.data) {
@@ -169,7 +174,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
             toast.success(t("create_review_success"))
             handleGetOrderDetail()
             dispatch(resetReview())
-            setOpenReview({ open: false, userId: "", productId: "" })
+            setOpenReview({ open: false, userId: 0, productId: 0 })
         } else if (isErrorCreate && errorMessageCreate) {
             toast.error(errorMessageCreate)
             dispatch(resetReview())
@@ -184,7 +189,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                 open={openReview.open}
                 productId={openReview.productId}
                 userId={openReview.userId}
-                onClose={() => setOpenReview({ open: false, userId: "", productId: "" })}
+                onClose={() => setOpenReview({ open: false, userId: 0, productId: 0 })}
             />
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
@@ -198,7 +203,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                         {t('')}
                     </Button>
                     <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                        {!!orderData?.isDelivered && (
+                        {!!(orderData?.shippingStatus === ShippingStatus.Delivered.label) && (
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 <IconifyIcon color={theme.palette.success.main}
                                     icon='material-symbols-light:delivery-truck-speed-outline-rounded' />
@@ -206,7 +211,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {/* <Typography sx={{fontSize: '16px', fontWeight: 'bold'}}>{formatDate(orderData?.deliveryAt, { dateStyle: short })}</Typography> */}
                             </Box>
                         )}
-                        {!!orderData?.isPaid && (
+                        {!!(orderData?.paymentStatus === PaymentStatus.Paid.label) && (
                             <Box sx={{ display: 'flex', gap: 2 }}>
                                 <IconifyIcon color={theme.palette.success.main}
                                     icon='streamline:payment-10' />
@@ -214,27 +219,27 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {/* <Typography sx={{fontSize: '16px', fontWeight: 'bold'}}>{formatDate(orderData?.paidAt, { dateStyle: short })}</Typography> */}
                             </Box>
                         )}
-                        <Typography sx={{ color: theme.palette.primary.main }}>{t((ORDER_STATUS as any)[orderData?.status]?.label)}</Typography>
+                        <Typography sx={{ color: theme.palette.primary.main }}>{t((OrderStatus as any)[orderData?.orderStatus]?.label)}</Typography>
                     </Box>
                 </Box>
                 <Divider />
                 <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
-                    {orderData?.orderItems?.map((item: TItemOrderProduct) => {
+                    {orderData?.details?.map((item: TOrderDetail) => {
                         return (
-                            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-start", gap: 3 }} key={item.product}>
+                            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-start", gap: 3 }} key={item.productId}>
                                 <Box sx={{ border: `1px solid ${theme.palette.customColors.borderColor}`, height: 'fit-content' }}>
-                                    <Avatar src={item?.image} sx={{ width: "80px", height: "80px" }} />
+                                    <Avatar src={item?.imageUrl} sx={{ width: "80px", height: "80px" }} />
                                 </Box>
                                 <Box>
                                     <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 3 }}>
-                                        <Typography fontSize={"18px"}>{item?.name}</Typography>
-                                        {orderData?.status === +ORDER_STATUS[2].value && (
+                                        <Typography fontSize={"18px"}>{item?.productName}</Typography>
+                                        {orderData?.orderStatus === OrderStatus.Completed.label && (
                                             <Button variant="outlined"
                                                 color='primary'
                                                 onClick={() => setOpenReview({
                                                     open: true,
-                                                    productId: item?.product,
-                                                    userId: user ? user?._id : ''
+                                                    productId: item?.productId,
+                                                    userId: user ? user?.id : 0
                                                 })}
                                                 sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                                                 {t('write_review')}
@@ -242,34 +247,16 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                         )}
                                     </Box>
                                     <Box>
-                                        <Typography variant="h6" sx={{
-                                            color: item?.discount > 0 ? theme.palette.error.main : theme.palette.primary.main,
-                                            fontWeight: "bold",
-                                            textDecoration: item?.discount > 0 ? "line-through" : "normal",
-                                            fontSize: "12px"
-                                        }}>
-                                            {formatPrice(item?.price)}
-                                        </Typography>
-                                    </Box>
-                                    <Box>
                                         <Typography variant="h4" sx={{
                                             color: theme.palette.primary.main,
                                             fontWeight: "bold",
                                             fontSize: "16px"
                                         }}>
-                                            {item?.discount > 0 ? (
-                                                <>
-                                                    {formatPrice(item?.price * (100 - item?.discount) / 100)}
-                                                </>
-                                            ) : (
-                                                <>
-                                                    {formatPrice(item?.price)}
-                                                </>
-                                            )}
+                                            {formatPrice(item?.price)}
                                         </Typography>
                                     </Box>
                                     <Box>
-                                        <Typography fontSize={"16px"}>x{item?.amount}</Typography>
+                                        <Typography fontSize={"16px"}>x{item?.quantity}</Typography>
                                     </Box>
                                 </Box>
                             </Box>
@@ -284,7 +271,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('shipping_address')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.shippingAddress?.address}{' '}{orderData?.shippingAddress?.city?.name}
+                                {orderData?.customerAddress}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
@@ -292,7 +279,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('phone_number')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.shippingAddress?.phone}
+                                {orderData?.phoneNumber}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
@@ -300,7 +287,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('customer_name')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.shippingAddress?.fullName}
+                                {orderData?.customerName}
                             </Typography>
                         </Box>
                     </Box>
@@ -310,7 +297,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('product_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {formatPrice(orderData?.itemsPrice)}
+                                {formatPrice(orderData?.totalPrice)}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
@@ -318,7 +305,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('shipping_price')}
                             </Typography>
                             <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {formatPrice(orderData?.shippingPrice)}
+                                {formatPrice(orderData?.costShip)}
                             </Typography>
                         </Box>
                         <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
@@ -339,16 +326,16 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                     gap: 4,
                     mt: 4
                 }}>
-                    {[0].includes(orderData.status) && orderData.paymentMethod.type !== paymentData.PAYMENT_LATER.value && (
+                    {orderData?.paymentStatus !== PaymentStatus.Paid.label && (
                         <Button variant="contained"
                             color='error'
-                            onClick={() => handlePaymentMethod(orderData.paymentMethod.type)}
+                            onClick={() => handlePaymentMethod(orderData.paymentMethod)}
                             startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
                             sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                             {t('payment')}
                         </Button>
                     )}
-                    {[0, 1].includes(orderData.status) && (
+                    {orderData?.orderStatus !== OrderStatus.Completed.label && (
                         <Button variant="contained"
                             color='error'
                             onClick={() => setOpenCancelDialog(true)}
@@ -359,7 +346,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                     )}
                     <Button variant="outlined"
                         color='primary'
-                        onClick={() => handleBuyAgain()}
+                        // onClick={() => handleBuyAgain()}
                         // disabled={!orderData?.countInStock}
                         startIcon={<IconifyIcon icon="bx:cart" />}
                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>

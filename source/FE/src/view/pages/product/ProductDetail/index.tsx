@@ -51,9 +51,10 @@ const ProductDetailPage: NextPage<TProps> = () => {
     //States
     const [loading, setLoading] = useState<boolean>(false)
     const router = useRouter();
-    const productId = router.query.productId as string
+    console.log(router)
+    const productId = Number(router.query.productId) || 0
     const [productData, setProductData] = useState<TProduct>({
-        id: '',
+        id: 0,
         code: '',
         name: '',
         stockQuantity: 0,
@@ -93,7 +94,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
 
 
     //Redux
-    const { orderItems } = useSelector((state: RootState) => state.order)
+    const { details } = useSelector((state: RootState) => state.order)
     const { reviews, isSuccessUpdate, isErrorUpdate, isLoading,
         errorMessageUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.review)
     const dispatch: AppDispatch = useDispatch();
@@ -111,12 +112,11 @@ const ProductDetailPage: NextPage<TProps> = () => {
     //     : 0;
 
     //fetch api
-    const fetchGetProductDetail = async (id: string) => {
+    const fetchGetProductDetail = async (id: number) => {
         setLoading(true)
         await getProductDetail(id)
             .then(async response => {
                 setLoading(false)
-                console.log("response", response)
                 const data = response?.result
                 if (data) {
                     setProductData(data)
@@ -142,31 +142,31 @@ const ProductDetailPage: NextPage<TProps> = () => {
             })
     }
 
-    const fetchGetAllReviews = async (id: string) => {
-        setLoading(true)
-        await getAllReviews({
-            params: {
-                limit: -1, page: -1, order: 'createAt desc', isPublic: true, ...formatFilter({ productId: id })
-            }
-        })
-            .then(async response => {
-                setLoading(false)
-                const data = response?.data?.reviews
-                if (data) {
-                    setListReview(data)
-                }
-            })
-            .catch(() => {
-                setLoading(false)
-            })
-    }
+    // const fetchGetAllReviews = async (id: number) => {
+    //     setLoading(true)
+    //     await getAllReviews({
+    //         params: {
+    //             limit: -1, page: -1, order: 'createAt desc', isPublic: true, ...formatFilter({ productId: id })
+    //         }
+    //     })
+    //         .then(async response => {
+    //             setLoading(false)
+    //             const data = response?.data?.reviews
+    //             if (data) {
+    //                 setListReview(data)
+    //             }
+    //         })
+    //         .catch(() => {
+    //             setLoading(false)
+    //         })
+    // }
 
     //handler
     const handleUpdateProductToCart = (item: TProduct) => {
         const productCart = getLocalProductFromCart()
         const parseData = productCart ? JSON.parse(productCart) : {}
         const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
-        const listOrderItems = convertUpdateProductToCart(orderItems, {
+        const listOrderItems = convertUpdateProductToCart(details, {
             name: item?.name,
             amount: productAmount,
             images: item?.images,
@@ -177,7 +177,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
         if (user?.id) {
             dispatch(
                 updateProductToCart({
-                    orderItems: listOrderItems
+                    details: listOrderItems
                 })
             )
             setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
@@ -208,36 +208,36 @@ const ProductDetailPage: NextPage<TProps> = () => {
         }
     }, [productId])
 
-    useEffect(() => {
-        if (productData.id) {
-            fetchGetAllReviews(productData.id)
-        }
-    }, [productData.id])
+    // useEffect(() => {
+    //     if (productData.id) {
+    //         fetchGetAllReviews(productData.id)
+    //     }
+    // }, [productData.id])
 
     /// update Review
-    useEffect(() => {
-        if (isSuccessUpdate) {
-            toast.success(t("update_review_success"))
-            fetchGetAllReviews(productData.id)
-            dispatch(resetInitialState())
-        } else if (isErrorUpdate && errorMessageUpdate && typeError) {
-            toast.error(t("update_review_error"))
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessUpdate, isErrorUpdate, errorMessageUpdate, typeError])
+    // useEffect(() => {
+    //     if (isSuccessUpdate) {
+    //         toast.success(t("update_review_success"))
+    //         fetchGetAllReviews(productData.id)
+    //         dispatch(resetInitialState())
+    //     } else if (isErrorUpdate && errorMessageUpdate && typeError) {
+    //         toast.error(t("update_review_error"))
+    //         dispatch(resetInitialState())
+    //     }
+    // }, [isSuccessUpdate, isErrorUpdate, errorMessageUpdate, typeError])
 
 
     //delete Review
-    useEffect(() => {
-        if (isSuccessDelete) {
-            toast.success(t("delete_review_success"))
-            fetchGetAllReviews(productData.id)
-            dispatch(resetInitialState())
-        } else if (isErrorDelete && errorMessageDelete) {
-            toast.error(errorMessageDelete)
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
+    // useEffect(() => {
+    //     if (isSuccessDelete) {
+    //         toast.success(t("delete_review_success"))
+    //         fetchGetAllReviews(productData.id)
+    //         dispatch(resetInitialState())
+    //     } else if (isErrorDelete && errorMessageDelete) {
+    //         toast.error(errorMessageDelete)
+    //         dispatch(resetInitialState())
+    //     }
+    // }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
 
     const memoCheckExpire = React.useMemo(() => {
         if (productData.startDate && productData.endDate) {
@@ -690,7 +690,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                         </Typography>
                         <Grid container spacing={3}>
                             {listReview?.map((review: TReviewItem) => (
-                                <Grid item key={review._id} xs={12}>
+                                <Grid item key={review.id} xs={12}>
                                     <ReviewCard item={review} />
                                 </Grid>
                             ))}

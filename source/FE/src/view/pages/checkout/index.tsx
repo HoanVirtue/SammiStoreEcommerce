@@ -77,7 +77,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const router = useRouter();
     const theme = useTheme();
     const dispatch: AppDispatch = useDispatch();
-    const { isLoading, isSuccessCreate, isErrorCreate, errorMessageCreate, orderItems } = useSelector(
+    const { isLoading, isSuccessCreate, isErrorCreate, errorMessageCreate, details } = useSelector(
         (state: RootState) => state.order
     );
     const { addresses, currentAddress } = useSelector((state: RootState) => state.address);
@@ -97,11 +97,11 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     const handleFormatProductData = (items: any) => {
         const objectMap: Record<string, TItemOrderProduct> = {};
-        orderItems.forEach((order: any) => {
+        details.forEach((order: any) => {
             objectMap[order.productId] = order;
         });
         return items.map((item: any) => ({
-            ...objectMap[item.productId],
+            ...objectMap[+item.productId],
             amount: item.amount,
         }));
     };
@@ -115,7 +115,7 @@ const CheckoutPage: NextPage<TProps> = () => {
             result.selectedProduct = data.selectedProduct ? handleFormatProductData(JSON.parse(data.selectedProduct)) : [];
         }
         return result;
-    }, [router.query, orderItems]);
+    }, [router.query, details]);
 
     const getMyCurrentAddress = async () => {
         const res = await getCurrentAddress()
@@ -196,11 +196,11 @@ const CheckoutPage: NextPage<TProps> = () => {
     const onChangeDelivery = (value: string) => setSelectedDelivery(value);
     const onChangePayment = (value: string) => setSelectedPayment(value);
 
-    const handlePaymentVNPay = async (data: { orderId: string; totalPrice: number }) => {
+    const handlePaymentVNPay = async (data: { orderId: number; totalPrice: number }) => {
         setLoading(true)
         await createVNPayPaymentUrl({
             totalPrice: data.totalPrice,
-            orderId: data?.orderId,
+            orderId: +data?.orderId,
             language: i18n.language === 'vi' ? 'vn' : i18n.language
         }).then(res => {
             if (res?.result) {
@@ -211,7 +211,7 @@ const CheckoutPage: NextPage<TProps> = () => {
             .catch(() => setLoading(false))
     }
 
-    const handlePaymentTypeOrder = (id: string, data: { orderId: string; totalPrice: number }) => {
+    const handlePaymentTypeOrder = (id: string, data: { orderId: number; totalPrice: number }) => {
         switch (id) {
             case PAYMENT_DATA.VN_PAYMENT.value: {
                 handlePaymentVNPay(data)

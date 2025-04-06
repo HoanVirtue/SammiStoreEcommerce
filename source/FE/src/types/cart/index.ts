@@ -12,8 +12,8 @@ export type TParamsGetAllCarts = {
 }
 
 export type TItemCartProduct = {
-    cartId: string,
-    productId: string,
+    cartId: number,
+    productId: number,
     quantity: number,
     operation: number,
 }
@@ -21,7 +21,7 @@ export type TItemCartProduct = {
 
 export type TParamsCreateCart = {
     cartId: string,
-    productId: string,
+    productId: number,
     quantity: number,
     operation: number,
 }

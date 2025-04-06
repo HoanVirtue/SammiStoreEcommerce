@@ -1,6 +1,6 @@
 // ** Redux Imports
 import { createSlice } from '@reduxjs/toolkit'
-import { cancelOrderAsync, createOrderAsync, deleteOrderAsync, getAllManageOrderAsync, getAllOrdersAsync, serviceName, updateOrderAsync } from './action'
+import { cancelOrderAsync, createOrderAsync, deleteOrderAsync, getAllManageOrderAsync, getAllOrdersAsync, getMyOrdersAsync, serviceName, updateOrderAsync } from './action'
 import { getAllManageOrders } from 'src/services/order'
 
 // ** Action Imports
@@ -20,7 +20,11 @@ const initialState = {
   isErrorDelete: false,
   errorMessageDelete: '',
   typeError: '',
-  orderItems: [],
+  details: [],
+  myOrders: {
+    data: [],
+    total: 0
+  },
   orderProducts: {
     data: [],
     total: 0
@@ -36,7 +40,7 @@ export const orderSlice = createSlice({
   initialState,
   reducers: {
     updateProductToCart: (state, action) => {
-      state.orderItems = action.payload.orderItems
+      state.details = action.payload.details
     },
     resetInitialState: (state) => {
       state.isLoading = false
@@ -61,6 +65,23 @@ export const orderSlice = createSlice({
 
   },
   extraReducers: builder => {
+
+    
+    //get my Order
+    builder.addCase(getMyOrdersAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(getMyOrdersAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.myOrders.data = Array.isArray(action?.payload?.result) ? action?.payload?.result : [];
+      state.myOrders.total = action?.payload?.result?.length
+    })
+    builder.addCase(getMyOrdersAsync.rejected, (state, action) => {
+      state.isLoading = false
+      state.myOrders.data = []
+      state.myOrders.total = 0
+    })
+
     //get all Order
     builder.addCase(getAllOrdersAsync.pending, (state, action) => {
       state.isLoading = true

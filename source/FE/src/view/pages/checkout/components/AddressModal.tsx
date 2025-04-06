@@ -407,14 +407,8 @@ const AddressModal = (props: TAddressModal) => {
                                                             value={address.id}
                                                             control={<Radio />}
                                                             label={
-                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, maxWidth: '60%' }}>
-                                                                    <Typography
-                                                                        sx={{
-                                                                            overflow: 'hidden',
-                                                                            textOverflow: 'ellipsis',
-                                                                            whiteSpace: 'nowrap'
-                                                                        }}
-                                                                    >
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, maxWidth: '100%' }}>
+                                                                    <Typography>
                                                                         {`${address.streetAddress}, ${address.wardName}, ${address.districtName}, ${address.provinceName}`}
                                                                     </Typography>
                                                                     {address.isDefault && (

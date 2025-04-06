@@ -13,7 +13,7 @@ export type TParamsGetAllOrders = {
 }
 
 export type TItemOrderProduct = {
-    productId: string;
+    productId: number;
     name: string;
     amount: number;
     price: number;
@@ -21,18 +21,17 @@ export type TItemOrderProduct = {
     images: ProductImage[];
 }
 
-export type TItemOrderProductMe = {
-    name: string,
-    amount: number,
-    image: string,
-    price: number,
-    discount: number,
-    product: {
-        _id: string,
-        countInStock: number,
-        slug: string
-    }
+export type TOrderDetail = {
+    id: number;
+    orderId: number;
+    productId: number;
+    productName: string;
+    imageUrl: string;
+    quantity: number;
+    price: number;
+    tax: number;
 }
+
 
 export type TParamsCreateOrder = {
     customerId: number;
@@ -65,26 +64,18 @@ export type TParamsCreateOrder = {
 }
 
 
-export type TParamsUpdateOrder ={
-    shippingAddress: {
-        address: string,
-        city: string,
-        phone: string,
-        fullName: string
-    },
-    id: string
-    isPaid: number,
-    isDelivery: number,
-    paymentMethod: string,
-    deliveryMethod: string
+export interface TParamsUpdateOrder extends TParamsCreateOrder {
+    id: number
 }
 
 export type TOrderItem = {
+    id: number,
     code: string,
     customerId: number,
     customerName: string,
     phoneNumber: string,
     paymentStatus: string,
+    paymentMethod: string,
     shippingStatus: string,
     orderStatus: string,
     voucherId: number,
@@ -99,6 +90,6 @@ export type TOrderItem = {
     totalQuantity: number,
 
     returnUrl: string,
-    details: TItemOrderProduct[],
+    details: TOrderDetail[],
     
 }

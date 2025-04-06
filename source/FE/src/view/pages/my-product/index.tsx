@@ -82,14 +82,30 @@ const MyProductPage: NextPage<TProps> = () => {
     //API
     const handleGetListViewedProducts = () => {
         const query = {
-            params: { limit: pageSize, page: page, search: searchBy }
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: ""
+            }
         }
         dispatch(getAllViewedProductsAsync(query));
     }
 
     const handleGetListLikedProducts = () => {
         const query = {
-            params: { limit: pageSize, page: page, search: searchBy }
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: ""
+            }
         }
         dispatch(getAllLikedProductsAsync(query));
     }

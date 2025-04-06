@@ -52,7 +52,7 @@ export const updateProduct = async (data: TParamsUpdateProduct) => {
 }
 
 
-export const deleteProduct = async (id: string) => {
+export const deleteProduct = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/${id}`)
         return res.data
@@ -61,7 +61,7 @@ export const deleteProduct = async (id: string) => {
     }
 }
 
-export const getProductDetail = async (id: string) => {
+export const getProductDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/${id}`)
         return res.data
@@ -70,7 +70,7 @@ export const getProductDetail = async (id: string) => {
     }
 }
 
-export const getProductDetailPublic = async (id: string) => {
+export const getProductDetailPublic = async (id: number) => {
     try {
         const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public/${id}`)
         return res.data
@@ -118,7 +118,7 @@ export const deleteMultipleProducts = async (data: TParamsDeleteMultipleProducts
 }
 
 
-export const likeProduct = async (data: {productId: string }) => {
+export const likeProduct = async (data: {productId: number }) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/like`, data)
         if(res?.data?.status === "Success") {
@@ -134,12 +134,12 @@ export const likeProduct = async (data: {productId: string }) => {
     }
 }
 
-export const unlikeProduct = async (data: {productId: string }) => {
+export const unlikeProduct = async (data: {productId: number }) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/unlike`, data)
         if(res?.data?.status === "Success") {
             return {
-                data: {_id: 1}
+                data: {id: 1}
             }
         }
         return {

@@ -70,10 +70,10 @@ const ProductCard = (props: any) => {
 
     //redux
     const dispatch: AppDispatch = useDispatch()
-    const { orderItems } = useSelector((state: RootState) => state.order)
+    const { details } = useSelector((state: RootState) => state.order)
 
     //handler
-    const handleNavigateProductDetail = (id: string) => {
+    const handleNavigateProductDetail = (id: number) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${id}`)
     }
 
@@ -82,7 +82,7 @@ const ProductCard = (props: any) => {
         const parseData = productCart ? JSON.parse(productCart) : {}
         const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
 
-        const listOrderItems = convertUpdateProductToCart(orderItems, {
+        const listOrderItems = convertUpdateProductToCart(details, {
             name: item?.name,
             amount: 1,
             images: item?.images,
@@ -94,7 +94,7 @@ const ProductCard = (props: any) => {
         if (user?.id) {
             dispatch(
                 updateProductToCart({
-                    orderItems: listOrderItems
+                    details: listOrderItems
                 })
             )
             toast.success(t('add_to_cart_success'))
@@ -109,7 +109,7 @@ const ProductCard = (props: any) => {
         }
     }
 
-    const handleToggleFavoriteProduct = (id: string, isLiked: boolean) => {
+    const handleToggleFavoriteProduct = (id: number, isLiked: boolean) => {
         if (user?.id) {
             if (isLiked) {
                 dispatch(unlikeProductAsync({ productId: id }))
@@ -187,7 +187,7 @@ const ProductCard = (props: any) => {
                     </Tooltip>
                     <Tooltip title={t("see_product_detail")}>
                         <Fab aria-label="see-detail" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleNavigateProductDetail(item?.id)}>
+                            <IconButton onClick={() => handleNavigateProductDetail(+item?.id || 0)}>
                                 <IconifyIcon color={theme.palette.primary.main} icon="famicons:eye-outline" fontSize='1.5rem' />
                             </IconButton>
                         </Fab>
@@ -207,7 +207,8 @@ const ProductCard = (props: any) => {
                 </ButtonGroup>
             </ButtonGroupWrapper>
             <CardContent sx={{ padding: "8px 12px 0px 12px", pb: "10px !important", }}>
-                <Typography variant="h5" onClick={() => handleNavigateProductDetail(item?.slug)}
+                {/* <Typography variant="h5" onClick={() => handleNavigateProductDetail(item?.slug)} */}
+                <Typography variant="h5" onClick={() => handleNavigateProductDetail(+item?.id)}
                     sx={{
                         color: theme.palette.primary.main,
                         fontWeight: "bold",

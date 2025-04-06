@@ -26,7 +26,7 @@ import { TOrderItem } from 'src/types/order'
 import NoData from 'src/components/no-data'
 import { useRouter } from 'next/router'
 import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
-import { getAllOrdersAsync } from 'src/stores/order/action'
+import { getMyOrdersAsync } from 'src/stores/order/action'
 import OrderCard from './components/OrderCard'
 import CustomPagination from 'src/components/custom-pagination'
 import { TabsProps } from '@mui/material'
@@ -68,7 +68,7 @@ const MyOrderPage: NextPage<TProps> = () => {
 
     //Dispatch
     const dispatch: AppDispatch = useDispatch();
-    const { orders, isLoading, isErrorCancel, isSuccessCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
+    const { myOrders, isLoading, isErrorCancel, isSuccessCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
 
     const STATUS_OPTION = [
         {
@@ -96,9 +96,17 @@ const MyOrderPage: NextPage<TProps> = () => {
     //Fetch API
     const handleGetListOrder = () => {
         const query = {
-            params: { limit: pageSize, page: page, status: selectedStatus === STATUS_OPTION_VALUE.ALL ? '' : selectedStatus, search: searchBy }
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: ""
+            }
         }
-        dispatch(getAllOrdersAsync(query));
+        dispatch(getMyOrdersAsync(query));
     }
 
     const handleOnChangePagination = (page: number, pageSize: number) => {
@@ -153,7 +161,7 @@ const MyOrderPage: NextPage<TProps> = () => {
                 </Box>
             </Box>
             <Box sx={{}}>
-                {orders?.data?.length > 0 ? (
+                {myOrders?.data?.length > 0 ? (
                     <Box sx={{
                         display: 'flex',
                         alignItems: 'center',
@@ -163,7 +171,7 @@ const MyOrderPage: NextPage<TProps> = () => {
                         paddingTop: '1rem',
                         gap: 6,
                     }}>
-                        {orders?.data?.map((item: TOrderItem, index: number) => {
+                        {myOrders?.data?.map((item: TOrderItem, index: number) => {
                             return (
                                 <OrderCard orderData={item} key={item.id} />
                             )
@@ -173,7 +181,7 @@ const MyOrderPage: NextPage<TProps> = () => {
                             pageSizeOptions={PAGE_SIZE_OPTIONS}
                             onChangePagination={handleOnChangePagination}
                             page={page}
-                            rowLength={orders.total}
+                            rowLength={myOrders.total}
                             isHidden
                         />
                     </Box>

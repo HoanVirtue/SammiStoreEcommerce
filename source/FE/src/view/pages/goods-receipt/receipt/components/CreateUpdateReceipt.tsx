@@ -339,7 +339,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose }
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Box sx={{ p: 3 }}>
+            <Box sx={{ p: 3, width: '100%' }}>
                 {loading && <Spinner />}
                 <Paper sx={{ p: 2 }}>
                     <form onSubmit={handleSubmit(onSubmit)}>

@@ -42,7 +42,7 @@ export const updateEvent = async (data: TParamsUpdateEvent) => {
 }
 
 
-export const deleteEvent = async (id: string) => {
+export const deleteEvent = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.EVENT.INDEX}/${id}`)
         return res.data
@@ -51,7 +51,7 @@ export const deleteEvent = async (id: string) => {
     }
 }
 
-export const getEventDetail = async (id: string) => {
+export const getEventDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.EVENT.INDEX}/${id}`)
         return res.data

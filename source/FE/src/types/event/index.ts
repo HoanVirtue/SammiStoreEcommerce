@@ -21,7 +21,7 @@ export type EventImage = {
     imageUrl: string;
     imageBase64: string;
     publicId: string;
-    typeImage: number;
+    typeImage: string;
     value: string;
     displayOrder: number;
 }
@@ -44,22 +44,22 @@ export type TParamsCreateEvent = {
         usageLimit: number
         startDate: Date
         endDate: Date
-        conditions:{
+        conditions: {
             voucherId: number
-            conditionTypeId: number
+            conditionType: number
             conditionValue: number
-        }
-    }
+        }[]
+    }[]
 }
 
 export interface TParamsUpdateEvent extends TParamsCreateEvent {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteEvent = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleEvents = {
-    eventIds: string[],
+    eventIds: number[],
 }

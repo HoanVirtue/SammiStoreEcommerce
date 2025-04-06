@@ -44,12 +44,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         {
             var actResponse = new ActionResponse<VoucherDTO>();
 
-            if (request.StartDate >= request.EndDate)
-            {
-                actResponse.AddError("Ngày bắt đầu phải nhỏ hơn ngày kết thúc");
-                return actResponse;
-            }
-
             if (await _voucherRepository.CheckExistCode(request.Code, request.Id))
             {
                 actResponse.AddError("Mã chương trình khuyến mãi đã tồn tại");

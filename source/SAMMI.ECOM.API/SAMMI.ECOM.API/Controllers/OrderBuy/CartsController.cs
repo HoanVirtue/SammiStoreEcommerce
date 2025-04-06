@@ -62,12 +62,6 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(cartItems);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
-        {
-            return Ok(await _cartQueries.GetById(id));
-        }
-
         //customer
         [HttpPost("add-to-cart")]
         public async Task<IActionResult> AddToCart([FromBody] CreateCartDetailCommand request)

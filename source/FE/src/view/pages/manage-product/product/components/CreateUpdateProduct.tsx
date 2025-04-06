@@ -196,7 +196,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         } else {
             dispatch(createProductAsync(payload));
         }
-        
+
         // onClose();
     };
 

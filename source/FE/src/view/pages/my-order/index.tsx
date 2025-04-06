@@ -165,7 +165,7 @@ const MyOrderPage: NextPage<TProps> = () => {
                     }}>
                         {orders?.data?.map((item: TOrderItem, index: number) => {
                             return (
-                                <OrderCard orderData={item} key={item._id} />
+                                <OrderCard orderData={item} key={item.id} />
                             )
                         })}
                         <CustomPagination

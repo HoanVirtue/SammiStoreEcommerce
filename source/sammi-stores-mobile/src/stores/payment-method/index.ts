@@ -79,8 +79,8 @@ export const paymentMethodSlice = createSlice({
     })
     builder.addCase(createPaymentMethodAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.result?.id
-      state.isErrorCreateUpdate = !action.payload?.result?.id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.errors
     })
@@ -97,8 +97,8 @@ export const paymentMethodSlice = createSlice({
     })
     builder.addCase(updatePaymentMethodAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.result?.id
-      state.isErrorCreateUpdate = !action.payload?.result?.id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.typeError = action.payload?.errors
     })
     builder.addCase(updatePaymentMethodAsync.rejected, (state, action) => {

@@ -85,8 +85,8 @@ export const provinceSlice = createSlice({
     })
     builder.addCase(createProvinceAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.result?.id
-      state.isErrorCreateUpdate = !action.payload?.result?.id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.errors
     })
@@ -103,8 +103,8 @@ export const provinceSlice = createSlice({
     })
     builder.addCase(updateProvinceAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.result?.id
-      state.isErrorCreateUpdate = !action.payload?.result?.id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.typeError = action.payload?.errors
     })
     builder.addCase(updateProvinceAsync.rejected, (state, action) => {

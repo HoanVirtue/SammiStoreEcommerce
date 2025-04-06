@@ -223,8 +223,13 @@ const CheckoutPage: NextPage<TProps> = () => {
     }
 
     useEffect(() => {
+        if (user) {
+            getMyCurrentAddress();
+        }
+    }, [addresses, user]);
+
+    useEffect(() => {
         getListPaymentMethod();
-        getMyCurrentAddress()
     }, []);
 
     const handlePlaceOrder = () => {
@@ -283,30 +288,6 @@ const CheckoutPage: NextPage<TProps> = () => {
         }
     }, [router.query])
 
-    // useEffect(() => {
-    //     if (isSuccessCreate) {
-    //         Swal.fire({
-    //             title: t('congratulation!'),
-    //             text: t('create_order_success'),
-    //             icon: 'success',
-    //             confirmButtonText: t('confirm'),
-    //             background: theme.palette.background.paper,
-    //             color: theme.palette.customColors.main,
-    //         }).then(() => router.push(ROUTE_CONFIG.MY_ORDER));
-    //         dispatch(resetInitialState());
-    //     } else if (isErrorCreate && errorMessageCreate) {
-    //         Swal.fire({
-    //             title: t('opps!'),
-    //             text: t(errorMessageCreate),
-    //             icon: 'error',
-    //             confirmButtonText: t('confirm'),
-    //             background: theme.palette.background.paper,
-    //             color: theme.palette.customColors.main,
-    //         });
-    //         dispatch(resetInitialState());
-    //     }
-    // }, [isSuccessCreate, isErrorCreate, errorMessageCreate]);
-
 
     return (
         <Box sx={{
@@ -318,7 +299,7 @@ const CheckoutPage: NextPage<TProps> = () => {
         }}
         >
             {loading || (isLoading && <Spinner />)}
-            <WarningModal open={openWarning} onClose={() => setOpenAddress(false)} />
+            {/* <WarningModal open={openWarning} onClose={() => setOpenAddress(false)} /> */}
             <AddressModal open={openAddress} onClose={() => setOpenAddress(false)} />
             <VoucherModal
                 open={openVoucher}

@@ -74,8 +74,8 @@ export const districtSlice = createSlice({
     })
     builder.addCase(createDistrictAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.result?.id
-      state.isErrorCreateUpdate = !action.payload?.result?.id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.errors
     })
@@ -92,8 +92,8 @@ export const districtSlice = createSlice({
     })
     builder.addCase(updateDistrictAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.result?.id
-      state.isErrorCreateUpdate = !action.payload?.result?.id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.typeError = action.payload?.errors
     })
     builder.addCase(updateDistrictAsync.rejected, (state, action) => {

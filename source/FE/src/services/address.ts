@@ -42,7 +42,7 @@ export const updateAddress = async (data: TParamsUpdateAddress) => {
 }
 
 
-export const deleteAddress = async (id: string) => {
+export const deleteAddress = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.CUSTOMER_ADDRESS.INDEX}/${id}`)
         return res.data
@@ -51,7 +51,7 @@ export const deleteAddress = async (id: string) => {
     }
 }
 
-export const getAddressDetail = async (id: string) => {
+export const getAddressDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.CUSTOMER_ADDRESS.INDEX}/${id}`)
         return res.data

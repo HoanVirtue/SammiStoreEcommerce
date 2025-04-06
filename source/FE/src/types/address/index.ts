@@ -1,21 +1,8 @@
-export interface PropertyFilterModel {
-    field: string;      
-    operator: string;     
-    filterValue: string;   
-}
+import { IBaseModel, IBaseModelGetAll } from "..";
 
-export type TParamsGetAllAddresses = {
-    skip?: number;
-    take?: number;
-    filters?: string;
-    orderBy?: string;
-    dir?: string;
-    type?: number | (1 | 2 | 3 | 4 | 5 | 6)
-    paging?: boolean;
-    restrictOrderBy?: boolean;
-    keywords?: string;
-    propertyFilterModels?: PropertyFilterModel[]; 
-}
+
+
+export interface TParamsGetAllAddresses extends IBaseModelGetAll {}
 
 export type TParamsAddresses = {
     streetAddress: string;
@@ -26,18 +13,19 @@ export type TParamsAddresses = {
     provinceName: string;
 }
 
-export type TParamsCreateAddress = {
+export interface TParamsCreateAddress extends IBaseModel {
+    customerId: number;
     streetAddress: string;
     wardId: number;
-    isDefault?: boolean;
+    isDefault: boolean;
 }
 
 export interface TParamsUpdateAddress extends TParamsCreateAddress {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteAddress = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleAddresses = {

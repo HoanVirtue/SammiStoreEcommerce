@@ -99,8 +99,8 @@ export const addressesSlice = createSlice({
     })
     builder.addCase(createAddressAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreate = !!action.payload?.result?.id
-      state.isErrorCreate = !action.payload?.result?.id
+      state.isSuccessCreate = !!action.payload?.isSuccess
+      state.isErrorCreate = !action.payload?.isSuccess
       state.errorMessageCreate = action.payload?.message
       state.typeError = action.payload?.errors
     })
@@ -117,8 +117,8 @@ export const addressesSlice = createSlice({
     })
     builder.addCase(updateAddressAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessUpdate = !!action.payload?.result?.id
-      state.isErrorUpdate = !action.payload?.result?.id
+      state.isSuccessUpdate = !!action.payload?.isSuccess
+      state.isErrorUpdate = !action.payload?.isSuccess
       state.typeError = action.payload?.errors
     })
     builder.addCase(updateAddressAsync.rejected, (state, action) => {

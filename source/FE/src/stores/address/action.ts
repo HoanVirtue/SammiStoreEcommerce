@@ -29,7 +29,7 @@ export const updateAddressAsync = createAsyncThunk(`${serviceName}/update`, asyn
 })
 
 
-export const deleteAddressAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteAddressAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteAddress(id)
     return response
 })

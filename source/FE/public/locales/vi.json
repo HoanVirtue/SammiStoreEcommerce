@@ -663,7 +663,22 @@
     "event_name_required": "Tên sự kiện không được để trống",
     "event_code_required": "Mã sự kiện không được để trống",
     "event_start_date_required": "Ngày bắt đầu không được để trống",
+    "update_address_success": "Cập nhật địa chỉ thành công",
+    "update_address_error": "Đã xảy ra lỗi khi cập nhật địa chỉ, vui lòng thử lại!",
+    "update_address_description": "Bạn có chắc muốn cập nhật địa chỉ này?",
+    "update_address_required": "Địa chỉ không được để trống",
+    "update_address_required_province": "Tỉnh/Thành phố không được để trống",
+    "set_as_default_address": "Đặt làm địa chỉ mặc định",
+    "default": "Mặc định",
+    "edit_address": "Sửa địa chỉ",
+    "delete_address": "Xóa địa chỉ",
+    "delete_address_success": "Xóa địa chỉ thành công",
+    "delete_address_description": "Bạn có chắc muốn xóa địa chỉ này?",
+    "delete_address_error": "Đã xảy ra lỗi khi xóa địa chỉ, vui lòng thử lại!",
+    "create_address_success": "Thêm mới địa chỉ thành công",
+    "create_address_error": "Đã xảy ra lỗi khi thêm mới địa chỉ, vui lòng thử lại!",
     
+
     
 
 

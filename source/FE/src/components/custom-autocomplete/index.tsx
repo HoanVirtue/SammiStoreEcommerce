@@ -7,7 +7,7 @@ export interface AutocompleteOption {
     value: string | number;
     id?: number;
     price?: number;
-    [key: string]: any; // Allow for additional properties
+    [key: string]: any;
 }
 
 interface CustomAutocompleteProps {
@@ -46,6 +46,23 @@ const StyledAutocomplete = styled(MuiAutocomplete)(({ theme }) => ({
         },
         '&.Mui-focused fieldset': {
             borderColor: theme.palette.primary.main,
+        },
+        '&.Mui-error fieldset': {
+            // border: `1px solid ${theme.palette.error.main}`,
+            borderColor: `${theme.palette.error.main} !important`,
+        },
+        
+        "& .MuiFormHelperText-root": {
+            lineHeight: 1.154,
+            margin: theme.spacing(1, 0, 0),
+            color: theme.palette.error.main,
+            fontSize: theme.typography.body2.fontSize,
+            whiteSpace: "normal",
+            wordWrap: "break-word",
+            textWrap: "wrap",
+            "& .Mui-error": {
+                color: theme.palette.error.main
+            }
         },
     },
 }));

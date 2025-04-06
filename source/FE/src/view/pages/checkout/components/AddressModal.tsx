@@ -1,9 +1,8 @@
-// AddressModal.tsx
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Controller, useForm } from "react-hook-form";
 import * as yup from 'yup';
-import { Box, Button, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, IconButton, Typography, RadioGroup, Radio, Stack } from "@mui/material";
+import { Box, Button, FormControl, FormControlLabel, FormHelperText, FormLabel, Grid, IconButton, Typography, RadioGroup, Radio, Stack, Checkbox, Chip } from "@mui/material";
 import { useTheme } from "@mui/material";
 import CustomModal from "src/components/custom-modal";
 import IconifyIcon from "src/components/Icon";
@@ -13,14 +12,15 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
 import NoData from "src/components/no-data";
-import { toast } from 'react-toastify'
+import { toast } from 'react-toastify';
 import { resetInitialState } from "src/stores/address";
-import { createAddressAsync, getAllAddressesAsync, updateAddressAsync } from "src/stores/address/action";
-import CustomSelect from "src/components/custom-select";
+import { createAddressAsync, getAllAddressesAsync, updateAddressAsync, deleteAddressAsync } from "src/stores/address/action";
+import CustomAutocomplete from "src/components/custom-autocomplete";
 import { getAllProvinces } from "src/services/province";
 import { getAllDistricts } from "src/services/district";
 import { getAllWards } from "src/services/ward";
 import { TParamsAddresses } from "src/types/address";
+import { useAuth } from "src/hooks/useAuth";
 
 interface TAddressModal {
     open: boolean;
@@ -32,31 +32,44 @@ interface TDefaultValues {
     wardName: string;
     districtName: string;
     provinceName: string;
-    wardId: string;
+    wardId: number;
+    isDefault: boolean;
+    isActive: boolean;
+    isDelete: boolean;
+    customerId: number;
 }
 
 interface Address {
-    id: string;
+    id: number;
     streetAddress: string;
     wardId: number;
-    isDefault: boolean;
+    customerId: number;
     wardName: string;
     districtName: string;
     provinceName: string;
+    isDefault: boolean;
+    isActive: boolean;
+    isDelete: boolean;
+}
+
+interface AutocompleteOption {
+    label: string;
+    value: string | number;
 }
 
 const AddressModal = (props: TAddressModal) => {
     const [loading, setLoading] = useState(false);
     const [activeTab, setActiveTab] = useState(1);
     const [isEdit, setIsEdit] = useState({ isEdit: false, index: 0 });
-    const [wardOptions, setWardOptions] = useState<{ label: string; value: string }[]>([]);
-    const [provinceOptions, setProvinceOptions] = useState<{ label: string; value: string }[]>([]);
-    const [districtOptions, setDistrictOptions] = useState<{ label: string; value: string }[]>([]);
-    const [selectedProvince, setSelectedProvince] = useState<string>("");
-    const [selectedDistrict, setSelectedDistrict] = useState<string>("");
-    const [addresses, setAddresses] = useState<{ data: Address[] }>({ data: [] });
-    const [selectedAddressIndex, setSelectedAddressIndex] = useState<number | null>(null);
+    const [wardOptions, setWardOptions] = useState<AutocompleteOption[]>([]);
+    const [provinceOptions, setProvinceOptions] = useState<AutocompleteOption[]>([]);
+    const [districtOptions, setDistrictOptions] = useState<AutocompleteOption[]>([]);
+    const [selectedProvince, setSelectedProvince] = useState<AutocompleteOption | null>(null);
+    const [selectedDistrict, setSelectedDistrict] = useState<AutocompleteOption | null>(null);
+    const [addresses, setAddresses] = useState<Address[]>([]);
+    const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
 
+    const { user } = useAuth();
     const { open, onClose } = props;
     const { t } = useTranslation();
     const theme = useTheme();
@@ -68,26 +81,37 @@ const AddressModal = (props: TAddressModal) => {
         errorMessageCreate,
         isSuccessUpdate,
         isErrorUpdate,
-        errorMessageUpdate
+        errorMessageUpdate,
+        isSuccessDelete,
+        isErrorDelete,
+        errorMessageDelete
     } = useSelector((state: RootState) => state.address);
 
     const schema = yup.object().shape({
         streetAddress: yup.string().required(t("required_street_address")),
-        wardId: yup.string().required(t("required_ward_id")),
+        wardId: yup.number().required(t("required_ward_id")),
         provinceName: yup.string().required(t("required_province_name")),
         districtName: yup.string().required(t("required_district_name")),
         wardName: yup.string().required(t("required_ward_name")),
+        isActive: yup.boolean().default(true),
+        isDelete: yup.boolean().default(false),
+        isDefault: yup.boolean().default(false),
+        customerId: yup.number().required(t("required_customer_id")),
     });
 
-    const defaultValues: TDefaultValues = {
+    const defaultValues: TDefaultValues = useMemo(() => ({
         streetAddress: '',
-        wardId: '',
+        wardId: 0,
         wardName: '',
         districtName: '',
-        provinceName: ''
-    };
+        provinceName: '',
+        isActive: true,
+        isDelete: false,
+        isDefault: false,
+        customerId: user?.id || 0,
+    }), [user?.id]);
 
-    const { handleSubmit, control, formState: { errors }, reset, setValue, watch } = useForm<TDefaultValues>({
+    const { handleSubmit, control, formState: { errors }, reset, setValue } = useForm<TDefaultValues>({
         defaultValues,
         mode: 'onChange',
         resolver: yupResolver(schema)
@@ -97,15 +121,7 @@ const AddressModal = (props: TAddressModal) => {
         try {
             setLoading(true);
             const res = await getAllProvinces({
-                params: {
-                    take: -1,
-                    skip: 0,
-                    paging: false,
-                    orderBy: "name",
-                    dir: "asc",
-                    keywords: "''",
-                    filters: "",
-                },
+                params: { take: -1, skip: 0, paging: false, orderBy: "name", dir: "asc", keywords: "''", filters: "" },
             });
             const data = res?.result?.subset;
             if (data) {
@@ -115,7 +131,6 @@ const AddressModal = (props: TAddressModal) => {
                 })));
             }
         } catch (error) {
-            console.error('Error fetching provinces:', error);
             toast.error(t('error_fetching_provinces'));
         } finally {
             setLoading(false);
@@ -126,15 +141,7 @@ const AddressModal = (props: TAddressModal) => {
         try {
             setLoading(true);
             const res = await getAllDistricts({
-                params: {
-                    take: -1,
-                    skip: 0,
-                    paging: false,
-                    orderBy: "name",
-                    dir: "asc",
-                    keywords: "''",
-                    filters: `provinceId::${provinceId}::eq`,
-                },
+                params: { take: -1, skip: 0, paging: false, orderBy: "name", dir: "asc", keywords: "''", filters: `provinceId::${provinceId}::eq` },
             });
             const data = res?.result?.subset;
             if (data) {
@@ -144,7 +151,6 @@ const AddressModal = (props: TAddressModal) => {
                 })));
             }
         } catch (error) {
-            console.error('Error fetching districts:', error);
             toast.error(t('error_fetching_districts'));
         } finally {
             setLoading(false);
@@ -155,15 +161,7 @@ const AddressModal = (props: TAddressModal) => {
         try {
             setLoading(true);
             const res = await getAllWards({
-                params: {
-                    take: -1,
-                    skip: 0,
-                    paging: false,
-                    orderBy: "name",
-                    dir: "asc",
-                    keywords: "''",
-                    filters: `districtId::${districtId}::eq`,
-                },
+                params: { take: -1, skip: 0, paging: false, orderBy: "name", dir: "asc", keywords: "''", filters: `districtId::${districtId}::eq` },
             });
             const data = res?.result?.subset;
             if (data) {
@@ -173,139 +171,186 @@ const AddressModal = (props: TAddressModal) => {
                 })));
             }
         } catch (error) {
-            console.error('Error fetching wards:', error);
             toast.error(t('error_fetching_wards'));
         } finally {
             setLoading(false);
         }
     };
 
-    const handleAddressSubmit = () => {
-        if (selectedAddressIndex !== null) {
-            const selectedAddress = addresses.data[selectedAddressIndex];
-            dispatch(updateAddressAsync({
-                id: selectedAddress.id,
-                streetAddress: selectedAddress.streetAddress,
-                wardId: selectedAddress.wardId,
-                isDefault: true
-            }));
+    const handleConfirmDefaultAddress = async () => {
+        if (selectedAddressId === null) return;
+
+        const currentDefaultAddress = addresses.find(addr => addr.isDefault);
+        if (currentDefaultAddress?.id === selectedAddressId) {
+            onClose();
+            return;
         }
-        onClose();
+
+        const addressToUpdate = addresses.find(addr => addr.id === selectedAddressId);
+        if (!addressToUpdate) return;
+
+        try {
+            await dispatch(updateAddressAsync({
+                ...addressToUpdate,
+                isDefault: true
+            })).unwrap();
+
+            setAddresses(prev => prev.map(addr => ({
+                ...addr,
+                isDefault: addr.id === selectedAddressId
+            })));
+            onClose();
+        } catch (error) {
+            toast.error(t('error_updating_default_address'));
+        }
+    };
+
+    const handleDeleteAddress = async (addressId: number) => {
+        try {
+            await dispatch(deleteAddressAsync(addressId)).unwrap();
+            await refreshAddresses();
+        } catch (error) {
+        }
     };
 
     const onSubmit = async (data: TDefaultValues) => {
         try {
+            const payload = {
+                streetAddress: data.streetAddress,
+                wardId: data.wardId,
+                customerId: user?.id || 0,
+                isDefault: data.isDefault,
+                isActive: true,
+                isDelete: false
+            };
+
             if (isEdit.isEdit) {
-                const address = addresses.data[isEdit.index];
+                const address = addresses[isEdit.index];
                 await dispatch(updateAddressAsync({
-                    id: address.id,
-                    streetAddress: data.streetAddress,
-                    wardId: parseInt(data.wardId),
-                    isDefault: address.isDefault
+                    ...payload,
+                    id: address.id
                 })).unwrap();
             } else {
                 await dispatch(createAddressAsync({
-                    streetAddress: data.streetAddress,
-                    wardId: parseInt(data.wardId),
-                    isDefault: !addresses.data.some((addr: Address) => addr.isDefault)
+                    ...payload,
+                    id: 0
                 })).unwrap();
             }
 
-            // Refresh address list
-            const response = await dispatch(getAllAddressesAsync()).unwrap();
-            if (response.result) {
-                setAddresses({ data: response.result });
-            }
-
-            setIsEdit({ isEdit: false, index: 0 });
-            setActiveTab(1);
-            reset(defaultValues);
+            await refreshAddresses();
+            resetForm();
         } catch (error) {
-            console.error('Error submitting address:', error);
             toast.error(t('error_submitting_address'));
         }
     };
 
-    const onChangeAddress = (index: number) => {
-        setSelectedAddressIndex(index);
+    const refreshAddresses = async () => {
+        const response = await dispatch(getAllAddressesAsync()).unwrap();
+        if (response.result) {
+            setAddresses(response.result);
+            const defaultAddr = response.result.find((addr: Address) => addr.isDefault);
+            setSelectedAddressId(defaultAddr?.id || null);
+        }
+    };
+
+    const resetForm = () => {
+        setIsEdit({ isEdit: false, index: 0 });
+        setActiveTab(1);
+        reset(defaultValues);
+        setSelectedProvince(null);
+        setSelectedDistrict(null);
+        setWardOptions([]);
     };
 
     useEffect(() => {
         if (open) {
-            dispatch(getAllAddressesAsync()).then((response) => {
-                if (response.payload.result) {
-                    setAddresses({ data: response.payload.result });
-                    // Set initial selected address to default one
-                    const defaultIndex = response.payload.result.findIndex((addr: Address) => addr.isDefault);
-                    if (defaultIndex !== -1) {
-                        setSelectedAddressIndex(defaultIndex);
-                    }
-                }
-            });
+            refreshAddresses();
+            fetchAllProvinces();
         } else {
-            reset(defaultValues);
-            setActiveTab(1);
-            setIsEdit({ isEdit: false, index: 0 });
-            setSelectedProvince("");
-            setSelectedDistrict("");
-            setSelectedAddressIndex(null);
+            resetForm();
             setProvinceOptions([]);
             setDistrictOptions([]);
             setWardOptions([]);
+            setSelectedAddressId(null);
         }
     }, [open]);
 
     useEffect(() => {
-        fetchAllProvinces();
-    }, []);
-
-    useEffect(() => {
         if (selectedProvince) {
-            fetchDistrictsByProvince(selectedProvince);
+            fetchDistrictsByProvince(selectedProvince.value.toString());
             setDistrictOptions([]);
             setWardOptions([]);
-            setSelectedDistrict("");
-            setValue("wardId", '');
+            setSelectedDistrict(null);
+            setValue("wardId", 0);
             setValue("wardName", "");
         }
     }, [selectedProvince]);
 
     useEffect(() => {
         if (selectedDistrict) {
-            fetchWardsByDistrict(selectedDistrict);
+            fetchWardsByDistrict(selectedDistrict.value.toString());
             setWardOptions([]);
-            setValue("wardId", '');
+            setValue("wardId", 0);
             setValue("wardName", "");
         }
     }, [selectedDistrict]);
 
     useEffect(() => {
-        if (activeTab === 2 && isEdit.isEdit) {
-            const address = addresses.data[isEdit.index];
-            if (address) {
-                setValue('provinceName', address.provinceName);
-                setValue('districtName', address.districtName);
-                setValue('wardName', address.wardName);
-                setValue('streetAddress', address.streetAddress);
-                setValue('wardId', address.wardId.toString());
+        if (activeTab === 2 && isEdit.isEdit && addresses[isEdit.index]) {
+            const address = addresses[isEdit.index];
+            setValue('provinceName', address.provinceName);
+            setValue('districtName', address.districtName);
+            setValue('wardName', address.wardName);
+            setValue('streetAddress', address.streetAddress);
+            setValue('wardId', address.wardId);
+            setValue('isDefault', address.isDefault);
+
+            const province = provinceOptions.find(opt => opt.label === address.provinceName);
+            if (province) {
+                setSelectedProvince(province);
+                fetchDistrictsByProvince(province.value.toString()).then(() => {
+                    const district = districtOptions.find(opt => opt.label === address.districtName);
+                    if (district) {
+                        setSelectedDistrict(district);
+                        fetchWardsByDistrict(district.value.toString());
+                    }
+                });
             }
         }
-    }, [activeTab, isEdit, addresses.data]);
+    }, [activeTab, isEdit, addresses]);
 
     useEffect(() => {
-        if (isSuccessCreate || isSuccessUpdate) {
-            toast.success(isSuccessCreate ? t("create_address_success") : t("update_address_success"));
-            dispatch(getAllAddressesAsync()).then((response) => {
-                if (response.payload.result) {
-                    setAddresses({ data: response.payload.result });
-                }
-            });
+        if (isSuccessCreate) {
+            toast.success(t("create_address_success"));
+            refreshAddresses();
             dispatch(resetInitialState());
-        } else if ((isErrorCreate && errorMessageCreate) || (isErrorUpdate && errorMessageUpdate)) {
-            toast.error(isErrorCreate ? errorMessageCreate : errorMessageUpdate);
+        } else if (isErrorCreate && errorMessageCreate) {
+            toast.error(errorMessageCreate);
             dispatch(resetInitialState());
         }
-    }, [isSuccessCreate, isErrorCreate, isSuccessUpdate, isErrorUpdate]);
+    }, [isSuccessCreate, isErrorCreate, errorMessageCreate]);
+
+    useEffect(() => {
+        if (isSuccessUpdate) {
+            toast.success(t("update_address_success"));
+            refreshAddresses();
+            dispatch(resetInitialState());
+        } else if (isErrorUpdate && errorMessageUpdate) {
+            toast.error(errorMessageUpdate);
+            dispatch(resetInitialState());
+        }
+    }, [isSuccessUpdate, isErrorUpdate, errorMessageUpdate]);
+
+    useEffect(() => {
+        if (isSuccessDelete) {
+            toast.success(t("delete_address_success"));
+            refreshAddresses();
+            dispatch(resetInitialState());
+        } else if (isErrorDelete && errorMessageDelete) {
+            toast.error(errorMessageDelete);
+            dispatch(resetInitialState());
+        }
+    }, [isSuccessDelete, isErrorDelete, errorMessageDelete]);
 
     return (
         <>
@@ -315,8 +360,9 @@ const AddressModal = (props: TAddressModal) => {
                     backgroundColor: theme.palette.customColors.bodyBg,
                     padding: '20px',
                     borderRadius: '15px',
-                    minWidth: { md: '800px', xs: '80vw' },
-                    maxWidth: { md: '80vw', xs: '80vw' }
+                    width: { md: '800px', xs: '80vw' },
+                    maxWidth: { md: '800px', xs: '80vw' },
+                    overflow: 'hidden'
                 }}>
                     <Box sx={{
                         display: 'flex',
@@ -335,37 +381,74 @@ const AddressModal = (props: TAddressModal) => {
                     <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate>
                         <Box sx={{ backgroundColor: theme.palette.background.paper, borderRadius: "15px", py: 5, px: 4 }}>
                             {activeTab === 1 ? (
-                                <Stack direction="column" >
-                                    {addresses.data.length > 0 ? (
+                                <Stack direction="column">
+                                    {addresses.length > 0 ? (
                                         <FormControl>
                                             <FormLabel sx={{ fontWeight: "bold", color: theme.palette.primary.main }}>
                                                 {t("address")}
                                             </FormLabel>
                                             <RadioGroup
                                                 sx={{ gap: 4 }}
-                                                value={selectedAddressIndex}
-                                                onChange={(e) => onChangeAddress(Number(e.target.value))}
+                                                value={selectedAddressId || ''}
+                                                onChange={(e) => setSelectedAddressId(Number(e.target.value))}
                                             >
-                                                {addresses.data.map((address, index) => (
-                                                    <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                                                {addresses.map((address) => (
+                                                    <Box
+                                                        key={address.id}
+                                                        sx={{
+                                                            display: "flex",
+                                                            alignItems: "center",
+                                                            gap: 2,
+                                                            justifyContent: "space-between",
+                                                            width: '100%'
+                                                        }}
+                                                    >
                                                         <FormControlLabel
-                                                            value={index}
-                                                            control={<Radio checked={address.isDefault} />}
-                                                            label={`${address.streetAddress}, 
-                                                            ${address.wardName}, 
-                                                            ${address.districtName} ,
-                                                            ${address.provinceName}`}
+                                                            value={address.id}
+                                                            control={<Radio />}
+                                                            label={
+                                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, maxWidth: '60%' }}>
+                                                                    <Typography
+                                                                        sx={{
+                                                                            overflow: 'hidden',
+                                                                            textOverflow: 'ellipsis',
+                                                                            whiteSpace: 'nowrap'
+                                                                        }}
+                                                                    >
+                                                                        {`${address.streetAddress}, ${address.wardName}, ${address.districtName}, ${address.provinceName}`}
+                                                                    </Typography>
+                                                                    {address.isDefault && (
+                                                                        <Chip
+                                                                            label={t("default")}
+                                                                            color="primary"
+                                                                            size="small"
+                                                                            sx={{ ml: 1 }}
+                                                                        />
+                                                                    )}
+                                                                </Box>
+                                                            }
+                                                            sx={{ flexGrow: 1, m: 0 }}
                                                         />
-                                                        <Button
-                                                            variant="outlined"
-                                                            onClick={() => {
-                                                                setActiveTab(2);
-                                                                setIsEdit({ isEdit: true, index });
-                                                            }}
-                                                            sx={{ py: 1.5 }}
-                                                        >
-                                                            {t('change_address')}
-                                                        </Button>
+                                                        <Box sx={{ display: "flex", gap: 2, flexShrink: 0 }}>
+                                                            <Button
+                                                                variant="outlined"
+                                                                onClick={() => {
+                                                                    setActiveTab(2);
+                                                                    setIsEdit({ isEdit: true, index: addresses.findIndex(addr => addr.id === address.id) });
+                                                                }}
+                                                                sx={{ py: 1.5 }}
+                                                            >
+                                                                {t('update')}
+                                                            </Button>
+                                                            <Button
+                                                                variant="outlined"
+                                                                color="error"
+                                                                onClick={() => handleDeleteAddress(address.id)}
+                                                                sx={{ py: 1.5 }}
+                                                            >
+                                                                {t('delete')}
+                                                            </Button>
+                                                        </Box>
                                                     </Box>
                                                 ))}
                                             </RadioGroup>
@@ -377,7 +460,7 @@ const AddressModal = (props: TAddressModal) => {
                                     )}
                                     <Button
                                         variant="outlined"
-                                        disabled={addresses.data.length >= 3}
+                                        disabled={addresses.length >= 3}
                                         onClick={() => {
                                             setActiveTab(2);
                                             setIsEdit({ isEdit: false, index: 0 });
@@ -390,98 +473,95 @@ const AddressModal = (props: TAddressModal) => {
                             ) : (
                                 <Grid container spacing={4}>
                                     <Grid item xs={12} md={6}>
-                                        <FormControl fullWidth>
-                                            <CustomSelect
-                                                fullWidth
-                                                value={selectedProvince}
-                                                options={provinceOptions}
-                                                label={t("province")}
-                                                placeholder={t("select_province_name")}
-                                                onChange={(e) => {
-                                                    setSelectedProvince(e.target.value as string);
-                                                    const selectedProv = provinceOptions.find(opt => opt.value === e.target.value);
-                                                    if (selectedProv) {
-                                                        setValue("provinceName", selectedProv.label);
-                                                    }
-                                                }}
-                                                sx={{ borderRadius: "8px" }}
-                                            />
-                                        </FormControl>
+                                        <Controller
+                                            name="provinceName"
+                                            control={control}
+                                            render={({ field: { onChange, value } }) => (
+                                                <CustomAutocomplete
+                                                    options={provinceOptions}
+                                                    value={provinceOptions.find(option => option.label === value) || null}
+                                                    onChange={(newValue) => {
+                                                        onChange(newValue?.label || '');
+                                                        setSelectedProvince(newValue);
+                                                    }}
+                                                    label={t("province")}
+                                                    error={!!errors.provinceName}
+                                                    helperText={errors.provinceName?.message}
+                                                    placeholder={t("select_province_name")}
+                                                />
+                                            )}
+                                        />
                                     </Grid>
                                     <Grid item xs={12} md={6}>
-                                        <FormControl fullWidth>
-                                            <CustomSelect
-                                                id="select-district"
-                                                fullWidth
-                                                value={selectedDistrict}
-                                                options={districtOptions}
-                                                label={t("district")}
-                                                placeholder={t("select_district_name")}
-                                                onChange={(e) => {
-                                                    setSelectedDistrict(e.target.value as string);
-                                                    const selectedDist = districtOptions.find(opt => opt.value === e.target.value);
-                                                    if (selectedDist) {
-                                                        setValue("districtName", selectedDist.label);
-                                                    }
-                                                }}
-                                                disabled={!selectedProvince}
-                                                sx={{ borderRadius: "8px" }}
-                                            />
-                                        </FormControl>
+                                        <Controller
+                                            name="districtName"
+                                            control={control}
+                                            render={({ field: { onChange, value } }) => (
+                                                <CustomAutocomplete
+                                                    options={districtOptions}
+                                                    value={districtOptions.find(option => option.label === value) || null}
+                                                    onChange={(newValue) => {
+                                                        onChange(newValue?.label || '');
+                                                        setSelectedDistrict(newValue);
+                                                    }}
+                                                    label={t("district")}
+                                                    error={!!errors.districtName}
+                                                    helperText={errors.districtName?.message}
+                                                    placeholder={t("select_district_name")}
+                                                    disabled={!selectedProvince}
+                                                />
+                                            )}
+                                        />
                                     </Grid>
                                     <Grid item xs={12} md={6}>
-                                        <FormControl fullWidth>
-                                            <Controller
-                                                control={control}
-                                                name="wardId"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <Box>
-                                                        <CustomSelect
-                                                            fullWidth
-                                                            onChange={(e) => {
-                                                                const selectedWard = wardOptions.find((opt) => opt.value === e.target.value);
-                                                                if (selectedWard) {
-                                                                    onChange(selectedWard.value);
-                                                                    setValue("wardName", selectedWard.label);
-                                                                } else {
-                                                                    onChange("");
-                                                                    setValue("wardName", "");
-                                                                }
-                                                            }}
-                                                            onBlur={onBlur}
-                                                            value={value || ""}
-                                                            options={wardOptions}
-                                                            label={t("ward")}
-                                                            placeholder={t("select_ward_name")}
-                                                            error={!!errors.wardId}
-                                                            disabled={!selectedDistrict}
-                                                        />
-                                                        {errors.wardId?.message && <FormHelperText error>{errors.wardId.message}</FormHelperText>}
-                                                    </Box>
-                                                )}
-                                            />
-                                        </FormControl>
+                                        <Controller
+                                            control={control}
+                                            name="wardId"
+                                            render={({ field: { onChange, value } }) => (
+                                                <CustomAutocomplete
+                                                    options={wardOptions}
+                                                    value={wardOptions.find(option => option.value === value) || null}
+                                                    onChange={(newValue) => {
+                                                        onChange(newValue?.value || 0);
+                                                        setValue("wardName", newValue?.label || "");
+                                                    }}
+                                                    label={t("ward")}
+                                                    error={!!errors.wardName}
+                                                    helperText={errors.wardName?.message}
+                                                    placeholder={t("select_ward_name")}
+                                                    disabled={!selectedDistrict}
+                                                />
+                                            )}
+                                        />
                                     </Grid>
                                     <Grid item xs={12} md={6}>
-                                        <FormControl fullWidth>
-                                            <Controller
-                                                control={control}
-                                                name="streetAddress"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        label={t("street_address")}
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        value={value}
-                                                        placeholder={t("enter_street_address")}
-                                                        error={!!errors.streetAddress}
-                                                        helperText={errors.streetAddress?.message}
-                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-                                                    />
-                                                )}
-                                            />
-                                        </FormControl>
+                                        <Controller
+                                            control={control}
+                                            name="streetAddress"
+                                            render={({ field }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    label={t("street_address")}
+                                                    {...field}
+                                                    placeholder={t("enter_street_address")}
+                                                    error={!!errors.streetAddress}
+                                                    helperText={errors.streetAddress?.message}
+                                                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Controller
+                                            control={control}
+                                            name="isDefault"
+                                            render={({ field: { onChange, value } }) => (
+                                                <FormControlLabel
+                                                    control={<Checkbox checked={value} onChange={onChange} />}
+                                                    label={t("set_as_default_address")}
+                                                />
+                                            )}
+                                        />
                                     </Grid>
                                 </Grid>
                             )}
@@ -490,10 +570,7 @@ const AddressModal = (props: TAddressModal) => {
                             {activeTab === 2 && (
                                 <Button
                                     variant="outlined"
-                                    onClick={() => {
-                                        setActiveTab(1);
-                                        setIsEdit({ isEdit: false, index: 0 });
-                                    }}
+                                    onClick={resetForm}
                                     sx={{ mt: 3, mb: 2, py: 1.5 }}
                                 >
                                     {t('cancel')}
@@ -503,7 +580,7 @@ const AddressModal = (props: TAddressModal) => {
                                 type={activeTab === 2 ? "submit" : "button"}
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2, py: 1.5 }}
-                                onClick={() => activeTab === 1 && handleAddressSubmit()}
+                                onClick={() => activeTab === 1 && handleConfirmDefaultAddress()}
                             >
                                 {activeTab === 2 ? (isEdit.isEdit ? t('save') : t('add')) : t('confirm')}
                             </Button>

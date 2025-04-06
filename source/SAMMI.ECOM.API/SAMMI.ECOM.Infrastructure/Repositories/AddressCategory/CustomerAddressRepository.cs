@@ -11,6 +11,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.AddressCategory
     {
         Task<CustomerAddressDTO> GetDefaultByUserId(int userId);
         Task<List<CustomerAddress>> GetByUserId(int userId);
+        Task<bool> IsExisted(int id, int userId);
     }
     public class CustomerAddressRepository : CrudRepository<CustomerAddress>, ICustomerAddressRepository, IDisposable
     {
@@ -61,6 +62,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.AddressCategory
         public async Task<List<CustomerAddress>> GetByUserId(int userId)
         {
             return await DbSet.Where(x => x.CustomerId == userId && x.IsDeleted != true).ToListAsync();
+        }
+
+        public async Task<bool> IsExisted(int id, int userId)
+        {
+            return await DbSet.SingleOrDefaultAsync(x => x.Id == id && x.CustomerId == userId && x.IsDeleted != true) != null;
         }
     }
 }

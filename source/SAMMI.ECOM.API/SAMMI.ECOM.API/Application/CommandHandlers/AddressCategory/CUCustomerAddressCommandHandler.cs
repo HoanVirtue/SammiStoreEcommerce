@@ -48,10 +48,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
                     }
                 }
             }
-
+            request.CustomerId = _currentUser.Id;
             if (request.Id == 0)
             {
-                request.CustomerId = _currentUser.Id;
                 request.CreatedDate = DateTime.Now;
                 request.CreatedBy = _currentUser.UserName;
                 var createResponse = _addressRepository.Create(request);

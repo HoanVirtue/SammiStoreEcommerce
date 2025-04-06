@@ -8,7 +8,6 @@ namespace SAMMI.ECOM.Domain.Commands.Products
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
-        public int StockQuantity { get; set; }
         public decimal Price { get; set; }
         public decimal? Discount { get; set; }
         public string? Ingredient { get; set; }
@@ -32,6 +31,7 @@ namespace SAMMI.ECOM.Domain.Commands.Products
     }
     public class CreateProductCommand : ProductCommand
     {
+        public int StockQuantity { get; set; }
         public List<CreateImageCommand>? Images { get; set; }
     }
 

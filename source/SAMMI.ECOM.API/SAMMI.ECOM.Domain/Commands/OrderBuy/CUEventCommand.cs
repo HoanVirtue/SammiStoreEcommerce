@@ -30,6 +30,6 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
 
     public class CreateEventCommand : UpdateEventCommand
     {
-        public List<CUVoucherCommand> Vouchers { get; set; }
+        public List<CUVoucherCommand> VoucherCommands { get; set; }
     }
 }

@@ -58,7 +58,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             actResponse.Combine(createResponse);
             var eventCreated = createResponse.Result;
 
-            foreach(var voucher in request.Vouchers)
+            foreach(var voucher in request.VoucherCommands)
             {
                 voucher.Id = 0;
                 voucher.EventId = eventCreated.Id;
@@ -102,7 +102,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .GreaterThan(x => x.StartDate)
                 .WithMessage("Ngày kết thúc phải lớn hơn ngày bắt đầu");
 
-            RuleFor(x => x.Vouchers)
+            RuleFor(x => x.VoucherCommands)
                 .Must(x => x != null && x.Count > 0)
                 .WithMessage("Danh sách phiếu giảm phải có ít nhất 1 phiếu giảm giá");
         }

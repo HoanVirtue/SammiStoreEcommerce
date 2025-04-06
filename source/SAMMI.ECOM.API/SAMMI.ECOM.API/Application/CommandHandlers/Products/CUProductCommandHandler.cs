@@ -241,7 +241,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 return actResponse;
             }
 
-            request.Discount = 1 > request.Discount ? request.Discount : request.Discount / 100;
+            request.Discount = request.Discount < 1
+                               ? request.Discount
+                               : request.Discount / 100;
             request.UpdatedDate = DateTime.Now;
             request.UpdatedBy = _currentUser.UserName;
 
@@ -309,8 +311,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         }
     }
 
-    
-
     public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
     {
         public UpdateProductCommandValidator()
@@ -323,7 +323,17 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 .NotEmpty()
                 .WithMessage("Mã sản phẩm không được bỏ trống");
 
+            RuleFor(x => x.BrandId)
+                .NotNull()
+                .WithMessage("Mã thương hiệu không được bỏ trống");
+
+            RuleFor(x => x.CategoryId)
+                .NotNull()
+                .WithMessage("Mã loại sản phẩm không được bỏ trống");
+
             RuleFor(x => x.Discount)
+                .NotNull()
+                .WithMessage("Giảm giá bắt buộc khác null")
                 .GreaterThan(0)
                 .WithMessage("Giảm giá phải lớn hơn 0 nếu có ngày bắt đầu và ngày kết thúc")
                 .When(x => x.StartDate.HasValue && x.EndDate.HasValue);
@@ -364,10 +374,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 .WithMessage("Phải có ít nhất 1 hình ảnh");
 
             RuleFor(x => x.NewImages)
-                .Must(images => images != null && images.Count > 0 && images.All(x => x.DisplayOrder.HasValue && x.DisplayOrder > 0))
+                .Must(images => images.All(x => x.DisplayOrder.HasValue && x.DisplayOrder > 0))
                 .WithMessage("Tất cả hình ảnh thứ tự phải lớn hơn 0")
-                .Must(images => images != null && images.Any() && images.All(image => CreateProductCommandValidator.IsValidBase64(image.ImageBase64)))
-                .WithMessage("Tất cả hình ảnh phải là chuỗi Base64 hợp lệ.");
+                .Must(images => images.All(image => CreateProductCommandValidator.IsValidBase64(image.ImageBase64)))
+                .WithMessage("Tất cả hình ảnh phải là chuỗi Base64 hợp lệ.")
+                .When(x => x.NewImages != null && x.NewImages.Any());
         }
     }
 }

@@ -10,6 +10,38 @@ import { useTranslation } from 'react-i18next';
 
 const listProduct = [
     {
+        id: '2334',
+        code: 'fr934',
+        name: 'Bộ Tinh Chất First Serum Hoàn Lưu Cao Whoo Hwanyu Imperial Youth First Serum 75ml',
+        stockQuantity: 45,
+        sold: 20,
+        price: 356000,
+        discount: 34,
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
+        usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
+        brandId: 6,
+        categoryId: 1,
+        status: 1,
+        startDate: "2025-03-6T17:00:00",
+        endDate: "2025-03-24T17:00:00",
+        images: [
+            {
+                "imageUrl": "https://product.hstatic.net/200000536477/product/372836331_777503777720800_793616417880040259_n_-_copy_13a206a1eb3144bfa2562a3871d7ea7a.jpg",
+                "publicId": "uploads/products/product_6_36054bc5-77c9-4c3a-93b0-b10d8b450cd7",
+                "typeImage": "Product",
+                "id": 28,
+                "createdDate": "0001-01-01T00:00:00",
+                "updatedDate": null,
+                "createdBy": null,
+                "updatedBy": null,
+                "isActive": false,
+                "isDeleted": false,
+                "displayOrder": 1
+            }
+        ]
+    },
+    {
         id: '233',
         code: 'fr934',
         name: 'Bộ Tinh Chất First Serum Hoàn Lưu Cao Whoo Hwanyu Imperial Youth First Serum 75ml',
@@ -17,7 +49,7 @@ const listProduct = [
         sold: 20,
         price: 356000,
         discount: 34,
-        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức “nguyên tắc phối hợp thảo dược với đông trùng hạ thảo” giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
         uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
         usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
         brandId: 6,
@@ -49,7 +81,7 @@ const listProduct = [
         sold: 35,
         price: 456000,
         discount: 38,
-        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức “nguyên tắc phối hợp thảo dược với đông trùng hạ thảo” giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
         uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
         usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
         brandId: 6,
@@ -81,7 +113,7 @@ const listProduct = [
         sold: 22,
         price: 1556000,
         discount: 28,
-        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức “nguyên tắc phối hợp thảo dược với đông trùng hạ thảo” giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
         uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
         usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
         brandId: 6,
@@ -113,7 +145,7 @@ const listProduct = [
         sold: 40,
         price: 1556000,
         discount: 20,
-        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức “nguyên tắc phối hợp thảo dược với đông trùng hạ thảo” giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
         uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
         usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
         brandId: 6,
@@ -191,38 +223,13 @@ const HotSale = () => {
                         <CountdownTimer saleEndTime={saleEndTime} />
                     </Box>
                 </Box>
-                <Box>
-                    <Grid container spacing={{ md: 4, sx: 2 }}>
+                <Box sx={{ padding: '10px' }}>
+                    <Grid container spacing={{ md: 4, sm: 3, xs: 2 }}>
                         {publicProducts?.data?.length > 0 ? (
                             <>
                                 {publicProducts?.data?.map((item: TProduct) => {
                                     return (
-                                        <Grid item key={item.id} md={3} sm={6} xs={12}>
-                                            <ProductCard item={item} />
-                                        </Grid>
-                                    )
-                                })}
-                            </>
-                        ) : (
-                            <Box sx={{
-                                padding: "20px",
-                                width: "100%",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center"
-                            }}>
-                                <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
-                            </Box>
-                        )}
-                    </Grid>
-                </Box>
-                <Box>
-                    <Grid container spacing={{ md: 4, sx: 2 }}>
-                        {publicProducts?.data?.length > 0 ? (
-                            <>
-                                {listProduct?.map((item: any) => {
-                                    return (
-                                        <Grid item key={item.id} md={3} sm={6} xs={12}>
+                                        <Grid item key={item.id} md={2.4} sm={4} xs={12}>
                                             <ProductCard item={item} />
                                         </Grid>
                                     )

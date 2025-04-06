@@ -12,7 +12,7 @@ import authConfig, { LIST_PUBLIC_PAGE } from 'src/configs/auth'
 
 // ** Types
 import { AuthValuesType, ErrCallbackType, UserDataType } from './types'
-import { getLoginUser, loginAuth, logoutAuth } from 'src/services/auth'
+import { getLoginUser, loginAuth, logoutAuth, loginAdminAuth } from 'src/services/auth'
 import { API_ENDPOINT } from 'src/configs/api'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from 'src/helpers/storage'
 import instance from 'src/helpers/axios'
@@ -31,6 +31,7 @@ const defaultProvider: AuthValuesType = {
   setUser: () => null,
   setLoading: () => Boolean,
   login: () => Promise.resolve(),
+  loginAdmin: () => Promise.resolve(),
   logout: () => Promise.resolve()
 }
 
@@ -83,6 +84,48 @@ const AuthProvider = ({ children }: Props) => {
     setLoading(true);
     try {
       const response = await loginAuth({
+        username: params.username,
+        password: params.password,
+        rememberMe: params.rememberMe,
+        returnUrl: params.returnUrl,
+        isEmployee: params.isEmployee,
+      });
+
+      const accessToken = response.result?.accessToken;
+      if (!accessToken) throw new Error('No access token received');
+
+      instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+      const userResponse = await getLoginUser();
+      setUser({ ...userResponse.result });
+
+      const userData = userResponse.result;
+      if (params.rememberMe) {
+        setLocalUserData(
+          JSON.stringify(userData || {}),
+          accessToken,
+          response.result?.refreshToken || null
+        );
+      } else {
+        setTemporaryToken(accessToken);
+      }
+
+      toast.success(t('login_success'));
+      const returnUrl = params.returnUrl || router.query.returnUrl || '/';
+      const redirectURL = returnUrl !== '/' ? returnUrl : '/';
+      router.replace(redirectURL as string);
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      if (errorCallback) errorCallback(err);
+      toast.error(t('login_error'));
+    }
+  };
+
+  const handleAdminLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
+    setLoading(true);
+    try {
+      const response = await loginAdminAuth({
         username: params.username,
         password: params.password,
         rememberMe: params.rememberMe,
@@ -174,7 +217,8 @@ const AuthProvider = ({ children }: Props) => {
     setUser,
     setLoading,
     login: handleLogin,
-    logout: handleLogout
+    logout: handleLogout,
+    loginAdmin: handleAdminLogin
   }
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>

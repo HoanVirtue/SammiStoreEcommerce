@@ -12,6 +12,15 @@ export const getAllProducts = async (data: {params: TParamsGetAllProducts}) => {
     }
 }
 
+export const getProductCode = async (data: {params: TParamsGetAllProducts}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-code-by-last-id`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const getAllProductsPublic = async (data: {params: TParamsGetAllProducts}) => {
     try {
         const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public`, data)

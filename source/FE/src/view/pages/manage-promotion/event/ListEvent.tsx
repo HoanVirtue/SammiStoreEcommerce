@@ -14,7 +14,7 @@ import { getEventColumns } from "src/configs/gridColumn";
 import { getEventFields } from "src/configs/gridConfig";
 import CreateUpdateEvent from "./components/CreateUpdateEvent";
 import { useState } from "react";
-const ListEventPage: NextPage = () => {
+const ListEventPage: NextPage = () => { 
 
     const columns = getEventColumns();
 

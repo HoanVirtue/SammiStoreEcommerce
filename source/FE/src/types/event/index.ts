@@ -33,6 +33,23 @@ export type TParamsCreateEvent = {
     endDate: Date;
     eventType: number;
     imageCommand: EventImage;
+    imageId: number 
+    description?: string;
+    voucherCommands: {
+        code: string
+        name: string
+        eventId: number
+        discountTypeId: number
+        discountValue: number
+        usageLimit: number
+        startDate: Date
+        endDate: Date
+        conditions:{
+            voucherId: number
+            conditionTypeId: number
+            conditionValue: number
+        }
+    }
 }
 
 export interface TParamsUpdateEvent extends TParamsCreateEvent {

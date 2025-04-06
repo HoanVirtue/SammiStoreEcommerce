@@ -12,10 +12,35 @@ import { resetInitialState } from "src/stores/product";
 import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
 import { getProductColumns } from "src/configs/gridColumn";
+import { useState } from "react";
 
 
 const ListProductPage: NextPage = () => {
     const columns = getProductColumns();
+
+    const [currentTab, setCurrentTab] = useState(0);
+    const [selectedReceiptId, setSelectedReceiptId] = useState<string>("");
+    const [showCreateTab, setShowCreateTab] = useState(false);
+    const [showUpdateTab, setShowUpdateTab] = useState(false);
+    const [showDetailTab, setShowDetailTab] = useState(false);
+
+    const handleTabChange = (newTab: number) => {
+        setCurrentTab(newTab);
+        if (newTab === 0) {
+            setSelectedReceiptId("");
+        }
+    };
+
+    const handleDetailClick = (id: string) => {
+        setSelectedReceiptId(id);
+        setShowDetailTab(true);
+        setCurrentTab(3);
+    };
+
+    const handleAddClick = () => {
+        setCurrentTab(1);
+        setShowCreateTab(true);
+    };
     return (
         <AdminPage
             entityName="product"
@@ -30,7 +55,7 @@ const ListProductPage: NextPage = () => {
             deleteAction={deleteProductAsync}
             deleteMultipleAction={deleteMultipleProductsAsync as unknown as (ids: { [key: string]: string[] }) => any}
             resetAction={resetInitialState}
-            CreateUpdateComponent={CreateUpdateProduct}
+            CreateUpdateTabComponent={CreateUpdateProduct}
             permissionKey="MANAGE_PRODUCT.PRODUCT"
             fieldMapping={{
                 "product_name": "name",
@@ -39,6 +64,14 @@ const ListProductPage: NextPage = () => {
             }}
             noDataText="no_data_product"
             showTab={true}
+            showCreateTab={showCreateTab}
+            showDetailTab={showDetailTab}
+            showUpdateTab={showUpdateTab}
+            currentTab={currentTab}
+            onTabChange={handleTabChange}
+            onAddClick={handleAddClick}
+            onDetailClick={handleDetailClick}
+
         />
     );
 };

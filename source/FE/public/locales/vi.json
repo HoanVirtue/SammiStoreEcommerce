@@ -203,10 +203,10 @@
     "required_product_description": "Mô tả sản phẩm không được để trống",
     "required_product_status": "Trạng thái sản phẩm không được để trống",
     "at_least_discount": "Giảm giá sản phẩm phải lớn hơn 1%",
-    "required_start_discount_date": "Ngày bắt đầu giảm giá không được để trống",
-    "required_end_discount_date": "Ngày kết thúc giảm giá không được để trống",
-    "less_start_discount_date": "Ngày bắt đầu giảm giá phải lớn hơn hiện tại",
-    "greater_start_discount_date": "Ngày kết thức giảm giá phải lớn hơn ngày bắt đầu giảm giá",
+    "required_discount_start_date": "Ngày bắt đầu giảm giá không được để trống",
+    "required_discount_end_date": "Ngày kết thúc giảm giá không được để trống",
+    "less_discount_start_date": "Ngày bắt đầu giảm giá phải lớn hơn hiện tại",
+    "greater_discount_start_date": "Ngày kết thức giảm giá phải lớn hơn ngày bắt đầu giảm giá",
     "at_least_price_product": "Giá sản phẩm phải lớn hơn 1000",
     "customer_support": "Hỗ trợ khách hàng",
     "required_fullname": "Họ tên không được để trống",
@@ -608,7 +608,8 @@
     "product_usage_guide_required": "Hướng dẫn sử dụng sản phẩm không được để trống",
     "product_uses_required": "Công dụng sản phẩm không được để trống",
     "product_ingredient_required": "Thành phần sản phẩm không được để trống",
-    
+    "list_product": "Danh sách sản phẩm",
+    "require_product_code": "Mã sản phẩm không được để trống",
     
 
 

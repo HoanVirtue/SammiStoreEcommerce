@@ -159,12 +159,12 @@ const ProductCard = (props: any) => {
                 image={item?.images[0]?.imageUrl}
                 alt="product image"
                 sx={{
-                    height: { xs: '200px', sm: '260px', md: '300px' },
+                    height: { xs: '180px', sm: '220px', md: '260px', lg: '300px' },
                     width: '100%',
                     objectFit: 'contain',
                     transition: "transform 0.3s ease",
                     "&:hover": {
-                        transform: "scale(0.9)",
+                        transform: "scale(0.95)",
                     },
                 }}
             />
@@ -178,8 +178,8 @@ const ProductCard = (props: any) => {
                     }}>
                     <Tooltip title={t("add_to_cart")}>
                         <Fab aria-label="add" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleUpdateProductToCart(item)} 
-                            disabled={item.stockQuantity === 0}>
+                            <IconButton onClick={() => handleUpdateProductToCart(item)}
+                                disabled={item.stockQuantity === 0}>
                                 <IconifyIcon color={theme.palette.primary.main}
                                     icon="bi:cart-plus" fontSize='1.5rem' />
                             </IconButton>
@@ -217,7 +217,7 @@ const ProductCard = (props: any) => {
                         display: "-webkit-box",
                         "WebkitLineClamp": "2",
                         "WebkitBoxOrient": "vertical",
-                        minHeight: "48px",
+                        minHeight: { xs: "40px", sm: "48px" },
                         mt: 2
                     }}>
                     {item?.name}
@@ -245,7 +245,7 @@ const ProductCard = (props: any) => {
                     <Typography variant="h4" sx={{
                         color: theme.palette.primary.main,
                         fontWeight: "bold",
-                        fontSize: "18px"
+                        fontSize: { xs: "16px", sm: "18px", md: "20px" }
                     }}>
                         {item?.discount > 0 && memoCheckExpire ? (
                             <>
@@ -334,6 +334,7 @@ const ProductCard = (props: any) => {
                                 sx={{
                                     position: 'absolute',
                                     top: '50%',
+                                    textWrap: 'nowrap',
                                     left: '50%',
                                     transform: 'translate(-50%, -50%)',
                                     color: progressColor === 'error' ? theme.palette.error.main : progressColor === 'warning' ? theme.palette.warning.main : theme.palette.text.primary,

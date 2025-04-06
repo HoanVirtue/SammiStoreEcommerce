@@ -9,19 +9,35 @@ import { TChangePassword, TLoginAuth, TRegisterAuth } from "src/types/auth"
 
 export const loginAuth = async (data: TLoginAuth) => {
     try {
-      const res = await instance.post(`${API_ENDPOINT.AUTH.INDEX}/login`, {
-        username: data.username,
-        password: data.password,
-        rememberMe: data.rememberMe || true,
-        returnUrl: data.returnUrl || '/',   
-        isEmployee: data.isEmployee || false,
-      });
+        const res = await instance.post(`${API_ENDPOINT.AUTH.INDEX}/login`, {
+            username: data.username,
+            password: data.password,
+            rememberMe: data.rememberMe || true,
+            returnUrl: data.returnUrl || '/',
+            isEmployee: data.isEmployee || false,
+        });
 
-      return res.data;
+        return res.data;
     } catch (error: any) {
-      throw error; 
+        throw error;
     }
-  };
+};
+
+export const loginAdminAuth = async (data: TLoginAuth) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.AUTH.INDEX}/login`, {
+            username: data.username,
+            password: data.password,
+            rememberMe: data.rememberMe || true,
+            returnUrl: data.returnUrl || '/',
+            isEmployee: data.isEmployee || true,
+        });
+
+        return res.data;
+    } catch (error: any) {
+        throw error;
+    }
+};
 
 export const getLoginUser = async () => {
     try {

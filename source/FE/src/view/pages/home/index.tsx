@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Chip, ChipProps, Grid, styled, TabsProps, Typography, useTheme } from '@mui/material'
+import { Chip, ChipProps, Grid, styled, Tabs, TabsProps, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 
@@ -19,29 +19,14 @@ import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
 
 //components
 
-import CustomPagination from 'src/components/custom-pagination'
-import Spinner from 'src/components/spinner'
-
-
-import { formatFilter } from 'src/utils'
-import ProductCard from '../product/components/ProductCard'
-import { getAllProducts, getAllProductsPublic } from 'src/services/product'
-import { TProduct } from 'src/types/product'
-import { Tabs } from '@mui/material'
-import { Tab } from '@mui/material'
+import { getAllProducts } from 'src/services/product'
 import { getAllProductCategories } from 'src/services/product-category'
-import SearchField from 'src/components/search-field'
-import ProductFilter from '../product/components/ProductFilter'
-import NoData from 'src/components/no-data'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import { toast } from 'react-toastify'
 import { resetInitialState } from 'src/stores/product'
 import Banner from './components/banner'
 import OutstandingCategory from './components/category'
-import { getLoginUser } from 'src/services/auth'
-import axios from 'axios'
-import { API_ENDPOINT } from 'src/configs/api'
 import ListVoucher from './components/voucher'
 import HotSale from './components/hot-sale'
 import TopSale from './components/top-sale'
@@ -176,11 +161,6 @@ const HomePage: NextPage<TProps> = () => {
         fetchAllCategories()
     }, [])
 
-    // useEffect(() => {
-    //     if (firstRender.current) {
-    //         handleGetListProduct();
-    //     }
-    // }, [sortBy, searchBy, page, pageSize, filterBy]);
 
     useEffect(() => {
         if (firstRender.current) {

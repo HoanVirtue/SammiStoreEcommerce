@@ -21,7 +21,7 @@ import { useAuth } from 'src/hooks/useAuth';
 import { likeProductAsync, unlikeProductAsync } from 'src/stores/product/action';
 import { ButtonGroup } from '@mui/material';
 import { toast } from 'react-toastify';
-import { createCartAsync } from 'src/stores/cart/action';
+import { createCartAsync, getCartsAsync } from 'src/stores/cart/action';
 
 interface TProductCard {
     item: TProduct
@@ -87,12 +87,25 @@ const ProductCard = (props: any) => {
                     quantity: 1,
                     operation: 0,
                 })
-            )
-            if (isSuccessCreate) {
-                toast.success(t('add_to_cart_success'))
-            } else if (isErrorCreate) {
-                toast.error(errorMessageCreate)
-            }
+            ).then(() => {
+                if (isSuccessCreate) {
+                    toast.success(t('add_to_cart_success'))
+                    // Refetch cart data
+                    dispatch(getCartsAsync({
+                        params: {
+                            take: -1,
+                            skip: 0,
+                            paging: false,
+                            orderBy: "name",
+                            dir: "asc",
+                            keywords: "''",
+                            filters: ""
+                        }
+                    }))
+                } else if (isErrorCreate) {
+                    toast.error(errorMessageCreate)
+                }
+            })
         } else {
             router.replace({
                 pathname: '/login',

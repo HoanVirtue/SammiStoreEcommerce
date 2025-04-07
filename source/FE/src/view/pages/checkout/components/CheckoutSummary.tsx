@@ -2,17 +2,15 @@ import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Divider from '@mui/material/Divider';
 import { alpha, useTheme } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
-import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import LoadingButton from '@mui/lab/LoadingButton';
 import Stack from '@mui/material/Stack';
-import InputAdornment from '@mui/material/InputAdornment';
 import { useTranslation } from 'react-i18next';
 import { formatPrice } from 'src/utils';
 import Image from 'src/components/image';
-import IconifyIcon from 'src/components/Icon';
 import TextMaxLine from 'src/components/text-max-line';
+import { useEffect, useState } from 'react';
+import { getProductDetail } from 'src/services/product';
+import { TProduct } from 'src/types/product';
 
 type Props = {
     totalPrice: number;
@@ -33,7 +31,29 @@ export default function CheckoutSummary({
 }: Props) {
     const { t } = useTranslation();
     const theme = useTheme();
+    const [productDetails, setProductDetails] = useState<Record<number, TProduct>>({});
 
+    useEffect(() => {
+        const fetchProductDetails = async () => {
+            const details: Record<number, TProduct> = {};
+            for (const product of selectedProduct) {
+                try {
+                    const response = await getProductDetail(product.productId);
+            
+                    if (response?.result) {
+                        details[product.productId] = response.result;
+                    }
+                } catch (error) {
+                    console.error('Error fetching product details:', error);
+                }
+            }
+            setProductDetails(details);
+        };
+
+        if (selectedProduct?.length > 0) {
+            fetchProductDetails();
+        }
+    }, [selectedProduct]);
     return (
         <Stack
             spacing={3}
@@ -47,34 +67,36 @@ export default function CheckoutSummary({
 
             {selectedProduct?.length > 0 && (
                 <>
-                    {selectedProduct.map((product) => (
-                        <Stack key={product.productId} direction="row" alignItems="flex-start">
-                            <Image
-                                src={product.images?.[0]?.imageUrl}
-                                sx={{
-                                    mr: 2,
-                                    width: 64,
-                                    height: 64,
-                                    flexShrink: 0,
-                                    borderRadius: 1.5,
-                                    bgcolor: 'background.neutral',
-                                }}
-                            />
+                    {selectedProduct.map((product) => {
+                        const productDetail = productDetails[product.productId];
+                        return (
+                            <Stack key={product.productId} direction="row" alignItems="flex-start">
+                                <Image
+                                    src={productDetail?.images?.[0]?.imageUrl || product.images?.[0]?.imageUrl}
+                                    sx={{
+                                        mr: 2,
+                                        width: 64,
+                                        height: 64,
+                                        flexShrink: 0,
+                                        borderRadius: 1.5,
+                                        bgcolor: 'background.neutral',
+                                    }}
+                                />
+                                <Stack flexGrow={1}>
+                                    <TextMaxLine variant="body2" line={1} sx={{ fontWeight: 'fontWeightMedium' }}>
+                                        {product.name}
+                                    </TextMaxLine>
 
-                            <Stack flexGrow={1}>
-                                <TextMaxLine variant="body2" line={1} sx={{ fontWeight: 'fontWeightMedium' }}>
-                                    {product.name}
-                                </TextMaxLine>
-
+                                    <Typography variant="subtitle2" sx={{ mt: 0.5, mb: 1.5 }}>
+                                        {formatPrice(product.price)}
+                                    </Typography>
+                                </Stack>
                                 <Typography variant="subtitle2" sx={{ mt: 0.5, mb: 1.5 }}>
-                                    {formatPrice(product.price * (100 - product.discount * 100) / 100)}
+                                    x{product.quantity}
                                 </Typography>
                             </Stack>
-                            <Typography variant="subtitle2" sx={{ mt: 0.5, mb: 1.5 }}>
-                                x{product.amount}
-                            </Typography>
-                        </Stack>
-                    ))}
+                        );
+                    })}
 
                     <Divider sx={{ borderStyle: 'dashed' }} />
                 </>

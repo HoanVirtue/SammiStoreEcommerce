@@ -31,7 +31,7 @@ import { ROUTE_CONFIG } from 'src/configs/route';
 import { useRouter } from 'next/router';
 import CheckoutSummary from './components/CheckoutSummary';
 import CustomBreadcrumbs from 'src/components/custom-breadcrum';
-import { TItemOrderProduct } from 'src/types/order';
+import { TItemOrderProduct, TItemCart } from 'src/types/order';
 import { resetInitialState } from 'src/stores/order';
 import WarningModal from './components/WarningModal';
 import AddressModal from './components/AddressModal';
@@ -77,10 +77,9 @@ const CheckoutPage: NextPage<TProps> = () => {
     const router = useRouter();
     const theme = useTheme();
     const dispatch: AppDispatch = useDispatch();
-    const { isLoading, isSuccessCreate, isErrorCreate, errorMessageCreate, details } = useSelector(
-        (state: RootState) => state.order
-    );
+
     const { addresses, currentAddress } = useSelector((state: RootState) => state.address);
+    const { carts, isLoading } = useSelector((state: RootState) => state.cart)
 
     const breadcrumbItems = [
         { label: t('home'), href: '/', icon: <IconifyIcon color="primary" icon="healthicons:home-outline" /> },
@@ -97,12 +96,19 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     const handleFormatProductData = (items: any) => {
         const objectMap: Record<string, TItemOrderProduct> = {};
-        details.forEach((order: any) => {
-            objectMap[order.productId] = order;
+        carts?.data?.forEach((cart: TItemCart) => {
+            objectMap[cart.productId] = {
+                productId: cart.productId,
+                quantity: cart.quantity,
+                name: cart.productName,
+                price: cart.price,
+                discount: cart.discount,
+                images: cart.images,
+            };
         });
         return items.map((item: any) => ({
             ...objectMap[+item.productId],
-            amount: item.amount,
+            quantity: item.quantity,
         }));
     };
 
@@ -113,9 +119,11 @@ const CheckoutPage: NextPage<TProps> = () => {
         if (data) {
             result.totalPrice = data.totalPrice || 0;
             result.selectedProduct = data.selectedProduct ? handleFormatProductData(JSON.parse(data.selectedProduct)) : [];
+
+            console.log("data", result.selectedProduct)
         }
         return result;
-    }, [router.query, details]);
+    }, [router.query, carts?.data]);
 
     const getMyCurrentAddress = async () => {
         const res = await getCurrentAddress()
@@ -240,10 +248,10 @@ const CheckoutPage: NextPage<TProps> = () => {
         const orderDetails = memoQueryProduct.selectedProduct.map((item: TItemOrderProduct) => ({
             orderId: 0,
             productId: Number(item.productId),
-            quantity: item.amount,
+            quantity: item.quantity,
             tax: 0,
             id: 0,
-            amount: item.price * item.amount * (item.discount ? (100 - item.discount) / 100 : 1),
+            amount: item.price * item.quantity * (item.discount ? (100 - item.discount) / 100 : 1),
         }));
 
         dispatch(

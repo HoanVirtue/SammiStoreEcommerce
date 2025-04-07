@@ -68,8 +68,6 @@ const ProductCart = (props: TProps) => {
         router.push(`${ROUTE_CONFIG.MY_CART}`)
     }
 
-
-
     const totalItemsCart = useMemo(() => {
         const total = carts?.data?.reduce((result, current: TItemCart) => {
             return result + current.quantity
@@ -94,7 +92,6 @@ const ProductCart = (props: TProps) => {
             );
         }
     }, [dispatch, user?.id]);
-
 
     useEffect(() => {
         const fetchImages = async () => {

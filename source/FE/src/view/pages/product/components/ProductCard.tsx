@@ -21,6 +21,7 @@ import { useAuth } from 'src/hooks/useAuth';
 import { likeProductAsync, unlikeProductAsync } from 'src/stores/product/action';
 import { ButtonGroup } from '@mui/material';
 import { toast } from 'react-toastify';
+import { createCartAsync } from 'src/stores/cart/action';
 
 interface TProductCard {
     item: TProduct
@@ -70,35 +71,28 @@ const ProductCard = (props: any) => {
 
     //redux
     const dispatch: AppDispatch = useDispatch()
-    const { details } = useSelector((state: RootState) => state.order)
+    const { carts, isSuccessCreate, isErrorCreate, errorMessageCreate } = useSelector((state: RootState) => state.cart)
 
     //handler
     const handleNavigateProductDetail = (id: number) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${id}`)
     }
 
-    const handleUpdateProductToCart = (item: TProduct) => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
-
-        const listOrderItems = convertUpdateProductToCart(details, {
-            name: item?.name,
-            amount: 1,
-            images: item?.images,
-            price: item?.price,
-            discount: discountItem,
-            productId: item.id,
-            // slug: item?.slug
-        })
+    const handleAddProductToCart = (item: TProduct) => {
         if (user?.id) {
             dispatch(
-                updateProductToCart({
-                    details: listOrderItems
+                createCartAsync({
+                    cartId: 0,
+                    productId: item.id,
+                    quantity: 1,
+                    operation: 0,
                 })
             )
-            toast.success(t('add_to_cart_success'))
-            setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
+            if (isSuccessCreate) {
+                toast.success(t('add_to_cart_success'))
+            } else if (isErrorCreate) {
+                toast.error(errorMessageCreate)
+            }
         } else {
             router.replace({
                 pathname: '/login',
@@ -178,7 +172,7 @@ const ProductCard = (props: any) => {
                     }}>
                     <Tooltip title={t("add_to_cart")}>
                         <Fab aria-label="add" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleUpdateProductToCart(item)}
+                            <IconButton onClick={() => handleAddProductToCart(item)}
                                 disabled={item.stockQuantity === 0}>
                                 <IconifyIcon color={theme.palette.primary.main}
                                     icon="bi:cart-plus" fontSize='1.5rem' />

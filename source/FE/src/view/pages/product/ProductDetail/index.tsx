@@ -43,6 +43,7 @@ import ReviewCard from '../components/ReviewCard'
 import { toast } from 'react-toastify'
 import { resetInitialState } from 'src/stores/review'
 import Image from 'src/components/image'
+import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
 
 type TProps = {}
 
@@ -98,6 +99,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
     const { reviews, isSuccessUpdate, isErrorUpdate, isLoading,
         errorMessageUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.review)
     const dispatch: AppDispatch = useDispatch();
+    const { carts, isSuccessCreate, isErrorCreate, errorMessageCreate } = useSelector((state: RootState) => state.cart)
     //Theme
     const theme = useTheme();
 
@@ -161,26 +163,39 @@ const ProductDetailPage: NextPage<TProps> = () => {
     //         })
     // }
 
+
+
     //handler
-    const handleUpdateProductToCart = (item: TProduct) => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        const discountItem = item.startDate && item.endDate && isExpired(item?.startDate, item.endDate) ? item.discount : 0
-        const listOrderItems = convertUpdateProductToCart(details, {
-            name: item?.name,
-            amount: productAmount,
-            images: item?.images,
-            price: item?.price,
-            discount: discountItem,
-            productId: item.id,
-        })
+    const handleAddProductToCart = (item: TProduct) => {
         if (user?.id) {
             dispatch(
-                updateProductToCart({
-                    details: listOrderItems
+                createCartAsync({
+                    cartId: 0,
+                    productId: item.id,
+                    quantity: productAmount,
+                    operation: 0,
                 })
-            )
-            setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
+            ).then(() => {
+                if (isSuccessCreate) {
+                    toast.success(t('add_to_cart_success'))
+                    // Fetch updated cart after adding product
+                    dispatch(
+                        getCartsAsync({
+                            params: {
+                                take: -1,
+                                skip: 0,
+                                paging: false,
+                                orderBy: 'name',
+                                dir: 'asc',
+                                keywords: "''",
+                                filters: '',
+                            },
+                        })
+                    );
+                } else if (isErrorCreate) {
+                    toast.error(errorMessageCreate)
+                }
+            })
         } else {
             router.replace({
                 pathname: '/login',
@@ -192,7 +207,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
     }
 
     const handleBuyNow = (item: TProduct) => {
-        handleUpdateProductToCart(item)
+        handleAddProductToCart(item)
         router.push({
             pathname: ROUTE_CONFIG.MY_CART,
             query: {
@@ -214,30 +229,25 @@ const ProductDetailPage: NextPage<TProps> = () => {
     //     }
     // }, [productData.id])
 
-    /// update Review
-    // useEffect(() => {
-    //     if (isSuccessUpdate) {
-    //         toast.success(t("update_review_success"))
-    //         fetchGetAllReviews(productData.id)
-    //         dispatch(resetInitialState())
-    //     } else if (isErrorUpdate && errorMessageUpdate && typeError) {
-    //         toast.error(t("update_review_error"))
-    //         dispatch(resetInitialState())
-    //     }
-    // }, [isSuccessUpdate, isErrorUpdate, errorMessageUpdate, typeError])
+    useEffect(() => {
+        if (user?.id) {
+            dispatch(
+                getCartsAsync({
+                    params: {
+                        take: -1,
+                        skip: 0,
+                        paging: false,
+                        orderBy: 'name',
+                        dir: 'asc',
+                        keywords: "''",
+                        filters: '',
+                    },
+                })
+            );
+        }
+    }, [dispatch, user?.id]);
 
 
-    //delete Review
-    // useEffect(() => {
-    //     if (isSuccessDelete) {
-    //         toast.success(t("delete_review_success"))
-    //         fetchGetAllReviews(productData.id)
-    //         dispatch(resetInitialState())
-    //     } else if (isErrorDelete && errorMessageDelete) {
-    //         toast.error(errorMessageDelete)
-    //         dispatch(resetInitialState())
-    //     }
-    // }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
 
     const memoCheckExpire = React.useMemo(() => {
         if (productData.startDate && productData.endDate) {
@@ -575,7 +585,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         variant="contained"
                                         color='error'
                                         disabled={productData?.stockQuantity === 0}
-                                        onClick={() => handleUpdateProductToCart(productData)}
+                                        onClick={() => handleAddProductToCart(productData)}
                                         startIcon={<IconifyIcon icon="bx:cart" />}
                                         sx={{
                                             height: "48px",

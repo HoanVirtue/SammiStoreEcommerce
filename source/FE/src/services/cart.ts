@@ -1,30 +1,21 @@
 import axios from "axios"
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateCart } from "src/types/cart"
-import { TParamsCreateProduct, TParamsDeleteMultipleProducts, TParamsGetAllProducts, TParamsGetRelatedProduct, TParamsUpdateProduct } from "src/types/product"
+import { TParamsCreateCart, TParamsGetAllCarts } from "src/types/cart"
 
-export const getAllProducts = async (data: {params: TParamsGetAllProducts}) => {
+export const getCarts = async (data: {params: TParamsGetAllCarts}) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}`, data)
+        const res = await instance.get(`${API_ENDPOINT.CART.INDEX}/get-cart`, data)
         return res.data
     } catch (error) {
         return error
     }
 }
 
-export const getAllProductsPublic = async (data: {params: TParamsGetAllProducts}) => {
-    try {
-        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public`, data)
-        return res.data
-    } catch (error) {
-        return error
-    }
-}
 
 export const createCart = async (data: TParamsCreateCart) => {
     try {
-        const res = await instance.post(`${API_ENDPOINT.CART.INDEX}`, data)
+        const res = await instance.post(`${API_ENDPOINT.CART.INDEX}/add-to-cart`, data)
         return res.data
     }
     catch (error: any) {
@@ -32,131 +23,12 @@ export const createCart = async (data: TParamsCreateCart) => {
     }
 }
 
-
-export const updateProduct = async (data: TParamsUpdateProduct) => {
-    const { id, ...rests } = data
+export const deleteCart = async (id: number) => {
     try {
-        const res = await instance.put(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/${data.id}`, data)
+        const res = await instance.delete(`${API_ENDPOINT.CART.INDEX}/${id}`)
         return res.data
     } catch (error: any) {
         return error?.response?.data
     }
 }
 
-
-export const deleteProduct = async (id: string) => {
-    try {
-        const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/${id}`)
-        return res.data
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-export const getProductDetail = async (id: string) => {
-    try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/${id}`)
-        return res.data
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-export const getProductDetailPublic = async (id: string) => {
-    try {
-        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public/${id}`)
-        return res.data
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-export const getProductDetailPublicBySlug = async (slug: string) => {
-    try {
-
-        const data = {params: {isPublic: true}}
-
-        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/public/slug/${slug}`, data)
-        return res.data
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-export const getListRelatedProductBySlug = async (data: {params: TParamsGetRelatedProduct}) => {
-    try {
-        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/related`, data)
-        return res.data
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-
-export const deleteMultipleProducts = async (data: TParamsDeleteMultipleProducts) => {
-    try {
-        const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/delete-many`, {data})
-        if(res?.data?.status === "Success") {
-            return {
-                data: []
-            }
-        }
-        return {
-            data: null
-        }
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-
-export const likeProduct = async (data: {productId: number }) => {
-    try {
-        const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/like`, data)
-        if(res?.data?.status === "Success") {
-            return {
-                data: {id: 1}
-            }
-        }
-        return {
-            data: null
-        }
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-export const unlikeProduct = async (data: {productId: number }) => {
-    try {
-        const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/unlike`, data)
-        if(res?.data?.status === "Success") {
-            return {
-                data: {id: 1}
-            }
-        }
-        return {
-            data: null
-        }
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-
-export const getAllLikedProduct = async (data: {params: TParamsGetAllProducts}) => {
-    try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/liked/me`, data)
-        return res.data
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}
-
-export const getAllViewedProduct = async (data: {params: TParamsGetAllProducts}) => {
-    try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/viewed/me`, data)
-        return res.data
-    } catch (error: any) {
-        return error?.response?.data
-    }
-}

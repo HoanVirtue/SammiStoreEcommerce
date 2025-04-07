@@ -42,7 +42,7 @@ import { convertToRaw, EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
 
 interface TCreateUpdateProduct {
-    id?: string;
+    id?: number;
     onClose: () => void;
 }
 
@@ -251,7 +251,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         }
     };
 
-    const fetchDetailProduct = async (productId: string) => {
+    const fetchDetailProduct = async (productId: number) => {
         setLoading(true);
         try {
             const res = await getProductDetail(productId);

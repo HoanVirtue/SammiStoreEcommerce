@@ -1,188 +1,217 @@
-"use client"
+'use client';
 
-//React
-import React, { Fragment, useEffect, useMemo, useState } from 'react'
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import { NextPage } from 'next';
+import {
+    Box,
+    Button,
+    Checkbox,
+    Divider,
+    Grid,
+    IconButton,
+    Stack,
+    Tooltip,
+    Typography,
+    useTheme,
+    CircularProgress,
+} from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import { t } from 'i18next';
+import { useTranslation } from 'react-i18next';
+import { AppDispatch, RootState } from 'src/stores';
+import { useDispatch, useSelector } from 'react-redux';
+import { useAuth } from 'src/hooks/useAuth';
+import { formatPrice, isExpired } from 'src/utils';
+import { TItemOrderProduct } from 'src/types/order';
+import IconifyIcon from 'src/components/Icon';
+import { updateProductToCart } from 'src/stores/order';
+import { getCartsAsync } from 'src/stores/cart/action';
+import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
+import NoData from 'src/components/no-data';
+import { useRouter } from 'next/router';
+import { ROUTE_CONFIG } from 'src/configs/route';
+import ProductCartItem from './components/ProductCartItem';
+import CartSummary from './components/CartSummary';
+import CustomBreadcrumbs from 'src/components/custom-breadcrum';
+import { getProductDetail } from 'src/services/product';
 
-//Next
-import { NextPage } from 'next'
-
-//MUI
-import { Box, Button, Checkbox, Divider, Grid, IconButton, Stack, Tooltip, Typography, useTheme } from '@mui/material'
-import { alpha } from '@mui/material/styles'
-import TextField from '@mui/material/TextField'
-import InputAdornment from '@mui/material/InputAdornment'
-
-//Translate
-import { t } from 'i18next'
-import { useTranslation } from 'react-i18next'
-
-//Redux
-import { AppDispatch, RootState } from 'src/stores'
-import { useDispatch, useSelector } from 'react-redux'
-
-//Other
-import { useAuth } from 'src/hooks/useAuth'
-import { cloneDeep, convertUpdateProductToCart, formatPrice } from 'src/utils'
-import { TItemOrderProduct } from 'src/types/order'
-import IconifyIcon from 'src/components/Icon'
-import { updateProductToCart } from 'src/stores/order'
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
-import NoData from 'src/components/no-data'
-import { useRouter } from 'next/router'
-import { ROUTE_CONFIG } from 'src/configs/route'
-import ProductCartItem from './components/ProductCartItem'
-import CartSummary from './components/CartSummary'
-import CustomBreadcrumbs from 'src/components/custom-breadcrum'
-
-type TProps = {}
+type TProps = {};
 
 const MyCartPage: NextPage<TProps> = () => {
-    //States
-    const [loading, setLoading] = useState<boolean>(false)
-    const [selectedRow, setSelectedRow] = useState<number[]>([])
-    const [discountCode, setDiscountCode] = useState('')
+    const [selectedRow, setSelectedRow] = useState<number[]>([]);
+    const [discountValue, setDiscountValue] = useState<number>(0);
+    const [originalPrice, setOriginalPrice] = useState<number>(0);
 
-    //hooks
-    const { user } = useAuth()
-    const { i18n, t } = useTranslation()
-    const router = useRouter()
-    const theme = useTheme()
+    const { user } = useAuth();
+    const { i18n, t } = useTranslation();
+    const router = useRouter();
+    const theme = useTheme();
+
+    const dispatch: AppDispatch = useDispatch();
+    const { carts, isLoading } = useSelector((state: RootState) => state.cart);
+
+    useEffect(() => {
+        if (user?.id) {
+            dispatch(
+                getCartsAsync({
+                    params: {
+                        take: -1,
+                        skip: 0,
+                        paging: false,
+                        orderBy: 'name',
+                        dir: 'asc',
+                        keywords: "''",
+                        filters: '',
+                    },
+                })
+            );
+        }
+    }, [dispatch, user?.id]);
+
+
+    useEffect(() => {
+        const fetchDiscounts = async () => {
+            for (const productId of selectedRow) {
+                const res = await getProductDetail(productId);
+                const data = res?.result;
+                if (data) {
+                    const discount = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0;
+                    setDiscountValue(discount);
+                    setOriginalPrice(data.price);
+                }
+            }
+        };
+
+        if (selectedRow.length > 0) {
+            fetchDiscounts();
+        }
+    }, [selectedRow]);
 
     const breadcrumbItems = [
-        { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
+        { label: t('home'), href: '/', icon: <IconifyIcon color="primary" icon="healthicons:home-outline" /> },
         { label: t('my_cart'), href: '/my-cart' },
     ];
 
-    //Redux
-    const dispatch: AppDispatch = useDispatch()
-    const { details } = useSelector((state: RootState) => state.order)
-
     const memoListAllProductIds = useMemo(() => {
-        return details?.map((item: TItemOrderProduct) => item.productId)
-    }, [details])
+        return carts?.data?.map((item: TItemOrderProduct) => item.productId) || [];
+    }, [carts]);
 
     const memoSelectedProduct = useMemo(() => {
-        const result: TItemOrderProduct[] = []
-        selectedRow.forEach((selectedId) => {
-            const findItems: any = details?.find((item: TItemOrderProduct) => item.productId === selectedId)
-            if (findItems) {
-                result.push(findItems)
-            }
-        })
-        return result
-    }, [selectedRow, details])
-
+        return carts?.data?.filter((item: TItemOrderProduct) => selectedRow.includes(item.productId)) || [];
+    }, [selectedRow, carts]);
 
     const memoSubtotal = useMemo(() => {
-        const total = memoSelectedProduct?.reduce((result: number, current: TItemOrderProduct) => {
-            const currentPrice = current?.discount && current?.discount > 0 ? (current?.price * (100 - current?.discount * 100)) / 100 : current?.price
-            return result + currentPrice * current?.amount
-        }, 0)
-        return total
-    }, [memoSelectedProduct])
+        return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
+            const price = current?.price || 0;
+            const discount = current?.discount || 0; // Discount is now in percentage (e.g., 10 for 10%)
+            const quantity = current?.quantity || 1;
+            const currentPrice = discount > 0 ? (price * (100 - discount)) / 100 : price; // Discount applied as percentage
+            return result + currentPrice * quantity;
+        }, 0);
+    }, [memoSelectedProduct]);
 
-    const memoDiscount = 0
 
-    const memoTotalPrice = useMemo(() => {
-        return memoSubtotal - memoDiscount
-    }, [memoSubtotal, memoDiscount])
+    const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
 
-    console.log("router", router)
+    const memoSave = useMemo(() => {
+        return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
+            const price = originalPrice || 0;
+            const discount = discountValue * 100 || 0;
+            const quantity = current?.quantity || 1;
+            if (discount > 0) {
+                const savedPrice = (price * discount) / 100 * quantity;
+                return result + savedPrice;
+            }
+            return result;
+        }, 0);
+    }, [memoSelectedProduct, discountValue]);
 
     useEffect(() => {
-        const selectedProduct = router.query.selected
+        const selectedProduct = router.query.selected;
         if (selectedProduct) {
             if (typeof selectedProduct === 'string') {
-                setSelectedRow([+selectedProduct])
+                setSelectedRow([+selectedProduct]);
             } else if (Array.isArray(selectedProduct)) {
-                setSelectedRow(selectedProduct.map(item => +item))
+                setSelectedRow(selectedProduct.map((item) => +item));
             }
         }
-    }, [router.query])
+    }, [router.query]);
 
-    //Handler
     const handleChangeCheckBox = (value: number) => {
-        const isChecked = selectedRow.includes(value)
-        if (isChecked) {
-            const filtered = selectedRow.filter((item) => item !== value)
-            setSelectedRow(filtered)
-        } else {
-            setSelectedRow([...selectedRow, value])
-        }
-    }
+        setSelectedRow((prev) =>
+            prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+        );
+    };
 
     const handleCheckAll = () => {
-        const isCheckAll = memoListAllProductIds.every((item: number) => selectedRow.includes(item))
-        if (isCheckAll) {
-            setSelectedRow([])
-        } else {
-            setSelectedRow(memoListAllProductIds)
-        }
-    }
+        const isCheckAll = memoListAllProductIds.every((item: number) => selectedRow.includes(item));
+        setSelectedRow(isCheckAll ? [] : memoListAllProductIds);
+    };
 
     const handleDeleteMany = () => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        const cloneOrderItem = cloneDeep(details)
-        const filteredItem = cloneOrderItem.filter((item: TItemOrderProduct) => !selectedRow.includes(item.productId))
+        const productCart = getLocalProductFromCart();
+        const parseData = productCart ? JSON.parse(productCart) : {};
+        const filteredItem = carts.data.filter((item: TItemOrderProduct) => !selectedRow.includes(item.productId));
         if (user) {
-            dispatch(
-                updateProductToCart({
-                    details: filteredItem
-                })
-            )
-            setLocalProductToCart({ ...parseData, [user?.id]: filteredItem })
+            dispatch(updateProductToCart({ carts: filteredItem }));
+            setLocalProductToCart({ ...parseData, [user?.id]: filteredItem });
         }
-    }
+    };
 
     const handleNavigateCheckout = () => {
-        const formattedData = JSON.stringify(memoSelectedProduct.map((item: TItemOrderProduct) => ({
-            productId: item.productId,
-            amount: item.amount
-        })))
-
+        const formattedData = JSON.stringify(
+            memoSelectedProduct.map((item: TItemOrderProduct) => ({
+                productId: item.productId,
+                quantity: item.quantity,
+            }))
+        );
         router.push({
             pathname: ROUTE_CONFIG.CHECKOUT,
-            query: {
-                totalPrice: memoTotalPrice,
-                selectedProduct: formattedData
-            }
-        })
-    }
-
-    const handleApplyDiscount = () => {
-        // Handle discount code application
-        console.log('Applying discount code:', discountCode)
-    }
+            query: { totalPrice: memoTotalPrice, selectedProduct: formattedData },
+        });
+    };
 
     return (
-        <Box sx={{
-            maxWidth: '1440px',
-            margin: '0 auto',
-            width: '100%',
-            py: { xs: 2, sm: 1, md: 2, lg: 8 },
-            px: { xs: 2, sm: 2, md: 4, lg: 8 },
-        }}>
-            {/* Breadcrumbs */}
+        <Box
+            sx={{
+                maxWidth: '1440px',
+                margin: '0 auto',
+                width: '100%',
+                py: { xs: 2, sm: 1, md: 2, lg: 8 },
+                px: { xs: 2, sm: 2, md: 4, lg: 8 },
+            }}
+        >
             <Box sx={{ mb: { xs: 1, sm: 2, md: 4 } }}>
                 <CustomBreadcrumbs items={breadcrumbItems} />
             </Box>
 
-            {/* Main Content */}
-            <Stack spacing={3} sx={{
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: { xs: 4, sm: 4, md: 4, lg: 8 },
-                borderRadius: '15px',
-                width: '100% !important',
-                backgroundColor: theme.palette.background.paper,
-            }}>
-                {details.length > 0 ? (
-                    <Grid container >
-                        {/* Cart Items */}
-                        <Grid item xs={12} md={8} sx={{
-                            pr: { xs: 0, sm: 0, md: 4, lg: 8 },
-                        }}>
+            <Stack
+                spacing={3}
+                sx={{
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: { xs: 4, sm: 4, md: 4, lg: 8 },
+                    borderRadius: '15px',
+                    width: '100% !important',
+                    backgroundColor: theme.palette.background.paper,
+                }}
+            >
+                {isLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+                        <CircularProgress />
+                    </Box>
+                ) : carts?.data?.length > 0 ? (
+                    <Grid container>
+                        <Grid
+                            item
+                            xs={12}
+                            md={9}
+                            sx={{
+                                pr: { xs: 0, sm: 0, md: 4, lg: 8 },
+                            }}
+                        >
                             <Stack direction="column" spacing={2} sx={{ width: '100%' }}>
                                 <Grid container>
                                     <Stack
@@ -196,36 +225,29 @@ const MyCartPage: NextPage<TProps> = () => {
                                         }}
                                     >
                                         <Stack sx={{ width: 40 }}>
-                                            <Tooltip title={t("select_all")}>
+                                            <Tooltip title={t('select_all')}>
                                                 <Checkbox
                                                     onChange={handleCheckAll}
                                                     checked={memoListAllProductIds.every((item) => selectedRow.includes(item))}
                                                 />
                                             </Tooltip>
                                         </Stack>
-
                                         <Stack flexGrow={1}>
-                                            <Typography fontWeight={600}>{t("product_name")}</Typography>
+                                            <Typography fontWeight={600}>{t('product_name')}</Typography>
                                         </Stack>
-
-                                        <Stack sx={{ width: 200, alignItems: 'center' }}>
-                                            <Typography fontWeight={600}>{t("price_in_cart")}</Typography>
+                                        <Stack sx={{ width: 180, alignItems: 'center' }}>
+                                            <Typography fontWeight={600}>{t('price_in_cart')}</Typography>
                                         </Stack>
-
                                         <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, alignItems: 'center' }}>
-                                            <Typography fontWeight={600}>{t("quantity")}</Typography>
+                                            <Typography fontWeight={600}>{t('quantity')}</Typography>
                                         </Stack>
-
-                                        <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, alignItems: 'center' }}>
-                                            <Typography fontWeight={600}>{t("total_item_price")}</Typography>
+                                        <Stack sx={{ width: { xs: '100%', md: 90, lg: 90 }, alignItems: 'center' }}>
+                                            <Typography fontWeight={600}>{t('total_item_price')}</Typography>
                                         </Stack>
-
                                         <Stack sx={{ width: 40 }}>
-                                            <Tooltip title={t("delete_all")}>
+                                            <Tooltip title={t('delete_all')}>
                                                 <Typography component="span">
-                                                    <IconButton
-                                                        onClick={handleDeleteMany}
-                                                        disabled={selectedRow.length === 0}>
+                                                    <IconButton onClick={handleDeleteMany} disabled={selectedRow.length === 0}>
                                                         <IconifyIcon icon="carbon:trash-can" />
                                                     </IconButton>
                                                 </Typography>
@@ -235,7 +257,7 @@ const MyCartPage: NextPage<TProps> = () => {
                                 </Grid>
 
                                 <Grid container item spacing={2} sx={{ maxWidth: '100%' }}>
-                                    {details.map((item: TItemOrderProduct, index: number) => (
+                                    {carts?.data?.map((item: TItemOrderProduct, index: number) => (
                                         <ProductCartItem
                                             item={item}
                                             key={item.productId}
@@ -248,37 +270,31 @@ const MyCartPage: NextPage<TProps> = () => {
                             </Stack>
                         </Grid>
 
-                        {/* Cart Summary */}
-                        <Grid item xs={12} md={4}
-                        // sx={{maxWidth: { xs: '100%', md: '40%' }}}
-                        >
+                        <Grid item xs={12} md={3}>
                             <CartSummary
-                                subtotal={memoSubtotal}
-                                discount={memoDiscount}
-                                total={memoTotalPrice}
-                                onApplyDiscount={handleApplyDiscount}
-                                discountCode={discountCode}
-                                setDiscountCode={setDiscountCode}
+                                subtotal={memoSubtotal} total={memoTotalPrice}
+                                save={memoSave}
                                 onCheckout={handleNavigateCheckout}
                             />
                         </Grid>
                     </Grid>
                 ) : (
-                    <Box sx={{
-                        padding: "20px",
-                        margin: "0 auto",
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                        width: "100% !important",
-                    }}>
-                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
+                    <Box
+                        sx={{
+                            padding: '20px',
+                            margin: '0 auto',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            width: '100% !important',
+                        }}
+                    >
+                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t('empty_cart')} />
                     </Box>
                 )}
-
             </Stack>
         </Box>
-    )
-}
+    );
+};
 
-export default MyCartPage
+export default MyCartPage;

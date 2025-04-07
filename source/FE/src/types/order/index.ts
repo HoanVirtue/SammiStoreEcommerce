@@ -15,7 +15,16 @@ export type TParamsGetAllOrders = {
 export type TItemOrderProduct = {
     productId: number;
     name: string;
-    amount: number;
+    quantity: number;
+    price: number;
+    discount?: number;
+    images: ProductImage[];
+}
+
+export type TItemCart = {
+    productId: number;
+    productName: string;
+    quantity: number;
     price: number;
     discount?: number;
     images: ProductImage[];

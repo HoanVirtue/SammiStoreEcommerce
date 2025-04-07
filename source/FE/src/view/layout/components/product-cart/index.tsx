@@ -1,5 +1,5 @@
 //React
-import React, { useEffect, useMemo } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 
 //Next
 import { useRouter } from "next/navigation";
@@ -21,25 +21,27 @@ import { useTranslation } from "react-i18next";
 //Utils
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
-import { TItemOrderProduct } from "src/types/order";
+import { TItemCart, TItemOrderProduct } from "src/types/order";
 import { getLocalProductFromCart } from "src/helpers/storage";
 import { updateProductToCart } from "src/stores/order";
 import { hexToRGBA } from "src/utils/hex-to-rgba";
 import { formatPrice } from "src/utils";
 import { ROUTE_CONFIG } from "src/configs/route";
 import NoData from "src/components/no-data";
+import { getProductDetail } from "src/services/product";
+import { getCartsAsync } from "src/stores/cart/action";
 
 type TProps = {}
 
 const StyledMenuItem = styled(MenuItem)<MenuItemProps>(({ theme }) => ({
-
 }))
 
 
 const ProductCart = (props: TProps) => {
     const { user } = useAuth()
 
-    const { details } = useSelector((state: RootState) => state.order)
+    const [productImages, setProductImages] = useState<Record<string, string>>({})
+    const { carts } = useSelector((state: RootState) => state.cart)
     const dispatch: AppDispatch = useDispatch()
 
     //Translation
@@ -66,23 +68,53 @@ const ProductCart = (props: TProps) => {
         router.push(`${ROUTE_CONFIG.MY_CART}`)
     }
 
-    useEffect(() => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        if (user?.id) {
-            dispatch(updateProductToCart({
-                details: parseData[user?.id] || []
-            }))
-        }
-    }, [user])
 
-    const totalItems = useMemo(() => {
-        const total = details.reduce((result, current: TItemOrderProduct) => {
-            return result + current.amount
+
+    const totalItemsCart = useMemo(() => {
+        const total = carts?.data?.reduce((result, current: TItemCart) => {
+            return result + current.quantity
         }, 0)
         return total
-    }, [details])
+    }, [carts])
 
+    useEffect(() => {
+        if (user?.id) {
+            dispatch(
+                getCartsAsync({
+                    params: {
+                        take: -1,
+                        skip: 0,
+                        paging: false,
+                        orderBy: 'name',
+                        dir: 'asc',
+                        keywords: "''",
+                        filters: '',
+                    },
+                })
+            );
+        }
+    }, [dispatch, user?.id]);
+
+
+    useEffect(() => {
+        const fetchImages = async () => {
+            const imageMap: Record<string, string> = {};
+            const cartItems = carts?.data as TItemCart[] || [];
+            for (const item of cartItems) {
+                const res = await getProductDetail(item.productId);
+                const data = res?.result;
+                if (data) {
+                    const image = data.images?.[0]?.imageUrl;
+                    imageMap[item.productId] = image;
+                }
+            }
+            setProductImages(imageMap);
+        };
+
+        if (carts?.data?.length > 0) {
+            fetchImages();
+        }
+    }, [carts?.data]);
 
     return (
         <React.Fragment>
@@ -96,8 +128,8 @@ const ProductCart = (props: TProps) => {
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}
                     >
-                        {!!details.length ? (
-                            <Badge color="primary" badgeContent={totalItems}>
+                        {!!carts?.data?.length ? (
+                            <Badge color="primary" badgeContent={totalItemsCart}>
                                 <IconifyIcon icon="flowbite:cart-outline" />
                             </Badge>
                         ) : (
@@ -143,24 +175,23 @@ const ProductCart = (props: TProps) => {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                {details.length > 0 ? (
+                {carts?.data?.length > 0 ? (
                     <Box sx={{ maxHeight: "300px", maxWidth: "300px", overflow: "auto" }}>
-                        {details.map((item: TItemOrderProduct) => {
+                        {carts?.data?.map((item: TItemCart) => {
                             return (
                                 <StyledMenuItem key={item.productId} onClick={() => handleNavigateProductDetail(+item.productId)}>
-                                    <Avatar src={item?.images[0].imageUrl} />
+                                    <Avatar src={productImages[item.productId]} />
                                     <Box sx={{ ml: 1 }}>
-
-                                        <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.name}</Typography>
+                                        <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.productName}</Typography>
                                         <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
                                             <Typography variant="h4" sx={{
                                                 color: theme.palette.primary.main,
                                                 fontWeight: "bold",
                                                 fontSize: "12px"
                                             }}>
-                                                {item.discount && item?.discount > 0 ? (
+                                                {item?.discount && item?.discount > 0 ? (
                                                     <>
-                                                        {formatPrice(item?.price * (100 - item?.discount*100) / 100)}
+                                                        {formatPrice(item?.price * (100 - item?.discount * 100) / 100)}
                                                     </>
                                                 ) : (
                                                     <>
@@ -168,7 +199,7 @@ const ProductCart = (props: TProps) => {
                                                     </>
                                                 )}
                                             </Typography>
-                                            {(item.discount && item?.discount > 0) ? (
+                                            {(item?.discount && item?.discount > 0) ? (
                                                 <Typography variant="h6" sx={{
                                                     color: theme.palette.error.main,
                                                     fontWeight: "bold",
@@ -182,7 +213,7 @@ const ProductCart = (props: TProps) => {
                                         </Box>
                                     </Box>
                                     <Typography sx={{ textWrap: "wrap", fontSize: "13px", fontWeight: 600, ml: 2 }}>
-                                        x{item?.amount}
+                                        x{item?.quantity}
                                     </Typography>
                                 </StyledMenuItem>
                             )

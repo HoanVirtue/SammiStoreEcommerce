@@ -1,28 +1,24 @@
+import { IBaseModelGetAll } from '../index';
 
-export type TParamsGetAllCarts = {
-    skip?: number;
-    take?: number;
-    filters?: string;
-    orderBy?: string;
-    dir?: string;
-    type?: number | (1 | 2 | 3 | 4 | 5 | 6)
-    paging?: boolean;
-    restrictCartBy?: boolean;
-    keywords?: string;
+export type TParamsGetAllCarts = IBaseModelGetAll & {
 }
 
 export type TItemCartProduct = {
+    cartId: number,
+    productId: number,
+    productName: string,
+    price: number,
+    quantity: number,
+}
+
+export type TParamsCreateCart = {
     cartId: number,
     productId: number,
     quantity: number,
     operation: number,
 }
 
-
-export type TParamsCreateCart = {
-    cartId: string,
+export type TParamsDeleteCart = {
     productId: number,
-    quantity: number,
-    operation: number,
 }
 

@@ -1,31 +1,17 @@
-import { Box, Button, Divider, Stack, TextField, Typography, useTheme } from "@mui/material"
-import { alpha } from "@mui/material/styles"
-import InputAdornment from "@mui/material/InputAdornment"
-import { useRouter } from "next/router"
-import { ROUTE_CONFIG } from "src/configs/route"
-import { formatPrice } from "src/utils"
-import { t } from "i18next"
+import { Box, Button, Divider, Stack, Typography, useTheme } from '@mui/material';
+import { alpha } from '@mui/material/styles';
+import { t } from 'i18next';
+import { formatPrice } from 'src/utils';
 
 type TProps = {
-    subtotal: number
-    discount: number
-    total: number
-    onApplyDiscount: () => void
-    discountCode: string
-    setDiscountCode: (value: string) => void
-    onCheckout: () => void
-}
+    subtotal: number;
+    total: number;
+    save: number;
+    onCheckout: () => void;
+};
 
-const CartSummary = ({
-    subtotal,
-    discount,
-    total,
-    onApplyDiscount,
-    discountCode,
-    setDiscountCode,
-    onCheckout
-}: TProps) => {
-    const theme = useTheme()
+const CartSummary = ({ subtotal, total, save, onCheckout }: TProps) => {
+    const theme = useTheme();
 
     return (
         <Stack
@@ -36,43 +22,33 @@ const CartSummary = ({
                 border: (theme) => `solid 1px ${alpha(theme.palette.grey[500], 0.24)}`,
             }}
         >
-            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{t("summary")}</Typography>
+            <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                {t('summary')}
+            </Typography>
 
             <Stack spacing={2}>
                 <Stack direction="row" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
                     <Box component="span" sx={{ typography: 'body2' }}>
-                        {t("subtotal")}
+                        {t('subtotal')}
                     </Box>
-                    {formatPrice(subtotal)}
+                    <Typography>{formatPrice(subtotal)}</Typography>
                 </Stack>
 
                 <Stack direction="row" justifyContent="space-between" sx={{ typography: 'subtitle2' }}>
                     <Box component="span" sx={{ typography: 'body2' }}>
-                        {t("discount")}
+                        {t('save_money')}
                     </Box>
-                    -{formatPrice(discount)}
+                    <Typography sx={{ color: save > 0 ? theme.palette.success.main : 'inherit' }}>
+                        {formatPrice(save)}
+                    </Typography>
                 </Stack>
-            </Stack>
 
-            {/* <TextField
-                hiddenLabel
-                size="small"
-                placeholder={t("voucher_code")}
-                value={discountCode}
-                onChange={(e) => setDiscountCode(e.target.value)}
-                InputProps={{
-                    endAdornment: (
-                        <InputAdornment position="end">
-                            <Button onClick={onApplyDiscount}>{t("apply_voucher")}</Button>
-                        </InputAdornment>
-                    ),
-                }}
-            /> */}
+            </Stack>
 
             <Divider sx={{ borderStyle: 'dashed' }} />
 
             <Stack direction="row" justifyContent="space-between" sx={{ typography: 'h6' }}>
-                <Box component="span" sx={{ fontWeight: 'bold' }}>{t("total")}</Box>
+                <Box component="span" sx={{ fontWeight: 'bold' }}>{t('total')}</Box>
                 <Box component="span" sx={{ fontWeight: 'bold' }} color={theme.palette.primary.main}>
                     {formatPrice(total)}
                 </Box>
@@ -85,10 +61,10 @@ const CartSummary = ({
                 onClick={onCheckout}
                 disabled={total === 0}
             >
-                {t("buy_item")}
+                {t('buy_item')}
             </Button>
         </Stack>
-    )
-}
+    );
+};
 
-export default CartSummary
+export default CartSummary;

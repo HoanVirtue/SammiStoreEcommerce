@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateDeliveryMethod, TParamsDeleteMultipleDeliveryMethods, TParamsGetAllDeliveryMethods, TParamsUpdateDeliveryMethod } from "src/types/delivery-method"
+import { TParamsCreateDeliveryMethod, TParamsDeleteMultipleDeliveryMethods, TParamsGetAllDeliveryMethods, TParamsGetCaculatedFee, TParamsUpdateDeliveryMethod } from "src/types/delivery-method"
 
 export const getAllDeliveryMethods = async (data: {params: TParamsGetAllDeliveryMethods}) => {
     try {
@@ -10,6 +10,16 @@ export const getAllDeliveryMethods = async (data: {params: TParamsGetAllDelivery
         return error
     }
 }
+
+export const getCaculatedFee = async (data: {params: TParamsGetCaculatedFee}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.GHN.INDEX}/calculate-fee`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 
 export const createDeliveryMethod = async (data: TParamsCreateDeliveryMethod) => {
     try {

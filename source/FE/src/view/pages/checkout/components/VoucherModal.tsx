@@ -30,8 +30,9 @@ type VoucherModalProps = {
     cartDetails?: Array<{
         productId: number;
         discount: number;
-        amount: number;
+        quantity: number;
         price: number;
+        productName: string;
     }>;
 };
 
@@ -57,9 +58,9 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
             details: cartDetails?.map(item => ({
                 cartId: 0,
                 productId: Number(item.productId),
-                productName: "",
+                productName: item.productName,
                 price: Number(item.price),
-                quantity: Number(item.amount),
+                quantity: Number(item.quantity),
             })) || []
         };
         await fetchListApplyVoucher(formattedDetails)
@@ -87,9 +88,9 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                 details: cartDetails?.map(item => ({
                     cartId: 0,
                     productId: Number(item.productId),
-                    productName: "",
+                    productName: item.productName,
                     price: Number(item.price),
-                    quantity: Number(item.amount),
+                    quantity: Number(item.quantity),
                 })) || []
             };
 

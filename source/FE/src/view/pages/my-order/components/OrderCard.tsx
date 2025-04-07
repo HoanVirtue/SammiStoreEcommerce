@@ -226,7 +226,7 @@ const OrderCard: NextPage<TProps> = (props) => {
                             onClick={() => handlePaymentMethod(orderData.paymentMethod)}
                             startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
                             sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                            {t('payment')}
+                            {t('go_to_payment')}
                         </Button>
                     )}
                     {orderData.orderStatus !== OrderStatus.Completed.label && (

@@ -25,7 +25,7 @@ import IconifyIcon from 'src/components/Icon';
 import Spinner from 'src/components/spinner';
 import Swal from 'sweetalert2';
 import { getAllPaymentMethods } from 'src/services/payment-method';
-import { getAllDeliveryMethods } from 'src/services/delivery-method';
+import { getAllDeliveryMethods, getCaculatedFee } from 'src/services/delivery-method';
 import { createOrderAsync } from 'src/stores/order/action';
 import { ROUTE_CONFIG } from 'src/configs/route';
 import { useRouter } from 'next/router';
@@ -58,7 +58,6 @@ const CheckoutPage: NextPage<TProps> = () => {
     // States
     const [loading, setLoading] = useState<boolean>(false);
     const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([]);
-    const [deliveryOptions, setDeliveryOptions] = useState<{ label: string; value: string; price: string }[]>([]);
     const [selectedPayment, setSelectedPayment] = useState<string>('');
     const [selectedDelivery, setSelectedDelivery] = useState<string>('');
     const [openWarning, setOpenWarning] = useState(false)
@@ -68,6 +67,8 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
     const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
+    const [shippingPrice, setShippingPrice] = useState<number>(0);
+    const [leadTime, setLeadTime] = useState<Date | null>(null);
 
     const PAYMENT_DATA = PAYMENT_METHOD()
 
@@ -86,11 +87,27 @@ const CheckoutPage: NextPage<TProps> = () => {
         { label: t('checkout'), href: '/checkout' },
     ];
 
+    const getShippingFee = async () => {
+        if (myCurrentAddress?.wardId && memoQueryProduct.totalPrice) {
+            const res = await getCaculatedFee({
+                params: {
+                    wardId: myCurrentAddress.wardId,
+                    totalAmount: memoQueryProduct.totalPrice
+                }
+            });
+            if (res?.result) {
+                setShippingPrice(res.result.total);
+                setLeadTime(res.result.leadTime);
+            }
+        }
+    }
+
     const deliveryOption = [
         {
             label: t('fast_delivery'),
             value: 'fast_delivery',
-            price: 10000,
+            price: shippingPrice,
+            leadTime: leadTime,
         },
     ]
 
@@ -120,7 +137,6 @@ const CheckoutPage: NextPage<TProps> = () => {
             result.totalPrice = data.totalPrice || 0;
             result.selectedProduct = data.selectedProduct ? handleFormatProductData(JSON.parse(data.selectedProduct)) : [];
 
-            console.log("data", result.selectedProduct)
         }
         return result;
     }, [router.query, carts?.data]);
@@ -181,24 +197,7 @@ const CheckoutPage: NextPage<TProps> = () => {
             .catch(() => setLoading(false));
     };
 
-    const getListDeliveryMethod = async () => {
-        setLoading(true);
-        await getAllDeliveryMethods({ params: { limit: -1, page: -1, search: '', order: '' } })
-            .then((res) => {
-                if (res?.data) {
-                    setDeliveryOptions(
-                        res.data.deliveryTypes.map((item: { name: string; id: string; price: string }) => ({
-                            label: item.name,
-                            value: item.id,
-                            price: item.price,
-                        }))
-                    );
-                    setSelectedDelivery(res.data.deliveryTypes[0]?._id);
-                }
-                setLoading(false);
-            })
-            .catch(() => setLoading(false));
-    };
+
 
     // Handlers
     const onChangeDelivery = (value: string) => setSelectedDelivery(value);
@@ -239,6 +238,10 @@ const CheckoutPage: NextPage<TProps> = () => {
     useEffect(() => {
         getListPaymentMethod();
     }, []);
+
+    useEffect(() => {
+        getShippingFee();
+    }, [myCurrentAddress, memoQueryProduct.totalPrice]);
 
     const handlePlaceOrder = () => {
         const subtotal = Number(memoQueryProduct.totalPrice);
@@ -400,6 +403,15 @@ const CheckoutPage: NextPage<TProps> = () => {
                                                         </Typography>
                                                         <Typography variant="h6">{formatPrice(Number(delivery.price))}</Typography>
                                                     </Stack>
+                                                    {delivery.leadTime && (
+                                                        <Typography variant="caption" sx={{ color: theme.palette.success.main, ml: 4 }}>
+                                                            {t('ensure_estimated_delivery')}: {new Date(delivery.leadTime).toLocaleDateString('en-GB', {
+                                                                day: '2-digit',
+                                                                month: '2-digit',
+                                                                year: 'numeric'
+                                                            })}
+                                                        </Typography>
+                                                    )}
                                                 </Stack>
                                             }
                                             sx={{

@@ -23,3 +23,8 @@ export type TParamsDeleteDeliveryMethod = {
 export type TParamsDeleteMultipleDeliveryMethods = {
     deliveryTypeIds: string[],
 }
+
+export type TParamsGetCaculatedFee = {
+    wardId: number,
+    totalAmount: number,
+}

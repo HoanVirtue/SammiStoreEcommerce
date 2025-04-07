@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { IconButton, Rating, useTheme, Box, Button, Tab, Tabs } from '@mui/material'
+import { IconButton, Rating, useTheme, Box, Button, Tab, Tabs, Stack } from '@mui/material'
 import { Grid } from '@mui/material'
 
 //Configs
@@ -280,34 +280,43 @@ const ProductDetailPage: NextPage<TProps> = () => {
     };
 
     return (
-        <>
+
+        <Box sx={{
+            maxWidth: '1440px',
+            margin: '0 auto',
+            width: '100%',
+            py: { xs: 2, sm: 1, md: 2, lg: 8 },
+            px: { xs: 2, sm: 2, md: 4, lg: 8 },
+        }}>
             {loading && <Spinner />}
-            <Box sx={{
-                paddingLeft: '0.75rem',
-                mb: 2,
-                backgroundColor: theme.palette.grey[100],
-            }}>
+            {/* Breadcrumbs */}
+            <Box sx={{ mb: { xs: 1, sm: 2, md: 4 } }}>
                 <CustomBreadcrumbs items={breadcrumbItems} />
             </Box>
-            <Grid container spacing={3}>
+            <Grid container spacing={3} sx={{
+                padding: { xs: 4, sm: 4, md: 4, lg: 8 },
+            }}>
                 <Grid container item md={12} xs={12} sx={{
                     backgroundColor: theme.palette.background.paper,
                     borderRadius: "15px",
                     py: 5, px: 4
-                }} >
+                }} >    
                     <Box sx={{
                         width: "100%",
                         height: "100%",
                     }}>
                         <Grid container spacing={5}>
                             <Grid item md={5} xs={12}>
-                                <Box sx={{
-                                    display: 'flex',
+                                <Stack sx={{
                                     gap: 2,
-                                    flexDirection: { xs: 'column', md: 'row' },
+                                    justifyContent: 'center',
+                                    flexDirection: { xs: 'row', md: 'row' },
                                     position: 'relative'
                                 }}>
-                                    <Box sx={{
+                                    <Stack sx={{
+                                        flexDirection: 'row',    
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
                                         position: 'relative',
                                         width: { xs: '100%', md: '70%' },
                                         height: { xs: '300px', md: '350px' },
@@ -329,11 +338,12 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             onMouseEnter={() => setShowZoom(true)}
                                             onMouseLeave={() => setShowZoom(false)}
                                         />
-                                    </Box>
+                                    </Stack>
                                     {showZoom && (
                                         <Box sx={{
                                             display: { xs: 'none', md: 'block' },
                                             position: 'absolute',
+                                            
                                             width: '400px',
                                             height: '400px',
                                             borderRadius: '15px',
@@ -344,7 +354,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             transform: 'translateY(-50%)',
                                             zIndex: 2,
                                             border: `1px solid ${theme.palette.divider}`,
-                                            backgroundColor: theme.palette.background.paper
+                                    
                                         }}>
                                             <Box sx={{
                                                 position: 'absolute',
@@ -358,10 +368,11 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             }} />
                                         </Box>
                                     )}
-                                </Box>
-                                <Box sx={{
-                                    display: 'flex',
+                                </Stack>
+                                <Stack sx={{
                                     gap: 2,
+                                    flexDirection: 'row',
+                                    justifyContent: 'center',
                                     overflowX: 'auto',
                                     py: 1,
                                     '&::-webkit-scrollbar': {
@@ -380,6 +391,8 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         <Box
                                             key={index}
                                             sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
                                                 position: 'relative',
                                                 width: '80px',
                                                 height: '80px',
@@ -405,7 +418,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             />
                                         </Box>
                                     ))}
-                                </Box>
+                                </Stack>
                             </Grid>
                             <Grid item md={7} xs={12}>
                                 <Box sx={{
@@ -447,8 +460,6 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     alignItems: "center",
                                     gap: 2,
                                     mt: 3,
-                                    backgroundColor: theme.palette.grey[50],
-                                    padding: "16px",
                                     borderRadius: "8px"
                                 }}>
                                     <Typography variant="h4" sx={{
@@ -614,9 +625,9 @@ const ProductDetailPage: NextPage<TProps> = () => {
                             </Grid>
                         </Grid>
                     </Box>
-                </Grid>
+                </Grid> 
 
-                <Grid item xs={12} sx={{ mt: 4 }}>
+                <Grid xs={12} sx={{ mt: 4 }}>
                     <Box sx={{
                         backgroundColor: theme.palette.background.paper,
                         borderRadius: "15px",
@@ -683,7 +694,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                 </Grid>
 
                 {/* Reviews Section */}
-                <Grid item xs={12} sx={{ mt: 4 }}>
+                <Grid xs={12} sx={{ mt: 4 }}>
                     <Box sx={{
                         backgroundColor: theme.palette.background.paper,
                         borderRadius: "15px",
@@ -708,7 +719,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                     </Box>
                 </Grid>
             </Grid>
-        </>
+        </Box>
     )
 }
 

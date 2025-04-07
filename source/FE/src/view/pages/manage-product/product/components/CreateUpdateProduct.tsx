@@ -143,7 +143,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     });
 
     const defaultValues: TDefaultValues = {
-        code: "",
+        code: productCode,
         name: "",
         stockQuantity: "",
         price: "",
@@ -332,17 +332,43 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                         <Box sx={{ mb: 4 }}>
                             <Typography variant="subtitle1" sx={{ mb: 2 }}>{t("product_image")}</Typography>
                             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                                <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                                <Box sx={{
+                                    display: 'flex',
+                                    gap: 2,
+                                    flexWrap: 'wrap',
+                                    justifyContent: 'center',
+                                    maxWidth: '100%',
+                                    '& > *': {
+                                        flex: '0 0 auto',
+                                        minWidth: '100px',
+                                        maxWidth: '150px'
+                                    }
+                                }}>
                                     {productImages.length > 0 ? (
                                         productImages.map((img, index) => (
                                             <Box key={index} sx={{ position: 'relative' }}>
                                                 <Avatar
                                                     src={img.imageBase64 ? `data:image/${img.typeImage};base64,${img.imageBase64}` : img.imageUrl}
-                                                    sx={{ width: 100, height: 100 }}
+                                                    sx={{
+                                                        width: '100%',
+                                                        height: 'auto',
+                                                        aspectRatio: '1/1',
+                                                        objectFit: 'cover'
+                                                    }}
+                                                    variant="rounded"
                                                     alt={`product-image-${index}`}
                                                 />
                                                 <IconButton
-                                                    sx={{ position: 'absolute', bottom: -4, right: -6, color: theme.palette.error.main }}
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: -8,
+                                                        right: -8,
+                                                        color: theme.palette.error.main,
+                                                        backgroundColor: theme.palette.background.paper,
+                                                        '&:hover': {
+                                                            backgroundColor: theme.palette.background.paper
+                                                        }
+                                                    }}
                                                     onClick={() => {
                                                         const updatedImages = productImages.filter((_, i) => i !== index);
                                                         setProductImages(updatedImages);
@@ -354,8 +380,16 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                             </Box>
                                         ))
                                     ) : (
-                                        <Avatar sx={{ width: 100, height: 100 }} alt='default-product-image'>
-                                            <IconifyIcon icon='material-symbols:image-not-supported-rounded' />
+                                        <Avatar
+                                            sx={{
+                                                width: '100%',
+                                                height: 'auto',
+                                                aspectRatio: '1/1'
+                                            }}
+                                            variant="rounded"
+                                            alt='default-product-image'
+                                        >
+                                            <IconifyIcon fontSize={40} icon='solar:cosmetic-outline' />
                                         </Avatar>
                                     )}
                                 </Box>
@@ -450,6 +484,16 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             <Switch
                                                                 checked={Boolean(value)}
                                                                 onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                                                                sx={{
+                                                                    '& .MuiSwitch-track': {
+                                                                        color: theme.palette.primary.main,
+                                                                        border: `1px solid ${theme.palette.primary.main}`,
+                                                                        backgroundColor: theme.palette.primary.main,
+                                                                        '&:hover': {
+                                                                            backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                                                        },
+                                                                    },
+                                                                }}
                                                             />
                                                         }
                                                         label={Boolean(value) ? t("public") : t("private")}
@@ -554,6 +598,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             helperText: errors.startDate?.message
                                                         }
                                                     }}
+                                                    timezone="system"
                                                 />
                                             )}
                                         />
@@ -575,6 +620,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                             helperText: errors.endDate?.message
                                                         }
                                                     }}
+                                                    timezone="system"
                                                 />
                                             )}
                                         />
@@ -601,6 +647,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                     render={({ field }) => (
                                         <CustomEditor
                                             editorState={field.value}
+                                            placeholder={t("enter_product_ingredient")}
                                             onEditorStateChange={(state) => field.onChange(state)}
                                             error={!!errors.ingredient}
                                             helperText={errors.ingredient?.message}
@@ -615,6 +662,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                     render={({ field }) => (
                                         <CustomEditor
                                             editorState={field.value}
+                                            placeholder={t("enter_product_uses")}
                                             onEditorStateChange={(state) => field.onChange(state)}
                                             error={!!errors.uses}
                                             helperText={errors.uses?.message}
@@ -629,6 +677,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                     render={({ field }) => (
                                         <CustomEditor
                                             editorState={field.value}
+                                            placeholder={t("enter_product_usage_guide")}
                                             onEditorStateChange={(state) => field.onChange(state)}
                                             error={!!errors.usageGuide}
                                             helperText={errors.usageGuide?.message}

@@ -29,5 +29,5 @@ export type TParamsDeleteAddress = {
 }
 
 export type TParamsDeleteMultipleAddresses = {
-    addressIds: string[],
+    addressIds: number[],
 }

@@ -52,7 +52,7 @@ const ListProductPage: NextPage = () => {
                 ...state.product,
             })}
             fetchAction={getAllProductsAsync}
-            deleteAction={deleteProductAsync}
+            deleteAction={deleteProductAsync as unknown as (id: string) => any}
             deleteMultipleAction={deleteMultipleProductsAsync as unknown as (ids: { [key: string]: string[] }) => any}
             resetAction={resetInitialState}
             CreateUpdateTabComponent={CreateUpdateProduct}
@@ -72,6 +72,9 @@ const ListProductPage: NextPage = () => {
             onAddClick={handleAddClick}
             onDetailClick={handleDetailClick}
 
+            onCloseCreateTab={() => setShowCreateTab(false)}
+            onCloseUpdateTab={() => setShowUpdateTab(false)}
+            onCloseDetailTab={() => setShowDetailTab(false)}
         />
     );
 };

@@ -11,6 +11,15 @@ export const getAllBrands = async (data: {params: TParamsGetAllBrands}) => {
     }
 }
 
+export const getBrandCode = async (data: {params: TParamsGetAllBrands}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}/get-code-by-last-id`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const createBrand = async (data: TParamsCreateBrand) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}`, data)

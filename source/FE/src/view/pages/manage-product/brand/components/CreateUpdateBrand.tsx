@@ -17,7 +17,7 @@ import Spinner from "src/components/spinner"
 import CustomTextField from "src/components/text-field"
 
 //services
-import { getBrandDetail } from "src/services/brand"
+import { getBrandCode, getBrandDetail } from "src/services/brand"
 
 //translation
 import { useTranslation } from "react-i18next"
@@ -56,6 +56,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
     const [previewImage, setPreviewImage] = useState<string>("");
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const imageRef = useRef<HTMLImageElement>(null);
+    const [brandCode, setBrandCode] = useState<string>("");
 
     //props
     const { open, onClose, idBrand } = props
@@ -79,7 +80,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
 
     const defaultValues: TDefaultValues = {
         name: '',
-        code: '',
+        code: brandCode,
         imageCommand: {
             imageUrl: '',
             imageBase64: '',
@@ -119,6 +120,12 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
         }
     }
 
+    const getBrandDefaultCode = async () => {
+        const res = await getBrandCode({
+            params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" }
+        });
+        setBrandCode(res?.result);
+    };
 
     const handleUploadImage = async (file: File) => {
         const base64WithPrefix = await convertBase64(file);
@@ -191,6 +198,9 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
         }
     }, [open, idBrand, reset]);
 
+    useEffect(() => {
+        getBrandDefaultCode();
+    }, []);
 
 
     return (
@@ -332,7 +342,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                                                 label={t('brand_code')}
                                                 onChange={onChange}
                                                 onBlur={onBlur}
-                                                value={value}
+                                                value={value || brandCode}
                                                 placeholder={t('enter_brand_code')}
                                                 error={errors.code ? true : false}
                                                 helperText={errors.code?.message}

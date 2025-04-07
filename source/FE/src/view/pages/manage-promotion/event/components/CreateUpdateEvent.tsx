@@ -31,38 +31,39 @@ import { useDispatch } from 'react-redux';
 import { createEventAsync, updateEventAsync } from 'src/stores/event/action';
 import { useRouter } from 'next/router';
 import { AppDispatch } from 'src/stores';
-import { getEventDetail } from 'src/services/event';
+import { getEventCode, getEventDetail } from 'src/services/event';
 import { toast } from 'react-toastify';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import { getAllProvinces } from 'src/services/province';
-import { getAllProducts } from 'src/services/product';
+import { getAllProducts, getProductCode } from 'src/services/product';
 import IconifyIcon from 'src/components/Icon';
 import FileUploadWrapper from 'src/components/file-upload-wrapper';
-import { convertBase64 } from 'src/utils';
+import { convertBase64, convertHTMLToDraft } from 'src/utils';
 import { TParamsCreateEvent, TParamsUpdateEvent } from 'src/types/event';
-// import { EVENT_TYPE } from 'src/configs/event';
+import CustomEditor from 'src/components/custom-editor';
+import { convertToRaw, EditorState } from 'draft-js';
+import draftToHtml from 'draftjs-to-html';
 
-// Enum definitions
 enum PromotionEventType {
-    DirectDiscount = 0,       // Giảm giá trực tiếp
-    OrderBasedPromotion = 1,  // Ưu đãi theo đơn hàng
-    FlashSale = 2,            // Flash Sale & Giờ vàng
-    SpecialOccasion = 3,      // Khuyến mãi theo dịp đặc biệt
+    DirectDiscount = 0,
+    OrderBasedPromotion = 1,
+    FlashSale = 2,
+    SpecialOccasion = 3,
 }
 
 enum DiscountTypeEnum {
-    Percentage = 0,       // Giảm giá theo %
-    FixedAmount = 1,      // Giảm giá số tiền cố định
-    FreeShipping = 2,     // Miễn phí vận chuyển
+    Percentage = 0,
+    FixedAmount = 1,
+    FreeShipping = 2,
 }
 
 enum ConditionTypeEnum {
-    MinOrderValue = 0,     // đơn hàng tối thiểu
-    MaxDiscountAmount = 1, // Giảm tối đa
-    RequiredQuantity = 2,  // Mua ít nhất
-    AllowedRegions = 3,    // Chỉ áp dụng cho tại địa chỉ cụ thể
-    RequiredProducts = 4,  // Chỉ áp dụng khi mua sản phẩm ID 101,102,..
+    MinOrderValue = 0,
+    MaxDiscountAmount = 1,
+    RequiredQuantity = 2,
+    AllowedRegions = 3,
+    RequiredProducts = 4,
 }
 
 interface ImageCommand {
@@ -110,7 +111,7 @@ type EventFormData = {
     eventType: number;
     imageCommand: EventImage;
     imageId: number;
-    description?: string;
+    description: EditorState;
     voucherCommands: VoucherCommand[];
 };
 
@@ -133,7 +134,6 @@ interface CreateUpdateEventProps {
     onClose: () => void;
 }
 
-// Add a styled component for table cells similar to the receipt component
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     padding: theme.spacing(1),
     '& .MuiTextField-root': {
@@ -151,6 +151,8 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
     const [previewImage, setPreviewImage] = useState<string>("");
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const imageRef = useRef<HTMLImageElement>(null);
+    const [eventCode, setEventCode] = useState<string>("");
+
     const [voucherCommands, setVoucherCommands] = useState<VoucherCommand[]>([
         {
             id: 0,
@@ -172,13 +174,11 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         }
     ]);
 
-    // State for provinces and products
     const [provinces, setProvinces] = useState<{ label: string, value: number }[]>([]);
     const [products, setProducts] = useState<{ label: string, value: number }[]>([]);
     const [loadingProvinces, setLoadingProvinces] = useState(false);
     const [loadingProducts, setLoadingProducts] = useState(false);
 
-    // Create options for autocomplete fields
     const eventTypeOptions = [
         { label: t("direct_discount"), value: PromotionEventType.DirectDiscount },
         { label: t("order_based_promotion"), value: PromotionEventType.OrderBasedPromotion },
@@ -237,7 +237,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
     });
 
     const defaultValues: EventFormData = {
-        code: '',
+        code: eventCode,
         name: '',
         startDate: new Date(),
         endDate: new Date(),
@@ -251,7 +251,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             displayOrder: 0
         },
         imageId: 0,
-        description: '',
+        description: EditorState.createEmpty(),
         voucherCommands: [{
             id: 0,
             code: '',
@@ -280,7 +280,6 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
     } = useForm<EventFormData>({
         defaultValues,
         mode: 'onChange',
-        // resolver: yupResolver(schema) as any,
     });
 
     const watchedVoucherCommands = watch('voucherCommands');
@@ -316,9 +315,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 setValue('endDate', new Date(data.endDate));
                 setValue('eventType', data.eventType);
 
-                // Handle image data
                 if (data.imageCommand) {
-                    // Ensure typeImage is a number
                     const imageCommand = {
                         ...data.imageCommand,
                         typeImage: typeof data.imageCommand.typeImage === 'string' ? data.imageCommand.typeImage : 0
@@ -336,7 +333,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                     setPreviewImage(imageToPreview);
                 }
 
-                setValue('description', data.description);
+                setValue('description', data.description ? convertHTMLToDraft(data.description) : EditorState.createEmpty());
 
                 if (data.voucherCommands && data.voucherCommands.length > 0) {
                     setValue('voucherCommands', data.voucherCommands);
@@ -385,9 +382,17 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         }
     };
 
+    const getEventDefaultCode = async () => {
+        const res = await getEventCode({
+            params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" }
+        });
+        setEventCode(res?.result);
+    };
+
     useEffect(() => {
         fetchAllProvinces();
         fetchAllProducts();
+        getEventDefaultCode();
     }, []);
 
     useEffect(() => {
@@ -400,14 +405,14 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         }
     }, [id]);
 
-    const handleCreateEvent = async (data: EventFormData) => {
+    const handleCreateEvent = async (data: any) => {
         const result = await dispatch(createEventAsync(data));
         if (!result?.payload?.result) {
             throw new Error(t('create_event_failed'));
         }
     };
 
-    const handleUpdateEvent = async (data: TParamsUpdateEvent) => {
+    const handleUpdateEvent = async (data: any) => {
         if (!id) {
             throw new Error(t('invalid_event_id'));
         }
@@ -419,8 +424,13 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
 
     const onSubmit = async (data: EventFormData) => {
         try {
-            const eventData = {
+            const apiData = {
                 ...data,
+                description: data.description ? draftToHtml(convertToRaw(data.description.getCurrentContent())) : '',
+            };
+
+            const eventData = {
+                ...apiData,
                 imageId: data.imageId || 0,
                 voucherCommands: data.voucherCommands.map(voucher => ({
                     code: voucher.code,
@@ -440,7 +450,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             };
 
             if (isEditMode && id) {
-                await handleUpdateEvent({ ...eventData, id });
+                await handleUpdateEvent(eventData);
             } else {
                 await handleCreateEvent(eventData);
             }
@@ -474,7 +484,6 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         const updatedVouchers = [...voucherCommands, newVoucher];
         setVoucherCommands(updatedVouchers);
 
-        // Update form value with all vouchers
         setValue('voucherCommands', updatedVouchers);
     };
 
@@ -482,14 +491,12 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         const updatedVouchers = [...voucherCommands];
         const voucher = updatedVouchers[voucherIndex];
 
-        // Create a new condition
         const newCondition: VoucherCondition = {
             voucherId: voucher.id || 0,
             conditionType: 0,
             conditionValue: 0
         };
 
-        // Add the new condition to the voucher
         voucher.conditions = [...voucher.conditions, newCondition];
 
         setVoucherCommands(updatedVouchers);
@@ -500,10 +507,8 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         const updatedVouchers = [...voucherCommands];
         const voucher = updatedVouchers[voucherIndex];
 
-        // Remove the condition at the specified index
         voucher.conditions = voucher.conditions.filter((_, index) => index !== conditionIndex);
 
-        // If this was the last condition, add a default one
         if (voucher.conditions.length === 0) {
             voucher.conditions = [{
                 voucherId: voucher.id || 0,
@@ -514,12 +519,10 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
 
         setVoucherCommands(updatedVouchers);
 
-        // Update form value with all vouchers
         setValue('voucherCommands', updatedVouchers);
     };
 
     const handleRemoveVoucher = (index: number) => {
-        // If there's only one voucher, reset it instead of removing
         if (voucherCommands.length === 1) {
             const resetVoucher = {
                 id: 0,
@@ -540,7 +543,6 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             setVoucherCommands([resetVoucher]);
             setValue('voucherCommands', [resetVoucher]);
         } else {
-            // Remove the voucher at the specified index
             const updatedVouchers = voucherCommands.filter((_, i) => i !== index);
             setVoucherCommands(updatedVouchers);
             setValue('voucherCommands', updatedVouchers);
@@ -561,14 +563,12 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         const updatedVouchers = [...voucherCommands];
         const voucher = updatedVouchers[voucherIndex];
 
-        // Create a new array of conditions with the updated condition
         const updatedConditions = [...voucher.conditions];
         updatedConditions[conditionIndex] = {
             ...updatedConditions[conditionIndex],
             [field]: value
         };
 
-        // Update the voucher with the new conditions
         updatedVouchers[voucherIndex] = {
             ...voucher,
             conditions: updatedConditions
@@ -578,7 +578,6 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         setValue('voucherCommands', updatedVouchers);
     };
 
-    // Render condition value field based on condition type
     const renderConditionValueField = (voucher: VoucherCommand, condition: any, voucherIndex: number, conditionIndex: number) => {
         const conditionType = condition.conditionType;
 
@@ -639,7 +638,6 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 {loading && <Spinner />}
                 <Paper sx={{ p: 2 }}>
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        {/* Header */}
                         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                             <Typography variant="h5">{isEditMode ? t("update_event") : t("create_event")}</Typography>
                             <Box sx={{ display: 'flex', gap: 1 }}>
@@ -652,9 +650,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                             </Box>
                         </Box>
 
-                        {/* Form Fields */}
-                        <Grid container spacing={2}>
-                            {/* Image Upload Field */}
+                        <Grid container spacing={3}>
                             <Grid item xs={12} mb={3}>
                                 <Controller
                                     control={control}
@@ -684,7 +680,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                                     />
                                                 ) : (
                                                     <Avatar alt="default-avatar" sx={{ width: 100, height: 100 }}>
-                                                        <IconifyIcon icon="solar:gift-outline" fontSize={70} />
+                                                        <IconifyIcon icon="carbon:event" fontSize={70} />
                                                     </Avatar>
                                                 )}
                                                 {previewImage && (
@@ -834,16 +830,10 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                 <Controller
                                     name="description"
                                     control={control}
-                                    render={({ field: { onChange, onBlur, value } }) => (
-                                        <CustomTextField
-                                            fullWidth
-                                            multiline
-                                            rows={4}
-                                            label={t("description")}
-                                            onChange={onChange}
-                                            onBlur={onBlur}
-                                            value={value}
-                                            placeholder={t("enter_description")}
+                                    render={({ field }) => (
+                                        <CustomEditor
+                                            editorState={field.value}
+                                            onEditorStateChange={(state) => field.onChange(state)}
                                             error={!!errors.description}
                                             helperText={errors.description?.message}
                                         />
@@ -852,7 +842,6 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                             </Grid>
                         </Grid>
 
-                        {/* Voucher Commands Table */}
                         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Typography variant="h6">{t("list_voucher")}</Typography>
                             <Button
@@ -871,10 +860,10 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                         <TableRow>
                                             <StyledTableCell width="5%">#</StyledTableCell>
                                             <StyledTableCell width="13%">{t("voucher_code")}</StyledTableCell>
-                                            <StyledTableCell width="20%">{t("voucher_name")}</StyledTableCell>
+                                            <StyledTableCell width="15%">{t("voucher_name")}</StyledTableCell>
                                             <StyledTableCell width="17%">{t("discount_type")}</StyledTableCell>
-                                            <StyledTableCell width="8%">{t("discount_value")}</StyledTableCell>
-                                            <StyledTableCell width="8%">{t("usage_limit")}</StyledTableCell>
+                                            <StyledTableCell width="7%">{t("discount_value")}</StyledTableCell>
+                                            <StyledTableCell width="7%">{t("usage_limit")}</StyledTableCell>
                                             <StyledTableCell width="12%">{t("start_date")}</StyledTableCell>
                                             <StyledTableCell width="12%">{t("end_date")}</StyledTableCell>
                                             <StyledTableCell width="5%">
@@ -997,7 +986,6 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                             </TableContainer>
                         </Box>
 
-                        {/* Voucher Conditions Table */}
                         {voucherCommands.length > 0 && (
                             <>
                                 <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>{t("voucher_conditions")}</Typography>

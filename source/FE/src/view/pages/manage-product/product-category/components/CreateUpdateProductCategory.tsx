@@ -17,7 +17,7 @@ import Spinner from "src/components/spinner"
 import CustomTextField from "src/components/text-field"
 
 //services
-import { getAllProductCategories, getProductCategoryDetail } from "src/services/product-category"
+import { getAllProductCategories, getProductCategoryCode, getProductCategoryDetail } from "src/services/product-category"
 
 //translation
 import { useTranslation } from "react-i18next"
@@ -49,6 +49,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
     //state
     const [loading, setLoading] = useState(false)
     const [parentOptions, setParentOptions] = useState<{ label: string, value: string }[]>([])
+    const [productCategoryCode, setProductCategoryCode] = useState<string>("");
 
     //props
     const { open, onClose, id } = props
@@ -73,7 +74,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
 
     const defaultValues: TDefaultValues = {
         name: '',
-        code: '',
+        code: productCategoryCode,
         parentId: '',
         parentName: '',
         level: 0
@@ -161,8 +162,16 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
         })
     }
 
+    const getProductCategoryDefaultCode = async () => {
+        const res = await getProductCategoryCode({
+            params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" }
+        });
+        setProductCategoryCode(res?.result);
+    };
+
     useEffect(() => {
         fetchAllCategories()
+        getProductCategoryDefaultCode()
     }, [])
 
 
@@ -254,12 +263,11 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
-
                                                 required
                                                 label={t('product_category_code')}
                                                 onChange={onChange}
                                                 onBlur={onBlur}
-                                                value={value}
+                                                value={value || productCategoryCode}
                                                 placeholder={t('enter_product_category_code')}
                                                 error={errors.code ? true : false}
                                                 helperText={errors.code?.message}

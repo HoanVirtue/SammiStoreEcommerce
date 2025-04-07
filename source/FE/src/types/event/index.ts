@@ -1,3 +1,6 @@
+import { EditorState } from 'draft-js';
+
+
 export interface PropertyFilterModel {
     field: string;      
     operator: string;     
@@ -34,7 +37,7 @@ export type TParamsCreateEvent = {
     eventType: number;
     imageCommand: EventImage;
     imageId: number 
-    description?: string;
+    description?: EditorState;
     voucherCommands: {
         code: string
         name: string

@@ -12,6 +12,15 @@ export const getAllProductCategories = async (data: {params: TParamsGetAllProduc
     }
 }
 
+export const getProductCategoryCode = async (data: {params: TParamsGetAllProductCategories}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/get-code-by-last-id`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const createProductCategory = async (data: TParamsCreateProductCategory) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}`, data)

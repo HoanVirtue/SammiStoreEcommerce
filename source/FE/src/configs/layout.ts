@@ -168,7 +168,7 @@ export const VerticalLayoutItems = () => {
                     // permission: PERMISSIONS.MANAGE_PROMOTION.EVENT.VIEW
                 },
                 {
-                    title: t('voucher_list'),
+                    title: t('list_voucher'),
                     icon: 'ci:ticket-voucher',
                     path: ROUTE_CONFIG.MANAGE_PROMOTION.VOUCHER,
                     // permission: PERMISSIONS.MANAGE_PROMOTION.VOUCHER.VIEW

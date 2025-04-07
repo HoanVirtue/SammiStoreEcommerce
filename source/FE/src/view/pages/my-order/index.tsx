@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from 'react-redux'
 //Other
 
 import { useAuth } from 'src/hooks/useAuth'
-import { TOrderItem } from 'src/types/order'
+import { TOrderItem, TParamsGetAllOrders } from 'src/types/order'
 import NoData from 'src/components/no-data'
 import { useRouter } from 'next/router'
 import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'

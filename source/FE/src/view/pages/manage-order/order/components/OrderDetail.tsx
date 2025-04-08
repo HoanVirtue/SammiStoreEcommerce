@@ -2,14 +2,16 @@
 import { useEffect, useState } from "react"
 
 //Mui
-import { Box, IconButton, Grid, Typography, Container, Stack, Divider, alpha, useTheme } from "@mui/material"
+import { Box, IconButton, Grid, Typography, Container, Stack, Divider, alpha, useTheme, Button } from "@mui/material"
 
 //components
 import IconifyIcon from "src/components/Icon"
 import Spinner from "src/components/spinner"
+import CustomAutocomplete from "src/components/custom-autocomplete"
+import { AutocompleteOption } from "src/components/custom-autocomplete"
 
 //services
-import { getManageOrderDetail } from "src/services/order";
+import { getManageOrderDetail, updateOrderStatus } from "src/services/order";
 
 //translation
 import { useTranslation } from "react-i18next"
@@ -17,10 +19,12 @@ import { formatPrice } from "src/utils"
 import Image from "src/components/image"
 import StepLabel from "src/components/step-label";
 import { PaymentStatus, ShippingStatus, OrderStatus } from "src/configs/order"
+import { toast } from "react-toastify"
 
 interface TOrderDetail {
     id: number
     onClose: () => void
+    onRefresh?: () => void
 }
 
 type StepLabelProps = {
@@ -44,9 +48,11 @@ const OrderDetail = (props: TOrderDetail) => {
     //state
     const [loading, setLoading] = useState(false)
     const [orderData, setOrderData] = useState<any>(null)
+    const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<AutocompleteOption | null>(null)
+    const [selectedShippingStatus, setSelectedShippingStatus] = useState<AutocompleteOption | null>(null)
 
     //props
-    const { id, onClose } = props
+    const { id, onClose, onRefresh } = props
 
     //translation
     const { t } = useTranslation()
@@ -60,6 +66,21 @@ const OrderDetail = (props: TOrderDetail) => {
             const data = res?.result
             if (data) {
                 setOrderData(data)
+                // Set initial values for autocomplete
+                const paymentStatus = Object.values(PaymentStatus).find(item => item.label === data.paymentStatus)
+                const shippingStatus = Object.values(ShippingStatus).find(item => item.label === data.shippingStatus)
+                if (paymentStatus) {
+                    setSelectedPaymentStatus({
+                        label: t(paymentStatus.title),
+                        value: paymentStatus.value.toString()
+                    })
+                }
+                if (shippingStatus) {
+                    setSelectedShippingStatus({
+                        label: t(shippingStatus.title),
+                        value: shippingStatus.value.toString()
+                    })
+                }
             }
             setLoading(false)
         }).catch(() => {
@@ -73,11 +94,72 @@ const OrderDetail = (props: TOrderDetail) => {
         }
     }, [id])
 
+    const handlePaymentStatusChange = (newValue: AutocompleteOption | null) => {
+        setSelectedPaymentStatus(newValue)
+    }
+
+    const handleShippingStatusChange = (newValue: AutocompleteOption | null) => {
+        setSelectedShippingStatus(newValue)
+    }
+
+    const handleApplyStatus = async () => {
+        if (selectedPaymentStatus && selectedShippingStatus) {
+            const res: any = await updateOrderStatus({
+                orderId: id,
+                paymentStatus: parseInt(selectedPaymentStatus.value as string),
+                shippingStatus: parseInt(selectedShippingStatus.value as string)
+            })
+            if (res?.data?.isSuccess === true) {
+                toast.success(t("order_status_updated_successfully"))
+                onClose()
+                if (onRefresh) {
+                    onRefresh()
+                }
+            } else {
+                toast.error(res?.message)
+            }
+        }
+    }
+
+    // Convert status objects to autocomplete options
+    const paymentStatusOptions = Object.values(PaymentStatus).map(status => ({
+        label: t(status.title),
+        value: status.value.toString()
+    }))
+
+    const shippingStatusOptions = Object.values(ShippingStatus).map(status => ({
+        label: t(status.title),
+        value: status.value.toString()
+    }))
+
     return (
         <>
             {loading && <Spinner />}
             <Container maxWidth="lg">
-                <Stack direction="row" alignItems="center" justifyContent="flex-end">
+                <Stack direction="row" alignItems="center" justifyContent="space-between">
+                    <Stack direction="row" spacing={2}>
+                        <CustomAutocomplete
+                            options={paymentStatusOptions}
+                            value={selectedPaymentStatus}
+                            onChange={handlePaymentStatusChange}
+                            label={t("payment_status")}
+                            sx={{ width: 200 }}
+                        />
+                        <CustomAutocomplete
+                            options={shippingStatusOptions}
+                            value={selectedShippingStatus}
+                            onChange={handleShippingStatusChange}
+                            label={t("shipping_status")}
+                            sx={{ width: 200 }}
+                        />
+                        <Button
+                            variant="contained"
+                            onClick={handleApplyStatus}
+                            disabled={!selectedPaymentStatus || !selectedShippingStatus}
+                        >
+                            {t("apply")}
+                        </Button>
+                    </Stack>
                     <IconButton onClick={onClose}>
                         <IconifyIcon icon="material-symbols-light:close-rounded" />
                     </IconButton>

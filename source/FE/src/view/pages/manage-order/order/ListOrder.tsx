@@ -105,6 +105,9 @@ const ListOrderPage: NextPage<TProps> = () => {
                 disableDeleteButton={true}
 
                 showDetailButton={true}
+                
+                hideTableHeader={true}
+                showUpdateOrderStatusHeader={true}
             />
         </Box>
     )

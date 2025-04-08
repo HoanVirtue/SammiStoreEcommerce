@@ -58,7 +58,7 @@ const UpdateReceiptStatusHeader = (props: TProp) => {
                 newStatus: parseInt(selectedStatus.value as string)
             })
             if (res?.data?.isSuccess === true) {
-                toast.success(t("status_updated_successfully"))
+                toast.success(t("receipt_status_updated_successfully"))
                 onClear()
                 setSelectedStatus(null)
             } else {

@@ -14,8 +14,7 @@ import { useDebounce } from "src/hooks/useDebounce";
 import { PAGE_SIZE_OPTIONS } from "src/configs/gridConfig";
 import { TFilter } from "src/configs/filter";
 import { usePermission } from "src/hooks/usePermission";
-import { RECEIPT_STATUS } from "src/configs/receipt";
-import { updateReceiptStatusAsync } from "src/stores/receipt/action";
+
 
 // Dynamic imports for heavy components
 const CustomDataGrid = dynamic(() => import("src/components/custom-data-grid"), { ssr: false });
@@ -28,10 +27,12 @@ const GridUpdate = dynamic(() => import("src/components/grid-update"), { ssr: fa
 const GridDelete = dynamic(() => import("src/components/grid-delete"), { ssr: false });
 const AdminFilter = dynamic(() => import("src/components/admin-filter"), { ssr: false });
 const GridDetail = dynamic(() => import("../grid-detail"), { ssr: false });
-const StatusUpdateHeader = dynamic(() => import("../status-update-header"), { ssr: false });
+const UpdateReceiptStatusHeader = dynamic(() => import("../update-receipt-status-header"), { ssr: false });
+const UpdateOrderStatusHeader = dynamic(() => import("../update-order-status-header"), { ssr: false });
 
 import CloseIcon from '@mui/icons-material/Close';
 import { useRouter } from "next/router";
+
 
 type AdminPageProps = {
   entityName: string;
@@ -71,6 +72,10 @@ type AdminPageProps = {
   onCloseUpdateTab?: () => void;
   onCloseDetailTab?: () => void;
   onCloseCreateNewTab?: () => void;
+
+  hideTableHeader?: boolean;
+  showUpdateReceiptStatusHeader?: boolean;
+  showUpdateOrderStatusHeader?: boolean;
 };
 
 const AdminPage: NextPage<AdminPageProps> = ({
@@ -110,6 +115,10 @@ const AdminPage: NextPage<AdminPageProps> = ({
   onCloseUpdateTab,
   onCloseDetailTab,
   onCloseCreateNewTab,
+
+  hideTableHeader = false,
+  showUpdateReceiptStatusHeader = false,
+  showUpdateOrderStatusHeader = false,
 
 }) => {
   const [page, setPage] = useState<number>(1);
@@ -206,18 +215,6 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const handleDeleteMultiple = () => {
     setIsDeleting(true);
     dispatch(deleteMultipleAction({ [`${entityName}Ids`]: selectedRow }));
-  };
-
-  const statusOptions = Object.values(RECEIPT_STATUS());
-
-  const handleStatusUpdate = (newStatus: string) => {
-    selectedRow.forEach(id => {
-      dispatch(updateReceiptStatusAsync({
-        purchaseOrderId: id,
-        newStatus: parseInt(newStatus)
-      }));
-    });
-    setSelectedRow([]);
   };
 
   const handleAction = (action: string) => action === "delete" && DELETE && setOpenDeleteMultiple(true);
@@ -432,23 +429,39 @@ const AdminPage: NextPage<AdminPageProps> = ({
               )}
               {selectedRow.length > 0 && (
                 <Suspense fallback={<div>Loading...</div>}>
-                  <TableHeader
-                    selectedRowNumber={selectedRow.length}
-                    onClear={() => setSelectedRow([])}
-                    actions={[{ label: t("delete"), value: "delete" }]}
-                    handleAction={handleAction}
-                    selectedRows={selectedRow}
-                  />
+                  {!hideTableHeader && (
+                    <TableHeader
+                      selectedRowNumber={selectedRow.length}
+                      onClear={() => setSelectedRow([])}
+                      actions={[{ label: t("delete"), value: "delete" }]}
+                      handleAction={handleAction}
+                      selectedRows={selectedRow}
+                    />
+                  )}
+
+                  {showUpdateReceiptStatusHeader && (
+                    <UpdateReceiptStatusHeader
+                      selectedRowNumber={selectedRow.length}
+                      onClear={() => setSelectedRow([])}
+                      actions={[{ label: t("delete"), value: "delete" }]}
+                      handleAction={handleAction}
+                      selectedRows={selectedRow}
+                    />
+                  )}
+
+                  {showUpdateOrderStatusHeader && (
+                    <UpdateOrderStatusHeader
+                      selectedRowNumber={selectedRow.length}
+                      onClear={() => setSelectedRow([])}
+                      actions={[{ label: t("delete"), value: "delete" }]}
+                      handleAction={handleAction}
+                      selectedRows={selectedRow}
+                      onRefresh={handleFetchData}
+                    />
+                  )}
                 </Suspense>
               )}
-              {/* {selectedRow.length > 0 && (
-                <StatusUpdateHeader
-                  selectedRows={selectedRow}
-                  onStatusUpdate={handleStatusUpdate}
-                  statusOptions={statusOptions}
-                  onClear={() => setSelectedRow([])}
-                />
-              )} */}
+
               <Suspense fallback={<div>Loading...</div>}>
                 <CustomDataGrid
                   rows={data}
@@ -522,6 +535,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
                 onTabChange?.(0);
                 onCloseDetailTab?.();
               }}
+              onRefresh={handleFetchData}
             />
           )}
           {currentTab === 4 && CreateNewTabComponent && (

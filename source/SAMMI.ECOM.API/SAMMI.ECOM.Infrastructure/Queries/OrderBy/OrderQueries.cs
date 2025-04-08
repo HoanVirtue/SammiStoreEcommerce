@@ -17,7 +17,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<IEnumerable<SelectionItem>> GetSelectionList(RequestFilterModel? request);
         Task<IEnumerable<OrderDTO>> GetAll(RequestFilterModel? filterModel = null);
         Task<OrderDTO> GetById(int id);
-        Task<IEnumerable<OrderDTO>> GetOrdersByCustomerId(int customerId);
+        Task<IEnumerable<OrderDTO>> GetOrdersByCustomerId(int customerId, RequestFilterModel request);
+        Task<IPagedList<OrderDTO>> GetListOrdersByCustomerId(int customerId, RequestFilterModel request);
     }
     public class OrderQueries : QueryRepository<Order>, IOrderQueries
     {
@@ -116,6 +117,11 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.LeftJoin("Payment t8 ON t1.Id = t8.OrderId AND t8.IsDeleted != 1");
                     sqlBuilder.LeftJoin("PaymentMethod t9 ON t8.PaymentMethodId = t9.Id");
 
+                    if (filterModel.Any("PaymentStatus"))
+                    {
+                        sqlBuilder.Where("t8.PaymentStatus = @PaymentStatus", new { PaymentStatus = filterModel.Get("PaymentStatus") });
+                    }
+
                     sqlBuilder.GroupBy(@"t1.Id,
                         t1.Code,
                         t1.CustomerId,
@@ -142,7 +148,76 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 filterModel);
         }
 
-        public async Task<IEnumerable<OrderDTO>> GetOrdersByCustomerId(int customerId)
+        public async Task<IPagedList<OrderDTO>> GetListOrdersByCustomerId(int customerId, RequestFilterModel request)
+        {
+            return await WithPagingTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("t2.FullName AS CustomerName, t2.Phone AS PhoneNumber");
+                    sqlBuilder.Select("CONCAT(t1.CustomerAddress, ', ', t4.Name, ', ', t5.Name, ', ', t6.Name) AS CustomerAddress");
+                    sqlBuilder.Select("t8.PaymentStatus");
+                    sqlBuilder.Select("t10.Name AS PaymentMethod");
+                    sqlBuilder.Select("t7.*");
+                    sqlBuilder.Select("t9.Name AS ProductName");
+                    sqlBuilder.Select("t11.ImageUrl");
+
+                    sqlBuilder.InnerJoin("Users t2 ON t1.CustomerId = t2.Id");
+                    sqlBuilder.LeftJoin("Voucher t3 ON t1.VoucherId = t3.Id");
+                    sqlBuilder.InnerJoin("Ward t4 ON t1.WardId = t4.Id");
+                    sqlBuilder.LeftJoin("District t5 ON t4.DistrictId = t5.Id");
+                    sqlBuilder.LeftJoin("Province t6 ON t5.ProvinceId = t5.Id");
+                    sqlBuilder.InnerJoin("OrderDetail t7 ON t1.Id = t7.OrderId");
+                    sqlBuilder.LeftJoin("Payment t8 ON t1.Id = t8.OrderId AND t8.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Product t9 ON t7.ProductId = t9.Id");
+                    sqlBuilder.LeftJoin("PaymentMethod t10 ON t8.PaymentMethodId = t10.Id");
+                    sqlBuilder.LeftJoin(@"(SELECT pi.ProductId, i.ImageUrl
+                                        FROM ProductImage pi
+                                        INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                        WHERE pi.IsDeleted != 1
+                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        ) t11 ON t9.Id = t11.ProductId"
+                    );
+
+                    sqlBuilder.Where("t2.Id = @customerId", new { customerId });
+                    if(request.Any("PaymentStatus"))
+                    {
+                        sqlBuilder.Where("t8.PaymentStatus = @PaymentStatus", new { PaymentStatus = request.Get("PaymentStatus") });
+                    }
+
+                    var orderDictonary = new Dictionary<int, OrderDTO>();
+                    var orders = await conn.QueryAsync<OrderDTO, OrderDetailDTO, OrderDTO>(sqlTemplate.RawSql,
+                        (order, detail) =>
+                        {
+                            if (!orderDictonary.TryGetValue(order.Id, out var orderEntry))
+                            {
+                                orderEntry = order;
+                                orderEntry.Details = new List<OrderDetailDTO>();
+                                orderDictonary[order.Id] = orderEntry;
+                            }
+
+
+                            if (detail != null && orderEntry.Details.All(x => x.Id != detail.Id))
+                            {
+                                orderEntry.Details ??= new();
+                                orderEntry.Details.Add(detail);
+                            }
+
+                            return orderEntry;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "Id");
+
+                    foreach (var order in orders)
+                    {
+                        order.TotalQuantity = order.Details.Sum(x => x.Quantity);
+                        order.TotalPrice = order.Details.Sum(x => x.Quantity * x.Price);
+                    }
+                    return orders;
+                }, request
+            );
+        }
+
+        public async Task<IEnumerable<OrderDTO>> GetOrdersByCustomerId(int customerId, RequestFilterModel request)
         {
             return await WithDefaultTemplateAsync(
                 async (conn, sqlBuilder, sqlTemplate) =>
@@ -173,7 +248,10 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     );
 
                     sqlBuilder.Where("t2.Id = @customerId", new { customerId });
-
+                    if (request.Any("PaymentStatus"))
+                    {
+                        sqlBuilder.Where("t8.PaymentStatus = @PaymentStatus", new { PaymentStatus = request.Get("PaymentStatus") });
+                    }
                     var orderDictonary = new Dictionary<int, OrderDTO>();
                     var orders = await conn.QueryAsync<OrderDTO, OrderDetailDTO, OrderDTO>(sqlTemplate.RawSql,
                         (order, detail) =>

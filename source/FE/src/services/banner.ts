@@ -33,7 +33,7 @@ export const updateBanner = async (data: TParamsUpdateBanner) => {
 }
 
 
-export const deleteBanner = async (id: string) => {
+export const deleteBanner = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.SETTING.BANNER.INDEX}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deleteBanner = async (id: string) => {
     }
 }
 
-export const getBannerDetail = async (id: string) => {
+export const getBannerDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.SETTING.BANNER.INDEX}/${id}`)
         return res.data

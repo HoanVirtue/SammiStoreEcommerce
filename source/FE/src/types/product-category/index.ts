@@ -13,26 +13,26 @@ export type TParamsGetAllProductCategories = {
 export type TParamsCreateProductCategory = {
     code: string,
     name: string,
-    parentId?: string,
+    parentId?: number,
     parentName?: string,
     level?: number,
     // slug: string
 }
 
 export type TParamsUpdateProductCategory = {
-    id: string,
+    id: number,
     code: string,
     name: string,
-    parentId?: string,
+    parentId?: number,
     parentName?: string,
     level?: number,
     // slug: string
 }
 
 export type TParamsDeleteProductCategory = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleProductCategories = {
-    productCategoryIds: string[],
+    productCategoryIds: number[],
 }

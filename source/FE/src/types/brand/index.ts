@@ -25,7 +25,7 @@ export type TParamsCreateBrand = {
 }
 
 export type TParamsUpdateBrand = {
-    id: string,
+    id: number,
     code: string,
     name: string,
     imageCommand: {
@@ -40,9 +40,9 @@ export type TParamsUpdateBrand = {
 }
 
 export type TParamsDeleteBrand = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleBrands = {
-    brandIds: string[],
+    brandIds: number[],
 }

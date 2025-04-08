@@ -10,7 +10,7 @@ export const serviceName = 'user'
 
 export const getAllUsersAsync = createAsyncThunk(`${serviceName}/get-all`, async (data: { params: TParamsGetAllUsers }) => {
     const response = await getAllUsers(data)
-    return response
+     return response
 })
 
 export const createUserAsync = createAsyncThunk(`${serviceName}/create`, async (data: TParamsCreateUser) => {
@@ -23,7 +23,7 @@ export const updateUserAsync = createAsyncThunk(`${serviceName}/update`, async (
     return response
 })
 
-export const deleteUserAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteUserAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteUser(id)
     return response
 })

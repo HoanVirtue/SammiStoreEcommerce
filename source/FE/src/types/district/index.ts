@@ -26,7 +26,7 @@ export type TParamsCreateDistrict = {
 }
 
 export type TParamsUpdateDistrict = {
-    id: string,
+    id: number,
     name?: string,
     code?: string
     provinceName?: string,
@@ -34,9 +34,9 @@ export type TParamsUpdateDistrict = {
 }
 
 export type TParamsDeleteDistrict = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleDistricts = {
-    districtIds: string[],
+    districtIds: number[],
 }

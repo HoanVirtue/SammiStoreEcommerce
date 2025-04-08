@@ -29,7 +29,7 @@ import { createProvinceAsync, updateProvinceAsync } from "src/stores/province/ac
 interface TCreateUpdateProvince {
     open: boolean
     onClose: () => void
-    id?: string
+    id?: number
 }
 
 type TDefaultValues = {
@@ -96,7 +96,7 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
     }
 
 
-    const fetchDetailProvince = async (id: string) => {
+    const fetchDetailProvince = async (id: number) => {
         setLoading(true)
         await getProvinceDetail(id).then((res) => {
             const data = res?.result

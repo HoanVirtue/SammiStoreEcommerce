@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateReceipt, TParamsDeleteMultipleReceipts, TParamsGetAllReceipts, TParamsUpdateReceipt, TParamsUpdateReceiptStatus } from "src/types/receipt"
+import { TParamsCreateReceipt, TParamsDeleteMultipleReceipts, TParamsGetAllReceipts, TParamsUpdateMultipleReceiptStatus, TParamsUpdateReceipt, TParamsUpdateReceiptStatus } from "src/types/receipt"
 
 export const getAllReceipts = async (data: { params: TParamsGetAllReceipts }) => {
     try {
@@ -31,6 +31,16 @@ export const updateReceiptStatus = async (data: TParamsUpdateReceiptStatus) => {
     }
 }
 
+export const updateMultipleReceiptStatus = async (data: TParamsUpdateMultipleReceiptStatus) => {
+    try {
+        const res: any = await instance.post(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/update-purchase-status`, data)
+        return res
+    }
+    catch (error: any) {
+        return error?.response?.data
+    }
+}
+
 
 export const updateReceipt = async (data: TParamsUpdateReceipt) => {
     // const { id, ...rests } = data
@@ -43,7 +53,7 @@ export const updateReceipt = async (data: TParamsUpdateReceipt) => {
 }
 
 
-export const deleteReceipt = async (id: string) => {
+export const deleteReceipt = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/${id}`)
         return res.data
@@ -52,7 +62,7 @@ export const deleteReceipt = async (id: string) => {
     }
 }
 
-export const getReceiptDetail = async (id: string) => {
+export const getReceiptDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/${id}`)
         return res.data

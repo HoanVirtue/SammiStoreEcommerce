@@ -33,7 +33,7 @@ export const updateWard = async (data: TParamsUpdateWard) => {
 }
 
 
-export const deleteWard = async (id: string) => {
+export const deleteWard = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.ADDRESS.WARD.INDEX}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deleteWard = async (id: string) => {
     }
 }
 
-export const getWardDetail = async (id: string) => {
+export const getWardDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.ADDRESS.WARD.INDEX}/${id}`)
         return res.data

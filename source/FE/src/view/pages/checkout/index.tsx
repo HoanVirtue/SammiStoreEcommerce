@@ -43,6 +43,15 @@ import { PAYMENT_METHOD } from 'src/configs/payment';
 import { getVoucherDetail } from 'src/services/voucher';
 import StepLabel from 'src/components/step-label';
 
+interface CartItem {
+    productId: number;
+    quantity: number;
+    productName?: string;
+    price?: number;
+    discount?: number;
+    images?: any[];
+}
+
 // ----------------------------------------------------------------------
 
 type TProps = {};
@@ -113,14 +122,14 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     const handleFormatProductData = (items: any) => {
         const objectMap: Record<string, TItemOrderProduct> = {};
-        carts?.data?.forEach((cart: TItemCart) => {
+        carts?.data?.forEach((cart: CartItem) => {
             objectMap[cart.productId] = {
                 productId: cart.productId,
                 quantity: cart.quantity,
-                name: cart.productName,
-                price: cart.price,
+                name: cart.productName || '',
+                price: cart.price || 0,
                 discount: cart.discount,
-                images: cart.images,
+                images: cart.images || [],
             };
         });
         return items.map((item: any) => ({

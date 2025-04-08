@@ -113,8 +113,6 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
         }
     }
 
-    console.log("orderData", orderData?.details?.map((item: TOrderDetail) => item.productId))
-
     // const handleBuyAgain = () => {
     //     handleUpdateProductToCart(orderData?.details?.map((item: TOrderDetail) => item.productId))
     //     router.push({

@@ -18,25 +18,24 @@ export type TParamsGetAllWards = {
 }
 
 export type TParamsCreateWard = {
-    // id: number;
     name?: string;
     code?: string;
     districtName?: string;
-    districtId?: string,
+    districtId?: number,
 }
 
 export type TParamsUpdateWard = {
-    id: string,
+    id: number,
     name?: string,
     code?: string
     districtName?: string,
-    districtId?: string,
+    districtId?: number,
 }
 
 export type TParamsDeleteWard = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleWards = {
-    wardIds: string[],
+    wardIds: number[],
 }

@@ -6,8 +6,8 @@ export const getAllDeliveryMethods = async (data: {params: TParamsGetAllDelivery
     try {
         const res = await instance.get(`${API_ENDPOINT.SETTING.DELIVERY_METHOD.INDEX}`, data)
         return res.data
-    } catch (error) {
-        return error
+    } catch (error: any) {
+        return error?.response?.data
     }
 }
 
@@ -43,7 +43,7 @@ export const updateDeliveryMethod = async (data: TParamsUpdateDeliveryMethod) =>
 }
 
 
-export const deleteDeliveryMethod = async (id: string) => {
+export const deleteDeliveryMethod = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.SETTING.DELIVERY_METHOD.INDEX}/${id}`)
         return res.data
@@ -52,7 +52,7 @@ export const deleteDeliveryMethod = async (id: string) => {
     }
 }
 
-export const getDeliveryMethodDetail = async (id: string) => {
+export const getDeliveryMethodDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.SETTING.DELIVERY_METHOD.INDEX}/${id}`)
         return res.data

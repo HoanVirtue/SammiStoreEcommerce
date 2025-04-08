@@ -29,7 +29,7 @@ type TProp = {
     onClear: () => void,
     actions: { label: string, value: string, disabled?: boolean }[],
     handleAction: (type: string) => void,
-    selectedRows: string[]
+    selectedRows: number[]
 }
 
 const TableHeader = (props: TProp) => {
@@ -55,7 +55,7 @@ const TableHeader = (props: TProp) => {
             try {
                 const res: any = await Promise.all(selectedRows.map(row =>
                     updateReceiptStatus({
-                        purchaseOrderId: parseInt(row),
+                        purchaseOrderId: row,
                         newStatus: parseInt(selectedStatus.value as string)
                     })
                 ))

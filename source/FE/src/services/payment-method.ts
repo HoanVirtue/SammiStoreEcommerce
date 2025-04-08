@@ -33,7 +33,7 @@ export const updatePaymentMethod = async (data: TParamsUpdatePaymentMethod) => {
 }
 
 
-export const deletePaymentMethod = async (id: string) => {
+export const deletePaymentMethod = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.SETTING.PAYMENT_METHOD.INDEX}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deletePaymentMethod = async (id: string) => {
     }
 }
 
-export const getPaymentMethodDetail = async (id: string) => {
+export const getPaymentMethodDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.SETTING.PAYMENT_METHOD.INDEX}/${id}`)
         return res.data

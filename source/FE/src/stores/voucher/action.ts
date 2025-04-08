@@ -30,7 +30,7 @@ export const updateVoucherAsync = createAsyncThunk(`${serviceName}/update`, asyn
 })
 
 
-export const deleteVoucherAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteVoucherAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteVoucher(id)
     return response
 })

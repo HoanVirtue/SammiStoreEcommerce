@@ -18,7 +18,7 @@ import Image from "src/components/image"
 import StepLabel from "src/components/step-label";
 
 interface TOrderDetail {
-    id: string
+    id: number
     onClose: () => void
 }
 
@@ -41,7 +41,7 @@ const OrderDetail = (props: TOrderDetail) => {
     //theme
     const theme = useTheme()
 
-    const fetchOrderDetail = async (id: string) => {
+    const fetchOrderDetail = async (id: number) => {
         setLoading(true)
         await getManageOrderDetail(id).then((res) => {
             const data = res?.result

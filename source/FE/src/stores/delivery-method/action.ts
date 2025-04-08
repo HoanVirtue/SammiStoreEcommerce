@@ -23,7 +23,7 @@ export const updateDeliveryMethodAsync = createAsyncThunk(`${serviceName}/update
     return response
 })
 
-export const deleteDeliveryMethodAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteDeliveryMethodAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteDeliveryMethod(id)
     return response
 })

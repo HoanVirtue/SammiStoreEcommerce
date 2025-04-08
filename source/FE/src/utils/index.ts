@@ -151,11 +151,11 @@ export const convertUpdateProductToCart = (orderItems: TItemOrderProduct[], addI
         const cloneOrderItems = cloneDeep(orderItems)
         const findItems = cloneOrderItems.find((item: TItemOrderProduct) => item.productId === addItem.productId)
         if (findItems) {
-            findItems.amount += addItem.amount
+            findItems.amount += addItem.quantity
         } else {
             cloneOrderItems.push(addItem)
         }
-        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.amount)
+        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.quantity)
         return result
     } catch (error) {
         return orderItems
@@ -169,12 +169,12 @@ export const convertUpdateMultipleProductsCard = (orderItems: TItemOrderProduct[
         addItems.forEach((addItem)=>{
             const findItems = cloneOrderItems.find((item: TItemOrderProduct) => item.productId === addItem.productId)
             if (findItems) {
-                findItems.amount += addItem.amount
+                findItems.quantity += addItem.quantity
             } else {
                 cloneOrderItems.push(addItem)
             }
         })
-        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.amount)
+        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.quantity)
         return result
     } catch (error) {
         return orderItems

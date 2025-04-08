@@ -33,7 +33,7 @@ export const updateRole = async (data: TParamsUpdateRole) => {
 }
 
 
-export const deleteRole = async (id: string) => {
+export const deleteRole = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.SYSTEM.ROLE.INDEX}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deleteRole = async (id: string) => {
     }
 }
 
-export const getRoleDetail = async (id: string) => {
+export const getRoleDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.SYSTEM.ROLE.INDEX}/${id}`)
         return res.data

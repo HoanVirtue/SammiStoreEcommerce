@@ -42,7 +42,7 @@ export const updateBrand = async (data: TParamsUpdateBrand) => {
 }
 
 
-export const deleteBrand = async (id: string) => {
+export const deleteBrand = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}/${id}`)
         return res.data
@@ -51,7 +51,7 @@ export const deleteBrand = async (id: string) => {
     }
 }
 
-export const getBrandDetail = async (id: string) => {
+export const getBrandDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}/${id}`)
         return res.data

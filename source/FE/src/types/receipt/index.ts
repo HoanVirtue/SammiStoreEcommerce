@@ -1,7 +1,7 @@
 export interface PropertyFilterModel {
-    field: string;      
-    operator: string;     
-    filterValue: string;   
+    field: string;
+    operator: string;
+    filterValue: string;
 }
 
 export type TParamsGetAllReceipts = {
@@ -14,7 +14,7 @@ export type TParamsGetAllReceipts = {
     paging?: boolean;
     restrictOrderBy?: boolean;
     keywords?: string;
-    propertyFilterModels?: PropertyFilterModel[]; 
+    propertyFilterModels?: PropertyFilterModel[];
 }
 
 export type TParamsCreateReceipt = {
@@ -26,9 +26,9 @@ export type TParamsCreateReceipt = {
 }
 
 export type TParamsUpdateReceipt = {
-    id: string,
+    id: number,
     name?: string,
-    code?: string
+    code?: string,
     provinceName?: string,
     provinceId?: string,
 }
@@ -38,10 +38,15 @@ export type TParamsUpdateReceiptStatus = {
     newStatus: number,
 }
 
+export type TParamsUpdateMultipleReceiptStatus = {
+    purchaseOrderIds: number[],
+    newStatus: number,
+}
+
 export type TParamsDeleteReceipt = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleReceipts = {
-    receiptIds: string[],
+    receiptIds: number[],
 }

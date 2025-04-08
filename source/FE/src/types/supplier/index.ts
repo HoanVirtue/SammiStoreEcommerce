@@ -20,7 +20,7 @@ export type TParamsCreateSupplier = {
     email: string | null;
     phone: string;
     streetAddress: string | null;
-    wardId: string;
+    wardId: number;
     username: string;
     password: string;
     gender: number;
@@ -28,14 +28,14 @@ export type TParamsCreateSupplier = {
 }
 
 export interface TParamsUpdateSupplier extends TParamsCreateSupplier {
-    id: string
+    id: number
 }
 
 export type TParamsDeleteSupplier = {
     name: string,
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleSuppliers = {
-    supplierIds: string[],
+    supplierIds: number[],
 }

@@ -84,13 +84,13 @@ export type TParamsApplyVoucher = {
 }
 
 export interface TParamsUpdateVoucher extends TParamsCreateVoucher {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteVoucher = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleVouchers = {
-    voucherIds: string[],
+    voucherIds: number[],
 }

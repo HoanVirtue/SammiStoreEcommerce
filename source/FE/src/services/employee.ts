@@ -33,7 +33,7 @@ export const updateEmployee = async (data: TParamsUpdateEmployee) => {
 }
 
 
-export const deleteEmployee = async (id: string) => {
+export const deleteEmployee = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.USER.EMPLOYEE.DELETE}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deleteEmployee = async (id: string) => {
     }
 }
 
-export const getEmployeeDetail = async (id: string) => {
+export const getEmployeeDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.USER.EMPLOYEE.INDEX}/${id}`)
         return res.data

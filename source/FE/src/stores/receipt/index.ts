@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
-import { createReceiptAsync, deleteMultipleReceiptsAsync, deleteReceiptAsync, getAllReceiptsAsync, serviceName, updateReceiptAsync, updateReceiptStatusAsync } from './action'
+import { createReceiptAsync, deleteMultipleReceiptsAsync, deleteReceiptAsync, getAllReceiptsAsync, serviceName, updateMultipleReceiptStatusAsync, updateReceiptAsync, updateReceiptStatusAsync } from './action'
 
 interface ReceiptPayload {
   result?: {
@@ -34,6 +34,10 @@ const initialState = {
   isErrorUpdateStatus: false,
   errorMessageUpdateStatus: '',
 
+  isSuccessUpdateMultipleStatus: false,
+  isErrorUpdateMultipleStatus: false,
+  errorMessageUpdateMultipleStatus: '',
+
   isSuccessDelete: false,
   isErrorDelete: false,
   errorMessageDelete: '',
@@ -58,12 +62,23 @@ export const receiptSlice = createSlice({
       state.isError = true
       state.message = ""
       state.typeError = ""
+
       state.isSuccessCreateUpdate = false
       state.isErrorCreateUpdate = true
       state.errorMessageCreateUpdate = ''
+
+      state.isSuccessUpdateStatus = false
+      state.isErrorUpdateStatus = true
+      state.errorMessageUpdateStatus = ''
+
+      state.isSuccessUpdateMultipleStatus = false
+      state.isErrorUpdateMultipleStatus = true
+      state.errorMessageUpdateMultipleStatus = ''
+
       state.isSuccessDelete = false
       state.isErrorDelete = true
       state.errorMessageDelete = ''
+
       state.isSuccessDeleteMultiple = false
       state.isErrorDeleteMultiple = true
       state.errorMessageDeleteMultiple = ''
@@ -136,6 +151,23 @@ export const receiptSlice = createSlice({
       state.isLoading = false
       state.isErrorUpdateStatus = true
       state.errorMessageUpdateStatus = payload?.message || 'Error updating Receipt'
+    })
+
+    //update multiple Receipt status
+    builder.addCase(updateMultipleReceiptStatusAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(updateMultipleReceiptStatusAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.isSuccessUpdateMultipleStatus = !!action.payload?.isSuccess
+      state.isErrorUpdateMultipleStatus = !action.payload?.isSuccess
+      state.typeError = action.payload?.errors
+    })
+    builder.addCase(updateMultipleReceiptStatusAsync.rejected, (state, action) => {
+      const payload = action.payload as ReceiptPayload;
+      state.isLoading = false
+      state.isErrorUpdateMultipleStatus = true
+      state.errorMessageUpdateMultipleStatus = payload?.message || 'Error updating Receipt'
     })
 
     //delete Receipt

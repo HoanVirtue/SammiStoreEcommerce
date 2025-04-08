@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next";
 //Utils
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
-import { TItemCart, TItemOrderProduct } from "src/types/order";
+import { TItemCart } from "src/types/order";
 import { getLocalProductFromCart } from "src/helpers/storage";
 import { updateProductToCart } from "src/stores/order";
 import { hexToRGBA } from "src/utils/hex-to-rgba";
@@ -36,6 +36,14 @@ type TProps = {}
 const StyledMenuItem = styled(MenuItem)<MenuItemProps>(({ theme }) => ({
 }))
 
+interface CartItem {
+    productId: number;
+    quantity: number;
+    productName?: string;
+    price?: number;
+    discount?: number;
+    images?: any[];
+}
 
 const ProductCart = (props: TProps) => {
     const { user } = useAuth()
@@ -69,11 +77,11 @@ const ProductCart = (props: TProps) => {
     }
 
     const totalItemsCart = useMemo(() => {
-        const total = carts?.data?.reduce((result, current: TItemCart) => {
-            return result + current.quantity
-        }, 0)
-        return total
-    }, [carts])
+        if (!carts?.data) return 0;
+        return carts.data.reduce((result: number, current: CartItem) => {
+            return result + current.quantity;
+        }, 0);
+    }, [carts]);
 
     useEffect(() => {
         if (user?.id) {
@@ -96,7 +104,7 @@ const ProductCart = (props: TProps) => {
     useEffect(() => {
         const fetchImages = async () => {
             const imageMap: Record<string, string> = {};
-            const cartItems = carts?.data as TItemCart[] || [];
+            const cartItems = carts?.data as CartItem[] || [];
             for (const item of cartItems) {
                 const res = await getProductDetail(item.productId);
                 const data = res?.result;
@@ -174,9 +182,9 @@ const ProductCart = (props: TProps) => {
             >
                 {carts?.data?.length > 0 ? (
                     <Box sx={{ maxHeight: "300px", maxWidth: "300px", overflow: "auto" }}>
-                        {carts?.data?.map((item: TItemCart) => {
+                        {carts?.data?.map((item: CartItem) => {
                             return (
-                                <StyledMenuItem key={item.productId} onClick={() => handleNavigateProductDetail(+item.productId)}>
+                                <StyledMenuItem key={item.productId} onClick={() => handleNavigateProductDetail(item.productId)}>
                                     <Avatar src={productImages[item.productId]} />
                                     <Box sx={{ ml: 1 }}>
                                         <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.productName}</Typography>
@@ -186,26 +194,26 @@ const ProductCart = (props: TProps) => {
                                                 fontWeight: "bold",
                                                 fontSize: "12px"
                                             }}>
-                                                {item?.discount && item?.discount > 0 ? (
+                                                {item?.discount && item?.discount > 0 && item?.price ? (
                                                     <>
-                                                        {formatPrice(item?.price * (100 - item?.discount * 100) / 100)}
+                                                        {formatPrice(item.price * (100 - item.discount * 100) / 100)}
                                                     </>
-                                                ) : (
+                                                ) : item?.price ? (
                                                     <>
-                                                        {formatPrice(item?.price)}
+                                                        {formatPrice(item.price)}
                                                     </>
-                                                )}
+                                                ) : null}
                                             </Typography>
-                                            {(item?.discount && item?.discount > 0) ? (
+                                            {(item?.discount && item?.discount > 0 && item?.price) ? (
                                                 <Typography variant="h6" sx={{
                                                     color: theme.palette.error.main,
                                                     fontWeight: "bold",
                                                     textDecoration: "line-through",
                                                     fontSize: "10px"
                                                 }}>
-                                                    {formatPrice(item?.price)}
+                                                    {formatPrice(item.price)}
                                                 </Typography>
-                                            ) : ''}
+                                            ) : null}
 
                                         </Box>
                                     </Box>

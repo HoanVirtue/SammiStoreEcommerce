@@ -33,7 +33,7 @@ export const updateDistrict = async (data: TParamsUpdateDistrict) => {
 }
 
 
-export const deleteDistrict = async (id: string) => {
+export const deleteDistrict = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.ADDRESS.DISTRICT.INDEX}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deleteDistrict = async (id: string) => {
     }
 }
 
-export const getDistrictDetail = async (id: string) => {
+export const getDistrictDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.ADDRESS.DISTRICT.INDEX}/${id}`)
         return res.data

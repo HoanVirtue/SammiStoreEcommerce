@@ -43,7 +43,7 @@ const ListOrderPage: NextPage<TProps> = () => {
     const { t } = useTranslation()
     const theme = useTheme()
     const [currentTab, setCurrentTab] = useState(0)
-    const [selectedOrderId, setSelectedOrderId] = useState<string>("")
+    const [selectedOrderId, setSelectedOrderId] = useState<number>(0)
     const [showCreateTab, setShowCreateTab] = React.useState(false);
     const [showUpdateTab, setShowUpdateTab] = React.useState(false);
     const [showDetailTab, setShowDetailTab] = React.useState(false);
@@ -76,11 +76,11 @@ const ListOrderPage: NextPage<TProps> = () => {
     const handleTabChange = (newTab: number) => {
         setCurrentTab(newTab);
         if (newTab === 0) {
-            setSelectedOrderId("")
+            setSelectedOrderId(0)
         }
     };
 
-    const handleDetailClick = (id: string) => {
+    const handleDetailClick = (id: number) => {
         setSelectedOrderId(id);
         setShowDetailTab(true);
         setCurrentTab(3);

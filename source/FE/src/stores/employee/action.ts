@@ -21,7 +21,7 @@ export const updateEmployeeAsync = createAsyncThunk(`${serviceName}/update`, asy
     return response
 })
 
-export const deleteEmployeeAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteEmployeeAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteEmployee(id)
     return response
 })

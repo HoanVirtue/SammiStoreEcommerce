@@ -12,7 +12,7 @@ export const getAllReviews = async (data: {params: TParamsGetAllReviews  }) => {
     }
 }
 
-export const getReviewDetail = async (id: string) => {
+export const getReviewDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`)
         return res.data

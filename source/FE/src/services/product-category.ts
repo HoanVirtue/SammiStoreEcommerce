@@ -43,7 +43,7 @@ export const updateProductCategory = async (data: TParamsUpdateProductCategory) 
 }
 
 
-export const deleteProductCategory = async (id: string) => {
+export const deleteProductCategory = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/${id}`)
         return res.data
@@ -52,7 +52,7 @@ export const deleteProductCategory = async (id: string) => {
     }
 }
 
-export const getProductCategoryDetail = async (id: string) => {
+export const getProductCategoryDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/${id}`)
         return res.data

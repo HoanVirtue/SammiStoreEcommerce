@@ -1,10 +1,10 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 
 //services
-import { createReceipt, deleteMultipleReceipts, deleteReceipt, getAllReceipts, updateReceipt, updateReceiptStatus } from "src/services/receipt";
+import { createReceipt, deleteMultipleReceipts, deleteReceipt, getAllReceipts, updateMultipleReceiptStatus, updateReceipt, updateReceiptStatus } from "src/services/receipt";
 
 //types
-import { TParamsCreateReceipt, TParamsDeleteMultipleReceipts, TParamsGetAllReceipts, TParamsUpdateReceipt, TParamsUpdateReceiptStatus } from "src/types/receipt";
+import { TParamsCreateReceipt, TParamsDeleteMultipleReceipts, TParamsGetAllReceipts, TParamsUpdateMultipleReceiptStatus, TParamsUpdateReceipt, TParamsUpdateReceiptStatus } from "src/types/receipt";
 
 export const serviceName = 'receipt'
 
@@ -23,13 +23,18 @@ export const updateReceiptStatusAsync = createAsyncThunk(`${serviceName}/update-
     return response
 })
 
+export const updateMultipleReceiptStatusAsync = createAsyncThunk(`${serviceName}/update-multiple-status`, async (data: TParamsUpdateMultipleReceiptStatus) => {
+    const response = await updateMultipleReceiptStatus(data)
+    return response
+})
+
 export const updateReceiptAsync = createAsyncThunk(`${serviceName}/update`, async (data: TParamsUpdateReceipt) => {
     const response = await updateReceipt(data)
     return response
 })
 
 
-export const deleteReceiptAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteReceiptAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteReceipt(id)
     return response
 })

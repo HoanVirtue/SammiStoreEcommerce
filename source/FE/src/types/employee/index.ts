@@ -21,7 +21,7 @@ export type TParamsCreateEmployee = {
     email: string | null;
     phone: string;
     streetAddress: string | null;
-    wardId: string;
+    wardId: number;
     wardName?: string;
     username: string;
     password: string;
@@ -30,14 +30,14 @@ export type TParamsCreateEmployee = {
 }
 
 export interface TParamsUpdateEmployee extends TParamsCreateEmployee {
-    id: string
+    id: number
 }
 
 export type TParamsDeleteEmployee = {
     name: string,
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleEmployees = {
-    employeeIds: string[],
+    employeeIds: number[],
 }

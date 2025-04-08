@@ -1,7 +1,30 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { createCartAsync, deleteCartAsync, getCartsAsync, serviceName } from './action';
 
-const initialState = {
+interface CartItem {
+  productId: number;
+  quantity: number;
+}
+
+interface CartState {
+  isLoading: boolean;
+  isSuccess: boolean;
+  isError: boolean;
+  message: string;
+  typeError: string;
+  isSuccessCreate: boolean;
+  isErrorCreate: boolean;
+  errorMessageCreate: string;
+  isSuccessDelete: boolean;
+  isErrorDelete: boolean;
+  errorMessageDelete: string;
+  carts: {
+    data: CartItem[];
+    total: number;
+  };
+}
+
+const initialState: CartState = {
   isLoading: false,
   isSuccess: false,
   isError: false,

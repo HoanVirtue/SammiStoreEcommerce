@@ -21,7 +21,7 @@ export type TParamsCreateCustomer = {
     email: string | null;
     phone: string;
     streetAddress: string | null;
-    wardId: string;
+    wardId: number;
     username: string;
     password: string;
     gender: number;
@@ -29,14 +29,14 @@ export type TParamsCreateCustomer = {
 }
 
 export interface TParamsUpdateCustomer extends TParamsCreateCustomer {
-    id: string
+    id: number
 }
 
 export type TParamsDeleteCustomer = {
     name: string,
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleCustomers = {
-    customerIds: string[],
+    customerIds: number[],
 }

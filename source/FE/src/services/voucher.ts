@@ -49,9 +49,9 @@ export const fetchListApplyVoucher = async (data: TParamsFetchListApplyVoucher) 
     }
 }
 
-export const applyVoucher = async (voucherId: string, data: TParamsApplyMyVoucher) => {
+export const applyVoucher = async (voucherCode: string, data: TParamsApplyMyVoucher) => {
     try {
-        const res = await instance.post(`${API_ENDPOINT.VOUCHER.INDEX}/apply-voucher/${voucherId}`, data);
+        const res = await instance.post(`${API_ENDPOINT.VOUCHER.INDEX}/apply-voucher/${voucherCode}`, data);
         return res.data;
     } catch (error: any) {
         return error?.response?.data;
@@ -69,7 +69,7 @@ export const updateVoucher = async (data: TParamsUpdateVoucher) => {
 }
 
 
-export const deleteVoucher = async (id: string) => {
+export const deleteVoucher = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.VOUCHER.INDEX}/${id}`)
         return res.data
@@ -78,7 +78,7 @@ export const deleteVoucher = async (id: string) => {
     }
 }
 
-export const getVoucherDetail = async (id: string) => {
+export const getVoucherDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.VOUCHER.INDEX}/${id}`)
         return res.data

@@ -23,7 +23,7 @@ export const updateBannerAsync = createAsyncThunk(`${serviceName}/update`, async
     return response
 })
 
-export const deleteBannerAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteBannerAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteBanner(id)
     return response
 })

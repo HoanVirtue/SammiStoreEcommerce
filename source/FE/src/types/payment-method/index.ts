@@ -15,14 +15,14 @@ export type TParamsCreatePaymentMethod = {
 }
 
 export type TParamsUpdatePaymentMethod = {
-    id: string,
+    id: number,
     name: string,
 }
 
 export type TParamsDeletePaymentMethod = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultiplePaymentMethods = {
-    paymentTypeIds: string[],
+    paymentTypeIds: number[],
 }

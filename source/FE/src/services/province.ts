@@ -33,7 +33,7 @@ export const updateProvince = async (data: TParamsUpdateProvince) => {
 }
 
 
-export const deleteProvince = async (id: string) => {
+export const deleteProvince = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deleteProvince = async (id: string) => {
     }
 }
 
-export const getProvinceDetail = async (id: string) => {
+export const getProvinceDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/${id}`)
         return res.data

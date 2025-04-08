@@ -33,13 +33,13 @@ import { getAllDistricts } from "src/services/district";
 interface TCreateUpdateWard {
     open: boolean
     onClose: () => void
-    id?: string
+    id?: number
 }
 
 type TDefaultValues = {
     name: string,
     code: string,
-    districtId: string,
+    districtId: number,
     districtName: string,
 }
 
@@ -64,14 +64,14 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
     const schema = yup.object().shape({
         name: yup.string().required(t('required_ward_name')),
         code: yup.string().required(t('required_ward_code')),
-        districtId: yup.string().required(t('required_district_id')),
+        districtId: yup.number().required(t('required_district_id')),
         districtName: yup.string().required(t('required_district_name')),
     });
 
     const defaultValues: TDefaultValues = {
-        name: '',
+        name: '',   
         code: '',
-        districtId: '',
+        districtId: 0,
         districtName: ''
     }
 
@@ -133,7 +133,7 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
     }
 
 
-    const fetchDetailWard = async (id: string) => {
+    const fetchDetailWard = async (id: number) => {
         setLoading(true)
         await getWardDetail(id).then((res) => {
             const data = res?.result
@@ -292,14 +292,14 @@ const CreateUpdateWard = (props: TCreateUpdateWard) => {
                                                         console.log("id", selectedDistrict);
                                                         if (selectedDistrict) {
                                                             onChange(selectedDistrict.value);
-                                                            setValue('districtId', selectedDistrict.value);
+                                                            setValue('districtId', parseInt(selectedDistrict.value));
                                                         } else {
-                                                            onChange('');
-                                                            setValue('districtId', '');
+                                                            onChange(0);
+                                                            setValue('districtId', 0);
                                                         }
                                                     }}
                                                     onBlur={onBlur}
-                                                    value={value || ''}
+                                                    value={value || 0}
                                                     options={districtOptions}
                                                     placeholder={t('enter_district_name')}
                                                     error={errors.districtName ? true : false}

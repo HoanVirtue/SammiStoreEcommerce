@@ -24,7 +24,7 @@ export const updateDistrictAsync = createAsyncThunk(`${serviceName}/update`, asy
 })
 
 
-export const deleteDistrictAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteDistrictAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteDistrict(id)
     return response
 })

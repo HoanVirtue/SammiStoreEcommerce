@@ -33,7 +33,7 @@ import { getAllProvinces } from "src/services/province";
 interface TCreateUpdateDistrict {
     open: boolean
     onClose: () => void
-    id?: string
+    id?: number
 }
 
 type TDefaultValues = {
@@ -133,7 +133,7 @@ const CreateUpdateDistrict = (props: TCreateUpdateDistrict) => {
     }
 
 
-    const fetchDetailDistrict = async (id: string) => {
+    const fetchDetailDistrict = async (id: number) => {
         setLoading(true)
         await getDistrictDetail(id).then((res) => {
             const data = res?.result

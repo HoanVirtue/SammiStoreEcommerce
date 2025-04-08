@@ -79,11 +79,6 @@ const MyProfilePage: NextPage<TProps> = () => {
     //Theme
     const theme = useTheme();
 
-    const breadcrumbItems = [
-        { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
-        { label: t('my_profile'), href: '/my-profile' },
-    ];
-
     //Dispatch
     const dispatch: AppDispatch = useDispatch();
     const { isLoading, isErrorUpdateMe, messageUpdateMe, isSuccessUpdateMe } = useSelector((state: RootState) => state.auth)
@@ -206,18 +201,11 @@ const MyProfilePage: NextPage<TProps> = () => {
             maxWidth: '1440px',
             margin: '0 auto',
             width: '100%',
-            padding: '1rem 2rem'
         }}>
             {loading || isLoading && <Spinner />}
-            <Box sx={{
-                mb: '1rem',
-                backgroundColor: theme.palette.grey[100],
-            }}>
-                <CustomBreadcrumbs items={breadcrumbItems} />
-            </Box>
             <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
                 <Box sx={{
-                    width: "60%",
+                    width: "100%",
                     height: "100%",
                     display: "flex",
                     justifyContent: "center",

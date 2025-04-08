@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { formatDate, formatPrice } from 'src/utils'
 import Image from 'src/components/image'
 import { getReceiptStatusLabel } from 'src/configs/receipt'
+import { PaymentStatus, ShippingStatus, OrderStatus } from 'src/configs/order'
 
 const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   backgroundColor: "#28c76f29",
@@ -17,6 +18,18 @@ const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
 const StyledPrivateProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   backgroundColor: "#da251d29",
   color: "#da251d",
+  fontSize: "14px",
+  padding: "8px 4px",
+  fontWeight: 600
+}))
+
+interface TStatusChip extends ChipProps {
+  background: string
+}
+
+const StyledOrderStatus = styled(Chip)<TStatusChip>(({ theme, background }) => ({
+  backgroundColor: `${background}29`,
+  color: background,
   fontSize: "14px",
   padding: "8px 4px",
   fontWeight: 600
@@ -93,7 +106,30 @@ export const getOrderColumns = (): GridColDef[] => {
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
-        return <Typography>{row?.orderStatus}</Typography>
+        const status = row?.paymentStatus
+        let background = theme.palette.grey[500]
+        let label = ''
+
+        switch (status) {
+          case PaymentStatus.Pending.label:
+            background = theme.palette.warning.main
+            label = t(PaymentStatus.Pending.title)
+            break
+          case PaymentStatus.Unpaid.label:
+            background = theme.palette.error.main
+            label = t(PaymentStatus.Unpaid.title)
+            break
+          case PaymentStatus.Paid.label:
+            background = theme.palette.success.main
+            label = t(PaymentStatus.Paid.title)
+            break
+          case PaymentStatus.Failed.label:
+            background = theme.palette.error.main
+            label = t(PaymentStatus.Failed.title)
+            break
+        }
+
+        return <StyledOrderStatus background={background} label={label} />
       }
     },
     {
@@ -104,7 +140,30 @@ export const getOrderColumns = (): GridColDef[] => {
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
-        return <Typography>{row?.shippingStatus}</Typography>
+        const status = row?.shippingStatus
+        let background = theme.palette.grey[500]
+        let label = ''
+
+        switch (status) {
+          case ShippingStatus.NotShipped.label:
+            background = theme.palette.warning.main
+            label = t(ShippingStatus.NotShipped.title)
+            break
+          case ShippingStatus.Processing.label:
+            background = theme.palette.info.main
+            label = t(ShippingStatus.Processing.title)
+            break
+          case ShippingStatus.Delivered.label:
+            background = theme.palette.success.main
+            label = t(ShippingStatus.Delivered.title)
+            break
+          case ShippingStatus.Lost.label:
+            background = theme.palette.error.main
+            label = t(ShippingStatus.Lost.title)
+            break
+        }
+
+        return <StyledOrderStatus background={background} label={label} />
       }
     },
     {
@@ -115,7 +174,34 @@ export const getOrderColumns = (): GridColDef[] => {
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
-        return <Typography>{row?.orderStatus}</Typography>
+        const status = row?.orderStatus
+        let background = theme.palette.grey[500]
+        let label = ''
+
+        switch (status) {
+          case OrderStatus.Pending.label:
+            background = theme.palette.warning.main
+            label = t(OrderStatus.Pending.title)
+            break
+          case OrderStatus.WaitingForPayment.label:
+            background = theme.palette.warning.main
+            label = t(OrderStatus.WaitingForPayment.title)
+            break
+          case OrderStatus.Processing.label:
+            background = theme.palette.info.main
+            label = t(OrderStatus.Processing.title)
+            break
+          case OrderStatus.Completed.label:
+            background = theme.palette.success.main
+            label = t(OrderStatus.Completed.title)
+            break
+          case OrderStatus.Cancelled.label:
+            background = theme.palette.error.main
+            label = t(OrderStatus.Cancelled.title)
+            break
+        }
+
+        return <StyledOrderStatus background={background} label={label} />
       }
     },
   ]
@@ -543,7 +629,7 @@ export const getVoucherColumns = (): GridColDef[] => {
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.endDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
-    },  
+    },
     {
       field: "discount_name",
       headerName: t("discount_name"),

@@ -681,8 +681,20 @@
     "go_to_payment": "Thanh toán",
     "ensure_estimated_delivery": "Đảm bảo nhận hàng vào ngày",
     "create_new_product": "Thêm mới sản phẩm",
-    
-
+    "order_has_been_paid": "Đơn hàng đã được thanh toán",
+    "order_has_been_canceled": "Đơn hàng đã bị hủy bỏ",
+    "order_has_been_completed": "Đơn hàng đã hoàn tất",
+    "order_has_been_processing": "Đơn hàng đang được xử lý",
+    "my_account": "Tài khoản của tôi",
+    "empty_order": "Không có đơn hàng nào",
+    "pending": "Chờ duyệt",
+    "waiting_for_payment": "Chờ thanh toán",
+    "failed": "Thất bại",
+    "unpaid": "Chưa thanh toán",
+    "paid": "Đã thanh toán",
+    "not_shipped": "Chưa giao hàng",
+    "delivered": "Đã giao hàng",
+    "lost": "Đã mất",
 
     "province_id": "Mã Tỉnh/Thành phố"
 }

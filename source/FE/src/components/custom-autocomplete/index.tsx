@@ -97,7 +97,7 @@ const CustomAutocomplete: React.FC<CustomAutocompleteProps> = ({
     const defaultRenderOption = (props: React.HTMLAttributes<HTMLLIElement>, option: AutocompleteOption) => (
         <li {...props}>
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography variant="body2">{option.label}</Typography>
+                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>{option.label}</Typography>
                 {option.id && (
                     <Typography variant="caption" color="text.secondary">
                         {t("id")}: {option.id}

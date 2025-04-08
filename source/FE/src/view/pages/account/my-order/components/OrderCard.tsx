@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Avatar, Button, Divider, Typography, useTheme } from '@mui/material'
+import { Avatar, Button, Divider, Stack, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -21,16 +21,12 @@ import { useDispatch, useSelector } from 'react-redux'
 
 //Other
 
-import { convertUpdateMultipleProductsCard, convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils'
+import { formatPrice } from 'src/utils'
 import { TItemOrderProduct, TOrderDetail, TOrderItem } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import { cancelOrderAsync } from 'src/stores/order/action'
 import { OrderStatus, PaymentStatus } from 'src/configs/order'
-import { Chip } from '@mui/material'
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
-import { TProduct } from 'src/types/product'
-import { updateProductToCart } from 'src/stores/order'
 import { useAuth } from 'src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import { ROUTE_CONFIG } from 'src/configs/route'
@@ -99,7 +95,7 @@ const OrderCard: NextPage<TProps> = (props) => {
     // }
 
     const handleNavigateDetail = () => {
-        router.push(`${ROUTE_CONFIG.MY_ORDER}/${orderData.id}`)
+        router.push(`${ROUTE_CONFIG.ACCOUNT.MY_ORDER}/${orderData.id}`)
     }
 
     const handlePaymentMethod = (type: string) => {
@@ -171,35 +167,37 @@ const OrderCard: NextPage<TProps> = (props) => {
                             <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_paid')}{' | '}</Typography>
                         </Box>
                     )}
-                    <Typography sx={{ color: theme.palette.primary.main }}>{t((OrderStatus as any)[orderData?.orderStatus]?.label)}</Typography>
+                    <Typography sx={{ color: theme.palette.primary.main }}>{t((OrderStatus as any)[orderData?.orderStatus]?.title)}</Typography>
                 </Box>
                 <Divider />
                 <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
                     {orderData?.details?.map((item: TOrderDetail) => {
                         return (
-                            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-start", gap: 3 }} key={item.productId}>
+                            <Stack direction="row" alignItems="center" key={item.productId}>
                                 <Box sx={{ border: `1px solid ${theme.palette.customColors.borderColor}`, height: 'fit-content' }}>
                                     <Image src={item?.imageUrl} sx={{ width: "80px", height: "80px" }} />
                                 </Box>
-                                <Box>
-                                    <Box>
-                                        <Typography fontSize={"18px"}>{item?.productName}</Typography>
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="h4" sx={{
-                                            color: theme.palette.primary.main,
-                                            fontWeight: "bold",
-                                            fontSize: "16px"
-                                        }}>
+                                <Stack direction="row" justifyContent="space-between" alignItems="center" key={item.productId} sx={{ px: 4, width: "100%" }}>
+                                    <Stack >
+                                        <Box>
+                                            <Typography fontSize={"18px"} fontWeight={600}  >{item?.productName}</Typography>
+                                        </Box>
+                                        <Box>
+                                            <Typography variant="h4" sx={{
+                                                color: theme.palette.primary.main,
+                                                fontWeight: "bold",
+                                                fontSize: "16px"
+                                            }}>
 
-                                            {formatPrice(item?.price)}
-                                        </Typography>
-                                    </Box>
+                                                {formatPrice(item?.price)}
+                                            </Typography>
+                                        </Box>
+                                    </Stack>
                                     <Box>
                                         <Typography fontSize={"16px"}>x{item?.quantity}</Typography>
                                     </Box>
-                                </Box>
-                            </Box>
+                                </Stack>
+                            </Stack>
                         )
                     })}
                 </Box>
@@ -222,7 +220,7 @@ const OrderCard: NextPage<TProps> = (props) => {
                 }}>
                     {orderData.paymentStatus !== PaymentStatus.Paid.label && (
                         <Button variant="contained"
-                            color='error'
+                            color='primary'
                             onClick={() => handlePaymentMethod(orderData.paymentMethod)}
                             startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
                             sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>

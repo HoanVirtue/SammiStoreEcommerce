@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next"
 import { formatPrice } from "src/utils"
 import Image from "src/components/image"
 import StepLabel from "src/components/step-label";
+import { PaymentStatus, ShippingStatus, OrderStatus } from "src/configs/order"
 
 interface TOrderDetail {
     id: number
@@ -26,6 +27,18 @@ type StepLabelProps = {
     step: string;
     title: string;
 };
+
+const getPaymentStatus = (status: string) => {
+    return Object.values(PaymentStatus).find(item => item.label === status)?.title || ''
+}
+
+const getShippingStatus = (status: string) => {
+    return Object.values(ShippingStatus).find(item => item.label === status)?.title || ''
+}
+
+const getOrderStatus = (status: string) => {
+    return Object.values(OrderStatus).find(item => item.label === status)?.title || ''
+}
 
 const OrderDetail = (props: TOrderDetail) => {
     //state
@@ -189,19 +202,26 @@ const OrderDetail = (props: TOrderDetail) => {
                             <Stack spacing={1} direction="row" alignItems="center">
                                 <Typography variant="subtitle2" fontWeight='bold'>{t('payment_status')}: </Typography>
                                 <Typography variant="body2">
-                                    {orderData?.paymentStatus}
+                                    {t(getPaymentStatus(orderData?.paymentStatus))}
                                 </Typography>
                             </Stack>
 
                             <Stack spacing={1} direction="row" alignItems="center">
                                 <Typography variant="subtitle2" fontWeight='bold'>{t('delivery_method')}: </Typography>
-                                <Typography variant="body2">{orderData?.deliveryMethod}</Typography>
+                                <Typography variant="body2">{orderData?.deliveryMethod || 'GHN'}</Typography>
                             </Stack>
 
                             <Stack spacing={1} direction="row" alignItems="center">
                                 <Typography variant="subtitle2" fontWeight='bold'>{t('delivery_status')}: </Typography>
                                 <Typography variant="body2">
-                                    {orderData?.deliveryStatus}
+                                    {t(getShippingStatus(orderData?.shippingStatus))}
+                                </Typography>
+                            </Stack>
+
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>{t('order_status')}: </Typography>
+                                <Typography variant="body2">
+                                    {t(getOrderStatus(orderData?.orderStatus))}
                                 </Typography>
                             </Stack>
                         </Stack>

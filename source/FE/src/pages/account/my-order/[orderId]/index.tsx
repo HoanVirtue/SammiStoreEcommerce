@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import React from 'react'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-import MyOrderDetailPage from 'src/view/pages/my-order/OrderDetail'
+import MyOrderDetailPage from 'src/view/pages/account/my-order/OrderDetail'
 
 //views
 

@@ -84,7 +84,7 @@ const PaymentPage = () => {
             Trang chủ
           </Button>
           <Button
-            onClick={() => router.push(ROUTE_CONFIG.MY_ORDER)}
+            onClick={() => router.push(ROUTE_CONFIG.ACCOUNT.MY_ORDER)}
             variant="outlined"
             sx={{
               color: theme.palette.primary.main,

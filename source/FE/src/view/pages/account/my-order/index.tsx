@@ -7,7 +7,7 @@ import React, { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { styled, Tab, Tabs, useTheme } from '@mui/material'
+import { Stack, styled, Tab, Tabs, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -34,16 +34,10 @@ import Spinner from 'src/components/spinner'
 import SearchField from 'src/components/search-field'
 import { toast } from 'react-toastify'
 import { resetInitialState } from 'src/stores/order'
+import { OrderStatus } from 'src/configs/order'
+import { TFilter } from 'src/configs/filter'
 
 type TProps = {}
-
-const STATUS_OPTION_VALUE = {
-    ALL: 4,
-    WAIT_PAYMENT: 0,
-    WAIT_DELIVERY: 1,
-    COMPLETED: 2,
-    CANCELLED: 3,
-}
 
 const StyledTabs = styled(Tabs)<TabsProps>(({ theme }) => ({
     "&.MuiTabs-root": {
@@ -53,10 +47,12 @@ const StyledTabs = styled(Tabs)<TabsProps>(({ theme }) => ({
 
 const MyOrderPage: NextPage<TProps> = () => {
     //States
-    const [selectedStatus, setSelectedStatus] = useState<number>(STATUS_OPTION_VALUE.ALL)
+    const [selectedStatus, setSelectedStatus] = useState<string>("all")
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
     const [searchBy, setSearchBy] = useState("");
+    const [sortBy, setSortBy] = useState<string>("createdDate asc");
+    const [filters, setFilters] = useState<TFilter[]>([]);
 
     //hooks
     const { user } = useAuth()
@@ -70,40 +66,18 @@ const MyOrderPage: NextPage<TProps> = () => {
     const dispatch: AppDispatch = useDispatch();
     const { myOrders, isLoading, isErrorCancel, isSuccessCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
 
-    const STATUS_OPTION = [
-        {
-            label: t("all"),
-            value: STATUS_OPTION_VALUE.ALL,
-        },
-        {
-            label: t("wait_payment"),
-            value: STATUS_OPTION_VALUE.WAIT_PAYMENT,
-        },
-        {
-            label: t("wait_delivery"),
-            value: STATUS_OPTION_VALUE.WAIT_DELIVERY,
-        },
-        {
-            label: t("completed"),
-            value: STATUS_OPTION_VALUE.COMPLETED,
-        },
-        {
-            label: t("cancelled"),
-            value: STATUS_OPTION_VALUE.CANCELLED,
-        },
-    ]
 
     //Fetch API
     const handleGetListOrder = () => {
         const query = {
             params: {
-                take: -1,
-                skip: 0,
-                paging: false,
-                orderBy: "name",
-                dir: "asc",
-                keywords: "''",
-                filters: ""
+                take: pageSize,
+                skip: (page - 1) * pageSize,
+                paging: true,
+                orderBy: "createdDate",
+                dir: "desc",
+                keywords: searchBy || "''",
+                filters: selectedStatus === "all" ? "" : `orderStatus::${selectedStatus}::eq`
             }
         }
         dispatch(getMyOrdersAsync(query));
@@ -115,7 +89,7 @@ const MyOrderPage: NextPage<TProps> = () => {
     }
 
     const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-        setSelectedStatus(+newValue);
+        setSelectedStatus(newValue);
     };
 
     useEffect(() => {
@@ -135,26 +109,34 @@ const MyOrderPage: NextPage<TProps> = () => {
     }, [isSuccessCancel, isErrorCancel, errorMessageCancel])
 
     return (
-        <>
+        <Box sx={{
+            backgroundColor: theme.palette.background.paper,
+            borderRadius: "15px",
+            py: 5, px: 4,
+        }}>
             {isLoading && <Spinner />}
-            <Box sx={{ ml: '2rem', mt: '1rem' }}>
-                <StyledTabs
-                    value={selectedStatus}
-                    onChange={handleChange}
-                    aria-label="wrapped label tabs example"
-                >
-                    {STATUS_OPTION.map((option) => {
-                        return (
-                            <Tab
-                                key={option.value}
-                                value={option.value}
-                                label={option.label}
-                                wrapped
-                            />
-                        )
-                    })}
-                </StyledTabs>
-            </Box>
+            <StyledTabs
+                value={selectedStatus}
+                onChange={handleChange}
+                aria-label="wrapped label tabs example"
+            >
+                <Tab
+                    key="all"
+                    value="all"
+                    label={t("all")}
+                    wrapped
+                />
+                {Object.values(OrderStatus).map((option) => {
+                    return (
+                        <Tab
+                            key={option.label}
+                            value={option.label}
+                            label={t(option.title)}
+                            wrapped
+                        />
+                    )
+                })}
+            </StyledTabs>
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2, mr: '2rem' }}>
                 <Box sx={{ width: '300px' }}>
                     <SearchField value={searchBy} placeholder={t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
@@ -173,7 +155,7 @@ const MyOrderPage: NextPage<TProps> = () => {
                     }}>
                         {myOrders?.data?.map((item: TOrderItem, index: number) => {
                             return (
-                                <OrderCard orderData={item} key={item.id} />
+                                <OrderCard orderData={item} key={index} />
                             )
                         })}
                         <CustomPagination
@@ -186,16 +168,18 @@ const MyOrderPage: NextPage<TProps> = () => {
                         />
                     </Box>
                 ) : (
-                    <Box sx={{
+                    <Stack sx={{
                         padding: "20px",
+                        justifyContent: "center",
+                        alignItems: "center",
                         width: "100%",
-                        height: "80vh",
+                        height: "30vh",
                     }}>
-                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
-                    </Box>
+                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_order")} />
+                    </Stack>
                 )}
             </Box>
-        </>
+        </Box>
     )
 }
 

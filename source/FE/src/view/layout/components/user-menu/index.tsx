@@ -226,7 +226,7 @@ const UserMenu = (props: TProps) => {
                 <MenuItem onClick={handleNavigateMyProfile}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                     <IconifyIcon icon="streamline:user-profile-focus" />
-                    {t("my_profile")}
+                    {t("my_account")}
                 </MenuItem>
                 <MenuItem onClick={handleNavigateMyProduct}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>

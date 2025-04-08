@@ -105,6 +105,10 @@ const ListReceiptPage: NextPage = () => {
         onCloseCreateTab={() => setShowCreateTab(false)}
         onCloseDetailTab={() => setShowDetailTab(false)}
         onCloseCreateNewTab={handleCloseCreateNewTab}
+
+        hideTableHeader={true}
+        showUpdateReceiptStatusHeader={true}
+        
       />
     </Box>
   );

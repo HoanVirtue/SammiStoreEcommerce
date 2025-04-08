@@ -1,9 +1,17 @@
 // ** MUI Imports
-import { Button, IconButton } from '@mui/material'
+import { Button, IconButton, TextField } from '@mui/material'
 import { Box, Typography } from '@mui/material'
 import { styled, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import IconifyIcon from '../Icon'
+import { RECEIPT_STATUS } from 'src/configs/receipt'
+import { useState } from 'react'
+import { updateMultipleReceiptStatus, updateReceiptStatus } from 'src/services/receipt'
+import CustomAutocomplete from '../custom-autocomplete'
+import { AutocompleteOption } from '../custom-autocomplete'
+import { toast } from 'react-toastify'
+import { useSelector } from 'react-redux'
+import { RootState } from 'src/stores'
 
 const StyledTableHeader = styled(Box)(({ theme }) => ({
     borderRadius: "15px",
@@ -24,13 +32,40 @@ type TProp = {
     selectedRows?: number[]
 }
 
-const TableHeader = (props: TProp) => {
+const UpdateReceiptStatusHeader = (props: TProp) => {
     //Props
-    const { selectedRowNumber, onClear, actions, handleAction } = props
+    const { selectedRowNumber, onClear, actions, handleAction, selectedRows } = props
+
+    const { isSuccessUpdateStatus, errorMessageUpdateStatus } = useSelector((state: RootState) => state.receipt)
 
     // ** Hook
     const theme = useTheme()
     const { t } = useTranslation()
+
+    // ** State
+    const [selectedStatus, setSelectedStatus] = useState<AutocompleteOption | null>(null)
+
+    // ** Handler
+    const handleStatusChange = (newValue: AutocompleteOption | null) => {
+        setSelectedStatus(newValue)
+    }
+
+    const handleApplyStatus = async () => {
+        if (selectedStatus && selectedRows && selectedRows.length > 0) {
+
+            const res: any = await updateMultipleReceiptStatus({
+                purchaseOrderIds: selectedRows,
+                newStatus: parseInt(selectedStatus.value as string)
+            })
+            if (res?.data?.isSuccess === true) {
+                toast.success(t("status_updated_successfully"))
+                onClear()
+                setSelectedStatus(null)
+            } else {
+                toast.error(res?.message)
+            }
+        }
+    }
 
     return (
         <StyledTableHeader>
@@ -62,6 +97,24 @@ const TableHeader = (props: TProp) => {
                 alignItems: "center",
                 gap: "6px"
             }}>
+                {selectedRowNumber && selectedRowNumber > 0 && (
+                    <>
+                        <CustomAutocomplete
+                            options={Object.values(RECEIPT_STATUS())}
+                            value={selectedStatus}
+                            onChange={handleStatusChange}
+                            label={t("status")}
+                            sx={{ width: 200 }}
+                        />
+                        <Button
+                            variant="contained"
+                            onClick={handleApplyStatus}
+                            disabled={!selectedStatus}
+                        >
+                            {t("apply")}
+                        </Button>
+                    </>
+                )}
                 {actions?.map((action) => {
                     return (
                         <Button disabled={action?.disabled} key={action.value} variant="contained" onClick={() => handleAction(action.value)}>
@@ -77,4 +130,4 @@ const TableHeader = (props: TProp) => {
     )
 }
 
-export default TableHeader
+export default UpdateReceiptStatusHeader

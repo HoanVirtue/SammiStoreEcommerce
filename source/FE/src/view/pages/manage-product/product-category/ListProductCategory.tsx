@@ -32,7 +32,7 @@ const ListProductCategoryPage: NextPage = () => {
             })}
             fetchAction={getAllProductCategoriesAsync}
             deleteAction={deleteProductCategoryAsync}
-            deleteMultipleAction={deleteMultipleProductCategoriesAsync as unknown as (ids: { [key: string]: string[] }) => any}
+            deleteMultipleAction={deleteMultipleProductCategoriesAsync as unknown as (ids: { [key: number]: number[] }) => any}
             resetAction={resetInitialState}
             CreateUpdateComponent={CreateUpdateProductCategory}
             permissionKey="MANAGE_PRODUCT.PRODUCT_CATEGORY"

@@ -19,8 +19,8 @@ import CustomAutocomplete from "src/components/custom-autocomplete";
 import { getAllProvinces } from "src/services/province";
 import { getAllDistricts } from "src/services/district";
 import { getAllWards } from "src/services/ward";
-import { TParamsAddresses } from "src/types/address";
 import { useAuth } from "src/hooks/useAuth";
+
 
 interface TAddressModal {
     open: boolean;

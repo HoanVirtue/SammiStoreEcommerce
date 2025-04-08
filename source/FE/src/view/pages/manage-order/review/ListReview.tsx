@@ -58,11 +58,11 @@ const ListReviewPage: NextPage<TProps> = () => {
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
     const [openUpdateReview, setOpenUpdateReview] = useState({
         open: false,
-        id: ""
+        id: 0
     });
     const [openDeleteReview, setOpenDeleteReview] = useState({
         open: false,
-        id: ""
+        id: 0
     });
 
     const [sortBy, setSortBy] = useState("createdAt asc");
@@ -117,14 +117,14 @@ const ListReviewPage: NextPage<TProps> = () => {
     const handleCloseUpdateReview = () => {
         setOpenUpdateReview({
             open: false,
-            id: ""
+            id: 0
         })
     }
 
     const handleCloseDeleteDialog = () => {
         setOpenDeleteReview({
             open: false,
-            id: ""
+            id: 0
         })
     }
 
@@ -209,14 +209,14 @@ const ListReviewPage: NextPage<TProps> = () => {
                             disabled={!UPDATE}
                             onClick={() => setOpenUpdateReview({
                                 open: true,
-                                id: String(params.id)
+                                id: Number(params.id)
                             })}
                         />
                         <GridDelete
                             disabled={!DELETE}
                             onClick={() => setOpenDeleteReview({
                                 open: true,
-                                id: String(params.id)
+                                id: Number(params.id)
                             })}
                         />
                     </>

@@ -1,11 +1,11 @@
 "use client";
 
 import { NextPage } from "next";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { useTranslation } from "react-i18next";
-import { Typography } from "@mui/material";
+import dynamic from "next/dynamic";
 import { getProvinceFields } from "src/configs/gridConfig";
-import CreateUpdateProvince from "./components/CreateUpdateProvince";
+const CreateUpdateProvince = dynamic(() => import("./components/CreateUpdateProvince").then(mod => mod.default), {
+  ssr: false
+}) as React.FC<any>;
 import {
   deleteMultipleProvincesAsync,
   deleteProvinceAsync,
@@ -19,7 +19,7 @@ import { getProvinceColumns } from "src/configs/gridColumn";
 const ListProvincePage: NextPage = () => {
   const columns = getProvinceColumns();
   return (
-  
+
     <AdminPage
       entityName="province"
       columns={columns}
@@ -31,7 +31,7 @@ const ListProvincePage: NextPage = () => {
       })}
       fetchAction={getAllProvincesAsync}
       deleteAction={deleteProvinceAsync}
-      deleteMultipleAction={deleteMultipleProvincesAsync as unknown as (ids: { [key: string]: string[] }) => any}
+      deleteMultipleAction={deleteMultipleProvincesAsync as unknown as (ids: { [key: number]: number[] }) => any}
       resetAction={resetInitialState}
       CreateUpdateComponent={CreateUpdateProvince}
       permissionKey="ADDRESS.PROVINCE"

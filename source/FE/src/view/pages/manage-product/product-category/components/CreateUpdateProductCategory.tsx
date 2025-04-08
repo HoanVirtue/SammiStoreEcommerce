@@ -32,13 +32,13 @@ import CustomSelect from "src/components/custom-select";
 interface TCreateUpdateProductCategory {
     open: boolean
     onClose: () => void
-    id?: string
+        id?: number
 }
 
 type TDefaultValues = {
     name: string,
     code: string,
-    parentId: string,
+    parentId: number,
     parentName: string,
     level: number
     // slug: string
@@ -66,7 +66,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
     const schema = yup.object().shape({
         name: yup.string().required(t("required_product_category_name")),
         code: yup.string().required(t("required_product_category_code")),
-        parentId: yup.string().required(t("required_product_category_parent_code")),
+        parentId: yup.number().required(t("required_product_category_parent_code")),
         parentName: yup.string().required(t("required_product_category_parent")),
         level: yup.number().required(t("required_product_category_level")),
         // slug: yup.string().required("Product category slug is required")
@@ -75,7 +75,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
     const defaultValues: TDefaultValues = {
         name: '',
         code: productCategoryCode,
-        parentId: '',
+        parentId: 0,
         parentName: '',
         level: 0
         // slug: ''
@@ -116,7 +116,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
     }
 
 
-    const fetchDetailProductCategory = async (id: string) => {
+    const fetchDetailProductCategory = async (id: number) => {
         setLoading(true)
         await getProductCategoryDetail(id).then((res) => {
             const data = res?.result
@@ -318,10 +318,10 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                                                         const selectedParent = parentOptions.find(opt => opt.value === e.target.value);
                                                         if (selectedParent) {
                                                             onChange(selectedParent.value);
-                                                            setValue('parentId', selectedParent.value);
+                                                            setValue('parentId', Number(selectedParent.value));
                                                         } else {
                                                             onChange('');
-                                                            setValue('parentId', '');
+                                                            setValue('parentId', 0);
                                                         }
                                                     }}
                                                     onBlur={onBlur}

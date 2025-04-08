@@ -27,7 +27,7 @@ const ListWardPage: NextPage = () => {
             })}
             fetchAction={getAllWardsAsync}
             deleteAction={deleteWardAsync}
-            deleteMultipleAction={deleteMultipleWardsAsync as unknown as (ids: { [key: string]: string[] }) => any}
+            deleteMultipleAction={deleteMultipleWardsAsync as unknown as (ids: { [key: number]: number[] }) => any}
             resetAction={resetInitialState}
             CreateUpdateComponent={CreateUpdateWard}
             permissionKey="ADDRESS.WARD"

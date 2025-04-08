@@ -16,10 +16,8 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useTranslation } from 'react-i18next';
 import CustomTextField from 'src/components/text-field';
-import CustomAutocomplete from 'src/components/custom-autocomplete';
 import Spinner from 'src/components/spinner';
 import { useDispatch, useSelector } from 'react-redux';
-import { createVoucherAsync, updateVoucherAsync } from 'src/stores/voucher/action';
 import { AppDispatch } from 'src/stores';
 import { getVoucherDetail, getVoucherCode } from 'src/services/voucher';
 import { toast } from 'react-toastify';
@@ -38,7 +36,7 @@ interface VoucherFormData {
 }
 
 interface CreateUpdateVoucherProps {
-    id?: string;
+    id?: number;
     onClose: () => void;
 }
 
@@ -88,7 +86,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         resolver: yupResolver(schema) as any,
     });
 
-    const fetchVoucherDetail = async (voucherId: string) => {
+    const fetchVoucherDetail = async (voucherId: number) => {
         setLoading(true);
         try {
             const res = await getVoucherDetail(voucherId);

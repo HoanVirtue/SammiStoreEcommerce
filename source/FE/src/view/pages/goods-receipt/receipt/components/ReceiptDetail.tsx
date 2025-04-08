@@ -6,7 +6,7 @@ import { getReceiptDetail } from 'src/services/receipt';
 import { formatDate, formatPrice } from 'src/utils';
 
 interface ReceiptDetailProps {
-    id: string;
+    id: number;
     onClose: () => void;
 }
 
@@ -16,7 +16,7 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [receiptData, setReceiptData] = useState<any>(null);
 
-    const fetchReceiptDetail = async (id: string) => {
+    const fetchReceiptDetail = async (id: number) => {
         setLoading(true);
         try {
             const response = await getReceiptDetail(id);

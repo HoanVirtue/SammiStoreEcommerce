@@ -20,7 +20,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 // Other
 import { useAuth } from 'src/hooks/useAuth';
-import { formatPrice, toFullName } from 'src/utils';
+import { formatPrice } from 'src/utils';
 import IconifyIcon from 'src/components/Icon';
 import Spinner from 'src/components/spinner';
 import Swal from 'sweetalert2';
@@ -31,11 +31,9 @@ import { ROUTE_CONFIG } from 'src/configs/route';
 import { useRouter } from 'next/router';
 import CheckoutSummary from './components/CheckoutSummary';
 import CustomBreadcrumbs from 'src/components/custom-breadcrum';
-import { TItemOrderProduct, TItemCart } from 'src/types/order';
-import { resetInitialState } from 'src/stores/order';
-import WarningModal from './components/WarningModal';
+import { TItemOrderProduct } from 'src/types/order';
 import AddressModal from './components/AddressModal';
-import { TParamsAddresses, TParamsGetAllAddresses } from 'src/types/address';
+import { TParamsAddresses, } from 'src/types/address';
 import { getCurrentAddress } from 'src/services/address';
 import VoucherModal from './components/VoucherModal';
 import { createVNPayPaymentUrl } from 'src/services/payment';
@@ -60,7 +58,7 @@ interface PaymentOption {
     label: string;
     value: string;
     type: string;
-    id: string;
+    id: number;
 }
 
 const CheckoutPage: NextPage<TProps> = () => {
@@ -74,7 +72,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>()
     const [openVoucher, setOpenVoucher] = useState(false)
 
-    const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+        const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
     const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
     const [shippingPrice, setShippingPrice] = useState<number>(0);
     const [leadTime, setLeadTime] = useState<Date | null>(null);
@@ -165,7 +163,7 @@ const CheckoutPage: NextPage<TProps> = () => {
         let discountPrice = 0;
 
         if (selectedVoucherId) {
-            getVoucherDetail(selectedVoucherId).then(res => {
+            getVoucherDetail(Number(selectedVoucherId)).then(res => {
                 const discountPercent = res?.result?.discountValue || 0;
                 discountPrice = (Number(memoQueryProduct.totalPrice) * Number(discountPercent)) / 100;
                 setVoucherDiscount(discountPrice);
@@ -324,7 +322,7 @@ const CheckoutPage: NextPage<TProps> = () => {
             <VoucherModal
                 open={openVoucher}
                 onClose={() => setOpenVoucher(false)}
-                onSelectVoucher={(voucherId) => {
+                onSelectVoucher={(voucherId: string) => {
                     setSelectedVoucherId(voucherId);
                 }}
                 cartDetails={memoQueryProduct.selectedProduct}

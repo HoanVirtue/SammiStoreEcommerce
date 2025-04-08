@@ -18,18 +18,19 @@ import { useTranslation } from 'react-i18next'
 import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
 
 //components
-
 import { getAllProducts } from 'src/services/product'
 import { getAllProductCategories } from 'src/services/product-category'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import { toast } from 'react-toastify'
 import { resetInitialState } from 'src/stores/product'
-import Banner from './components/banner'
-import OutstandingCategory from './components/category'
-import ListVoucher from './components/voucher'
-import HotSale from './components/hot-sale'
-import TopSale from './components/top-sale'
+import dynamic from 'next/dynamic'
+
+const Banner = dynamic(() => import('./components/banner'), { ssr: false })
+const OutstandingCategory = dynamic(() => import('./components/category'), { ssr: false })
+const ListVoucher = dynamic(() => import('./components/voucher'), { ssr: false })
+const HotSale = dynamic(() => import('./components/hot-sale'), { ssr: false })
+const TopSale = dynamic(() => import('./components/top-sale'), { ssr: false })
 
 type TProps = {}
 

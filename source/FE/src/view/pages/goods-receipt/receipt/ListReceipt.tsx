@@ -22,7 +22,7 @@ import { getReceiptColumns } from "src/configs/gridColumn";
 const ListReceiptPage: NextPage = () => {
   const { t } = useTranslation();
   const [currentTab, setCurrentTab] = React.useState(0);
-  const [selectedReceiptId, setSelectedReceiptId] = React.useState<string>("");
+  const [selectedReceiptId, setSelectedReceiptId] = React.useState<number>(0);
   const [showCreateTab, setShowCreateTab] = React.useState(false);
   const [showUpdateTab, setShowUpdateTab] = React.useState(false);
   const [showDetailTab, setShowDetailTab] = React.useState(false);
@@ -32,11 +32,11 @@ const ListReceiptPage: NextPage = () => {
   const handleTabChange = (newTab: number) => {
     setCurrentTab(newTab);
     if (newTab === 0) {
-      setSelectedReceiptId("");
+      setSelectedReceiptId(0);
     }
   };
 
-  const handleDetailClick = (id: string) => {
+  const handleDetailClick = (id: number) => {
     setSelectedReceiptId(id);
     setShowDetailTab(true);
     setCurrentTab(3);
@@ -60,7 +60,7 @@ const ListReceiptPage: NextPage = () => {
         })}
         fetchAction={getAllReceiptsAsync}
         deleteAction={deleteReceiptAsync}
-        deleteMultipleAction={deleteMultipleReceiptsAsync as unknown as (ids: { [key: string]: string[] }) => any}
+        deleteMultipleAction={deleteMultipleReceiptsAsync as unknown as (ids: { [key: number]: number[] }) => any}
         resetAction={resetInitialState}
         CreateUpdateTabComponent={CreateUpdateReceipt}
         DetailComponent={ReceiptDetail}

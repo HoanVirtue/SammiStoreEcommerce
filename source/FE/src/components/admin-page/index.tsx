@@ -39,7 +39,7 @@ type AdminPageProps = {
   reduxSelector: (state: RootState) => any;
   fetchAction: (query: any) => any;
   deleteAction: (id: number) => any;
-  deleteMultipleAction: (ids: { [key: string]: number[] }) => any;
+  deleteMultipleAction: (ids: { [key: number]: number[] }) => any;
   resetAction: () => any;
   CreateUpdateComponent?: React.FC<any>;
   CreateUpdateTabComponent?: React.FC<any>;

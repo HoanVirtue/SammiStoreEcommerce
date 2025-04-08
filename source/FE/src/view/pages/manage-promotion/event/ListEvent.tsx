@@ -19,7 +19,7 @@ const ListEventPage: NextPage = () => {
     const columns = getEventColumns();
 
     const [currentTab, setCurrentTab] = useState(0);
-    const [selectedReceiptId, setSelectedReceiptId] = useState<string>("");
+    const [selectedEventId, setSelectedEventId] = useState<number>(0);
     const [showCreateTab, setShowCreateTab] = useState(false);
     const [showUpdateTab, setShowUpdateTab] = useState(false);
     const [showDetailTab, setShowDetailTab] = useState(false);
@@ -27,12 +27,12 @@ const ListEventPage: NextPage = () => {
     const handleTabChange = (newTab: number) => {
         setCurrentTab(newTab);
         if (newTab === 0) {
-            setSelectedReceiptId("");
+            setSelectedEventId(0);
         }
     };
 
-    const handleDetailClick = (id: string) => {
-        setSelectedReceiptId(id);
+    const handleDetailClick = (id: number) => {
+        setSelectedEventId(id);
         setShowDetailTab(true);
         setCurrentTab(3);
     };
@@ -53,7 +53,7 @@ const ListEventPage: NextPage = () => {
             })}
             fetchAction={getAllEventsAsync}
             deleteAction={deleteEventAsync}
-            deleteMultipleAction={deleteMultipleEventsAsync as unknown as (ids: { [key: string]: string[] }) => any}
+            deleteMultipleAction={deleteMultipleEventsAsync as unknown as (ids: { [key: number]: number[] }) => any}
             resetAction={resetInitialState}
             showTab={true}
             showCreateTab={showCreateTab}

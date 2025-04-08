@@ -1,30 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { createCartAsync, deleteCartAsync, getCartsAsync, serviceName } from './action';
+import { TItemCartProduct } from 'src/types/cart';
 
-interface CartItem {
-  productId: number;
-  quantity: number;
-}
-
-interface CartState {
-  isLoading: boolean;
-  isSuccess: boolean;
-  isError: boolean;
-  message: string;
-  typeError: string;
-  isSuccessCreate: boolean;
-  isErrorCreate: boolean;
-  errorMessageCreate: string;
-  isSuccessDelete: boolean;
-  isErrorDelete: boolean;
-  errorMessageDelete: string;
-  carts: {
-    data: CartItem[];
-    total: number;
-  };
-}
-
-const initialState: CartState = {
+const initialState = {
   isLoading: false,
   isSuccess: false,
   isError: false,
@@ -37,7 +15,7 @@ const initialState: CartState = {
   isErrorDelete: false,
   errorMessageDelete: '',
   carts: {
-    data: [],
+    data: [] as any[],
     total: 0,
   },
 };
@@ -63,7 +41,7 @@ export const cartSlice = createSlice({
     },
     updateCartQuantity: (state, action) => {
       const { productId, quantity } = action.payload;
-      const item = state.carts.data.find((cart) => cart.productId === productId);
+      const item: any = state.carts.data.find((cart: any) => cart.productId === productId);
       if (item) {
         item.quantity = quantity;
       }
@@ -97,8 +75,8 @@ export const cartSlice = createSlice({
         state.isErrorCreate = !action.payload?.isSuccess;
         state.errorMessageCreate = action.payload?.message || '';
         if (action.payload?.isSuccess) {
-          const { productId, quantity } = action.meta.arg;
-          const existingItem = state.carts.data.find((item) => item.productId === productId);
+          const { productId, quantity }: any = action.meta.arg;
+          const existingItem: any = state.carts.data.find((item: any) => item.productId === productId);
           if (existingItem) {
             existingItem.quantity = quantity; 
           } else {
@@ -125,7 +103,7 @@ export const cartSlice = createSlice({
         state.errorMessageDelete = action.payload?.message || '';
         if (action.payload?.isSuccess) {
           const productId = action.meta.arg; // Lấy productId từ request
-          state.carts.data = state.carts.data.filter((item) => item.productId !== productId);
+          state.carts.data = state.carts.data.filter((item: any) => item.productId !== productId);
           state.carts.total = state.carts.data.length;
         }
       })

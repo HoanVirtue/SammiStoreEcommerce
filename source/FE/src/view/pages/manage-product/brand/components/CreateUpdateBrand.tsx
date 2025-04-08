@@ -33,7 +33,7 @@ import { FormHelperText } from "@mui/material";
 interface TCreateUpdateBrand {
     open: boolean
     onClose: () => void
-    idBrand?: string
+    idBrand?: number
 }
 
 type TDefaultValues = {
@@ -142,7 +142,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
         setPreviewImage(base64WithPrefix);
     };
 
-    const fetchDetailBrand = async (id: string) => {
+    const fetchDetailBrand = async (id: number) => {
         setIsImageLoaded(false);
         setLoading(true);
         try {

@@ -19,7 +19,7 @@ const ListVoucherPage: NextPage = () => {
     const columns = getVoucherColumns();
 
     const [currentTab, setCurrentTab] = useState(0);
-    const [selectedVoucherId, setSelectedVoucherId] = useState<string>("");
+    const [selectedVoucherId, setSelectedVoucherId] = useState<number>(0);
     const [showCreateTab, setShowCreateTab] = useState(false);
     const [showUpdateTab, setShowUpdateTab] = useState(false);
     const [showDetailTab, setShowDetailTab] = useState(false);
@@ -27,11 +27,11 @@ const ListVoucherPage: NextPage = () => {
     const handleTabChange = (newTab: number) => {
         setCurrentTab(newTab);
         if (newTab === 0) {
-            setSelectedVoucherId("");
+            setSelectedVoucherId(0);
         }
     };
 
-    const handleDetailClick = (id: string) => {
+    const handleDetailClick = (id: number) => {
         setSelectedVoucherId(id);
         setShowDetailTab(true);
         setCurrentTab(3);
@@ -54,7 +54,7 @@ const ListVoucherPage: NextPage = () => {
             })}
             fetchAction={getAllVouchersAsync}
             deleteAction={deleteVoucherAsync}
-            deleteMultipleAction={deleteMultipleVouchersAsync as unknown as (ids: { [key: string]: string[] }) => any}
+            deleteMultipleAction={deleteMultipleVouchersAsync as unknown as (ids: { [key: number]: number[] }) => any}
             resetAction={resetInitialState}
             showTab={true}
             showCreateTab={showCreateTab}

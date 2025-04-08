@@ -19,7 +19,7 @@ const ListProductPage: NextPage = () => {
     const columns = getProductColumns();
 
     const [currentTab, setCurrentTab] = useState(0);
-    const [selectedReceiptId, setSelectedReceiptId] = useState<string>("");
+    const [selectedProductId, setSelectedProductId] = useState<number>(0);
     const [showCreateTab, setShowCreateTab] = useState(false);
     const [showUpdateTab, setShowUpdateTab] = useState(false);
     const [showDetailTab, setShowDetailTab] = useState(false);
@@ -27,12 +27,12 @@ const ListProductPage: NextPage = () => {
     const handleTabChange = (newTab: number) => {
         setCurrentTab(newTab);
         if (newTab === 0) {
-            setSelectedReceiptId("");
+            setSelectedProductId(0);
         }
     };
 
-    const handleDetailClick = (id: string) => {
-        setSelectedReceiptId(id);
+    const handleDetailClick = (id: number) => {
+        setSelectedProductId(id);
         setShowDetailTab(true);
         setCurrentTab(3);
     };
@@ -52,8 +52,8 @@ const ListProductPage: NextPage = () => {
                 ...state.product,
             })}
             fetchAction={getAllProductsAsync}
-            deleteAction={deleteProductAsync as unknown as (id: string) => any}
-            deleteMultipleAction={deleteMultipleProductsAsync as unknown as (ids: { [key: string]: string[] }) => any}
+            deleteAction={deleteProductAsync as unknown as (id: number) => any}
+            deleteMultipleAction={deleteMultipleProductsAsync as unknown as (ids: { [key: number]: number[] }) => any}
             resetAction={resetInitialState}
             CreateUpdateTabComponent={CreateUpdateProduct}
             permissionKey="MANAGE_PRODUCT.PRODUCT"

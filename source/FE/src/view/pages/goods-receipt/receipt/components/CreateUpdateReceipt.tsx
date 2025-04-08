@@ -57,7 +57,7 @@ interface ReceiptFormData {
 }
 
 interface CreateUpdateReceiptProps {
-    id?: string;
+    id?: number;
     onClose: () => void;
 }
 
@@ -213,7 +213,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose }
         }
     };
 
-    const fetchReceiptDetail = async (receiptId: string) => {
+    const fetchReceiptDetail = async (receiptId: number) => {
         setLoading(true);
         try {
             const res = await getReceiptDetail(receiptId);

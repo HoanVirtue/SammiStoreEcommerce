@@ -7,58 +7,49 @@ import React, { useEffect, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Avatar, Button, Divider, styled, Tab, Tabs, Typography, useTheme } from '@mui/material'
-import { Box } from '@mui/material'
+import { Box, IconButton, Typography, Container, Stack, Divider, useTheme, Button } from '@mui/material'
 
 //Translate
-import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
 //Redux
 import { AppDispatch, RootState } from 'src/stores'
 import { useDispatch, useSelector } from 'react-redux'
 
-
 //Other
-
 import { useAuth } from 'src/hooks/useAuth'
 import { TItemOrderProduct, TOrderDetail, TOrderItem } from 'src/types/order'
 import { useRouter } from 'next/router'
-import { TabsProps } from '@mui/material'
 import Spinner from 'src/components/spinner'
 import { toast } from 'react-toastify'
 import { resetInitialState, updateProductToCart } from 'src/stores/order'
 import { resetInitialState as resetReview } from 'src/stores/review'
 import IconifyIcon from 'src/components/Icon'
 import { convertUpdateMultipleProductsCard, formatDate, formatPrice } from 'src/utils'
-
 import { getOrderDetail } from 'src/services/order'
-import { ROUTE_CONFIG } from 'src/configs/route'
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import WriteReviewModal from './components/WriteReviewModal'
 import { createVNPayPaymentUrl } from 'src/services/payment'
 import { PAYMENT_METHOD } from 'src/configs/payment'
 import { OrderStatus, PaymentStatus, ShippingStatus } from 'src/configs/order'
+import Image from 'src/components/image'
+import StepLabel from 'src/components/step-label'
 
 type TProps = {}
 
-const STATUS_OPTION_VALUE = {
-    ALL: 4,
-    WAIT_PAYMENT: 0,
-    WAIT_DELIVERY: 1,
-    COMPLETED: 2,
-    CANCELLED: 3,
+const getPaymentStatus = (status: string) => {
+    return Object.values(PaymentStatus).find(item => item.label === status)?.title || ''
 }
 
-const StyledTabs = styled(Tabs)<TabsProps>(({ theme }) => ({
-    "&.MuiTabs-root": {
-        borderBottom: "none"
-    }
-}))
+const getShippingStatus = (status: string) => {
+    return Object.values(ShippingStatus).find(item => item.label === status)?.title || ''
+}
+
+const getOrderStatus = (status: string) => {
+    return Object.values(OrderStatus).find(item => item.label === status)?.title || ''
+}
 
 const MyOrderDetailPage: NextPage<TProps> = () => {
     //States
-
     const [orderData, setOrderData] = useState<TOrderItem>({} as any)
     const [isLoading, setIsLoading] = useState(false)
     const [openReview, setOpenReview] = useState({
@@ -71,20 +62,16 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
 
     //hooks
     const { user } = useAuth()
-    const { t, i18n } = useTranslation();
+    const { t, i18n } = useTranslation()
     const router = useRouter()
 
-
     //Theme
-    const theme = useTheme();
+    const theme = useTheme()
 
     //Dispatch
-    const dispatch: AppDispatch = useDispatch();
+    const dispatch: AppDispatch = useDispatch()
     const { isSuccessCancel, details, isErrorCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
-
     const { isSuccessCreate, isErrorCreate, errorMessageCreate, isLoading: reviewLoading } = useSelector((state: RootState) => state.review)
-
-    console.log("detaorouter", router)
 
     const orderId = typeof router.query.orderId === 'string' ? +router.query.orderId : 0
 
@@ -93,43 +80,15 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
         setIsLoading(true)
         await getOrderDetail(orderId).then((res) => {
             setIsLoading(false)
-            setOrderData(res?.data)
+            setOrderData(res?.result)
         })
     }
-
-    const handleUpdateProductToCart = (items: TItemOrderProduct[]) => {
-        const productCart = getLocalProductFromCart()
-        const parseData = productCart ? JSON.parse(productCart) : {}
-        const listOrderItems = convertUpdateMultipleProductsCard(details, items)
-
-
-        if (user?.id) {
-            dispatch(
-                updateProductToCart({
-                    details: listOrderItems
-                })
-            )
-            setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
-        }
-    }
-
-    // const handleBuyAgain = () => {
-    //     handleUpdateProductToCart(orderData?.details?.map((item: TOrderDetail) => item.productId))
-    //     router.push({
-    //         pathname: ROUTE_CONFIG.MY_CART,
-    //         query: {
-    //             selected: orderData?.details?.map((item: TItemOrderProduct) => item.productId)
-    //         }
-    //     }, ROUTE_CONFIG.MY_CART)
-    // }
-
-
 
     const handlePaymentMethod = (type: string) => {
         switch (type) {
             case paymentData.VN_PAYMENT.value: {
                 handlePaymentVNPay()
-                break;
+                break
             }
             default:
                 break
@@ -152,9 +111,9 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
 
     useEffect(() => {
         if (orderId) {
-            handleGetOrderDetail();
+            handleGetOrderDetail()
         }
-    }, [orderId]);
+    }, [orderId])
 
     useEffect(() => {
         if (isSuccessCancel) {
@@ -179,7 +138,6 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
         }
     }, [isSuccessCreate, isErrorCreate, errorMessageCreate])
 
-
     return (
         <>
             {isLoading && <Spinner />}
@@ -189,169 +147,187 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                 userId={openReview.userId}
                 onClose={() => setOpenReview({ open: false, userId: 0, productId: 0 })}
             />
-            <Box sx={{
-                backgroundColor: theme.palette.background.paper,
-                padding: '2rem',
-                borderRadius: '15px',
-                width: "100%",
-            }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2, fontWeight: 600, alignItems: 'center' }}>
-                    <Button onClick={() => router.back()}
-                        startIcon={<IconifyIcon icon='lets-icons:back' />}>
-                        {t('')}
-                    </Button>
-                    <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-                        {!!(orderData?.shippingStatus === ShippingStatus.Delivered.label) && (
-                            <Box sx={{ display: 'flex', gap: 2 }}>
-                                <IconifyIcon color={theme.palette.success.main}
-                                    icon='material-symbols-light:delivery-truck-speed-outline-rounded' />
-                                <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_delivered')}{' | '}</Typography>
-                                {/* <Typography sx={{fontSize: '16px', fontWeight: 'bold'}}>{formatDate(orderData?.deliveryAt, { dateStyle: short })}</Typography> */}
-                            </Box>
-                        )}
-                        {!!(orderData?.paymentStatus === PaymentStatus.Paid.label) && (
-                            <Box sx={{ display: 'flex', gap: 2 }}>
-                                <IconifyIcon color={theme.palette.success.main}
-                                    icon='streamline:payment-10' />
-                                <Typography component="span" color={theme.palette.success.main}>{t('order_has_been_paid')}{' | '}</Typography>
-                                {/* <Typography sx={{fontSize: '16px', fontWeight: 'bold'}}>{formatDate(orderData?.paidAt, { dateStyle: short })}</Typography> */}
-                            </Box>
-                        )}
-                        <Typography sx={{ color: theme.palette.primary.main }}>{t((OrderStatus as any)[orderData?.orderStatus]?.label)}</Typography>
+            <Container maxWidth="lg">
+                <Stack spacing={3}>
+                    <Box
+                        sx={{
+                            p: 3,
+                            borderRadius: 1,
+                            backgroundColor: theme.palette.background.paper,
+                        }}
+                    >
+                        <StepLabel step="1" title={t('customer_information')} />
+                        <Stack spacing={2} sx={{ mt: 3 }}>
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight="bold">
+                                    {t('customer_name')}:
+                                </Typography>
+                                <Typography variant="body2">
+                                    {orderData?.customerName}
+                                </Typography>
+                            </Stack>
+
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>
+                                    {t('phone')}:
+                                </Typography>
+                                <Typography variant="body2">
+                                    {orderData?.phoneNumber}
+                                </Typography>
+                            </Stack>
+
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>
+                                    {t('address')}:
+                                </Typography>
+                                <Typography variant="body2">
+                                    {orderData?.customerAddress}
+                                </Typography>
+                            </Stack>
+                        </Stack>
                     </Box>
-                </Box>
-                <Divider />
-                <Box sx={{ mt: 4, mb: 4, display: 'flex', flexDirection: "column", gap: 4 }}>
-                    {orderData?.details?.map((item: TOrderDetail) => {
-                        return (
-                            <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-start", gap: 3 }} key={item.productId}>
-                                <Box sx={{ border: `1px solid ${theme.palette.customColors.borderColor}`, height: 'fit-content' }}>
-                                    <Avatar src={item?.imageUrl} sx={{ width: "80px", height: "80px" }} />
-                                </Box>
-                                <Box>
-                                    <Box sx={{ width: "100%", display: "flex", justifyContent: "space-between", gap: 3 }}>
-                                        <Typography fontSize={"18px"}>{item?.productName}</Typography>
-                                        {orderData?.orderStatus === OrderStatus.Completed.label && (
-                                            <Button variant="outlined"
-                                                color='primary'
-                                                onClick={() => setOpenReview({
-                                                    open: true,
-                                                    productId: item?.productId,
-                                                    userId: user ? user?.id : 0
-                                                })}
-                                                sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                                                {t('write_review')}
-                                            </Button>
-                                        )}
-                                    </Box>
-                                    <Box>
-                                        <Typography variant="h4" sx={{
-                                            color: theme.palette.primary.main,
-                                            fontWeight: "bold",
-                                            fontSize: "16px"
-                                        }}>
-                                            {formatPrice(item?.price)}
+
+                    <Box
+                        sx={{
+                            p: 3,
+                            borderRadius: 1,
+                            backgroundColor: theme.palette.background.paper,
+                        }}
+                    >
+                        <StepLabel step="2" title={t('order_information')} />
+                        <Stack spacing={2} sx={{ mt: 3 }}>
+                            {orderData?.details?.map((item: TOrderDetail, index: number) => (
+                                <Stack key={index} direction="row" alignItems="center" spacing={2}>
+                                    <Image
+                                        src={item.imageUrl || '/placeholder.svg'}
+                                        sx={{ width: 64, height: 64, borderRadius: 1.5 }}
+                                    />
+                                    <Stack spacing={0.5} flexGrow={1}>
+                                        <Typography variant="subtitle2">
+                                            {item.productName}
                                         </Typography>
-                                    </Box>
-                                    <Box>
-                                        <Typography fontSize={"16px"}>x{item?.quantity}</Typography>
-                                    </Box>
-                                </Box>
-                            </Box>
-                        )
-                    })}
-                </Box>
-                <Divider />
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Box>
-                        <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", width: '200px' }}>
-                                {t('shipping_address')}
-                            </Typography>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.customerAddress}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", width: '200px' }}>
-                                {t('phone_number')}
-                            </Typography>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.phoneNumber}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", width: '200px' }}>
-                                {t('customer_name')}
-                            </Typography>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {orderData?.customerName}
-                            </Typography>
-                        </Box>
+                                        <Typography variant="body2">
+                                            x{item.quantity}
+                                        </Typography>
+                                    </Stack>
+
+                                    <Typography variant="subtitle2">
+                                        {formatPrice(item.price)}
+                                    </Typography>
+                                </Stack>
+                            ))}
+
+                            <Divider sx={{ borderStyle: 'dashed' }} />
+
+                            <Stack spacing={1} sx={{ typography: 'body2' }}>
+                                <Stack direction="row" justifyContent="space-between">
+                                    <Typography variant="body2">{t('subtotal')}</Typography>
+                                    <Typography variant="subtitle2">
+                                        {formatPrice(orderData?.totalPrice)}
+                                    </Typography>
+                                </Stack>
+
+                                <Stack direction="row" justifyContent="space-between">
+                                    <Typography variant="body2">
+                                        {t('shipping_price')}
+                                    </Typography>
+                                    <Typography variant="subtitle2">{formatPrice(orderData?.costShip || 0)}</Typography>
+                                </Stack>
+
+                                <Stack direction="row" justifyContent="space-between">
+                                    <Typography variant="body2">{t('discount')}</Typography>
+                                    <Typography variant="subtitle2">
+                                        {formatPrice(orderData?.discount || 0)}
+                                    </Typography>
+                                </Stack>
+
+                                <Divider sx={{ borderStyle: 'dashed' }} />
+
+                                <Stack direction="row" justifyContent="space-between">
+                                    <Typography variant="subtitle1" fontWeight='bold'>{t('total')}</Typography>
+                                    <Typography variant="subtitle1" fontWeight='bold'>
+                                        {formatPrice(orderData?.totalPrice + (orderData?.costShip || 0) - (orderData?.discount || 0))}
+                                    </Typography>
+                                </Stack>
+                            </Stack>
+                        </Stack>
                     </Box>
-                    <Box>
-                        <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", width: '200px' }}>
-                                {t('product_price')}
-                            </Typography>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {formatPrice(orderData?.totalPrice)}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", width: '200px' }}>
-                                {t('shipping_price')}
-                            </Typography>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.secondary.main }}>
-                                {formatPrice(orderData?.costShip)}
-                            </Typography>
-                        </Box>
-                        <Box sx={{ display: "flex", width: '100%', justifyContent: "flex-end", mt: 3, gap: 2 }}>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", width: '200px' }}>
-                                {t('total_price')}
-                            </Typography>
-                            <Typography variant="h5" sx={{ fontWeight: "bold", fontSize: "18px", color: theme.palette.primary.main }}>
-                                {formatPrice(orderData?.totalPrice)}
-                            </Typography>
-                        </Box>
+
+                    <Box
+                        sx={{
+                            p: 3,
+                            backgroundColor: theme.palette.background.paper,
+                            borderRadius: 1,
+                        }}
+                    >
+                        <StepLabel step="3" title={t('payment_delivery_information')} />
+                        <Stack spacing={2} sx={{ mt: 3 }}>
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>{t('payment_method')}: </Typography>
+                                <Typography variant="body2">
+                                    {orderData?.paymentMethod}
+                                </Typography>
+                            </Stack>
+
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>{t('payment_status')}: </Typography>
+                                <Typography variant="body2">
+                                    {t(getPaymentStatus(orderData?.paymentStatus))}
+                                </Typography>
+                            </Stack>
+
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>{t('delivery_method')}: </Typography>
+                                <Typography variant="body2">{orderData?.deliveryMethod || 'GHN'}</Typography>
+                            </Stack>
+
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>{t('delivery_status')}: </Typography>
+                                <Typography variant="body2">
+                                    {t(getShippingStatus(orderData?.shippingStatus))}
+                                </Typography>
+                            </Stack>
+
+                            <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>{t('order_status')}: </Typography>
+                                <Typography variant="body2">
+                                    {t(getOrderStatus(orderData?.orderStatus))}
+                                </Typography>
+                            </Stack>
+                        </Stack>
                     </Box>
-                </Box>
-                <Box sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-end",
-                    padding: 0,
-                    gap: 4,
-                    mt: 4
-                }}>
-                    {orderData?.paymentStatus !== PaymentStatus.Paid.label && (
-                        <Button variant="contained"
-                            color='error'
-                            onClick={() => handlePaymentMethod(orderData.paymentMethod)}
-                            startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
-                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                            {t('payment')}
+
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                        {orderData?.paymentStatus !== PaymentStatus.Paid.label && (
+                            <Button
+                                variant="contained"
+                                color='error'
+                                onClick={() => handlePaymentMethod(orderData.paymentMethod)}
+                                startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                            >
+                                {t('go_to_payment')}
+                            </Button>
+                        )}
+                        {orderData?.orderStatus !== OrderStatus.Completed.label && (
+                            <Button
+                                variant="contained"
+                                color='error'
+                                onClick={() => setOpenCancelDialog(true)}
+                                startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                            >
+                                {t('cancel_order')}
+                            </Button>
+                        )}
+                        <Button
+                            variant="outlined"
+                            color='primary'
+                            startIcon={<IconifyIcon icon="bx:cart" />}
+                        >
+                            {t('buy_again')}
                         </Button>
-                    )}
-                    {orderData?.orderStatus !== OrderStatus.Completed.label && (
-                        <Button variant="contained"
-                            color='error'
-                            onClick={() => setOpenCancelDialog(true)}
-                            startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
-                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                            {t('cancel_order')}
-                        </Button>
-                    )}
-                    <Button variant="outlined"
-                        color='primary'
-                        // onClick={() => handleBuyAgain()}
-                        // disabled={!orderData?.countInStock}
-                        startIcon={<IconifyIcon icon="bx:cart" />}
-                        sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                        {t('buy_again')}
-                    </Button>
-                </Box>
-            </Box >
+                    </Box>
+                </Stack>
+            </Container>
         </>
     )
 }

@@ -48,28 +48,6 @@ const ListOrderPage: NextPage<TProps> = () => {
     const [showUpdateTab, setShowUpdateTab] = React.useState(false);
     const [showDetailTab, setShowDetailTab] = React.useState(false);
 
-    const STYLED_ORDER_STATUS = {
-        0: {
-            label: 'wait_payment',
-            background: "orange"
-        },
-        1: {
-            label: 'wait_delivery',
-            background: theme.palette.warning.main
-        },
-        2: {
-            label: 'completed',
-            background: theme.palette.success.main
-        },
-        3: {
-            label: 'cancelled',
-            background: theme.palette.error.main
-        },
-        4: {
-            label: 'all',
-            background: "white"
-        },
-    }
 
     const columns = getOrderColumns()
 
@@ -119,6 +97,9 @@ const ListOrderPage: NextPage<TProps> = () => {
                 currentTab={currentTab}
                 onTabChange={handleTabChange}
                 onDetailClick={handleDetailClick}
+
+                onCloseDetailTab={() => setShowDetailTab(false)}
+
                 hideAddButton={true}
                 disableUpdateButton={true}
                 disableDeleteButton={true}

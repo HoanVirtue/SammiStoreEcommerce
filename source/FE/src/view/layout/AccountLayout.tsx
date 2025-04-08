@@ -5,6 +5,7 @@ import Nav from './nav';
 import CustomBreadcrumbs from 'src/components/custom-breadcrum';
 import IconifyIcon from 'src/components/Icon';
 import { useTranslation } from 'react-i18next';
+import { usePathname } from 'next/navigation';
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -15,10 +16,12 @@ export default function AccountLayout({ children }: Props) {
     const mdUp = useResponsive('up', 'md');
     const theme = useTheme();
     const { t } = useTranslation();
+    const pathname = usePathname();
 
     const breadcrumbItems = [
         { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
         { label: t('my_account'), href: '/account/my-profile' },
+        { label: t(pathname.split('/').pop()?.replace(/-/g, '_') || ''), href: pathname },
     ];
 
 

@@ -77,6 +77,12 @@ export interface TParamsUpdateOrder extends TParamsCreateOrder {
     id: number
 }
 
+export type TParamsUpdateOrderStatus = {
+    orderId: number,
+    paymentStatus: number,
+    shippingStatus: number,
+}
+
 export type TOrderItem = {
     id: number,
     code: string,
@@ -97,8 +103,8 @@ export type TOrderItem = {
     shippingCompanyId: number,
     totalPrice: number,
     totalQuantity: number,
-
     returnUrl: string,
     details: TOrderDetail[],
-    
+    discount?: number,
+    deliveryMethod?: string
 }

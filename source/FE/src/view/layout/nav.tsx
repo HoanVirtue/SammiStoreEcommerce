@@ -16,20 +16,6 @@ import IconifyIcon from 'src/components/Icon';
 import { useAuth } from 'src/hooks/useAuth';
 import { useTranslation } from 'react-i18next';
 
-// ----------------------------------------------------------------------
-
-const navigations = [
-    {
-        title: 'My Profile',
-        path: '/account/my-profile',
-        icon: <IconifyIcon icon="carbon:user" />,
-    },
-    {
-        title: 'My Orders',
-        path: '/account/my-order',
-        icon: <IconifyIcon icon="carbon:document" />,
-    },
-];
 
 // ----------------------------------------------------------------------
 
@@ -43,6 +29,19 @@ export default function Nav({ open, onClose }: Props) {
     const theme = useTheme();
     const { user, logout } = useAuth();
     const { t } = useTranslation();
+
+    const navigations = [
+        {
+            title: t('my_profile'),
+            path: '/account/my-profile',
+            icon: <IconifyIcon icon="carbon:user" />,
+        },
+        {
+            title: t('my_order'),
+            path: '/account/my-order',
+            icon: <IconifyIcon icon="carbon:document" />,
+        },
+    ];
 
     const renderContent = (
         <Stack
@@ -111,7 +110,7 @@ export default function Nav({ open, onClose }: Props) {
                         <IconifyIcon icon="carbon:logout" />
                     </ListItemIcon>
                     <ListItemText
-                        primary="Logout"
+                        primary={t('logout')}
                         primaryTypographyProps={{
                             typography: 'body2',
                         }}
@@ -154,7 +153,7 @@ type NavItemProps = {
 
 function NavItem({ item }: NavItemProps) {
     const pathname = usePathname();
-    const isActive = pathname === item.path;
+    const isActive = pathname.includes(item.path);
     const theme = useTheme();
 
     return (

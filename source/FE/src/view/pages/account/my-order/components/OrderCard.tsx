@@ -67,23 +67,6 @@ const OrderCard: NextPage<TProps> = (props) => {
         dispatch(cancelOrderAsync(orderData.id))
     }
 
-    // const handleUpdateProductToCart = (items: TItemOrderProduct[]) => {
-    //     const productCart = getLocalProductFromCart()
-    //     const parseData = productCart ? JSON.parse(productCart) : {}
-    //     const listOrderItems = convertUpdateMultipleProductsCard(details, items)
-
-
-    //     if (user?.id) {
-    //         dispatch(
-    //             updateProductToCart({
-    //                 details: listOrderItems
-    //             })
-    //         )
-    //         setLocalProductToCart({ ...parseData, [user?.id]: listOrderItems })
-    //     }
-    // }
-
-
     // const handleBuyAgain = () => {
     //     handleUpdateProductToCart(orderData.details)
     //     router.push({
@@ -231,7 +214,7 @@ const OrderCard: NextPage<TProps> = (props) => {
                         <Button variant="contained"
                             color='error'
                             onClick={() => setOpenCancelDialog(true)}
-                            startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                            startIcon={<IconifyIcon icon="lsicon:order-close-outline" />}
                             sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                             {t('cancel_order')}
                         </Button>

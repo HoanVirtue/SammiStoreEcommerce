@@ -31,6 +31,7 @@ const GridDetail = dynamic(() => import("../grid-detail"), { ssr: false });
 const StatusUpdateHeader = dynamic(() => import("../status-update-header"), { ssr: false });
 
 import CloseIcon from '@mui/icons-material/Close';
+import { useRouter } from "next/router";
 
 type AdminPageProps = {
   entityName: string;
@@ -47,15 +48,20 @@ type AdminPageProps = {
   fieldMapping?: { [key: string]: string };
   noDataText?: string;
   DetailComponent?: React.FC<any>;
+  CreateNewTabComponent?: React.FC<any>;
 
   showTab?: boolean;
   showCreateTab?: boolean;
   showUpdateTab?: boolean;
   showDetailTab?: boolean;
+  showCreateNewTab?: boolean;
+
   currentTab?: number;
   onTabChange?: (newTab: number) => void;
   onAddClick?: () => void;
   onDetailClick?: (id: number) => void;
+  onCreateNewClick?: () => void;
+
   hideAddButton?: boolean;
   disableUpdateButton?: boolean;
   disableDeleteButton?: boolean;
@@ -64,6 +70,7 @@ type AdminPageProps = {
   onCloseCreateTab?: () => void;
   onCloseUpdateTab?: () => void;
   onCloseDetailTab?: () => void;
+  onCloseCreateNewTab?: () => void;
 };
 
 const AdminPage: NextPage<AdminPageProps> = ({
@@ -78,6 +85,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   CreateUpdateComponent,
   CreateUpdateTabComponent,
   DetailComponent,
+  CreateNewTabComponent,
   permissionKey,
   fieldMapping = {},
   noDataText,
@@ -86,10 +94,14 @@ const AdminPage: NextPage<AdminPageProps> = ({
   showCreateTab = false,
   showUpdateTab = false,
   showDetailTab = false,
+  showCreateNewTab = false,
+
   currentTab = 0,
   onTabChange,
   onAddClick,
   onDetailClick,
+  onCreateNewClick,
+
   hideAddButton = false,
   disableUpdateButton = false,
   disableDeleteButton = false,
@@ -97,6 +109,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   onCloseCreateTab,
   onCloseUpdateTab,
   onCloseDetailTab,
+  onCloseCreateNewTab,
 
 }) => {
   const [page, setPage] = useState<number>(1);
@@ -109,11 +122,23 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const [selectedRow, setSelectedRow] = useState<number[]>([]);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
   const [selectedDetailId, setSelectedDetailId] = useState<number>(0);
+  const [newEntityName, setNewEntityName] = useState<string>("");
+
+
 
   const debouncedFilters = useDebounce(filters, 500);
   const { t } = useTranslation();
   const theme = useTheme();
+  const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    if (router.pathname.includes("receipt")) {
+      setNewEntityName("product");
+    }
+  }, [router.pathname]);
+
+
   const { VIEW, CREATE, UPDATE, DELETE } = usePermission(permissionKey, ["CREATE", "UPDATE", "DELETE", "VIEW"]);
   const {
     data,
@@ -373,6 +398,21 @@ const AdminPage: NextPage<AdminPageProps> = ({
                   </IconButton>
                 </Box>
               } />}
+              {showCreateNewTab && <Tab value={4} label={
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  {t(`create_new_${newEntityName}`)}
+                  <IconButton
+                    size="small"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onTabChange?.(0);
+                      onCloseCreateNewTab?.();
+                    }}
+                  >
+                    <CloseIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+              } />}
             </Tabs>
           </Box>
         )}
@@ -453,11 +493,15 @@ const AdminPage: NextPage<AdminPageProps> = ({
           )}
           {currentTab === 1 && CreateUpdateTabComponent && (
             <CreateUpdateTabComponent
-                id={0}
+              id={0}
               open={true}
               onClose={() => {
                 onTabChange?.(0);
                 onCloseCreateTab?.();
+              }}
+              onCreateNew={() => {
+                onTabChange?.(4);
+                onCreateNewClick?.();
               }}
             />
           )}
@@ -477,6 +521,15 @@ const AdminPage: NextPage<AdminPageProps> = ({
               onClose={() => {
                 onTabChange?.(0);
                 onCloseDetailTab?.();
+              }}
+            />
+          )}
+          {currentTab === 4 && CreateNewTabComponent && (
+            <CreateNewTabComponent
+              id={0}
+              onClose={() => {
+                onTabChange?.(1);
+                onCloseCreateNewTab?.();
               }}
             />
           )}

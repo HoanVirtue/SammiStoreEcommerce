@@ -33,7 +33,7 @@ export const updateReceiptStatus = async (data: TParamsUpdateReceiptStatus) => {
 
 export const updateMultipleReceiptStatus = async (data: TParamsUpdateMultipleReceiptStatus) => {
     try {
-        const res: any = await instance.post(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/update-purchase-status`, data)
+        const res: any = await instance.post(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/update-purchases-status`, data)
         return res
     }
     catch (error: any) {

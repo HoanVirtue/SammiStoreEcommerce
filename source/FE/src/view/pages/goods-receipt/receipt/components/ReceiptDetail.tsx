@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme } from '@mui/material';
+import { Box, Grid, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, useTheme, Autocomplete, TextField, Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import Spinner from 'src/components/spinner';
-import { getReceiptDetail } from 'src/services/receipt';
+import { getReceiptDetail, updateReceiptStatus } from 'src/services/receipt';
 import { formatDate, formatPrice } from 'src/utils';
+import { RECEIPT_STATUS } from 'src/configs/receipt';
+import { toast } from 'react-toastify';
 
 interface ReceiptDetailProps {
     id: number;
@@ -15,6 +17,10 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
     const theme = useTheme();
     const [loading, setLoading] = useState(false);
     const [receiptData, setReceiptData] = useState<any>(null);
+    const [selectedStatus, setSelectedStatus] = useState<any>(null);
+    const [updating, setUpdating] = useState(false);
+
+    const statusOptions = Object.values(RECEIPT_STATUS());
 
     const fetchReceiptDetail = async (id: number) => {
         setLoading(true);
@@ -22,11 +28,33 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
             const response = await getReceiptDetail(id);
             if (response?.result) {
                 setReceiptData(response.result);
+                // Set initial selected status
+                const currentStatus = statusOptions.find(option => option.value === response.result.status);
+                setSelectedStatus(currentStatus || null);
             }
         } catch (error) {
             console.error('Error fetching receipt detail:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleStatusUpdate = async () => {
+        if (!selectedStatus || !receiptData) return;
+
+        setUpdating(true);
+
+        const response = await updateReceiptStatus({
+            purchaseOrderId: receiptData.id,
+            newStatus: parseInt(selectedStatus.value)
+        });
+
+        if (response?.data?.isSuccess) {
+            toast.success(t('status_updated_successfully'));
+            fetchReceiptDetail(id);
+            setSelectedStatus(null)
+        } else {
+            toast.error(response?.message);
         }
     };
 
@@ -40,7 +68,27 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
         <Box sx={{ p: 3, width: '100%' }}>
             {loading && <Spinner />}
             <Paper sx={{ p: 3 }}>
-                <Typography variant="h5" sx={{ mb: 3 }}>{t("receipt_detail")}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>
+                    <Typography variant="h5">{t("receipt_detail")}</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Autocomplete
+                            size="small"
+                            options={statusOptions}
+                            getOptionLabel={(option) => option.label}
+                            value={selectedStatus}
+                            onChange={(_, newValue) => setSelectedStatus(newValue)}
+                            sx={{ width: 200 }}
+                            renderInput={(params) => <TextField {...params} />}
+                        />
+                        <Button
+                            variant="contained"
+                            onClick={handleStatusUpdate}
+                            disabled={!selectedStatus || selectedStatus.value === receiptData.status}
+                        >
+                            {t('apply')}
+                        </Button>
+                    </Box>
+                </Box>
 
                 {receiptData && (
                     <>

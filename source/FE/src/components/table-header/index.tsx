@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import IconifyIcon from '../Icon'
 import { RECEIPT_STATUS } from 'src/configs/receipt'
 import { useState } from 'react'
-import { updateReceiptStatus } from 'src/services/receipt'
+import { updateMultipleReceiptStatus, updateReceiptStatus } from 'src/services/receipt'
 import CustomAutocomplete from '../custom-autocomplete'
 import { AutocompleteOption } from '../custom-autocomplete'
 import { toast } from 'react-toastify'
@@ -52,23 +52,17 @@ const TableHeader = (props: TProp) => {
 
     const handleApplyStatus = async () => {
         if (selectedStatus && selectedRows && selectedRows.length > 0) {
-            try {
-                const res: any = await Promise.all(selectedRows.map(row =>
-                    updateReceiptStatus({
-                        purchaseOrderId: row,
-                        newStatus: parseInt(selectedStatus.value as string)
-                    })
-                ))
 
-                if (res[0].isSuccess) {
-                    toast.success(t("status_updated_successfully"))
-                } else {
-                    toast.error(res[0].message)
-                }
-                setSelectedStatus(null)
+            const res: any = await updateMultipleReceiptStatus({
+                purchaseOrderIds: selectedRows,
+                newStatus: parseInt(selectedStatus.value as string)
+            })
+            if (res?.data?.isSuccess === true) {
+                toast.success(t("status_updated_successfully"))
                 onClear()
-            } catch (error) {
-                toast.error(t("error_updating_status"))
+                setSelectedStatus(null)
+            } else {
+                toast.error(res?.message)
             }
         }
     }

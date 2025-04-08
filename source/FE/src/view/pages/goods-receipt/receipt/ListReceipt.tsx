@@ -18,6 +18,7 @@ import AdminPage from "src/components/admin-page";
 import CreateUpdateReceipt from "./components/CreateUpdateReceipt";
 import ReceiptDetail from "./components/ReceiptDetail";
 import { getReceiptColumns } from "src/configs/gridColumn";
+import CreateNewProduct from "./components/CreateNewProduct";
 
 const ListReceiptPage: NextPage = () => {
   const { t } = useTranslation();
@@ -26,6 +27,7 @@ const ListReceiptPage: NextPage = () => {
   const [showCreateTab, setShowCreateTab] = React.useState(false);
   const [showUpdateTab, setShowUpdateTab] = React.useState(false);
   const [showDetailTab, setShowDetailTab] = React.useState(false);
+  const [showCreateNewTab, setShowCreateNewTab] = React.useState(false);
 
   const columns = getReceiptColumns()
 
@@ -47,6 +49,16 @@ const ListReceiptPage: NextPage = () => {
     setShowCreateTab(true);
   };
 
+  const handleCreateNewClick = () => {
+    setCurrentTab(4);
+    setShowCreateNewTab(true);
+  };
+
+  const handleCloseCreateNewTab = () => {
+    setCurrentTab(1);
+    setShowCreateNewTab(false);
+  };
+
   return (
     <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
       <AdminPage
@@ -63,6 +75,7 @@ const ListReceiptPage: NextPage = () => {
         deleteMultipleAction={deleteMultipleReceiptsAsync as unknown as (ids: { [key: number]: number[] }) => any}
         resetAction={resetInitialState}
         CreateUpdateTabComponent={CreateUpdateReceipt}
+        CreateNewTabComponent={CreateNewProduct}
         DetailComponent={ReceiptDetail}
         permissionKey="GOODS_RECEIPT.RECEIPT"
         fieldMapping={{
@@ -75,16 +88,23 @@ const ListReceiptPage: NextPage = () => {
         showCreateTab={showCreateTab}
         showDetailTab={showDetailTab}
         showUpdateTab={showUpdateTab}
+        showCreateNewTab={showCreateNewTab}
+
         currentTab={currentTab}
         onTabChange={handleTabChange}
+
         onAddClick={handleAddClick}
         onDetailClick={handleDetailClick}
+        onCreateNewClick={handleCreateNewClick}
+
         hideAddButton={false}
         disableUpdateButton={true}
         disableDeleteButton={true}  
         showDetailButton={true}
+
         onCloseCreateTab={() => setShowCreateTab(false)}
         onCloseDetailTab={() => setShowDetailTab(false)}
+        onCloseCreateNewTab={handleCloseCreateNewTab}
       />
     </Box>
   );

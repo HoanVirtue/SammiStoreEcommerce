@@ -59,6 +59,8 @@ interface ReceiptFormData {
 interface CreateUpdateReceiptProps {
     id?: number;
     onClose: () => void;
+    onCreateNew: () => void;
+    newEntityName?: string;
 }
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -69,7 +71,7 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     },
 }));
 
-const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose }) => {
+const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, onCreateNew, newEntityName }) => {
     const { t } = useTranslation();
     const theme = useTheme();
     const dispatch: AppDispatch = useDispatch();
@@ -460,8 +462,31 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose }
                             </Grid>
                         </Grid>
 
+                        {/* Items Table Header */}
+                        <Box sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            mt: 3,
+                            mb: 2
+                        }}>
+                            <Typography variant="h6">
+                                {t("product_list")}
+                            </Typography>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                startIcon={<AddIcon />}
+                                onClick={() => {
+                                    onCreateNew();
+                                }}
+                            >
+                                {t(`create_new_product`)}
+                            </Button>
+                        </Box>
+
                         {/* Items Table */}
-                        <TableContainer sx={{ mt: 3 }}>
+                        <TableContainer>
                             <Table size="small">
                                 <TableHead>
                                     <TableRow>

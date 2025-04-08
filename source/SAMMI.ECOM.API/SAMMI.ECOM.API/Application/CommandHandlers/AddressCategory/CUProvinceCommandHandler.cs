@@ -72,6 +72,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .WithMessage("Tên tỉnh/thành phố không được bỏ trống");
+
+            RuleFor(x => x.PostalCode)
+                .NotEmpty()
+                .WithMessage("Mã bưu chính không được bỏ trống.");
         }
     }
 }

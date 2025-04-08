@@ -25,6 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         private readonly IMyVoucherQueries _myVoucherQueries;
         private readonly IMapper _mapper;
         private readonly ICustomerAddressRepository _addressRepository;
+        private readonly IDiscountTypeQueries _discountTypeQueries;
         public VouchersController(
             IVoucherQueries voucherQueries,
             IVoucherRepository voucherRepository,
@@ -34,6 +35,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             IMyVoucherQueries myVoucherQueries,
             IMapper mapper,
             ICustomerAddressRepository customerAddressRepository,
+            IDiscountTypeQueries discountTypeQueries,
             IMediator mediator,
             ILogger<UsersController> logger) : base(mediator, logger)
         {
@@ -45,6 +47,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _myVoucherQueries = myVoucherQueries;
             _mapper = mapper;
             _addressRepository = customerAddressRepository;
+            _discountTypeQueries = discountTypeQueries;
         }
 
         [HttpGet]
@@ -85,6 +88,10 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 return BadRequest();
             }
+            if (!_voucherRepository.IsExisted(id))
+            {
+                return BadRequest("Phiếu giảm giá không tồn tại.");
+            }
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
             {
@@ -106,22 +113,14 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpDelete]
         public IActionResult DeleteRange([FromBody] List<int> ids)
         {
-            var actErrorResponse = new ActionResponse<List<string>>();
-            var listError = new Dictionary<int, string>();
+            var actErrorResponse = new ActionResponse();
             if (ids == null || ids.Count == 0)
             {
                 return BadRequest();
             }
-            foreach (var id in ids)
+            if (!ids.All(id => _voucherRepository.IsExisted(id)))
             {
-                if (!_voucherRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
-                {
-                    listError[id] = $"Không tồn tại phiếu giảm giá có mã {id}";
-                }
-            }
-            if (listError.Count > 0)
-            {
-                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                actErrorResponse.AddError("Một số phiếu giảm giá không tồn tại.");
                 return BadRequest(actErrorResponse);
             }
             return Ok(_voucherRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));

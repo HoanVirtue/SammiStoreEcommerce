@@ -113,7 +113,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
                     var cachedList = await _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
                     if (cachedList != null)
                     {
-                        cachedList.RemoveAll(x => x.CustomerId == UserIdentity.Id);
+                        cachedList.RemoveAll(x => x.CustomerId == UserIdentity.Id && x.ProductId == productId);
                         await _redisService.SetCache(cacheKey, cachedList);
                     }
                 }

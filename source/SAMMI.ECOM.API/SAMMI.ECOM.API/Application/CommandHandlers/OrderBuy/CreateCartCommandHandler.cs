@@ -73,7 +73,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             {
                 if (request.Quantity > productExist.StockQuantity)
                 {
-                    request.Quantity = productExist.StockQuantity;
+                    actResponse.AddError("Số lượng sản phẩm tồn kho không đủ");
+                    return actResponse;
+                    //request.Quantity = productExist.StockQuantity;
                 }
                 request.CartId = cart.Id;
                 request.CreatedDate = DateTime.Now;
@@ -92,10 +94,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             {
                 if (request.Operation == OperationTypeEnum.Add)
                 {
-                    int quantity = detail.Quantity + request.Quantity;
+                    int quantity = detail.Quantity + request.Quantity;  
                     if (quantity > productExist.StockQuantity)
                     {
-                        quantity = productExist.StockQuantity;
+                        actResponse.AddError("Số lượng sản phẩm tồn kho không đủ");
+                        return actResponse;
+                        //quantity = productExist.StockQuantity;
                     }
                     detail.Quantity = quantity;
                 }
@@ -111,7 +115,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 else if (request.Operation == OperationTypeEnum.Replace)
                 {
                     if (request.Quantity > productExist.StockQuantity)
-                        request.Quantity = productExist.StockQuantity;
+                    {
+                        actResponse.AddError("Số lượng sản phẩm tồn kho không đủ");
+                        return actResponse;
+                        //request.Quantity = productExist.StockQuantity;
+                    }    
                     if (request.Quantity < 1)
                         request.Quantity = 1;
 

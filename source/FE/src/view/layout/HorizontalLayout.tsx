@@ -22,13 +22,9 @@ import { ROUTE_CONFIG } from "src/configs/route";
 import Link from "next/link";
 import ProductCart from "./components/product-cart";
 import { useTranslation } from "react-i18next";
-import SearchField from "src/components/search-field";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import HomeSearch from "src/components/home-search";
 
-
-import TopBanner from '/public/images/top_banner.png'
-import Image from "next/image";
 
 type TProps = {
     open: boolean

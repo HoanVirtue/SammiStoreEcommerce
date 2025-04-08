@@ -176,7 +176,6 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     return basePrice * (itemState.quantity || 1);
   }, [itemState?.quantity, itemState?.price, itemState?.discount]);
 
-
   return (
     <Fragment>
       <Stack

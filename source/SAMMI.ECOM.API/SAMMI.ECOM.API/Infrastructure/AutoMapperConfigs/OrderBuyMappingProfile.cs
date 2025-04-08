@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
@@ -25,6 +26,18 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<PurchaseOrder, PurchaseOrderDTO>();
 
             CreateMap<PurchaseOrderDetail, PurchaseOrderDetailDTO>();
+
+
+            // event
+            CreateMap<UpdateEventCommand, Event>();
+            CreateMap<CreateEventCommand, Event>();
+            CreateMap<Event, EventDTO>();
+
+            // voucher
+            CreateMap<CUVoucherCommand, Voucher>();
+            CreateMap<Voucher, VoucherDTO>();
+            CreateMap<VoucherConditionCommand, VoucherCondition>();
+            CreateMap<VoucherCondition, VoucherConditionDTO>();
         }
     }
 }

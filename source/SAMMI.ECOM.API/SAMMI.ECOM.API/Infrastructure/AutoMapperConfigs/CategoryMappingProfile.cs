@@ -3,6 +3,7 @@ using SAMMI.ECOM.Domain.AggregateModels;
 using SAMMI.ECOM.Domain.AggregateModels.AddressCategory;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
+using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands;
@@ -50,17 +51,6 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<CUPaymentMethodCommand, PaymentMethod>();
             CreateMap<PaymentMethod, PaymentMethodDTO>();
 
-            // event
-            CreateMap<UpdateEventCommand, Event>();
-            CreateMap<CreateEventCommand, Event>();
-            CreateMap<Event, EventDTO>();
-
-            // voucher
-            CreateMap<CUVoucherCommand, Voucher>();
-            CreateMap<Voucher, VoucherDTO>();
-            CreateMap<VoucherConditionCommand, VoucherCondition>();
-            CreateMap<VoucherCondition, VoucherConditionDTO>();
-
             CreateMap<CUBrandCommand, Brand>();
             CreateMap<Brand, BrandDTO>();
 
@@ -72,6 +62,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 
 
             CreateMap<MyVoucher, MyVoucherDTO>();
+
+            CreateMap<FavouriteProduct, FavouriteProductDTO>();
             //CreateMap<>();
         }
     }

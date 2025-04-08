@@ -59,6 +59,11 @@ namespace SAMMI.ECOM.API.Controllers.System
             {
                 return BadRequest();
             }
+            if(!await _addressRepository.IsExisted(id, UserIdentity.Id))
+            {
+                return BadRequest("Địa chỉ không tồn tại");
+            }
+            
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
             {

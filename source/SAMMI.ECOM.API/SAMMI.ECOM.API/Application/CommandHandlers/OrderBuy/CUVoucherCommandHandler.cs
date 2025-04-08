@@ -46,7 +46,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             if (await _voucherRepository.CheckExistCode(request.Code, request.Id))
             {
-                actResponse.AddError("Mã chương trình khuyến mãi đã tồn tại");
+                actResponse.AddError("Mã phiếu giảm giá đã tồn tại");
                 return actResponse;
             }
 

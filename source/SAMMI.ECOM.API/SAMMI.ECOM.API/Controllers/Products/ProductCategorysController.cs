@@ -64,7 +64,10 @@ namespace SAMMI.ECOM.API.Controllers.ProductCategorys
             {
                 return BadRequest();
             }
-
+            if (!_categoryRepository.IsExisted(id))
+            {
+                return BadRequest("Danh mục sản phẩm không tồn tại.");
+            }
             var response = await _mediator.Send(request);
             if (!response.IsSuccess)
             {
@@ -86,24 +89,17 @@ namespace SAMMI.ECOM.API.Controllers.ProductCategorys
         [HttpDelete]
         public IActionResult DeleteRange([FromBody] List<int> ids)
         {
-            var actErrorResponse = new ActionResponse<List<string>>();
-            var listError = new Dictionary<int, string>();
+            var actErrorResponse = new ActionResponse();
             if (ids == null || ids.Count == 0)
             {
                 return BadRequest();
             }
-            foreach (var id in ids)
+            if (!ids.All(id => _categoryRepository.IsExisted(id)))
             {
-                if (!_categoryRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
-                {
-                    listError[id] = $"Không tồn tại danh mục sản phẩm có mã {id}";
-                }
-            }
-            if (listError.Count > 0)
-            {
-                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                actErrorResponse.AddError("Một số danh mục sản phẩm không tồn tại.");
                 return BadRequest(actErrorResponse);
             }
+            
             return Ok(_categoryRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
 

@@ -74,6 +74,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers
             RuleFor(x => x.Name)
                 .NotEmpty()
                 .WithMessage("Tên phường/xã không được bỏ trống");
+
+            RuleFor(x => x.DistrictId)
+                .NotNull()
+                .WithMessage("Bắt buộc chọn quận/huyện.");
         }
     }
 }

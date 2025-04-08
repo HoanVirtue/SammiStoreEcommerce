@@ -61,6 +61,10 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 return BadRequest();
             }
+            if (!_eventRepository.IsExisted(id))
+            {
+                return BadRequest("Chương trình khuyến mãi không tồn tại.");
+            }
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
             {
@@ -82,22 +86,14 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpDelete]
         public IActionResult DeleteRange([FromBody] List<int> ids)
         {
-            var actErrorResponse = new ActionResponse<List<string>>();
-            var listError = new Dictionary<int, string>();
+            var actErrorResponse = new ActionResponse();
             if (ids == null || ids.Count == 0)
             {
                 return BadRequest();
             }
-            foreach (var id in ids)
+            if (!ids.All(id => _eventRepository.IsExisted(id)))
             {
-                if (!_eventRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
-                {
-                    listError[id] = $"Không tồn tại chương trình khuyến mãi có mã {id}";
-                }
-            }
-            if (listError.Count > 0)
-            {
-                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
+                actErrorResponse.AddError("Một số chương trình khuyến mãi không tồn tại.");
                 return BadRequest(actErrorResponse);
             }
             return Ok(_eventRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));

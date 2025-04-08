@@ -78,7 +78,7 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             var actRes = new ActionResponse();
             if (!request.PurchaseOrderIds.All(x => _purchaseRepository.IsExisted(x)))
             {
-                actRes.AddError("Có ít nhất một mã đơn nhập không tồn tại");
+                actRes.AddError("Một số mã đơn nhập không tồn tại");
                 return BadRequest(actRes);
             }
 

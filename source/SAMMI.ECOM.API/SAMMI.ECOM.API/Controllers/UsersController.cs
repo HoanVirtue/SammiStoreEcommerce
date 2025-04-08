@@ -68,7 +68,10 @@ namespace SAMMI.ECOM.API.Controllers
             {
                 return BadRequest();
             }
-
+            if (!await _userRepository.IsExistedType(id, TypeUserEnum.Employee))
+            {
+                return BadRequest("Nhân viên không tồn tại.");
+            }
             var response = await _mediator.Send(request);
             if (!response.IsSuccess)
             {
@@ -124,7 +127,10 @@ namespace SAMMI.ECOM.API.Controllers
             {
                 return BadRequest();
             }
-
+            if (!await _userRepository.IsExistedType(id, TypeUserEnum.Customer))
+            {
+                return BadRequest("Khách hàng không tồn tại.");
+            }
             var response = await _mediator.Send(request);
             if (!response.IsSuccess)
             {
@@ -171,7 +177,10 @@ namespace SAMMI.ECOM.API.Controllers
             {
                 return BadRequest();
             }
-
+            if (!await _userRepository.IsExistedType(id, TypeUserEnum.Supplier))
+            {
+                return BadRequest("Nhà cung cấp không tồn tại.");
+            }
             var response = await _mediator.Send(request);
             if (!response.IsSuccess)
             {

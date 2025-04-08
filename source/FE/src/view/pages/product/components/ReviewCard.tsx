@@ -30,12 +30,12 @@ const ReviewCard = (props: TReviewCard) => {
 
     const [openUpdateReview, setOpenUpdateReview] = useState({
         open: false,
-        id: ""
+        id: 0
     });
 
     const [openDeleteReview, setOpenDeleteReview] = useState({
         open: false,
-        id: ""
+        id: 0
     });
 
     const { item } = props
@@ -51,14 +51,14 @@ const ReviewCard = (props: TReviewCard) => {
     const handleCloseUpdateReview = () => {
         setOpenUpdateReview({
             open: false,
-            id: ""
+            id: 0
         })
     }
 
     const handleCloseDeleteDialog = () => {
         setOpenDeleteReview({
             open: false,
-            id: ""
+            id: 0
         })
     }
 
@@ -112,15 +112,15 @@ const ReviewCard = (props: TReviewCard) => {
                 <Box mt={1}>
                     <Typography>{content}</Typography>
                 </Box>
-                {user?._id === item?.user?._id && (
+                {user?.id === item?.user?.id && (
                     <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1 }}>
                         <Tooltip title={t("edit")}>
-                            <IconButton onClick={() => setOpenUpdateReview({ open: true, id: item._id })}>
+                            <IconButton onClick={() => setOpenUpdateReview({ open: true, id: item.id })}>
                                 <IconifyIcon icon='tabler:edit' />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title={t("delete")}>
-                            <IconButton onClick={() => setOpenDeleteReview({ open: true, id: item._id })}>
+                            <IconButton onClick={() => setOpenDeleteReview({ open: true, id: item.id })}>
                                 <IconifyIcon icon='mdi:delete-outline' />
                             </IconButton>
                         </Tooltip>

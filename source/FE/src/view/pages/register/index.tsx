@@ -5,7 +5,9 @@ import React, { useEffect, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
+import Link from 'next/link'
 
 //MUI
 import { IconButton, InputAdornment, useTheme } from '@mui/material'
@@ -17,26 +19,29 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 
 //components
-import CustomTextField from 'src/components/text-field'
-import IconifyIcon from 'src/components/Icon'
+const CustomTextField = dynamic(() => import('src/components/text-field'))
+const IconifyIcon = dynamic(() => import('src/components/Icon'))
+const FallbackSpinner = dynamic(() => import('src/components/fall-back'))
 
 //Configs
 import { EMAIL_REG, PASSWORD_REG } from 'src/configs/regex'
+import { ROUTE_CONFIG } from 'src/configs/route'
 
 //Images
 import RegisterDark from '/public/images/register-dark.png'
 import RegisterLight from '/public/images/register-light.png'
 import GoogleIcon from '/public/svgs/google.svg'
 import FacebookIcon from '/public/svgs/facebook.svg'
-import Link from 'next/link'
+
+//Redux
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import { registerAuthAsync } from 'src/stores/auth/action'
-import { toast } from 'react-toastify'
-import FallbackSpinner from 'src/components/fall-back'
 import { resetInitialState } from 'src/stores/auth'
+
+//Other
+import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
-import { ROUTE_CONFIG } from 'src/configs/route'
 import { useTranslation } from 'react-i18next'
 
 type TProps = {}

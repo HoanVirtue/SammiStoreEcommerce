@@ -10,9 +10,6 @@ import {
     Grid,
     IconButton,
     Typography,
-    InputLabel,
-    Select,
-    MenuItem,
     InputAdornment,
     FormControl,
 } from "@mui/material";
@@ -37,7 +34,7 @@ import { getAllDistricts } from "src/services/district";
 interface TCreateUpdateSupplier {
     open: boolean;
     onClose: () => void;
-    id?: string;
+    id?: number;
 }
 
 type TDefaultValues = {
@@ -136,7 +133,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                 email: data.email || "",
                 phone: data.phone,
                 streetAddress: data.streetAddress,
-                wardId: data.wardId,
+                wardId: Number(data.wardId),
                 // wardName: data.wardName,
                 username: data.username,
                 password: data.password,
@@ -144,7 +141,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                 gender: data.gender,
             };
             if (id) {
-                dispatch(updateSupplierAsync({ ...finalData, id }));
+                dispatch(updateSupplierAsync({ ...finalData, id: Number(id) }));
             } else {
                 dispatch(createSupplierAsync({ ...finalData }));
             }
@@ -234,7 +231,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
             .catch(() => setLoading(false));
     };
 
-    const fetchWardDetail = async (wardId: string) => {
+    const fetchWardDetail = async (wardId: number) => {
         await getWardDetail(wardId)
             .then((res) => {
                 const ward = res?.result;
@@ -246,7 +243,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
             .catch((err) => console.error(err));
     };
 
-    const fetchDetailSupplier = async (id: string) => {
+    const fetchDetailSupplier = async (id: number) => {
         setLoading(true);
         await getSupplierDetail(id)
             .then((res) => {
@@ -295,7 +292,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
     useEffect(() => {
         if (open) {
-            if (id) fetchDetailSupplier(id);
+            if (id) fetchDetailSupplier(Number(id));
         } else {
             reset(defaultValues);
             setAvatar("");

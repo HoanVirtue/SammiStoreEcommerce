@@ -37,7 +37,7 @@ import { getAllDistricts } from "src/services/district";
 interface TCreateUpdateEmployee {
     open: boolean;
     onClose: () => void;
-    id?: string;
+    id?: number;
 }
 
 type TDefaultValues = {
@@ -140,7 +140,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                 email: data.email || "",
                 phone: data.phone,
                 streetAddress: data.streetAddress,
-                wardId: data.wardId,
+                wardId: Number(data.wardId),
                 // wardName: data.wardName,
                 username: data.username,
                 password: data.password,
@@ -148,7 +148,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                 gender: data.gender,
             };
             if (id) {
-                dispatch(updateEmployeeAsync({ ...finalData, id }));
+                dispatch(updateEmployeeAsync({ ...finalData, id: Number(id) }));
             } else {
                 dispatch(createEmployeeAsync({ ...finalData }));
             }
@@ -238,7 +238,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
             .catch(() => setLoading(false));
     };
 
-    const fetchWardDetail = async (wardId: string) => {
+    const fetchWardDetail = async (wardId: number) => {
         await getWardDetail(wardId)
             .then((res) => {
                 const ward = res?.result;
@@ -250,7 +250,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
             .catch((err) => console.error(err));
     };
 
-    const fetchDetailEmployee = async (id: string) => {
+    const fetchDetailEmployee = async (id: number) => {
         setLoading(true);
         await getEmployeeDetail(id)
             .then((res) => {
@@ -299,7 +299,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
 
     useEffect(() => {
         if (open) {
-            if (id) fetchDetailEmployee(id);
+            if (id) fetchDetailEmployee(Number(id));
         } else {
             reset(defaultValues);
             setAvatar("");

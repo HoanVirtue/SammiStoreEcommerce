@@ -25,11 +25,11 @@ const StyledTableHeader = styled(Box)(({ theme }) => ({
 }))
 
 type TProp = {
-    selectedRowNumber: number,
+    selectedRowNumber?: number,
     onClear: () => void,
     actions: { label: string, value: string, disabled?: boolean }[],
     handleAction: (type: string) => void,
-    selectedRows: number[]
+    selectedRows?: number[]
 }
 
 const TableHeader = (props: TProp) => {
@@ -51,7 +51,7 @@ const TableHeader = (props: TProp) => {
     }
 
     const handleApplyStatus = async () => {
-        if (selectedStatus && selectedRows.length > 0) {
+        if (selectedStatus && selectedRows && selectedRows.length > 0) {
             try {
                 const res: any = await Promise.all(selectedRows.map(row =>
                     updateReceiptStatus({
@@ -103,7 +103,7 @@ const TableHeader = (props: TProp) => {
                 alignItems: "center",
                 gap: "6px"
             }}>
-                {selectedRowNumber > 0 && (
+                {selectedRowNumber && selectedRowNumber > 0 && (
                     <>
                         <CustomAutocomplete
                             options={Object.values(RECEIPT_STATUS())}

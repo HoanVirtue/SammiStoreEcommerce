@@ -7,6 +7,7 @@ import React, { useContext, useEffect, useState } from 'react'
 import { NextPage } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 
 //MUI
 import { IconButton, InputAdornment, useTheme } from '@mui/material'
@@ -29,7 +30,6 @@ import LoginDark from '/public/images/login-dark.png'
 import LoginLight from '/public/images/login-light.png'
 import GoogleIcon from '/public/svgs/google.svg'
 import FacebookIcon from '/public/svgs/facebook.svg'
-
 
 import clsx from 'clsx'
 
@@ -246,4 +246,7 @@ const LoginAdminPage: NextPage<TProps> = () => {
     )
 }
 
-export default LoginAdminPage
+// Disable SSR for this page
+export default dynamic(() => Promise.resolve(LoginAdminPage), {
+    ssr: false
+})

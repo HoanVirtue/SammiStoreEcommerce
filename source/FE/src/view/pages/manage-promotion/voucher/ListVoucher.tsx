@@ -1,6 +1,8 @@
 "use client";
 
 import { NextPage } from "next";
+import dynamic from "next/dynamic";
+import { FC } from "react";
 
 import {
     deleteMultipleVouchersAsync,
@@ -12,8 +14,11 @@ import { RootState } from "src/stores";
 import AdminPage from "src/components/admin-page";
 import { getVoucherColumns } from "src/configs/gridColumn";
 import { getVoucherFields } from "src/configs/gridConfig";
-import CreateUpdateVoucher from "./components/CreateUpdateVoucher";
 import { useState } from "react";
+
+const CreateUpdateVoucher = dynamic(() => import("./components/CreateUpdateVoucher"), {
+    ssr: false
+}) as FC<any>;
 
 const ListVoucherPage: NextPage = () => {
     const columns = getVoucherColumns();

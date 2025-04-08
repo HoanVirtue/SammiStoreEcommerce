@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -18,8 +19,8 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 
 //components
-import CustomTextField from 'src/components/text-field'
-import IconifyIcon from 'src/components/Icon'
+const CustomTextField = dynamic(() => import('src/components/text-field'))
+const IconifyIcon = dynamic(() => import('src/components/Icon'))
 
 //Configs
 import { PASSWORD_REG } from 'src/configs/regex'
@@ -29,7 +30,6 @@ import LoginDark from '/public/images/login-dark.png'
 import LoginLight from '/public/images/login-light.png'
 import GoogleIcon from '/public/svgs/google.svg'
 import FacebookIcon from '/public/svgs/facebook.svg'
-
 
 import clsx from 'clsx'
 

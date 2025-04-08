@@ -81,7 +81,7 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
         return res.data
     }
 
-    const fetchDetailRole = async (id: string) => {
+    const fetchDetailRole = async (id: number) => {
         const res = await getRoleDetail(id)
         return res?.data
     }
@@ -133,7 +133,7 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
     } = useQuery(
         {
             queryKey: [queryKeys.role_list, idRole],
-            queryFn: () => fetchDetailRole(idRole || ""),
+            queryFn: () => fetchDetailRole(Number(idRole)),
             select: (data) => data?.roles,
             // retry: 2,
             // retryDelay: 1000,
@@ -172,7 +172,7 @@ const CreateUpdateRole = (props: TCreateUpdateRole) => {
         if (!Object.keys(errors)?.length) {
             if (idRole) {
                 //update
-                dispatch(updateRoleAsync({ name: data?.name, id: idRole }))
+                dispatch(updateRoleAsync({ name: data?.name, id: Number(idRole) }))
             } else {
                 //create
                 // dispatch(createRoleAsync({ name: data?.name }))

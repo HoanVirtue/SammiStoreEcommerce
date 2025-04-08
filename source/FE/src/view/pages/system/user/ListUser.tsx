@@ -51,7 +51,7 @@ import { styled } from '@mui/material'
 import CustomSelect from 'src/components/custom-select'
 import { getAllRoles } from 'src/services/role'
 import { OBJECT_USER_STATUS } from 'src/configs/user'
-import { getAllCities } from 'src/services/city'
+
 
 type TProps = {}
 
@@ -149,22 +149,6 @@ const ListUserPage: NextPage<TProps> = () => {
         })
     }
 
-    const fetchAllCities = async () => {
-        setLoading(true)
-        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.cities
-            if (data) {
-                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
-
     //handlers
     const handleOnChangePagination = (page: number, pageSize: number) => {
         setPage(page)
@@ -199,12 +183,12 @@ const ListUserPage: NextPage<TProps> = () => {
     }
 
     const handleDeleteUser = () => {
-        dispatch(deleteUserAsync(openDeleteUser.id))
+        dispatch(deleteUserAsync(Number(openDeleteUser.id)))
     }
 
     const handleDeleteMultipleUser = () => {
         dispatch(deleteMultipleUsersAsync({
-            userIds: selectedRow?.map((item: TSelectedRow) => item.id)
+            userIds: selectedRow?.map((item: TSelectedRow) => Number(item.id))
         }))
     }
 
@@ -351,7 +335,6 @@ const ListUserPage: NextPage<TProps> = () => {
 
     useEffect(() => {
         fetchAllRoles();
-        fetchAllCities();
     }, []);
 
     /// create update user

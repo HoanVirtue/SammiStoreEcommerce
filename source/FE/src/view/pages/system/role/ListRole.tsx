@@ -103,7 +103,7 @@ const ListRolePage: NextPage<TProps> = () => {
     }
 
     // ** fetch api
-    const fetchDeleteRole = async (id: string) => {
+    const fetchDeleteRole = async (id: number) => {
         const res = await deleteRole(id)
 
         return res?.data
@@ -120,7 +120,7 @@ const ListRolePage: NextPage<TProps> = () => {
     })
 
     const handleUpdateRole = () => {
-        mutateEditRole({ name: selectedRow.name, id: selectedRow.id, permissions: selectedPermissions })
+        mutateEditRole({ name: selectedRow.name, id: Number(selectedRow.id), permissions: selectedPermissions })
     }
 
     const { data: rolesList, isPending } = useGetListRoles(
@@ -177,10 +177,10 @@ const ListRolePage: NextPage<TProps> = () => {
     }, [])
 
     const handleDeleteRole = () => {
-        dispatch(deleteRoleAsync(openDeleteRole.id))
+        dispatch(deleteRoleAsync(Number(openDeleteRole.id)))
     }
 
-    const handleGetRoleDetail = async (id: string) => {
+    const handleGetRoleDetail = async (id: number) => {
         setLoading(true)
         await getRoleDetail(id).then((res) => {
             if (res?.data) {
@@ -269,7 +269,7 @@ const ListRolePage: NextPage<TProps> = () => {
 
     useEffect(() => {
         if (selectedRow.id) {
-            handleGetRoleDetail(selectedRow.id)
+            handleGetRoleDetail(Number(selectedRow.id))
         }
     }, [selectedRow])
 

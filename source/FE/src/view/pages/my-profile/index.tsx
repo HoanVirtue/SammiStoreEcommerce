@@ -5,6 +5,7 @@ import React, { useEffect } from 'react'
 
 //Next
 import { NextPage } from 'next'
+import dynamic from 'next/dynamic'
 
 //MUI
 import { Avatar, FormHelperText, IconButton, InputLabel, useTheme } from '@mui/material'
@@ -15,10 +16,15 @@ import { Controller, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 
-//components
-import CustomTextField from 'src/components/text-field'
-import FileUploadWrapper from 'src/components/file-upload-wrapper'
-import IconifyIcon from 'src/components/Icon'
+//Dynamic imports
+const CustomTextField = dynamic(() => import('src/components/text-field'))
+const FileUploadWrapper = dynamic(() => import('src/components/file-upload-wrapper'))
+const IconifyIcon = dynamic(() => import('src/components/Icon'))
+const CustomSelect = dynamic(() => import('src/components/custom-select'))
+const CustomModal = dynamic(() => import('src/components/custom-modal'))
+const CustomBreadcrumbs = dynamic(() => import('src/components/custom-breadcrum'))
+const Spinner = dynamic(() => import('src/components/spinner'))
+const FallbackSpinner = dynamic(() => import('src/components/fall-back'))
 
 //Configs
 import { EMAIL_REG } from 'src/configs/regex'
@@ -45,14 +51,8 @@ import { resetInitialState } from 'src/stores/auth'
 
 //Other
 import { toast } from 'react-toastify'
-import FallbackSpinner from 'src/components/fall-back'
-import Spinner from 'src/components/spinner'
-import CustomSelect from 'src/components/custom-select'
-import CustomModal from 'src/components/custom-modal'
 import { getAllRoles } from 'src/services/role'
 import { useAuth } from 'src/hooks/useAuth'
-import { getAllCities } from 'src/services/city'
-import CustomBreadcrumbs from 'src/components/custom-breadcrum'
 
 type TProps = {}
 
@@ -157,21 +157,6 @@ const MyProfilePage: NextPage<TProps> = () => {
         })
     }
 
-    const fetchAllCities = async () => {
-        setLoading(true)
-        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.cities
-            if (data) {
-                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
 
     useEffect(() => {
         fetchGetAuthMe()
@@ -194,7 +179,6 @@ const MyProfilePage: NextPage<TProps> = () => {
 
     useEffect(() => {
         fetchAllRoles()
-        fetchAllCities()
     }, [])
 
     const onSubmit = (data: any) => {

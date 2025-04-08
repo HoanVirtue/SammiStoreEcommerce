@@ -34,7 +34,7 @@ import { getAllDistricts } from "src/services/district";
 interface TCreateUpdateCustomer {
     open: boolean;
     onClose: () => void;
-    id?: string;
+    id?: number;
 }
 
 type TDefaultValues = {
@@ -137,7 +137,7 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                 email: data.email || "",
                 phone: data.phone,
                 streetAddress: data.streetAddress,
-                wardId: data.wardId,
+                wardId: Number(data.wardId),
                 // wardName: data.wardName,
                 username: data.username,
                 password: data.password,
@@ -145,7 +145,7 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                 gender: data.gender,
             };
             if (id) {
-                dispatch(updateCustomerAsync({ ...finalData, id }));
+                dispatch(updateCustomerAsync({ ...finalData, id: Number(id) }));
             } else {
                 dispatch(createCustomerAsync({ ...finalData }));
             }
@@ -235,7 +235,7 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
             .catch(() => setLoading(false));
     };
 
-    const fetchWardDetail = async (wardId: string) => {
+    const fetchWardDetail = async (wardId: number) => {
         await getWardDetail(wardId)
             .then((res) => {
                 const ward = res?.result;
@@ -247,7 +247,7 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
             .catch((err) => console.error(err));
     };
 
-    const fetchDetailCustomer = async (id: string) => {
+    const fetchDetailCustomer = async (id: number) => {
         setLoading(true);
         await getCustomerDetail(id)
             .then((res) => {

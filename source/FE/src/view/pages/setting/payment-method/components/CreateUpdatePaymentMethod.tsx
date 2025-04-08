@@ -31,7 +31,7 @@ import { PAYMENT_METHOD } from "src/configs/payment";
 interface TCreateUpdatePaymentMethod {
     open: boolean
     onClose: () => void
-    id?: string
+    id?: number
 }
 
 type TDefaultValues = {
@@ -90,7 +90,7 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
     }
 
 
-    const fetchDetailPaymentMethod = async (id: string) => {
+    const fetchDetailPaymentMethod = async (id: number) => {
         setLoading(true)
         await getPaymentMethodDetail(id).then((res) => {
             const data = res?.result

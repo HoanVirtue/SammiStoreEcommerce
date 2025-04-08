@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
+import dynamic from 'next/dynamic'
 
 //MUI
 import { styled, Tab, TabsProps, useTheme } from '@mui/material'
@@ -17,7 +18,6 @@ import { Grid } from '@mui/material'
 import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
-
 //Redux
 import { AppDispatch, RootState } from 'src/stores'
 import { useDispatch, useSelector } from 'react-redux'
@@ -25,16 +25,17 @@ import { resetInitialState } from 'src/stores/product'
 
 //Other
 import { toast } from 'react-toastify'
-import Spinner from 'src/components/spinner'
-import { useAuth } from 'src/hooks/useAuth'
 import { Tabs } from '@mui/material'
 import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
 import { getAllLikedProductsAsync, getAllViewedProductsAsync } from 'src/stores/product/action'
-import SearchField from 'src/components/search-field'
-import ProductCard from '../product/components/ProductCard'
-import NoData from 'src/components/no-data'
 import { TProduct } from 'src/types/product'
-import CustomPagination from 'src/components/custom-pagination'
+
+// Dynamic imports
+const Spinner = dynamic(() => import('src/components/spinner'), { ssr: false })
+const SearchField = dynamic(() => import('src/components/search-field'), { ssr: false })
+const ProductCard = dynamic(() => import('../product/components/ProductCard'), { ssr: false })
+const NoData = dynamic(() => import('src/components/no-data'), { ssr: false })
+const CustomPagination = dynamic(() => import('src/components/custom-pagination'), { ssr: false })
 
 type TProps = {}
 

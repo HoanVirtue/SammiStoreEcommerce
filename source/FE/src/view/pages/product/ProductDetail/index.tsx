@@ -2,6 +2,7 @@
 
 //React
 import React, { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 
 //Next
 import { NextPage } from 'next'
@@ -17,32 +18,32 @@ import { t } from 'i18next'
 
 //Redux
 
+//Dynamic imports
+const Spinner = dynamic(() => import('src/components/spinner'), { ssr: false })
+const CustomTextField = dynamic(() => import('src/components/text-field'), { ssr: false })
+const IconifyIcon = dynamic(() => import('src/components/Icon'), { ssr: false })
+const CustomBreadcrumbs = dynamic(() => import('src/components/custom-breadcrum'), { ssr: false })
+const ReviewCard = dynamic(() => import('../components/ReviewCard'), { ssr: false })
+const Image = dynamic(() => import('src/components/image'), { ssr: false })
 
 //Other
-import Spinner from 'src/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
 import { useTranslation } from 'react-i18next'
 import { getListRelatedProductBySlug, getProductDetail, getProductDetailPublicBySlug } from 'src/services/product'
 import { useRouter } from 'next/router'
 import { TProduct } from 'src/types/product'
-
 import { Typography } from '@mui/material'
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
-import IconifyIcon from 'src/components/Icon'
 import { convertUpdateProductToCart, formatFilter, formatPrice, isExpired } from 'src/utils'
-import CustomTextField from 'src/components/text-field'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
 import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
 import { updateProductToCart } from 'src/stores/order'
-import CustomBreadcrumbs from 'src/components/custom-breadcrum'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import { getAllReviews } from 'src/services/review'
 import { TReviewItem } from 'src/types/review'
-import ReviewCard from '../components/ReviewCard'
 import { toast } from 'react-toastify'
 import { resetInitialState } from 'src/stores/review'
-import Image from 'src/components/image'
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
 
 type TProps = {}
@@ -300,7 +301,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                     backgroundColor: theme.palette.background.paper,
                     borderRadius: "15px",
                     py: 5, px: 4
-                }} >    
+                }} >
                     <Box sx={{
                         width: "100%",
                         height: "100%",
@@ -314,7 +315,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                     position: 'relative'
                                 }}>
                                     <Stack sx={{
-                                        flexDirection: 'row',    
+                                        flexDirection: 'row',
                                         justifyContent: 'center',
                                         alignItems: 'center',
                                         position: 'relative',
@@ -343,7 +344,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                         <Box sx={{
                                             display: { xs: 'none', md: 'block' },
                                             position: 'absolute',
-                                            
+
                                             width: '400px',
                                             height: '400px',
                                             borderRadius: '15px',
@@ -354,7 +355,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                                             transform: 'translateY(-50%)',
                                             zIndex: 2,
                                             border: `1px solid ${theme.palette.divider}`,
-                                    
+
                                         }}>
                                             <Box sx={{
                                                 position: 'absolute',
@@ -625,7 +626,7 @@ const ProductDetailPage: NextPage<TProps> = () => {
                             </Grid>
                         </Grid>
                     </Box>
-                </Grid> 
+                </Grid>
 
                 <Grid xs={12} sx={{ mt: 4 }}>
                     <Box sx={{

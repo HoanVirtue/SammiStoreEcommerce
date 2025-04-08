@@ -73,7 +73,7 @@ const ListEmployeePage: NextPage = () => {
       })}
       fetchAction={getAllEmployeesAsync}
       deleteAction={deleteEmployeeAsync}
-      deleteMultipleAction={deleteMultipleEmployeesAsync as unknown as (ids: { [key: string]: string[] }) => any}
+      deleteMultipleAction={deleteMultipleEmployeesAsync as unknown as (ids: { [key: number]: number[] }) => any}
       resetAction={resetInitialState}
       CreateUpdateComponent={CreateUpdateEmployee}
       permissionKey="USER.EMPLOYEE"

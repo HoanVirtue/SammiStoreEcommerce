@@ -73,7 +73,7 @@ const ListSupplierPage: NextPage = () => {
       })}
       fetchAction={getAllSuppliersAsync}
       deleteAction={deleteSupplierAsync}
-      deleteMultipleAction={deleteMultipleSuppliersAsync as unknown as (ids: { [key: string]: string[] }) => any}
+      deleteMultipleAction={deleteMultipleSuppliersAsync as unknown as (ids: { [key: number]: number[] }) => any}
       resetAction={resetInitialState}
       CreateUpdateComponent={CreateUpdateSupplier}
       permissionKey="USER.SUPPLIER"

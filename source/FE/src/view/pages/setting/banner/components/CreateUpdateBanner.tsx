@@ -1,5 +1,6 @@
 //react
 import { useEffect, useMemo, useState } from "react"
+import dynamic from 'next/dynamic'
 
 //form
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -34,7 +35,7 @@ import { convertBase64 } from "src/utils"
 interface TCreateUpdateBanner {
     open: boolean
     onClose: () => void
-    id?: string
+    id?: number
 }
 
 type TDefaultValues = {
@@ -111,7 +112,7 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
         }
     }
 
-    const fetchDetailBanner = async (id: string) => {
+    const fetchDetailBanner = async (id: number) => {
         setLoading(true)
         await getBannerDetail(id).then((res: any) => {
             const data = res?.result
@@ -313,4 +314,6 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
     )
 }
 
-export default CreateUpdateBanner
+export default dynamic(() => Promise.resolve(CreateUpdateBanner), {
+    ssr: false
+})

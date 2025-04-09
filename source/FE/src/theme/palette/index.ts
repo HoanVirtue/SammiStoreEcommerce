@@ -22,6 +22,7 @@ const DefaultPalette = (mode: Palette['mode'], skin: Skin): Palette => {
       return '#F8F7FA'
     } else return '#25293C'
   }
+  
 
   return {
     customColors: {
@@ -96,10 +97,12 @@ const DefaultPalette = (mode: Palette['mode'], skin: Skin): Palette => {
       A700: '#616161'
     },
     text: {
-      primary: `rgba(${mainColor}, 0.78)`,
+      // primary: `rgba(${mainColor}, 0.78)`,
+      primary: '#000',
       secondary: `rgba(${mainColor}, 0.68)`,
       disabled: `rgba(${mainColor}, 0.42)`
     },
+
     divider: `rgba(${mainColor}, 0.16)`,
     background: {
       paper: mode === 'light' ? whiteColor : darkPaperBgColor,

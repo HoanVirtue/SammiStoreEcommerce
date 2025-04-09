@@ -47,7 +47,7 @@ export const getOrderColumns = (): GridColDef[] => {
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
-        return <Typography>{row?.customerName}</Typography>
+        return <Typography>{row?.customerName} - {row?.phoneNumber}</Typography>
       }
     },
     {
@@ -59,17 +59,6 @@ export const getOrderColumns = (): GridColDef[] => {
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return <Typography sx={{ textWrap: 'wrap' }}>{row?.customerAddress}</Typography>
-      }
-    },
-    {
-      field: 'customerPhone',
-      headerName: t('customer_phone'),
-      flex: 1,
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => {
-        const { row } = params
-        return <Typography>{row?.phoneNumber}</Typography>
       }
     },
     {
@@ -85,6 +74,17 @@ export const getOrderColumns = (): GridColDef[] => {
             {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
           </Typography>
         )
+      }
+    },
+    {
+      field: 'quantity',
+      headerName: t('quantity'),
+      flex: 1,
+      minWidth: 100,
+      maxWidth: 100,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography>{row?.totalQuantity}</Typography>
       }
     },
     {

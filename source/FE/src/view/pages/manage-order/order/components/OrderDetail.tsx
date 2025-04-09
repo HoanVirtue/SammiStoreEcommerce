@@ -136,33 +136,28 @@ const OrderDetail = (props: TOrderDetail) => {
         <>
             {loading && <Spinner />}
             <Container maxWidth="lg">
-                <Stack direction="row" alignItems="center" justifyContent="space-between">
-                    <Stack direction="row" spacing={2}>
-                        <CustomAutocomplete
-                            options={paymentStatusOptions}
-                            value={selectedPaymentStatus}
-                            onChange={handlePaymentStatusChange}
-                            label={t("payment_status")}
-                            sx={{ width: 200 }}
-                        />
-                        <CustomAutocomplete
-                            options={shippingStatusOptions}
-                            value={selectedShippingStatus}
-                            onChange={handleShippingStatusChange}
-                            label={t("shipping_status")}
-                            sx={{ width: 200 }}
-                        />
-                        <Button
-                            variant="contained"
-                            onClick={handleApplyStatus}
-                            disabled={!selectedPaymentStatus || !selectedShippingStatus}
-                        >
-                            {t("apply")}
-                        </Button>
-                    </Stack>
-                    <IconButton onClick={onClose}>
-                        <IconifyIcon icon="material-symbols-light:close-rounded" />
-                    </IconButton>
+                <Stack direction="row" spacing={2} justifyContent="flex-end">
+                    <CustomAutocomplete
+                        options={paymentStatusOptions}
+                        value={selectedPaymentStatus}
+                        onChange={handlePaymentStatusChange}
+                        label={t("payment_status")}
+                        sx={{ width: 200 }}
+                    />
+                    <CustomAutocomplete
+                        options={shippingStatusOptions}
+                        value={selectedShippingStatus}
+                        onChange={handleShippingStatusChange}
+                        label={t("shipping_status")}
+                        sx={{ width: 200 }}
+                    />
+                    <Button
+                        variant="contained"
+                        onClick={handleApplyStatus}
+                        disabled={!selectedPaymentStatus || !selectedShippingStatus}
+                    >
+                        {t("apply")}
+                    </Button>
                 </Stack>
 
                 <Stack spacing={3}>
@@ -233,21 +228,23 @@ const OrderDetail = (props: TOrderDetail) => {
 
                             <Stack spacing={1} sx={{ typography: 'body2' }}>
                                 <Stack direction="row" justifyContent="space-between">
-                                    <Typography variant="body2">{t('subtotal')}</Typography>
+                                    <Typography variant="body2" color="text.primary" fontWeight='bold'>{t('subtotal')}</Typography>
                                     <Typography variant="subtitle2">
                                         {formatPrice(orderData?.totalPrice)}
                                     </Typography>
                                 </Stack>
 
                                 <Stack direction="row" justifyContent="space-between">
-                                    <Typography variant="body2">
+                                    <Typography variant="body2" color="text.primary" fontWeight='bold'>
                                         {t('shipping_price')}
                                     </Typography>
                                     <Typography variant="subtitle2">{formatPrice(orderData?.shippingFee || 0)}</Typography>
                                 </Stack>
 
                                 <Stack direction="row" justifyContent="space-between">
-                                    <Typography variant="body2">{t('discount')}</Typography>
+                                    <Typography variant="body2" color="text.primary" fontWeight='bold'>
+                                        {t('discount')}
+                                    </Typography>
                                     <Typography variant="subtitle2">
                                         {formatPrice(orderData?.discount || 0)}
                                     </Typography>

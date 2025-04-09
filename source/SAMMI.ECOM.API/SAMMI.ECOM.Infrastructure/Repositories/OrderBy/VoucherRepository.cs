@@ -19,6 +19,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<ActionResponse<bool>> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<OrderDetailCommand> details);
         Task<bool> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<CartDetailDTO> details);
         Task<decimal> CalculateDiscount(int voucherId, decimal costShip, decimal totalPrice);
+        Task<IEnumerable<Voucher>> GetByEventId(int eventId);
+        Task<bool> IsExistAnother(int voucherId);
     }
     public class VoucherRepository : CrudRepository<Voucher>, IVoucherRepository, IDisposable
     {
@@ -422,6 +424,24 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             }
 
             return true;
+        }
+
+        public async Task<IEnumerable<Voucher>> GetByEventId(int eventId)
+        {
+            return await DbSet.Where(x => x.EventId == eventId && x.IsDeleted != true).ToListAsync();
+        }
+
+        public Task<bool> IsExistAnother(int voucherId)
+        {
+            var query = from v in DbSet
+                        join o in _context.Orders on v.Id equals o.VoucherId
+                        where o.IsDeleted != true
+                        where v.Id == voucherId
+                        select new
+                        {
+                            v.Id
+                        };
+            return query.AnyAsync();
         }
     }
 }

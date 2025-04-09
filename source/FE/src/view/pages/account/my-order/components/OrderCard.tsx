@@ -31,11 +31,13 @@ import { useAuth } from 'src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import { ROUTE_CONFIG } from 'src/configs/route'
 import { PAYMENT_METHOD } from 'src/configs/payment'
-import { createVNPayPaymentUrl, getVNPayPaymentIpn } from 'src/services/payment'
+import { createVNPayPaymentUrl } from 'src/services/payment'
 import Spinner from 'src/components/spinner'
 import Image from 'src/components/image'
 
+import { toast } from 'react-toastify'
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
+import { createOrderAsync } from 'src/stores/order/action'
 
 
 type TProps = {
@@ -55,12 +57,13 @@ const OrderCard: NextPage<TProps> = (props) => {
     const { t, i18n } = useTranslation();
     const { user } = useAuth()
     const router = useRouter()
-    const paymentData = PAYMENT_METHOD()
+
 
 
     //redux
     const dispatch: AppDispatch = useDispatch();
-    const { isSuccessCancel, isSuccessCreate } = useSelector((state: RootState) => state.order)
+    const { isSuccessCancel, isSuccessCreate, errorMessageCancel, errorMessageCreate } = useSelector((state: RootState) => state.order)
+    const { isSuccessCreate: isSuccessCreateCart, errorMessageCreate: errorMessageCreateCart } = useSelector((state: RootState) => state.cart)
 
     //Theme
     const theme = useTheme();
@@ -79,7 +82,7 @@ const OrderCard: NextPage<TProps> = (props) => {
                     operation: 0,
                 })
             ).then(() => {
-                if (isSuccessCreate) {
+                if (isSuccessCreateCart) {
                     dispatch(
                         getCartsAsync({
                             params: {
@@ -94,51 +97,123 @@ const OrderCard: NextPage<TProps> = (props) => {
                         })
                     );
                 }
+                else {
+                    toast.error(errorMessageCreateCart)
+                }
             })
         }
     }
 
-    const handleBuyAgain = () => {
-        orderData.details?.forEach((item: TOrderDetail) => {
-            handleAddProductToCart(item)
-        })
-        router.push({
-            pathname: ROUTE_CONFIG.MY_CART,
-            query: {
-                selected: orderData?.details?.map((item: TOrderDetail) => item.productId)
+    const handleBuyAgain = async () => {
+        let hasError = false;
+        for (const item of orderData.details || []) {
+            try {
+                await dispatch(
+                    createCartAsync({
+                        cartId: 0,
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        operation: 0,
+                    })
+                ).unwrap();
+
+                if (!isSuccessCreateCart) {
+                    hasError = true;
+                    toast.error(errorMessageCreateCart);
+                    break;
+                }
+            } catch (error) {
+                hasError = true;
+                toast.error(errorMessageCreateCart);
+                break;
             }
-        }, ROUTE_CONFIG.MY_CART)
+        }
+
+        if (!hasError) {
+            await dispatch(
+                getCartsAsync({
+                    params: {
+                        take: -1,
+                        skip: 0,
+                        paging: false,
+                        orderBy: 'name',
+                        dir: 'asc',
+                        keywords: "''",
+                        filters: '',
+                    },
+                })
+            );
+            router.push({
+                pathname: ROUTE_CONFIG.MY_CART,
+                query: {
+                    selected: orderData?.details?.map((item: TOrderDetail) => item.productId)
+                }
+            }, ROUTE_CONFIG.MY_CART);
+        }
     }
 
     const handleNavigateDetail = () => {
         router.push(`${ROUTE_CONFIG.ACCOUNT.MY_ORDER}/${orderData.id}`)
     }
 
-    const handlePaymentMethod = (type: string) => {
-        switch (type) {
-            case paymentData.VN_PAYMENT.value: {
-                handlePaymentVNPay()
-                break;
-            }
-            default:
-                break
+    const handlePayment = async () => {
+        setLoading(true);
+        try {
+            // First create the order
+            const orderDetails = orderData.details?.map((item: TOrderDetail) => ({
+                orderId: 0,
+                productId: Number(item.productId),
+                quantity: item.quantity,
+                tax: 0,
+                id: 0,
+                amount: item.price * item.quantity,
+            }));
+
+            const createOrderResponse = await dispatch(
+                createOrderAsync({
+                    displayOrder: 0,
+                    customerId: user?.id || 0,
+                    code: orderData.code,
+                    paymentStatus: orderData.paymentStatus,
+                    orderStatus: orderData.orderStatus,
+                    shippingStatus: orderData.shippingStatus,
+                    voucherId: orderData.voucherId,
+                    wardId: orderData.wardId,
+                    customerAddress: orderData.customerAddress,
+                    costShip: orderData.costShip,
+                    trackingNumber: orderData.trackingNumber,
+                    estimatedDeliveryDate: orderData.estimatedDeliveryDate,
+                    actualDeliveryDate: orderData.actualDeliveryDate,
+                    shippingCompanyId: orderData.shippingCompanyId,
+                    details: orderDetails || [],
+                    totalAmount: orderData.totalPrice,
+                    totalQuantity: orderData.details?.reduce((acc, item) => acc + item.quantity, 0) || 0,
+                    discountAmount: orderData.discountAmount,
+                    isBuyNow: true,
+                    paymentMethodId: 2,
+                })
+            ).then(res => {
+                const returnUrl = res?.payload?.result?.returnUrl;
+                if (returnUrl) {
+                    window.location.href = returnUrl;
+                } else {
+                    router.push(ROUTE_CONFIG.PAYMENT)
+                }
+            });
+        } catch (error: any) {
+            toast.error(error?.message || errorMessageCreate);
+        } finally {
+            setLoading(false);
         }
     }
 
-    const handlePaymentVNPay = async () => {
-        setLoading(true)
-        await createVNPayPaymentUrl({
-            totalPrice: orderData.totalPrice,
-            orderId: orderData.id,
-            language: i18n.language === "vi" ? "vn" : i18n.language
-        }).then((res) => {
-            if (res.data) {
-                window.open(res.data, "_blank", "noopener,noreferrer")
-            }
-            setLoading(false)
-        })
+    const handlePaymentMethod = () => {
+        handlePayment();
     }
 
+    const handlePaymentVNPay = () => {
+        handlePayment();
+    }
 
     //cancel order
     useEffect(() => {
@@ -236,10 +311,11 @@ const OrderCard: NextPage<TProps> = (props) => {
                 }}>
                     {(orderData.orderStatus === OrderStatus.Pending.label
                         || orderData.orderStatus === OrderStatus.WaitingForPayment.label)
+                        && orderData.paymentStatus !== PaymentStatus.Paid.label
                         && (
                             <Button variant="contained"
                                 color='primary'
-                                onClick={() => handlePaymentMethod(orderData.paymentMethod)}
+                                onClick={() => handlePaymentMethod()}
                                 startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
                                 sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                                 {t('go_to_payment')}

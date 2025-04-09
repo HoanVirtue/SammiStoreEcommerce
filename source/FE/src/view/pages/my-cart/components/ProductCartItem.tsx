@@ -234,7 +234,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
           </Typography>
         </Stack>
 
-        <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, alignItems: 'center' }}>
+        <Stack sx={{ width: { xs: '100%', md: 90, lg: 120 }, pt: 4, alignItems: 'center' }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
               sx={{ p: { xs: 0, md: 0, lg: 2 } }}
@@ -267,6 +267,19 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
               <IconifyIcon icon="mdi:plus" />
             </IconButton>
           </Box>
+          <Typography
+            variant="caption"
+            sx={{
+              color: theme.palette.text.secondary,
+              fontSize: '0.75rem',
+              textAlign: 'center',
+              width: '100%',
+              mt: 0.5,
+              display: 'block'
+            }}
+          >
+            Còn {itemState?.stockQuantity || 0} sản phẩm
+          </Typography>
         </Stack>
 
         <Stack sx={{ width: { xs: '100%', md: 90, lg: 90 }, alignItems: 'center' }}>

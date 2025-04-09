@@ -29,6 +29,7 @@ export type TParamsVouchers = {
     usedCount: number;
     startDate: Date;
     endDate: Date;
+    isValid?: boolean;
 }
 
 export type TParamsCreateVoucher = {

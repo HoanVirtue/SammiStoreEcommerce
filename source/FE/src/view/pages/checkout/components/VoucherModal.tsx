@@ -77,7 +77,9 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
     useEffect(() => {
         fetchVouchers();
     }, []);
-    
+
+    const validVouchers = vouchers.filter((voucher: TParamsVouchers) => voucher.isValid);
+    const invalidVouchers = vouchers.filter((voucher: TParamsVouchers) => !voucher.isValid);
 
     const handleApplyVoucher = async () => {
         if (!voucherCode.trim()) return;
@@ -147,40 +149,88 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                             value={selectedVoucher}
                             onChange={(e) => setSelectedVoucher(e.target.value)}
                         >
-                            {vouchers.map((voucher: TParamsVouchers) => (
-                                <Box
-                                    key={voucher.id}
-                                    sx={{
-                                        p: 2,
-                                        border: `1px solid ${theme.palette.divider}`,
-                                        borderRadius: 1,
-                                        cursor: 'pointer',
-                                        '&:hover': {
-                                            borderColor: theme.palette.primary.main,
-                                        }
-                                    }}
-                                >
-                                    <Stack direction="row" alignItems="center" spacing={2}>
-                                        <IconifyIcon
-                                            icon="pepicons-pencil:ticket"
-                                            width={40}
-                                            color={theme.palette.primary.main}
-                                        />
-                                        <Stack spacing={0.5} flex={1}>
-                                            <Typography variant="subtitle2">
-                                                {voucher.name}
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                {t('minimum_order')}: {voucher.discountValue}
-                                            </Typography>
-                                            <Typography variant="caption" color="text.secondary">
-                                                {t('end_date')}: {new Date(voucher.endDate).toLocaleDateString()}
-                                            </Typography>
-                                        </Stack>
-                                        <Radio value={voucher.id} />
-                                    </Stack>
-                                </Box>
-                            ))}
+                            {/* Valid Vouchers */}
+                            {validVouchers.length > 0 && (
+                                <Stack spacing={2}>
+                                    <Typography variant="subtitle2" color="success.main">
+                                        {t('valid_vouchers')}
+                                    </Typography>
+                                    {validVouchers.map((voucher: TParamsVouchers) => (
+                                        <Box
+                                            key={voucher.id}
+                                            sx={{
+                                                p: 2,
+                                                border: `1px solid ${theme.palette.divider}`,
+                                                borderRadius: 1,
+                                                cursor: 'pointer',
+                                                '&:hover': {
+                                                    borderColor: theme.palette.primary.main,
+                                                }
+                                            }}
+                                        >
+                                            <Stack direction="row" alignItems="center" spacing={2}>
+                                                <IconifyIcon
+                                                    icon="pepicons-pencil:ticket"
+                                                    width={40}
+                                                    color={theme.palette.primary.main}
+                                                />
+                                                <Stack spacing={0.5} flex={1}>
+                                                    <Typography variant="subtitle2">
+                                                        {voucher.name}
+                                                    </Typography>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        {t('minimum_order')}: {voucher.discountValue}
+                                                    </Typography>
+                                                    <Typography variant="caption" color="text.secondary">
+                                                        {t('end_date')}: {new Date(voucher.endDate).toLocaleDateString()}
+                                                    </Typography>
+                                                </Stack>
+                                                <Radio value={voucher.id} />
+                                            </Stack>
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            )}
+
+                            {/* Invalid Vouchers */}
+                            {invalidVouchers.length > 0 && (
+                                <Stack spacing={2} sx={{ mt: 2 }}>
+                                    <Typography variant="subtitle2" color="error.main">
+                                        {t('invalid_vouchers')}
+                                    </Typography>
+                                    {invalidVouchers.map((voucher: TParamsVouchers) => (
+                                        <Box
+                                            key={voucher.id}
+                                            sx={{
+                                                p: 2,
+                                                border: `1px solid ${theme.palette.divider}`,
+                                                borderRadius: 1,
+                                                opacity: 0.5,
+                                                pointerEvents: 'none'
+                                            }}
+                                        >
+                                            <Stack direction="row" alignItems="center" spacing={2}>
+                                                <IconifyIcon
+                                                    icon="pepicons-pencil:ticket"
+                                                    width={40}
+                                                    color={theme.palette.text.disabled}
+                                                />
+                                                <Stack spacing={0.5} flex={1}>
+                                                    <Typography variant="subtitle2" color="text.disabled">
+                                                        {voucher.name}
+                                                    </Typography>
+                                                    <Typography variant="caption" color="text.disabled">
+                                                        {t('minimum_order')}: {voucher.discountValue}
+                                                    </Typography>
+                                                    <Typography variant="caption" color="text.disabled">
+                                                        {t('end_date')}: {new Date(voucher.endDate).toLocaleDateString()}
+                                                    </Typography>
+                                                </Stack>
+                                            </Stack>
+                                        </Box>
+                                    ))}
+                                </Stack>
+                            )}
                         </RadioGroup>
 
                     </Stack>

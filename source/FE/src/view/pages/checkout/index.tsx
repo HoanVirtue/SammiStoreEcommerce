@@ -72,7 +72,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>()
     const [openVoucher, setOpenVoucher] = useState(false)
 
-        const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+    const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
     const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
     const [shippingPrice, setShippingPrice] = useState<number>(0);
     const [leadTime, setLeadTime] = useState<Date | null>(null);
@@ -269,20 +269,20 @@ const CheckoutPage: NextPage<TProps> = () => {
                 displayOrder: 0,
                 customerId: user ? user.id : 0,
                 code: '1',
-                paymentStatus: 'pending',
-                orderStatus: 'pending',
-                shippingStatus: 'pending',
+                paymentStatus: '',
+                orderStatus: '',
+                shippingStatus: '',
                 voucherId: Number(selectedVoucherId),
-                wardId: 20,
+                wardId: myCurrentAddress?.wardId || 0,
                 customerAddress: `${myCurrentAddress?.streetAddress}, ${myCurrentAddress?.wardName}, ${myCurrentAddress?.districtName}, ${myCurrentAddress?.provinceName}`,
                 costShip: memoShippingPrice,
                 trackingNumber: '',
-                estimatedDeliveryDate: '2025-03-20T11:40:42.001Z',
-                actualDeliveryDate: '2025-03-20T11:40:42.001Z',
+                estimatedDeliveryDate: new Date(deliveryOption.find((item) => item.value === selectedDelivery)?.leadTime || new Date()),
+                actualDeliveryDate: new Date(),
                 shippingCompanyId: 0,
                 details: orderDetails,
                 totalAmount: totalPrice,
-                totalQuantity: 2,
+                totalQuantity: memoQueryProduct.selectedProduct.reduce((acc: number, item: TItemOrderProduct) => acc + item.quantity, 0),
                 discountAmount: voucherDiscount,
                 isBuyNow: false,
                 paymentMethodId: Number(selectedPayment),

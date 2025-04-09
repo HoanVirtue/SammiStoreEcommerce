@@ -106,5 +106,6 @@ export type TOrderItem = {
     returnUrl: string,
     details: TOrderDetail[],
     discount?: number,
+    discountAmount?: number,
     deliveryMethod?: string
 }

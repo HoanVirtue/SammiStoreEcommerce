@@ -694,6 +694,10 @@
     "not_shipped": "Chưa giao hàng",
     "delivered": "Đã giao hàng",
     "lost": "Đã mất",
+    "invalid_vouchers": "Mã giảm giá không hợp lệ",
+    "invalid_voucher_description": "Mã giảm giá không hợp lệ, vui lòng kiểm tra lại!",
+    "valid_vouchers": "Mã giảm giá hợp lệ",
+    "valid_voucher_description": "Mã giảm giá hợp lệ, vui lòng áp dụng!",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

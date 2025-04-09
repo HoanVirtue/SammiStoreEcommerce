@@ -15,10 +15,6 @@ import {
     useTheme,
     CircularProgress,
 } from '@mui/material';
-import { alpha } from '@mui/material/styles';
-import TextField from '@mui/material/TextField';
-import InputAdornment from '@mui/material/InputAdornment';
-import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { AppDispatch, RootState } from 'src/stores';
 import { useDispatch, useSelector } from 'react-redux';
@@ -26,9 +22,7 @@ import { useAuth } from 'src/hooks/useAuth';
 import { formatPrice, isExpired } from 'src/utils';
 import { TItemOrderProduct } from 'src/types/order';
 import IconifyIcon from 'src/components/Icon';
-import { updateProductToCart } from 'src/stores/order';
-import { getCartsAsync } from 'src/stores/cart/action';
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
+import { getCartsAsync, createCartAsync, deleteCartAsync } from 'src/stores/cart/action';
 import NoData from 'src/components/no-data';
 import { useRouter } from 'next/router';
 import { ROUTE_CONFIG } from 'src/configs/route';
@@ -151,12 +145,11 @@ const MyCartPage: NextPage<TProps> = () => {
     };
 
     const handleDeleteMany = () => {
-        const productCart = getLocalProductFromCart();
-        const parseData = productCart ? JSON.parse(productCart) : {};
-        const filteredItem = carts.data.filter((item: TItemOrderProduct) => !selectedRow.includes(item.productId));
         if (user) {
-            dispatch(updateProductToCart({ carts: filteredItem }));
-            setLocalProductToCart({ ...parseData, [user?.id]: filteredItem });
+            selectedRow.forEach((productId) => {
+                dispatch(deleteCartAsync(productId));
+            });
+            setSelectedRow([]);
         }
     };
 

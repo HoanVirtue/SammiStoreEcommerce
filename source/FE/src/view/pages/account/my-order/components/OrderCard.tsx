@@ -35,6 +35,8 @@ import { createVNPayPaymentUrl, getVNPayPaymentIpn } from 'src/services/payment'
 import Spinner from 'src/components/spinner'
 import Image from 'src/components/image'
 
+import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
+
 
 type TProps = {
     orderData: TOrderItem
@@ -58,24 +60,55 @@ const OrderCard: NextPage<TProps> = (props) => {
 
     //redux
     const dispatch: AppDispatch = useDispatch();
-    const { isSuccessCancel, details } = useSelector((state: RootState) => state.order)
+    const { isSuccessCancel, isSuccessCreate } = useSelector((state: RootState) => state.order)
 
     //Theme
     const theme = useTheme();
 
     const handleConfirm = () => {
-        dispatch(cancelOrderAsync(orderData.id))
+        dispatch(cancelOrderAsync(orderData.code))
     }
 
-    // const handleBuyAgain = () => {
-    //     handleUpdateProductToCart(orderData.details)
-    //     router.push({
-    //         pathname: ROUTE_CONFIG.MY_CART,
-    //         query: {
-    //             selected: orderData?.details?.map((item: TOrderDetail) => item.productId)
-    //         }
-    //     }, ROUTE_CONFIG.MY_CART)
-    // }
+    const handleAddProductToCart = (item: TOrderDetail) => {
+        if (user?.id) {
+            dispatch(
+                createCartAsync({
+                    cartId: 0,
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    operation: 0,
+                })
+            ).then(() => {
+                if (isSuccessCreate) {
+                    dispatch(
+                        getCartsAsync({
+                            params: {
+                                take: -1,
+                                skip: 0,
+                                paging: false,
+                                orderBy: 'name',
+                                dir: 'asc',
+                                keywords: "''",
+                                filters: '',
+                            },
+                        })
+                    );
+                }
+            })
+        }
+    }
+
+    const handleBuyAgain = () => {
+        orderData.details?.forEach((item: TOrderDetail) => {
+            handleAddProductToCart(item)
+        })
+        router.push({
+            pathname: ROUTE_CONFIG.MY_CART,
+            query: {
+                selected: orderData?.details?.map((item: TOrderDetail) => item.productId)
+            }
+        }, ROUTE_CONFIG.MY_CART)
+    }
 
     const handleNavigateDetail = () => {
         router.push(`${ROUTE_CONFIG.ACCOUNT.MY_ORDER}/${orderData.id}`)
@@ -201,16 +234,18 @@ const OrderCard: NextPage<TProps> = (props) => {
                     gap: 4,
                     mt: 4
                 }}>
-                    {orderData.paymentStatus !== PaymentStatus.Paid.label && (
-                        <Button variant="contained"
-                            color='primary'
-                            onClick={() => handlePaymentMethod(orderData.paymentMethod)}
-                            startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
-                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                            {t('go_to_payment')}
-                        </Button>
-                    )}
-                    {orderData.orderStatus !== OrderStatus.Completed.label && (
+                    {(orderData.orderStatus === OrderStatus.Pending.label
+                        || orderData.orderStatus === OrderStatus.WaitingForPayment.label)
+                        && (
+                            <Button variant="contained"
+                                color='primary'
+                                onClick={() => handlePaymentMethod(orderData.paymentMethod)}
+                                startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                                sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                                {t('go_to_payment')}
+                            </Button>
+                        )}
+                    {orderData.orderStatus === OrderStatus.Pending.label && (
                         <Button variant="contained"
                             color='error'
                             onClick={() => setOpenCancelDialog(true)}
@@ -221,8 +256,8 @@ const OrderCard: NextPage<TProps> = (props) => {
                     )}
                     <Button variant="contained"
                         color='primary'
-                        // onClick={() => handleBuyAgain()}
-                        // disabled={!orderData?.countInStock}
+                        onClick={() => handleBuyAgain()}
+                        disabled={memoDisableBuyAgain}
                         startIcon={<IconifyIcon icon="bx:cart" />}
                         sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
                         {t('buy_again')}

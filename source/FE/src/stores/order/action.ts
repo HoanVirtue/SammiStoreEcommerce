@@ -19,8 +19,8 @@ export const createOrderAsync = createAsyncThunk(`${serviceName}/create`, async 
     return response
 })
 
-export const cancelOrderAsync = createAsyncThunk(`${serviceName}/cancel`, async (id: number) => {
-    const response = await cancelOrder(id)
+export const cancelOrderAsync = createAsyncThunk(`${serviceName}/cancel`, async (code: string) => {
+    const response = await cancelOrder(code)
     return response
 })
 

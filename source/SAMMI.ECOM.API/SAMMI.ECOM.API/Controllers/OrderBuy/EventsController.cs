@@ -74,17 +74,22 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             if (!_eventRepository.IsExisted(id))
             {
                 return NotFound();
             }
+            if(!await _eventRepository.IsExistAnother(id))
+            {
+                return BadRequest("Không thể xóa! Phiếu giảm giá của chương trình đã được sử dụng");
+            }
+
             return Ok(_eventRepository.DeleteAndSave(id));
         }
 
         [HttpDelete]
-        public IActionResult DeleteRange([FromBody] List<int> ids)
+        public async Task<IActionResult> DeleteRange([FromBody] List<int> ids)
         {
             var actErrorResponse = new ActionResponse();
             if (ids == null || ids.Count == 0)
@@ -94,6 +99,12 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             if (!ids.All(id => _eventRepository.IsExisted(id)))
             {
                 actErrorResponse.AddError("Một số chương trình khuyến mãi không tồn tại.");
+                return BadRequest(actErrorResponse);
+            }
+            var exists = await Task.WhenAll(ids.Select(id => _eventRepository.IsExistAnother(id)));
+            if (!exists.All(x => x))
+            {
+                actErrorResponse.AddError("Một số chương trình khuyến mãi đã được áp dụng ở bảng khác.");
                 return BadRequest(actErrorResponse);
             }
             return Ok(_eventRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));

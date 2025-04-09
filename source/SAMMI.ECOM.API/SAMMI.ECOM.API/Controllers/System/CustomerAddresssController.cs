@@ -1,7 +1,9 @@
-﻿using MediatR;
+﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Domain.Commands;
+using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.CategoryAddress;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 
@@ -73,11 +75,21 @@ namespace SAMMI.ECOM.API.Controllers.System
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (!_addressRepository.IsExisted(id))
+            var address = await _addressRepository.GetByIdAsync(id);
+            if (address == null)
             {
                 return NotFound();
+            }
+            if(address.IsDefault == true)
+            {
+                var addressDefault = (await _addressRepository.GetAll()).SingleOrDefault(x => x.Id != address.Id);
+                if(addressDefault != null)
+                {
+                    addressDefault.IsDefault = true;
+                    await _addressRepository.UpdateAndSave(addressDefault);
+                }
             }
             return Ok(_addressRepository.DeleteAndSave(id));
         }

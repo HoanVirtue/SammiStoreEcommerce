@@ -7,6 +7,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface IEventRepository : ICrudRepository<Event>
     {
         Task<bool> CheckExistCode(string code, int? id = 0);
+        Task<bool> IsExistAnother(int id);
     }
     public class EventRepository : CrudRepository<Event>, IEventRepository, IDisposable
     {
@@ -25,6 +26,22 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         public void Dispose()
         {
             _disposed = true;
+        }
+
+        public Task<bool> IsExistAnother(int id)
+        {
+            var query = from e in DbSet
+                        join v in _context.Vouchers on e.Id equals v.EventId
+                        where v.IsDeleted != true
+                        join o in _context.Orders on v.Id equals o.VoucherId into og
+                        from o in og.DefaultIfEmpty()
+                        where o.IsDeleted != true
+                        where e.Id == id
+                        select new
+                        {
+                            e.Id
+                        };
+            return query.AnyAsync();
         }
     }
 }

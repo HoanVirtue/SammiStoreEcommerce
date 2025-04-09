@@ -13,14 +13,17 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
     {
         private readonly IEventQueries _eventQueries;
         private readonly IEventRepository _eventRepository;
+        private readonly IVoucherRepository _voucherRepository;
         public EventsController(
             IEventQueries eventQueries,
             IEventRepository eventRepository,
+            IVoucherRepository voucherRepository,
             IMediator mediator,
             ILogger<UsersController> logger) : base(mediator, logger)
         {
             _eventQueries = eventQueries;
             _eventRepository = eventRepository;
+            _voucherRepository = voucherRepository;
         }
 
         [HttpGet]
@@ -76,15 +79,25 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
+            var actResponse = new ActionResponse();
             if (!_eventRepository.IsExisted(id))
             {
                 return NotFound();
             }
             if(!await _eventRepository.IsExistAnother(id))
             {
-                return BadRequest("Không thể xóa! Phiếu giảm giá của chương trình đã được sử dụng");
+                actResponse.AddError("Không thể xóa! Phiếu giảm giá của chương trình đã được sử dụng");
+                return BadRequest(actResponse);
             }
-
+            var vouchers = await _voucherRepository.GetByEventId(id);
+            foreach(var v in vouchers)
+            {
+                actResponse.Combine(_voucherRepository.DeleteAndSave(v.Id));
+                if(!actResponse.IsSuccess)
+                {
+                    return BadRequest(actResponse);
+                }    
+            }
             return Ok(_eventRepository.DeleteAndSave(id));
         }
 
@@ -107,6 +120,18 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 actErrorResponse.AddError("Một số chương trình khuyến mãi đã được áp dụng ở bảng khác.");
                 return BadRequest(actErrorResponse);
             }
+            foreach(int id in ids)
+            {
+                var vouchers = await _voucherRepository.GetByEventId(id);
+                foreach (var v in vouchers)
+                {
+                    actErrorResponse.Combine(_voucherRepository.DeleteAndSave(v.Id));
+                    if (!actErrorResponse.IsSuccess)
+                    {
+                        return BadRequest(actErrorResponse);
+                    }
+                }
+            }    
             return Ok(_eventRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
 

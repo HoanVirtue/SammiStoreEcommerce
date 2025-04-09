@@ -1,12 +1,15 @@
-﻿using AutoMapper;
+﻿using System.Threading.Tasks;
+using AutoMapper;
 using Castle.Core.Resource;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Nest;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
@@ -101,17 +104,29 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            if (!_voucherRepository.IsExisted(id))
+            var actRes = new ActionResponse();
+            var voucher = await _voucherRepository.GetByIdAsync(id);
+            if (voucher == null)
             {
                 return NotFound();
+            }
+            if(await _voucherRepository.IsExistAnother(id))
+            {
+                actRes.AddError("Không thể xóa! Phiếu giảm giá này đã được sử dụng");
+                return BadRequest(actRes);
+            }
+            if((await _voucherRepository.GetByEventId(voucher.EventId)).Count() <= 1)
+            {
+                actRes.AddError("Không thể xóa! Đây là phiếu giảm giá cuối cùng của chương trình khuyến mãi");
+                return BadRequest(actRes);
             }
             return Ok(_voucherRepository.DeleteAndSave(id));
         }
 
         [HttpDelete]
-        public IActionResult DeleteRange([FromBody] List<int> ids)
+        public async Task<IActionResult> DeleteRangeAsync([FromBody] List<int> ids)
         {
             var actErrorResponse = new ActionResponse();
             if (ids == null || ids.Count == 0)
@@ -122,6 +137,21 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 actErrorResponse.AddError("Một số phiếu giảm giá không tồn tại.");
                 return BadRequest(actErrorResponse);
+            }
+            var checkExistAnotherAll = await Task.WhenAll(ids.Select(id => _voucherRepository.IsExistAnother(id)));
+            if (!checkExistAnotherAll.All(x => x))
+            {
+                actErrorResponse.AddError("Một số phiếu giảm giá đã được sử dụng");
+                return BadRequest(actErrorResponse);
+            }
+            foreach(int id in ids)
+            {
+                var voucher = await _voucherRepository.GetByIdAsync(id);
+                if ((await _voucherRepository.GetByEventId(voucher.EventId)).Count() <= 1)
+                {
+                    actErrorResponse.AddError("Một số phiếu giảm giá là phiếu cuối cùng của chương trình khuyến mãi");
+                    return BadRequest(actErrorResponse);
+                }
             }
             return Ok(_voucherRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
@@ -227,7 +257,6 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var myVoucherResult = _mapper.Map<MyVoucherDTO>(createRes.Result);
             var address = await _addressRepository.GetDefaultByUserId(UserIdentity.Id);
             myVoucherResult.IsValid = await _voucherRepository.ValidVoucher(myVoucherResult.VoucherId, UserIdentity.Id, address.WardId ?? 0, totalAmount, request.Details);
-            //var voucherValid = await _myVoucherQueries.AppyVoucherByVoucherCode(voucherCode, UserIdentity.Id, totalAmount, request.Details);
             actRes.SetResult(myVoucherResult);
             return Ok(actRes);
         }

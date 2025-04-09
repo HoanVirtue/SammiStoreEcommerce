@@ -3,7 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { NextPage } from "next";
 import dynamic from 'next/dynamic';
-import { Box, Grid, useTheme, Tabs, Tab, IconButton } from "@mui/material";
+import { Box, Grid, useTheme, Tabs, Tab, IconButton, Stack } from "@mui/material";
 import { GridColDef, GridRowSelectionModel, GridSortModel, GridRenderCellParams } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
@@ -32,6 +32,7 @@ const UpdateOrderStatusHeader = dynamic(() => import("../update-order-status-hea
 
 import CloseIcon from '@mui/icons-material/Close';
 import { useRouter } from "next/router";
+import OrderFilter from "src/view/pages/manage-order/order/components/OrderFilter";
 
 
 type AdminPageProps = {
@@ -76,6 +77,8 @@ type AdminPageProps = {
   hideTableHeader?: boolean;
   showUpdateReceiptStatusHeader?: boolean;
   showUpdateOrderStatusHeader?: boolean;
+
+  showOrderFilter?: boolean;
 };
 
 const AdminPage: NextPage<AdminPageProps> = ({
@@ -111,6 +114,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   disableUpdateButton = false,
   disableDeleteButton = false,
   showDetailButton = false,
+
   onCloseCreateTab,
   onCloseUpdateTab,
   onCloseDetailTab,
@@ -119,6 +123,8 @@ const AdminPage: NextPage<AdminPageProps> = ({
   hideTableHeader = false,
   showUpdateReceiptStatusHeader = false,
   showUpdateOrderStatusHeader = false,
+
+  showOrderFilter = false,
 
 }) => {
   const [page, setPage] = useState<number>(1);
@@ -312,11 +318,11 @@ const AdminPage: NextPage<AdminPageProps> = ({
   return (
     <>
       {(isLoading || isDeleting) && (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<Spinner />}>
           <Spinner />
         </Suspense>
       )}
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Spinner />}>
         <ConfirmDialog
           open={openDelete.open}
           onClose={handleCloseDeleteDialog}
@@ -326,7 +332,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
           description={t(`are_you_sure_delete_${entityName}`)}
         />
       </Suspense>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Spinner />}>
         <ConfirmDialog
           open={openDeleteMultiple}
           onClose={handleCloseDeleteMultipleDialog}
@@ -338,11 +344,13 @@ const AdminPage: NextPage<AdminPageProps> = ({
       </Suspense>
 
       {CreateUpdateComponent && (
-        <CreateUpdateComponent
-          id={openCreateUpdate.id}
-          open={openCreateUpdate.open}
-          onClose={handleCloseCreateUpdate}
-        />
+        <Suspense fallback={<Spinner />}>
+          <CreateUpdateComponent
+            id={openCreateUpdate.id}
+            open={openCreateUpdate.open}
+            onClose={handleCloseCreateUpdate}
+          />
+        </Suspense>
       )}
 
       <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", minHeight: "100vh" }}>
@@ -417,18 +425,23 @@ const AdminPage: NextPage<AdminPageProps> = ({
         <Grid container>
           {currentTab === 0 && (
             <>
-              {!selectedRow.length && !hideAddButton && (
-                <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", mb: 4, gap: 4, width: "100%" }}>
-                  <Suspense fallback={<div>Loading...</div>}>
-                    <GridCreate
-                      addText={t(`create_${entityName}`)}
-                      onClick={() => onAddClick ? onAddClick() : setOpenCreateUpdate({ open: true, id: 0 })}
-                    />
-                  </Suspense>
-                </Box>
-              )}
+              <Stack justifyContent="space-between" alignItems="center" direction="row" mb={2} width="100%">
+                {showOrderFilter && (
+                  <OrderFilter onFilterChange={handleFilterChange} />
+                )}
+                {!selectedRow.length && !hideAddButton && (
+                  <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 4, width: "100%" }}>
+                    <Suspense fallback={<Spinner />}>
+                      <GridCreate
+                        addText={t(`create_${entityName}`)}
+                        onClick={() => onAddClick ? onAddClick() : setOpenCreateUpdate({ open: true, id: 0 })}
+                      />
+                    </Suspense>
+                  </Box>
+                )}
+              </Stack>
               {selectedRow.length > 0 && (
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense fallback={<Spinner />}>
                   {!hideTableHeader && (
                     <TableHeader
                       selectedRowNumber={selectedRow.length}
@@ -462,7 +475,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
                 </Suspense>
               )}
 
-              <Suspense fallback={<div>Loading...</div>}>
+              <Suspense fallback={<Spinner />}>
                 <CustomDataGrid
                   rows={data}
                   columns={allColumns}

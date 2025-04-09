@@ -585,7 +585,35 @@ export const getReceiptColumns = (): GridColDef[] => {
       headerName: t("status"),
       minWidth: 200,
       maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{getReceiptStatusLabel(params.row.status)}</Typography>,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        const status = row?.status
+        let background = theme.palette.grey[500]
+        let label = getReceiptStatusLabel(status)
+
+        switch (status) {
+          case "Draft":
+            background = theme.palette.grey[500]
+            break
+          case "PendingApproval":
+            background = theme.palette.warning.main
+            break
+          case "Approved":
+            background = theme.palette.success.main
+            break
+          case "Processing":
+            background = theme.palette.info.main
+            break
+          case "Completed":
+            background = theme.palette.success.main
+            break
+          case "Canceled":
+            background = theme.palette.error.main
+            break
+        }
+
+        return <StyledOrderStatus background={background} label={label} />
+      }
     },
   ];
 }

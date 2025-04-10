@@ -1,8 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView, Switch, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/constants/colors';
-import { useUserStore } from '@/presentation/stores/userStore';
+import { colors } from '@/src/constants/colors';
+import { useUserStore } from '@/src/presentation/stores/userStore';
 import { 
   User, 
   Bell, 

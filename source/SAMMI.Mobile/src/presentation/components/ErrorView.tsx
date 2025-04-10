@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
-import { colors } from '@/constants/colors';
+import { colors } from '@/src/constants/colors';
 import { AlertTriangle, RefreshCw } from 'lucide-react-native';
 
 interface ErrorViewProps {

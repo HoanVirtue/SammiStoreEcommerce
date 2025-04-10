@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors } from '@/constants/colors';
-import { useCartStore } from '@/presentation/stores/cartStore';
-import { CartItemComponent } from '@/presentation/components/CartItem';
-import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
-import { ErrorView } from '@/presentation/components/ErrorView';
-import { Button } from '@/presentation/components/Button';
+import { colors } from '@/src/constants/colors';
+import { useCartStore } from '@/src/presentation/stores/cartStore';
+import { CartItemComponent } from '@/src/presentation/components/CartItem';
+import { LoadingIndicator } from '@/src/presentation/components/LoadingIndicator';
+import { ErrorView } from '@/src/presentation/components/ErrorView';
+import { Button } from '@/src/presentation/components/Button';
 import { ShoppingBag } from 'lucide-react-native';
 
 export default function CartScreen() {

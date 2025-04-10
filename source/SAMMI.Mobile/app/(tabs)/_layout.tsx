@@ -1,8 +1,8 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { colors } from '@/constants/colors';
+import { colors } from '@/src/constants/colors';
 import { Home, Search, Heart, User, ShoppingBag } from 'lucide-react-native';
-import { useCartStore } from '@/presentation/stores/cartStore';
+import { useCartStore } from '@/src/presentation/stores/cartStore';
 import { StyleSheet, Text, View } from 'react-native';
 
 export default function TabLayout() {
@@ -38,28 +38,28 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Home size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="search"
         options={{
           title: 'Search',
-          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Search size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="wishlist"
         options={{
           title: 'Wishlist',
-          tabBarIcon: ({ color, size }) => <Heart size={size} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <Heart size={size} color={color} />,
         }}
       />
       <Tabs.Screen
         name="cart"
         options={{
           title: 'Cart',
-          tabBarIcon: ({ color, size }) => (
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <View>
               <ShoppingBag size={size} color={color} />
               {cart.totalItems > 0 && (
@@ -77,7 +77,7 @@ export default function TabLayout() {
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          tabBarIcon: ({ color, size }: { color: string; size: number }) => <User size={size} color={color} />,
         }}
       />
     </Tabs>

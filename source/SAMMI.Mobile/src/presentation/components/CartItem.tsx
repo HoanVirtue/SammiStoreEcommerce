@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import { CartItem as CartItemType } from '@/domain/entities/CartItem';
-import { colors } from '@/constants/colors';
+import { colors } from '@/src/constants/colors';
 import { Minus, Plus, Trash2 } from 'lucide-react-native';
 
 interface CartItemProps {

@@ -2,12 +2,12 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
-import { colors } from '@/constants/colors';
-import { useProductStore } from '@/presentation/stores/productStore';
-import { ProductCard } from '@/presentation/components/ProductCard';
-import { SearchBar } from '@/presentation/components/SearchBar';
-import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
-import { ErrorView } from '@/presentation/components/ErrorView';
+import { colors } from '@/src/constants/colors';
+import { useProductStore } from '@/src/presentation/stores/productStore';
+import { ProductCard } from '@/src/presentation/components/ProductCard';
+import { SearchBar } from '@/src/presentation/components/SearchBar';
+import { LoadingIndicator } from '@/src/presentation/components/LoadingIndicator';
+import { ErrorView } from '@/src/presentation/components/ErrorView';
 import { Product } from '@/domain/entities/Product';
 
 export default function SearchScreen() {

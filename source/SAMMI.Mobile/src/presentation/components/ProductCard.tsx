@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View, Pressable, Image, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Product } from '@/domain/entities/Product';
-import { colors } from '@/constants/colors';
+import { colors } from '@/src/constants/colors';
 import { Heart, ShoppingBag, Star } from 'lucide-react-native';
 import { useUserStore } from '../stores/userStore';
 import { useCartStore } from '../stores/cartStore';

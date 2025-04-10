@@ -11,13 +11,13 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/constants/colors';
-import { useProductStore } from '@/presentation/stores/productStore';
-import { useCartStore } from '@/presentation/stores/cartStore';
-import { useUserStore } from '@/presentation/stores/userStore';
-import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
-import { ErrorView } from '@/presentation/components/ErrorView';
-import { Button } from '@/presentation/components/Button';
+import { colors } from '@/src/constants/colors';
+import { useProductStore } from '@/src/presentation/stores/productStore';
+import { useCartStore } from '@/src/presentation/stores/cartStore';
+import { useUserStore } from '@/src/presentation/stores/userStore';
+import { LoadingIndicator } from '@/src/presentation/components/LoadingIndicator';
+import { ErrorView } from '@/src/presentation/components/ErrorView';
+import { Button } from '@/src/presentation/components/Button';
 import { 
   ArrowLeft, 
   Heart, 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
 import { Category } from '@/domain/entities/Category';
-import { colors } from '@/constants/colors';
+import { colors } from '@/src/constants/colors';
 
 interface CategoryCardProps {
   category: Category;

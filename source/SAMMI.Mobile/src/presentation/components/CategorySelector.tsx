@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, ScrollView, Pressable } from 'react-native';
-import { colors } from '@/constants/colors';
+import { colors } from '@/src/constants/colors';
 
 interface CategorySelectorProps {
   categories: { id: string; name: string }[];

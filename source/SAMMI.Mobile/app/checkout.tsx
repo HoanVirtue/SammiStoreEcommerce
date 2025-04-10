@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TextInput, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors } from '@/constants/colors';
-import { useCartStore } from '@/presentation/stores/cartStore';
-import { Button } from '@/presentation/components/Button';
+import { colors } from '@/src/constants/colors';
+import { useCartStore } from '@/src/presentation/stores/cartStore';
+import { Button } from '@/src/presentation/components/Button';
 import { CreditCard, MapPin, Truck, Check } from 'lucide-react-native';
 
 export default function CheckoutScreen() {
   const router = useRouter();
   const { cart, clearCart } = useCartStore();
-  
+
   const [activeStep, setActiveStep] = useState(1);
   const [shippingInfo, setShippingInfo] = useState({
     fullName: '',
@@ -20,40 +20,40 @@ export default function CheckoutScreen() {
     zipCode: '',
     phone: '',
   });
-  
+
   const [paymentInfo, setPaymentInfo] = useState({
     cardNumber: '',
     cardHolder: '',
     expiryDate: '',
     cvv: '',
   });
-  
+
   const [isOrderPlaced, setIsOrderPlaced] = useState(false);
-  
+
   const handleNextStep = () => {
     setActiveStep(prev => prev + 1);
   };
-  
+
   const handlePreviousStep = () => {
     setActiveStep(prev => prev - 1);
   };
-  
+
   const handlePlaceOrder = () => {
     setIsOrderPlaced(true);
     clearCart();
-    
+
     // In a real app, we would send the order to the server here
-    
+
     // Simulate a delay before redirecting to home
     setTimeout(() => {
       router.replace('/');
     }, 3000);
   };
-  
+
   const renderShippingStep = () => (
     <View style={styles.stepContainer}>
       <Text style={styles.stepTitle}>Shipping Information</Text>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Full Name</Text>
         <TextInput
@@ -63,7 +63,7 @@ export default function CheckoutScreen() {
           placeholder="Enter your full name"
         />
       </View>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Address</Text>
         <TextInput
@@ -73,7 +73,7 @@ export default function CheckoutScreen() {
           placeholder="Enter your address"
         />
       </View>
-      
+
       <View style={styles.formRow}>
         <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
           <Text style={styles.label}>City</Text>
@@ -84,7 +84,7 @@ export default function CheckoutScreen() {
             placeholder="City"
           />
         </View>
-        
+
         <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
           <Text style={styles.label}>State</Text>
           <TextInput
@@ -95,7 +95,7 @@ export default function CheckoutScreen() {
           />
         </View>
       </View>
-      
+
       <View style={styles.formRow}>
         <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
           <Text style={styles.label}>Zip Code</Text>
@@ -107,7 +107,7 @@ export default function CheckoutScreen() {
             keyboardType="numeric"
           />
         </View>
-        
+
         <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
           <Text style={styles.label}>Phone</Text>
           <TextInput
@@ -119,19 +119,19 @@ export default function CheckoutScreen() {
           />
         </View>
       </View>
-      
-      <Button 
-        title="Continue to Payment" 
-        onPress={handleNextStep} 
+
+      <Button
+        title="Continue to Payment"
+        onPress={handleNextStep}
         style={styles.button}
       />
     </View>
   );
-  
+
   const renderPaymentStep = () => (
     <View style={styles.stepContainer}>
       <Text style={styles.stepTitle}>Payment Information</Text>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Card Number</Text>
         <TextInput
@@ -142,7 +142,7 @@ export default function CheckoutScreen() {
           keyboardType="numeric"
         />
       </View>
-      
+
       <View style={styles.formGroup}>
         <Text style={styles.label}>Card Holder Name</Text>
         <TextInput
@@ -152,7 +152,7 @@ export default function CheckoutScreen() {
           placeholder="Enter card holder name"
         />
       </View>
-      
+
       <View style={styles.formRow}>
         <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
           <Text style={styles.label}>Expiry Date</Text>
@@ -163,7 +163,7 @@ export default function CheckoutScreen() {
             placeholder="MM/YY"
           />
         </View>
-        
+
         <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
           <Text style={styles.label}>CVV</Text>
           <TextInput
@@ -176,34 +176,34 @@ export default function CheckoutScreen() {
           />
         </View>
       </View>
-      
+
       <View style={styles.buttonGroup}>
-        <Button 
-          title="Back" 
-          onPress={handlePreviousStep} 
+        <Button
+          title="Back"
+          onPress={handlePreviousStep}
           variant="outline"
-          style={[styles.button, { flex: 1, marginRight: 8 }]}
+          style={{ ...styles.button, flex: 1, marginRight: 8 }}
         />
-        
-        <Button 
-          title="Continue to Review" 
-          onPress={handleNextStep} 
-          style={[styles.button, { flex: 2 }]}
+
+        <Button
+          title="Continue to Review"
+          onPress={handleNextStep}
+          style={{ ...styles.button, flex: 2 }}
         />
       </View>
     </View>
   );
-  
+
   const renderReviewStep = () => (
     <View style={styles.stepContainer}>
       <Text style={styles.stepTitle}>Order Review</Text>
-      
+
       <View style={styles.summarySection}>
         <View style={styles.summaryHeader}>
           <MapPin size={18} color={colors.primary} />
           <Text style={styles.summaryTitle}>Shipping Information</Text>
         </View>
-        
+
         <View style={styles.summaryContent}>
           <Text style={styles.summaryText}>{shippingInfo.fullName}</Text>
           <Text style={styles.summaryText}>{shippingInfo.address}</Text>
@@ -213,13 +213,13 @@ export default function CheckoutScreen() {
           <Text style={styles.summaryText}>{shippingInfo.phone}</Text>
         </View>
       </View>
-      
+
       <View style={styles.summarySection}>
         <View style={styles.summaryHeader}>
           <CreditCard size={18} color={colors.primary} />
           <Text style={styles.summaryTitle}>Payment Information</Text>
         </View>
-        
+
         <View style={styles.summaryContent}>
           <Text style={styles.summaryText}>
             Card ending in {paymentInfo.cardNumber.slice(-4)}
@@ -228,31 +228,31 @@ export default function CheckoutScreen() {
           <Text style={styles.summaryText}>Expires {paymentInfo.expiryDate}</Text>
         </View>
       </View>
-      
+
       <View style={styles.summarySection}>
         <View style={styles.summaryHeader}>
           <Truck size={18} color={colors.primary} />
           <Text style={styles.summaryTitle}>Order Summary</Text>
         </View>
-        
+
         <View style={styles.orderSummary}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Subtotal</Text>
             <Text style={styles.summaryValue}>${cart.subtotal.toFixed(2)}</Text>
           </View>
-          
+
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Shipping</Text>
             <Text style={styles.summaryValue}>$0.00</Text>
           </View>
-          
+
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Tax</Text>
             <Text style={styles.summaryValue}>${(cart.subtotal * 0.08).toFixed(2)}</Text>
           </View>
-          
+
           <View style={styles.divider} />
-          
+
           <View style={styles.summaryRow}>
             <Text style={styles.totalLabel}>Total</Text>
             <Text style={styles.totalValue}>
@@ -261,66 +261,66 @@ export default function CheckoutScreen() {
           </View>
         </View>
       </View>
-      
+
       <View style={styles.buttonGroup}>
-        <Button 
-          title="Back" 
-          onPress={handlePreviousStep} 
+        <Button
+          title="Back"
+          onPress={handlePreviousStep}
           variant="outline"
-          style={[styles.button, { flex: 1, marginRight: 8 }]}
+          style={{ ...styles.button, flex: 1, marginRight: 8 }}
         />
-        
-        <Button 
-          title="Place Order" 
-          onPress={handlePlaceOrder} 
-          style={[styles.button, { flex: 2 }]}
+
+        <Button
+          title="Place Order"
+          onPress={handlePlaceOrder}
+          style={{ ...styles.button, flex: 2 }}
         />
       </View>
     </View>
   );
-  
+
   const renderOrderPlaced = () => (
     <View style={styles.orderPlacedContainer}>
       <View style={styles.checkmarkContainer}>
         <Check size={48} color={colors.white} />
       </View>
-      
+
       <Text style={styles.orderPlacedTitle}>Order Placed Successfully!</Text>
       <Text style={styles.orderPlacedText}>
         Thank you for your purchase. Your order has been placed and will be processed soon.
       </Text>
-      
+
       <Text style={styles.redirectingText}>Redirecting to home page...</Text>
     </View>
   );
-  
+
   const renderStepIndicator = () => (
     <View style={styles.stepIndicator}>
       <View style={[styles.step, activeStep >= 1 && styles.activeStep]}>
         <Text style={[styles.stepNumber, activeStep >= 1 && styles.activeStepNumber]}>1</Text>
         <Text style={styles.stepLabel}>Shipping</Text>
       </View>
-      
+
       <View style={styles.stepConnector} />
-      
+
       <View style={[styles.step, activeStep >= 2 && styles.activeStep]}>
         <Text style={[styles.stepNumber, activeStep >= 2 && styles.activeStepNumber]}>2</Text>
         <Text style={styles.stepLabel}>Payment</Text>
       </View>
-      
+
       <View style={styles.stepConnector} />
-      
+
       <View style={[styles.step, activeStep >= 3 && styles.activeStep]}>
         <Text style={[styles.stepNumber, activeStep >= 3 && styles.activeStepNumber]}>3</Text>
         <Text style={styles.stepLabel}>Review</Text>
       </View>
     </View>
   );
-  
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       {!isOrderPlaced && renderStepIndicator()}
-      
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {isOrderPlaced ? (
           renderOrderPlaced()
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   activeStep: {
-    
+
   },
   stepNumber: {
     width: 28,

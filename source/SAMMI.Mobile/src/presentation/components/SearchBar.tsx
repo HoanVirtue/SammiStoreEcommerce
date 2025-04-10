@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { StyleSheet, TextInput, View, Pressable } from 'react-native';
-import { colors } from '@/constants/colors';
+import { colors } from '@/src/constants/colors';
 import { Search, X } from 'lucide-react-native';
 
 interface SearchBarProps {

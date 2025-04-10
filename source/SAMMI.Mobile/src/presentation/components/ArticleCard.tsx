@@ -2,9 +2,9 @@ import React from 'react';
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Article } from '@/domain/entities/Article';
-import { colors } from '@/constants/colors';
-import { formatDate } from '@/utils/dateUtils';
+import { colors } from '@/src/constants/colors';
 import { Clock, User } from 'lucide-react-native';
+import { formatDate } from '@/src/utils';
 
 interface ArticleCardProps {
   article: Article;
@@ -13,7 +13,7 @@ interface ArticleCardProps {
 
 export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) => {
   return (
-    <Pressable 
+    <Pressable
       style={({ pressed }) => [
         styles.container,
         pressed && styles.pressed
@@ -21,8 +21,8 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
       onPress={() => onPress(article)}
     >
       {article.urlToImage ? (
-        <Image 
-          source={{ uri: article.urlToImage }} 
+        <Image
+          source={{ uri: article.urlToImage }}
           style={styles.image}
           resizeMode="cover"
         />
@@ -31,12 +31,12 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
           <Text style={styles.placeholderText}>{article.source.name}</Text>
         </View>
       )}
-      
+
       <View style={styles.content}>
         <Text style={styles.source}>{article.source.name}</Text>
         <Text style={styles.title} numberOfLines={2}>{article.title}</Text>
         <Text style={styles.description} numberOfLines={2}>{article.description}</Text>
-        
+
         <View style={styles.footer}>
           {article.author && (
             <View style={styles.footerItem}>
@@ -44,7 +44,7 @@ export const ArticleCard: React.FC<ArticleCardProps> = ({ article, onPress }) =>
               <Text style={styles.footerText} numberOfLines={1}>{article.author}</Text>
             </View>
           )}
-          
+
           <View style={styles.footerItem}>
             <Clock size={14} color={colors.textSecondary} />
             <Text style={styles.footerText}>{formatDate(article.publishedAt)}</Text>

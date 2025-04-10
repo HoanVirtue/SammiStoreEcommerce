@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
 import { createProductCategoryAsync, deleteMultipleProductCategoriesAsync, deleteProductCategoryAsync, getAllProductCategoriesAsync, serviceName, updateProductCategoryAsync } from './action'
+import { ReduxPayload } from 'src/types/payload'
 
 const initialState = {
   isLoading: false,
@@ -55,8 +56,8 @@ export const productCategorySlice = createSlice({
     })
     builder.addCase(getAllProductCategoriesAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.productCategories.data = Array.isArray(action?.payload?.data?.productTypes) ? action?.payload?.data?.productTypes : [];
-      state.productCategories.total = action?.payload?.data?.totalCount
+      state.productCategories.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
+      state.productCategories.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllProductCategoriesAsync.rejected, (state, action) => {
       state.isLoading = false
@@ -70,15 +71,16 @@ export const productCategorySlice = createSlice({
     })
     builder.addCase(createProductCategoryAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.data?._id
-      state.isErrorCreateUpdate = !action.payload?.data?._id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
     builder.addCase(createProductCategoryAsync.rejected, (state, action) => {
+      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = action?.error?.message || 'Error creating ProductCategory'
+      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating ProductCategory'
     })
 
     //update ProductCategory
@@ -87,15 +89,16 @@ export const productCategorySlice = createSlice({
     })
     builder.addCase(updateProductCategoryAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.data?._id
-      state.isErrorCreateUpdate = !action.payload?.data?._id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
     builder.addCase(updateProductCategoryAsync.rejected, (state, action) => {
+      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = action.error.message || 'Error updating ProductCategory'
+      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating ProductCategory'
     })
 
     //delete ProductCategory
@@ -104,8 +107,8 @@ export const productCategorySlice = createSlice({
     })
     builder.addCase(deleteProductCategoryAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessDelete = !!action.payload?.data?._id
-      state.isErrorDelete = !action.payload?.data?._id
+      state.isSuccessDelete = !!action.payload?.isSuccess
+      state.isErrorDelete = !action.payload?.isSuccess
       state.errorMessageDelete = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -127,9 +130,10 @@ export const productCategorySlice = createSlice({
       state.typeError = action.payload?.typeError
     })
     builder.addCase(deleteMultipleProductCategoriesAsync.rejected, (state, action) => {
+      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorDeleteMultiple = true
-      state.errorMessageDeleteMultiple = action.error.message || 'Error deleting ProductCategory'
+      state.errorMessageDeleteMultiple = payload?.errors?.errorMessage || 'Error deleting ProductCategory'
     })
   }
 })

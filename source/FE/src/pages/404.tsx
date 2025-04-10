@@ -1,17 +1,10 @@
 // ** React Imports
 
-import Typography from '@mui/material/Typography'
-import Box from '@mui/material/Box'
 import BlankLayout from 'src/view/layout/BlankLayout'
+import NotFound from 'src/view/pages/404'
 
 const Error404 = () => {
-  return (
-    <Box className='content-center'>
-      <Typography variant='h2' sx={{ mb: 1.5 }}>
-        Page Not Found
-      </Typography>
-    </Box>
-  )
+  return <NotFound />
 }
 
 export default Error404

@@ -53,7 +53,7 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
                     const decodedRefreshToken: any = jwtDecode(refreshToken)
                     if (decodedRefreshToken?.exp > Date.now() / 1000) {
                         //call api return new access token
-                        await axios.post(`${API_ENDPOINT.AUTH.INDEX}/refresh-token`, { refreshToken }, {
+                        await axios.post(`${API_ENDPOINT.AUTH.INDEX}/refreshtoken`, { refreshToken }, {
                             headers: {
                                 Authorization: `Bearer ${refreshToken ? accessToken : temporaryToken}`
                             }

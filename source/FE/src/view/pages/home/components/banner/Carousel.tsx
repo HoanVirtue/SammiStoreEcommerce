@@ -3,13 +3,13 @@ import Slider, { Settings } from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { Box, IconButton, Typography, useTheme, Button } from '@mui/material';
-import Banner1 from '/public/images/banner1.jpg';
-import Banner2 from '/public/images/banner2.jpg';
-import BannerMain from '/public/images/bannermain.jpg';
+import Banner1 from '/public/images/slider_1_master.png';
+import Banner2 from '/public/images/slider_2_master.png';
+import Banner3 from '/public/images/slider_3_master.png';
 import Image, { StaticImageData } from 'next/image';
 import IconifyIcon from 'src/components/Icon';
-import { motion } from 'framer-motion'; // Import Framer Motion
-import Link from 'next/link'; // Import Link từ next/link
+import { motion } from 'framer-motion'; 
+import Link from 'next/link'; 
 import { useTranslation } from 'react-i18next';
 
 interface Banner {
@@ -22,17 +22,15 @@ interface Banner {
 const banners: Banner[] = [
     {
         id: 1,
-        image: BannerMain,
-        title: 'Banner Main',
-        description: 'This is the main banner description.',
-    },
-    {
-        id: 2,
         image: Banner1,
     },
     {
-        id: 3,
+        id: 2,
         image: Banner2,
+    },
+    {
+        id: 3,
+        image: Banner3,
     },
 ];
 
@@ -44,7 +42,7 @@ function PrevArrow(props: any) {
             sx={{
                 position: "absolute",
                 left: "16px",
-                top: '50%',
+                top: '38%',
                 transform: 'translateY(-50%)',
                 zIndex: 1,
                 display: "flex",
@@ -71,7 +69,7 @@ function NextArrow(props: any) {
             sx={{
                 position: "absolute",
                 right: "16px",
-                top: '50%',
+                top: '38%',
                 transform: 'translateY(-50%)',
                 zIndex: 1,
                 display: "flex",
@@ -103,7 +101,7 @@ const Carousel: React.FC = () => {
         autoplay: true,
         autoplaySpeed: 3000,
         cssEase: 'linear',
-        arrows: false,
+        arrows: true,
         prevArrow: <PrevArrow />,
         nextArrow: <NextArrow />,
         swipe: true,
@@ -122,7 +120,7 @@ const Carousel: React.FC = () => {
                     margin: '0 auto', padding: 0,
                     display: 'flex', gap: '8px',
                     position: 'absolute',
-                    bottom: '3rem',
+                    bottom: '12.5rem',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     justifyContent: 'center'
@@ -148,7 +146,7 @@ const Carousel: React.FC = () => {
     };
 
     return (
-        <Box sx={{ maxWidth: 'unset', margin: '0 auto', height: { xs: 'auto', md: '616px' } }}>
+        <Box sx={{ maxWidth: 'unset', margin: '0 auto', height: { xs: 'auto', md: '516px' }, padding: '0 2rem', backgroundColor: theme.palette.background.paper }}>
             <Slider {...settings}>
                 {banners.map((banner) => (
                     <Box
@@ -170,8 +168,7 @@ const Carousel: React.FC = () => {
                             <Image
                                 src={banner.image}
                                 alt={banner?.title || 'Banner'}
-                                fill
-                                style={{ objectFit: 'cover' }}
+                                style={{ objectFit: 'contain', width: '100%', height: 'auto' }}
                                 priority
                             />
                         </motion.div>

@@ -14,6 +14,11 @@ export const PERMISSIONS: any = {
         UPDATE: "MANAGE_PRODUCT.PRODUCT_CATEGORY.UPDATE",
         DELETE: "MANAGE_PRODUCT.PRODUCT_CATEGORY.DELETE",
       },
+      BRAND: {
+        CREATE: "MANAGE_PRODUCT.BRAND.CREATE",
+        UPDATE: "MANAGE_PRODUCT.BRAND.UPDATE",
+        DELETE: "MANAGE_PRODUCT.BRAND.DELETE",
+      },
     },
     SYSTEM: {
       USER: {
@@ -27,6 +32,26 @@ export const PERMISSIONS: any = {
         UPDATE: "SYSTEM.ROLE.UPDATE",
         DELETE: "SYSTEM.ROLE.DELETE",
         VIEW: "SYSTEM.ROLE.VIEW",
+      },
+    },
+    USER: {
+      EMPLOYEE: {
+        CREATE: "SYSTEM.EMPLOYEE.CREATE",
+        UPDATE: "SYSTEM.EMPLOYEE.UPDATE",
+        DELETE: "SYSTEM.EMPLOYEE.DELETE",
+        VIEW: "SYSTEM.EMPLOYEE.VIEW",
+      },
+      CUSTOMER: {
+        CREATE: "SYSTEM.CUSTOMER.CREATE",
+        UPDATE: "SYSTEM.CUSTOMER.UPDATE",
+        DELETE: "SYSTEM.CUSTOMER.DELETE",
+        VIEW: "SYSTEM.CUSTOMER.VIEW",
+      },
+      SUPPLIER: {
+        CREATE: "SYSTEM.SUPPLIER.CREATE",
+        UPDATE: "SYSTEM.SUPPLIER.UPDATE",
+        DELETE: "SYSTEM.SUPPLIER.DELETE",
+        VIEW: "SYSTEM.SUPPLIER.VIEW",
       },
     },
     MANAGE_ORDER: {
@@ -52,16 +77,51 @@ export const PERMISSIONS: any = {
         UPDATE: "SETTING.DELIVERY_METHOD.UPDATE",
         DELETE: "SETTING.DELIVERY_METHOD.DELETE",
       },
-      CITY: {
-        CREATE: "CITY.CREATE",
-        UPDATE: "CITY.UPDATE",
-        DELETE: "CITY.DELETE",
+      BANNER: {
+        CREATE: "SETTING.BANNER.CREATE",
+        UPDATE: "SETTING.BANNER.UPDATE",
+        DELETE: "SETTING.BANNER.DELETE",
+        VIEW: "SETTING.BANNER.VIEW",
       },
+    },
+    ADDRESS: {
       PROVINCE: {
-        CREATE: "PROVINCE.CREATE",
-        UPDATE: "PROVINCE.UPDATE",
-        DELETE: "PROVINCE.DELETE",
-      }
+        CREATE: "ADDRESS.PROVINCE.CREATE",
+        UPDATE: "ADDRESS.PROVINCE.UPDATE",
+        DELETE: "ADDRESS.PROVINCE.DELETE",
+      },
+      DISTRICT: {
+        CREATE: "ADDRESS.DISTRICT.CREATE",
+        UPDATE: "ADDRESS.DISTRICT.UPDATE",
+        DELETE: "ADDRESS.DISTRICT.DELETE",
+      },
+      WARD: {
+        CREATE: "ADDRESS.WARD.CREATE",
+        UPDATE: "ADDRESS.WARD.UPDATE",
+        DELETE: "ADDRESS.WARD.DELETE",
+      },
+    },
+    GOODS_RECEIPT: {
+      RECEIPT_LIST: {
+        VIEW: "GOODS_RECEIPT.RECEIPT_LIST.VIEW",
+        CREATE: "GOODS_RECEIPT.RECEIPT_LIST.CREATE",
+        UPDATE: "GOODS_RECEIPT.RECEIPT_LIST.UPDATE",
+        DELETE: "GOODS_RECEIPT.RECEIPT_LIST.DELETE",
+      },
+    },
+    MANAGE_PROMOTION: {
+      EVENT: {
+        VIEW: "MANAGE_PROMOTION.EVENT.VIEW",
+        CREATE: "MANAGE_PROMOTION.EVENT.CREATE",
+        UPDATE: "MANAGE_PROMOTION.EVENT.UPDATE",
+        DELETE: "MANAGE_PROMOTION.EVENT.DELETE",
+      },
+      VOUCHER: {
+        VIEW: "MANAGE_PROMOTION.VOUCHER.VIEW",
+        CREATE: "MANAGE_PROMOTION.VOUCHER.CREATE",
+        UPDATE: "MANAGE_PROMOTION.VOUCHER.UPDATE",
+        DELETE: "MANAGE_PROMOTION.VOUCHER.DELETE",
+      },
     },
   };
 
@@ -152,14 +212,6 @@ export const LIST_PERMISSION_DATA: any = [
     name: "setting",
     isParent: true,
     value: "SETTING",
-  },
-  {
-    id: 11,
-    name: "city",
-    isParent: false,
-    value: "CITY",
-    parentValue: "SETTING",
-    isHideView: true,
   },
   {
     id: 12,

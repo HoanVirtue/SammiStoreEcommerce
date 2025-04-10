@@ -31,12 +31,11 @@ import { PAYMENT_METHOD } from "src/configs/payment";
 interface TCreateUpdatePaymentMethod {
     open: boolean
     onClose: () => void
-    idPaymentMethod?: string
+    id?: number
 }
 
 type TDefaultValues = {
     name: string,
-    type: string
 }
 
 const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
@@ -47,7 +46,7 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
     const [loading, setLoading] = useState(false)
 
     //props
-    const { open, onClose, idPaymentMethod } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -60,12 +59,10 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
 
     const schema = yup.object().shape({
         name: yup.string().required(t("required_payment_method_name")),
-        type: yup.string().required(t("required_payment_method_type"))
     });
 
     const defaultValues: TDefaultValues = {
         name: '',
-        type: ''
     }
 
     const { handleSubmit, control, formState: { errors }, reset } = useForm({
@@ -77,32 +74,29 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (idPaymentMethod) {
+            if (id) {
                 //update
                 dispatch(updatePaymentMethodAsync({
                     name: data?.name,
-                    id: idPaymentMethod,
-                    type: data?.type
+                    id: id,
                 }))
             } else {
                 //create
                 dispatch(createPaymentMethodAsync({
                     name: data?.name,
-                    type: data?.type
                 }))
             }
         }
     }
 
 
-    const fetchDetailPaymentMethod = async (id: string) => {
+    const fetchDetailPaymentMethod = async (id: number) => {
         setLoading(true)
         await getPaymentMethodDetail(id).then((res) => {
-            const data = res?.data
+            const data = res?.result
             if (data) {
                 reset({
                     name: data?.name,
-                    type: data?.type
                 })
             }
             setLoading(false)
@@ -118,11 +112,11 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
                 ...defaultValues
             })
         } else {
-            if (idPaymentMethod && open) {
-                fetchDetailPaymentMethod(idPaymentMethod)
+            if (id && open) {
+                fetchDetailPaymentMethod(id)
             }
         }
-    }, [open, idPaymentMethod])
+    }, [open, id])
 
     return (
         <>
@@ -145,7 +139,7 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idPaymentMethod ? t('update_payment_method') : t('create_payment_method')}
+                            {id ? t('update_payment_method') : t('create_payment_method')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -187,48 +181,11 @@ const CreateUpdatePaymentMethod = (props: TCreateUpdatePaymentMethod) => {
                                         name='name'
                                     />
                                 </Grid>
-                                <Grid item md={12} xs={12} >
-                                    <Controller
-                                        control={control}
-                                        rules={{ required: true }}
-                                        render={({ field: { onChange, onBlur, value } }) => (
-                                            <Box>
-                                                <InputLabel sx={{
-                                                    fontSize: "13px",
-                                                    mb: "4px",
-                                                    display: "block",
-                                                    color: errors?.type ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                }}>
-                                                    {t('payment_method')}<span style={{
-                                                        color: errors?.type ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                    }}>*</span>
-                                                </InputLabel>
-                                                <CustomSelect
-                                                    fullWidth
-                                                    onChange={onChange}
-                                                    onBlur={onBlur}
-                                                    value={value}
-                                                    options={Object.values(ObjectPaymentMethod)}
-                                                    placeholder={t('select_payment_method_type')}
-                                                    error={errors.type ? true : false}
-                                                />
-                                                {!errors?.type?.message && (
-                                                    <FormHelperText sx={{
-                                                        color: !errors?.type ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                    }}>
-                                                        {errors?.type?.message}
-                                                    </FormHelperText>
-                                                )}
-                                            </Box>
-                                        )}
-                                        name='type'
-                                    />
-                                </Grid>
                             </Grid>
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idPaymentMethod ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form >

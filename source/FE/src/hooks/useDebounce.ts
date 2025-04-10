@@ -1,19 +1,32 @@
 import { useEffect, useState } from "react";
 
-
-const useDebounce = (value: any, delay: number) => {
-    const [debouncedValue, setDebouncedValue] = useState('');
+const useDebounce = <T>(value: T, delay: number): T => {
+    // Initialize with a safe default value based on type
+    const [debouncedValue, setDebouncedValue] = useState<T>(() => {
+        if (Array.isArray(value)) {
+            return [] as T;
+        }
+        return value;
+    });
 
     useEffect(() => {
-        const timerRef = setTimeout(() =>
-            setDebouncedValue(value)
-        ,delay)
-        return () => {
-            clearTimeout(timerRef)
+        // Only proceed if we have a valid value
+        if (value !== undefined && value !== null) {
+            const timerRef = setTimeout(() => {
+                if (Array.isArray(value)) {
+                    setDebouncedValue([...value] as T);
+                } else {
+                    setDebouncedValue(value);
+                }
+            }, delay);
+
+            return () => {
+                clearTimeout(timerRef);
+            };
         }
-    }, [value]);
+    }, [value, delay]);
 
     return debouncedValue;
-}
+};
 
-export {useDebounce}
+export { useDebounce };

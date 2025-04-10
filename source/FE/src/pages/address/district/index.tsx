@@ -3,14 +3,14 @@ import React from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
 
 //views
-import ListCityPage from 'src/view/pages/address/city/ListCity'
+import ListDistrictPage from 'src/view/pages/address/district/ListDistrict'
 
 type TProps = {}
 
-const City: NextPage<TProps> = () => {
-    return <ListCityPage />
+const District: NextPage<TProps> = () => {
+    return <ListDistrictPage />
 }
 
-export default City
+export default District
 
-City.permission = [PERMISSIONS.SETTING.CITY.VIEW]
+District.permission = [PERMISSIONS.ADDRESS.DISTRICT.VIEW]

@@ -23,7 +23,7 @@ export const updateProductAsync = createAsyncThunk(`${serviceName}/update`, asyn
     return response
 })
 
-export const deleteProductAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteProductAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteProduct(id)
     return response
 })
@@ -33,13 +33,13 @@ export const deleteMultipleProductsAsync = createAsyncThunk(`${serviceName}/dele
     return response
 })
 
-export const likeProductAsync = createAsyncThunk(`${serviceName}/like`, async (data: {productId: string}) => {
+export const likeProductAsync = createAsyncThunk(`${serviceName}/like`, async (data: {productId: number}) => {
     const response = await likeProduct(data)
     return response
 })
 
 
-export const unlikeProductAsync = createAsyncThunk(`${serviceName}/unlike`, async (data: {productId: string}) => {
+export const unlikeProductAsync = createAsyncThunk(`${serviceName}/unlike`, async (data: {productId: number}) => {
     const response = await unlikeProduct(data)
     return response
 })

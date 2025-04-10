@@ -20,7 +20,7 @@ export type TParamsCreateUser = {
 }
 
 export type TParamsUpdateUser = {
-    id: string,
+    id: number,
     firstName?: string,
     middleName?: string,
     lastName?: string,
@@ -36,9 +36,9 @@ export type TParamsUpdateUser = {
 
 export type TParamsDeleteUser = {
     name: string,
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleUsers = {
-    userIds: string[],
+    userIds: number[],
 }

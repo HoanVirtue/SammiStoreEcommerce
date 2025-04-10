@@ -1,0 +1,99 @@
+import { API_ENDPOINT } from "../configs/api"
+import instance from "../helpers/axios"
+import { TParamsCreateReview, TParamsDeleteMultipleReviews, TParamsGetAllReviews, TParamsUpdateReview } from "../types/review"
+
+
+export const getAllReviews = async (data: {params: TParamsGetAllReviews  }) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+export const getReviewDetail = async (id: string) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+
+export const createReview = async (data: TParamsCreateReview) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}`, data)
+        return res.data
+    }
+    catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+
+export const deleteReview = async (id: string) => {
+    try {
+        const res = await instance.delete(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`)
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const deleteMyReview = async (id: string) => {
+    try {
+        const res = await instance.delete(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/me/${id}`)
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const deleteMultipleReview = async (data: TParamsDeleteMultipleReviews) => {
+    try {
+        const res = await instance.delete(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/delete-many`, {data})
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const getManageReviewDetail = async (id: string) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`)
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const getAllManageReviews = async (data: {params: TParamsGetAllReviews  }) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+export const updateReview = async (data: TParamsUpdateReview) => {
+    const { id, ...rests } = data
+    try {
+        const res = await instance.put(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`, rests)
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const updateMyReview = async (data: TParamsUpdateReview) => {
+    const { id, ...rests } = data
+    try {
+        const res = await instance.put(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/me/${id}`, rests)
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}

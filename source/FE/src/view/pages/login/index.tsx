@@ -5,6 +5,7 @@ import React, { useContext, useEffect, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -18,11 +19,11 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 
 //components
-import CustomTextField from 'src/components/text-field'
-import IconifyIcon from 'src/components/Icon'
+const CustomTextField = dynamic(() => import('src/components/text-field'))
+const IconifyIcon = dynamic(() => import('src/components/Icon'))
 
 //Configs
-import { EMAIL_REG, PASSWORD_REG } from 'src/configs/regex'
+import { PASSWORD_REG } from 'src/configs/regex'
 
 //Images
 import LoginDark from '/public/images/login-dark.png'
@@ -30,18 +31,17 @@ import LoginLight from '/public/images/login-light.png'
 import GoogleIcon from '/public/svgs/google.svg'
 import FacebookIcon from '/public/svgs/facebook.svg'
 
-
 import clsx from 'clsx'
 
 //hooks
 import { useAuth } from 'src/hooks/useAuth'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { useTranslation } from '../../../../node_modules/react-i18next'
 
 type TProps = {}
 
 interface IDefaultValues {
-    email: string
+    username: string
     password: string
 }
 
@@ -60,11 +60,9 @@ const LoginPage: NextPage<TProps> = () => {
     const { t } = useTranslation()
 
     const schema = yup.object().shape({
-        // email: yup.string().email().required(t("required_email")),
-        email: yup
+        username: yup
             .string()
-            .required(t("required_email"))
-            .matches(EMAIL_REG, t("incorrect_email_format")),
+            .required(t("required_username")),
         password: yup
             .string()
             .required(t("required_password"))
@@ -73,17 +71,18 @@ const LoginPage: NextPage<TProps> = () => {
 
     const { handleSubmit, control, formState: { errors }, setError } = useForm({
         defaultValues: {
-            email: '',
+            username: '',
             password: ''
         },
         mode: 'onChange',
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = (data: { email: string, password: string }) => {
+    const onSubmit = (data: { username: string, password: string }) => {
         if (!Object.keys(errors)?.length) {
             login({ ...data, rememberMe: isRemember }, (err) => {
-                if (err?.response?.data?.typeError !== "") {
+                console.log(err, "err");
+                if (err?.response?.errors !== "") {
                     toast.error(err?.response?.message)
                 }
             })
@@ -126,7 +125,7 @@ const LoginPage: NextPage<TProps> = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 flex: 1,
-               
+
             }}>
                 <CssBaseline />
                 <Box sx={{
@@ -137,7 +136,7 @@ const LoginPage: NextPage<TProps> = () => {
                 }}>
                     <Typography component="h1" variant="h5">{t("login")}</Typography>
                     <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
-                        <Box sx={{ mt: 4}}  width={{ md: '18rem', xs: '20rem' }}>
+                        <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                             <Controller
                                 control={control}
                                 rules={{ required: true }}
@@ -145,19 +144,19 @@ const LoginPage: NextPage<TProps> = () => {
                                     <CustomTextField
                                         required
                                         fullWidth
-                                        label={t("email")}
+                                        label={t("username")}
                                         onChange={onChange}
                                         onBlur={onBlur}
                                         value={value}
-                                        placeholder={t("enter_email")}
-                                        error={errors.email ? true : false}
-                                        helperText={errors.email?.message}
+                                        placeholder={t("enter_username")}
+                                        error={errors.username ? true : false}
+                                        helperText={errors.username?.message}
                                     />
                                 )}
-                                name='email'
+                                name='username'
                             />
                         </Box>
-                        <Box sx={{ mt: 4}}  width={{ md: '18rem', xs: '20rem' }}>
+                        <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                             <Controller
                                 control={control}
                                 rules={{ required: true }}
@@ -174,11 +173,6 @@ const LoginPage: NextPage<TProps> = () => {
                                         error={errors.password ? true : false}
                                         type={showPassword ? 'text' : 'password'}
                                         InputProps={{
-                                            // startAdornment: (
-                                            //     <InputAdornment position="start">
-                                            //         <IconifyIcon icon='material-symbols:visibility-outline' />
-                                            //     </InputAdornment>
-                                            // ),
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <IconButton

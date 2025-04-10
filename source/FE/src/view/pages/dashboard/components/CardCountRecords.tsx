@@ -92,7 +92,7 @@ const CardCountRecords = (props: TProps) => {
                   </Avatar>
                   <Box>
                     <Typography sx={{ fontSize: '26px' }}>
-                      {record === 'revenue' ? `${formatPrice(data[record])} VND` : data[record]}
+                      {record === 'revenue' ? `${formatPrice(data[record])}` : data[record]}
                     </Typography>
                     <Typography sx={{ fontSize: '16px' }}>{(mapRecord as any)?.[record]?.title}</Typography>
                   </Box>

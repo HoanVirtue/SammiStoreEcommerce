@@ -16,13 +16,13 @@ import IconifyIcon from "../../../../components/Icon";
 import { useAuth } from "src/hooks/useAuth";
 
 //Translate
-import { useTranslation } from "../../../../../node_modules/react-i18next";
+import { useTranslation } from "react-i18next";
 
 //Config
 import { ROUTE_CONFIG } from "src/configs/route";
 
 //Utils
-import { toFullName } from "src/utils";
+
 import { useSelector } from "react-redux";
 import { RootState } from "src/stores";
 import { Button } from "@mui/material";
@@ -77,8 +77,8 @@ const UserMenu = (props: TProps) => {
         setAnchorEl(null);
     };
 
-    const handleNavigateMyProfile = () => {
-        router.push(ROUTE_CONFIG.MY_PROFILE)
+    const handleNavigateMyAccount = () => {
+        router.push(ROUTE_CONFIG.ACCOUNT.MY_PROFILE)
         handleClose()
     }
 
@@ -127,7 +127,7 @@ const UserMenu = (props: TProps) => {
                             variant="dot"
                         >
                             <Avatar sx={{ width: 32, height: 32 }}>
-                                {
+                                {/* {
                                     user?.avatar ? (
                                         <Image src={user?.avatar || ""}
                                             alt={user?.fullName || ""}
@@ -137,10 +137,10 @@ const UserMenu = (props: TProps) => {
                                             height={0} />
                                     )
                                         :
-                                        (
+                                        ( */}
                                             <IconifyIcon icon="ph:user-thin" />
-                                        )
-                                }
+                                        {/* )
+                                } */}
                             </Avatar>
                         </StyledBadge>
                     </IconButton>
@@ -191,7 +191,7 @@ const UserMenu = (props: TProps) => {
                     >
 
                         <Avatar sx={{ width: 32, height: 32 }}>
-                            {
+                            {/* {
                                 user?.avatar ? (
                                     <Image src={user?.avatar || ""}
                                         alt={user?.fullName || ""}
@@ -200,15 +200,15 @@ const UserMenu = (props: TProps) => {
                                         height={0} />
                                 )
                                     :
-                                    (
+                                    ( */}
                                         <IconifyIcon icon="ph:user-thin" />
-                                    )
-                            }
+                                    {/* )
+                            } */}
                         </Avatar>
                     </StyledBadge>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <Typography component="span">
-                            {toFullName(user?.lastName || "", user?.middleName || "", user?.firstName || "", i18n.language)}
+                            {user?.fullName}
                         </Typography>
                         <Typography component="span">
                             {user?.role?.name}
@@ -216,27 +216,22 @@ const UserMenu = (props: TProps) => {
                     </Box>
                 </Box>
                 <Divider />
-                {userPermission.length > 0 && (
+                {!userPermission.length && (
                     <MenuItem onClick={handleNavigateManageSystem}
                         sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                         <IconifyIcon icon="tdesign:system-setting" />
                         {t("manage_system")}
                     </MenuItem>
                 )}
-                <MenuItem onClick={handleNavigateMyProfile}
+                <MenuItem onClick={handleNavigateMyAccount}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                     <IconifyIcon icon="streamline:user-profile-focus" />
-                    {t("my_profile")}
+                    {t("my_account")}
                 </MenuItem>
                 <MenuItem onClick={handleNavigateMyProduct}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                     <IconifyIcon icon="iconoir:favourite-book" />
                     {t("fav_product")}
-                </MenuItem>
-                <MenuItem onClick={handleNavigateMyOrder}
-                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <IconifyIcon icon="lsicon:work-order-abnormal-outline" />
-                    {t("my_order")}
                 </MenuItem>
                 <MenuItem onClick={handleNavigateChangePassword}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>
@@ -248,8 +243,8 @@ const UserMenu = (props: TProps) => {
                     <Button fullWidth variant="contained" startIcon={
                         <IconifyIcon icon="humbleicons:logout" />
                     }
-                    color="error"
-                    sx={{ borderRadius: "6px" }}
+                        color="error"
+                        sx={{ borderRadius: "6px" }}
                     >
                         {t("logout")}
                     </Button>

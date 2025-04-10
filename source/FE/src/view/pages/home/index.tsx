@@ -7,7 +7,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Chip, ChipProps, Grid, styled, TabsProps, Typography, useTheme } from '@mui/material'
+import { Chip, ChipProps, Grid, styled, Tabs, TabsProps, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 
@@ -18,28 +18,19 @@ import { useTranslation } from 'react-i18next'
 import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
 
 //components
-
-import CustomPagination from 'src/components/custom-pagination'
-import Spinner from 'src/components/spinner'
-
-
-import { formatFilter } from 'src/utils'
-import ProductCard from '../product/components/ProductCard'
-import { getAllProductsPublic } from 'src/services/product'
-import { TProduct } from 'src/types/product'
-import { Tabs } from '@mui/material'
-import { Tab } from '@mui/material'
+import { getAllProducts } from 'src/services/product'
 import { getAllProductCategories } from 'src/services/product-category'
-import SearchField from 'src/components/search-field'
-import ProductFilter from '../product/components/ProductFilter'
-import { getAllCities } from 'src/services/city'
-import NoData from 'src/components/no-data'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { resetInitialState } from 'src/stores/product'
-import Banner from './components/banner'
-import OutstandingCategory from './components/category'
+import dynamic from 'next/dynamic'
+
+const Banner = dynamic(() => import('./components/banner'), { ssr: false })
+const OutstandingCategory = dynamic(() => import('./components/category'), { ssr: false })
+const ListVoucher = dynamic(() => import('./components/voucher'), { ssr: false })
+const HotSale = dynamic(() => import('./components/hot-sale'), { ssr: false })
+const TopSale = dynamic(() => import('./components/top-sale'), { ssr: false })
 
 type TProps = {}
 
@@ -54,7 +45,7 @@ const HomePage: NextPage<TProps> = () => {
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
-    const [sortBy, setSortBy] = useState("createdAt asc");
+    const [sortBy, setSortBy] = useState("createdDate asc");
     const [searchBy, setSearchBy] = useState("");
     const [loading, setLoading] = useState(false);
     const [selectedReview, setSelectedReview] = useState<string>('');
@@ -67,7 +58,7 @@ const HomePage: NextPage<TProps> = () => {
         total: 0
     });
     const [selectedProductCategory, setSelectedProductCategory] = React.useState('');
-    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
+
 
     const firstRender = useRef<boolean>(false)
 
@@ -87,24 +78,41 @@ const HomePage: NextPage<TProps> = () => {
     const handleGetListProduct = async () => {
         setLoading(true)
         const query = {
-            params: { limit: pageSize, page: page, search: searchBy, order: sortBy, ...formatFilter(filterBy) }
-        }
-        await getAllProductsPublic(query).then((res) => {
-            if (res?.data) {
+            params: {
+                filters: "",
+                take: pageSize,
+                skip: (page - 1) * pageSize,
+                orderBy: "createdDate",
+                dir: "asc",
+                paging: true,
+                keywords: "''",
+            },
+        };
+        await getAllProducts(query).then((res) => {
+            if (res?.result) {
                 setLoading(false)
                 setPublicProducts({
-                    data: res?.data?.products,
-                    total: res?.data?.totalCount
+                    data: res?.result?.subset,
+                    total: res?.result?.totalItemCount
                 })
             }
         })
     }
 
-
     const fetchAllCategories = async () => {
         setLoading(true)
-        await getAllProductCategories({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.productTypes
+        await getAllProductCategories({
+            params: {
+                filters: "",
+                take: pageSize,
+                skip: (page - 1) * pageSize,
+                orderBy: "createdDate",
+                dir: "asc",
+                paging: true,
+                keywords: "''",
+            },
+        }).then((res) => {
+            const data = res?.result?.subset
             if (data) {
                 setCategoryOptions(data?.map((item: { name: string, _id: string }) => ({
                     label: item.name,
@@ -112,22 +120,6 @@ const HomePage: NextPage<TProps> = () => {
                 })))
                 setSelectedProductCategory(data?.[0]?._id)
                 firstRender.current = true
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
-
-    const fetchAllCities = async () => {
-        setLoading(true)
-        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.cities
-            if (data) {
-                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
             }
             setLoading(false)
         }).catch((err) => {
@@ -168,14 +160,8 @@ const HomePage: NextPage<TProps> = () => {
 
     useEffect(() => {
         fetchAllCategories()
-        fetchAllCities()
     }, [])
 
-    useEffect(() => {
-        if (firstRender.current) {
-            handleGetListProduct();
-        }
-    }, [sortBy, searchBy, page, pageSize, filterBy]);
 
     useEffect(() => {
         if (firstRender.current) {
@@ -207,77 +193,16 @@ const HomePage: NextPage<TProps> = () => {
 
     return (
         <>
-            {loading && <Spinner />}
             <Box sx={{
                 height: 'fit-content',
+                backgroundColor: theme.palette.background.paper
             }}>
-                {/* <Box sx={{width: '100%', height: 'fit-content'}}>
-                    <StyledTabs
-                        value={selectedProductCategory}
-                        onChange={handleChange}
-                        aria-label="wrapped label tabs example"
-                    >
-                        {categoryOptions.map((option) => {
-                            return (
-                                <Tab
-                                    key={option.value}
-                                    value={option.value}
-                                    label={option.label}
-                                    wrapped
-                                />
-                            )
-                        })}
-                    </StyledTabs>
-                </Box> */}
                 <Banner />
                 <OutstandingCategory />
-                <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 4 }}>
-                    <Box sx={{ width: '300px' }}>
-                        <SearchField value={searchBy} placeholder={t('search_by_product_name')} onChange={(value: string) => setSearchBy(value)} />
-                    </Box>
-                </Box>
-                <Box sx={{ width: '100%', height: '100%', mt: 4, mb: 4 }}>
-                    <Grid container spacing={{ md: 4, sx: 2 }} mt={2}>
-                        <Grid item md={3} display={{ md: "flex", xs: "none" }}>
-                            <ProductFilter
-                                selectedLocation={selectedLocation}
-                                selectedReview={selectedReview}
-                                handleReset={handleResetFilter}
-                                handleProductFilter={handleProductFilter}
-                                cityOptions={cityOptions} />
-                        </Grid>
-                        <Grid item md={9} xs={12}>
-                            <Grid container spacing={{ md: 4, sx: 2 }}>
-                                {publicProducts?.data?.length > 0 ? (
-                                    <>
-                                        {publicProducts?.data?.map((item: TProduct) => {
-                                            return (
-                                                <Grid item key={item._id} md={4} sm={6} xs={12}>
-                                                    <ProductCard item={item} />
-                                                </Grid>
-                                            )
-                                        })}
-                                    </>
-                                ) : (
-                                    <Box sx={{
-                                        padding: "20px",
-                                        width: "100%",
-                                    }}>
-                                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
-                                    </Box>
-                                )}
-                            </Grid>
-                        </Grid>
-                    </Grid>
-                </Box>
-                <CustomPagination
-                    pageSize={pageSize}
-                    pageSizeOptions={PAGE_SIZE_OPTIONS}
-                    onChangePagination={handleOnChangePagination}
-                    page={page}
-                    rowLength={publicProducts.total}
-                    isHidden
-                />
+                <ListVoucher />
+                <HotSale />
+                <TopSale />
+
             </Box >
         </>
     )

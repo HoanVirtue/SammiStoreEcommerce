@@ -11,15 +11,20 @@ export type TParamsCreateDeliveryMethod = {
 }
 
 export type TParamsUpdateDeliveryMethod = {
-    id: string,
+    id: number,
     name: string,
     price: string
 }
 
 export type TParamsDeleteDeliveryMethod = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultipleDeliveryMethods = {
-    deliveryTypeIds: string[],
+    deliveryTypeIds: number[],
+}
+
+export type TParamsGetCaculatedFee = {
+    wardId: number,
+    totalAmount: number,
 }

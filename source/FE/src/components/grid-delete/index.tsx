@@ -15,9 +15,9 @@ const GridDelete = (props: TGridDelete) => {
     const { t } = useTranslation()
 
     return (
-        <Tooltip title="Xóa">
+        <Tooltip title={t('delete')}>
             <IconButton onClick={onClick} disabled={disabled}>
-                <IconifyIcon icon="ic:outline-delete" />
+                <IconifyIcon icon="fluent:delete-48-regular" />
             </IconButton>
         </Tooltip>
     )

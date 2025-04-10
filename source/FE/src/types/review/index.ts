@@ -8,33 +8,33 @@ export type TParamsGetAllReviews = {
 }
 
 export type TParamsCreateReview = {
-    product?: string,
-    user?: string,
+    productId?: number,
+    user?: number,
     star: number,
     content: string,
 }
 
 export interface TParamsUpdateReview {
-    id: string
+    id: number
     star: number,
     content: string,
 }
 
 export type TParamsDeleteMultipleReviews = {
-    reviewIds: string[]
+    reviewIds: number[]
 }
 
 export type TReviewItem = {
-    _id: string,
+    id: number,
     user: {
         firstName: string,
         middleName: string,
         lastName: string,
         avatar: string,
-        _id: string
+        id: number
     },
     product:{
-        id: string,
+        id: number,
         name: string
     },
     content: string,

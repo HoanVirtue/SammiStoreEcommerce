@@ -1,6 +1,6 @@
 
 
-export const BASE_URL = process.env.NEXT_PUBLIC_API_HOST
+export const BASE_URL = `${process.env.NEXT_PUBLIC_API_HOST}/api`
 export const API_ENDPOINT = {
   AUTH: {
     INDEX: `${BASE_URL}/auth`,
@@ -14,6 +14,24 @@ export const API_ENDPOINT = {
   REPORT: {
     INDEX: `${BASE_URL}/report`
   },
+  GHN: {
+    INDEX: `${BASE_URL}/ghn`
+  },
+  CUSTOMER_ADDRESS: {
+    INDEX: `${BASE_URL}/customer-address`
+  },
+  CART: {
+    INDEX: `${BASE_URL}/carts`,
+  },
+  VOUCHER: {
+    INDEX: `${BASE_URL}/vouchers`,
+  },
+  GOODS_RECEIPT: {
+    INDEX: `${BASE_URL}/purchase-order`,
+  },
+  EVENT: {
+    INDEX: `${BASE_URL}/events`,
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,
@@ -22,21 +40,35 @@ export const API_ENDPOINT = {
       INDEX: `${BASE_URL}/users`,
     },
   },
+  USER: {
+    ME: {
+      INDEX: `${BASE_URL}/users/get-current-user`,
+    },
+    EMPLOYEE: {
+      INDEX: `${BASE_URL}/users/employee`,
+      DELETE: `${BASE_URL}/users`,
+    },
+    CUSTOMER: {
+      INDEX: `${BASE_URL}/users/customer`,
+      DELETE: `${BASE_URL}/users`,
+    },
+    SUPPLIER: {
+      INDEX: `${BASE_URL}/users/supplier`,
+      DELETE: `${BASE_URL}/users`,
+    },
+  },
   SETTING: {
     PAYMENT_METHOD: {
-      INDEX: `${BASE_URL}/payment-type`,
+      INDEX: `${BASE_URL}/payment-method`,
     },
     DELIVERY_METHOD: {
       INDEX: `${BASE_URL}/delivery-type`,
     },
     BANNER: {
-      INDEX: `${BASE_URL}/banner`,
+      INDEX: `${BASE_URL}/banners`,
     },
   },
   ADDRESS:{
-    CITY: {
-      INDEX: `${BASE_URL}/city`,
-    },
     PROVINCE: {
       INDEX: `${BASE_URL}/provinces`,
     },
@@ -52,7 +84,7 @@ export const API_ENDPOINT = {
       INDEX: `${BASE_URL}/products`,
     },
     PRODUCT_CATEGORY: {
-      INDEX: `${BASE_URL}/product-types`,
+      INDEX: `${BASE_URL}/product-category`,
     },
     BRAND: {
       INDEX: `${BASE_URL}/brands`,
@@ -60,7 +92,7 @@ export const API_ENDPOINT = {
   },
   MANAGE_ORDER: {
     ORDER: {
-      INDEX: `${BASE_URL}/orders`,
+      INDEX: `${BASE_URL}/order-buy`,
     },
     REVIEW: {
       INDEX: `${BASE_URL}/reviews`,

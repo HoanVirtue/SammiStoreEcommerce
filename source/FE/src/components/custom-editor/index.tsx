@@ -17,6 +17,8 @@ interface TStyledEditorProps extends BoxProps {
 }
 
 const StyledEditor = styled(Box)<TStyledEditorProps>(({ theme, error }) => ({
+    border: `1px solid ${theme.palette.customColors.borderColor}`,
+    borderRadius: 8,
     ".rdw-editor-wrapper": {
         borderRadius: 8,
         backgroundColor: "transparent !important",

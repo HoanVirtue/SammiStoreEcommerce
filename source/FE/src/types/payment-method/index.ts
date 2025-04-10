@@ -1,25 +1,28 @@
 export type TParamsGetAllPaymentMethods = {
-    limit?: number,
-    page?: number,
-    search?: string,
-    order?: string
+    skip?: number;
+    take?: number;
+    filters?: string;
+    orderBy?: string;
+    dir?: string;
+    type?: number | (1 | 2 | 3 | 4 | 5 | 6)
+    paging?: boolean;
+    restrictOrderBy?: boolean;
+    keywords?: string;
 }
 
 export type TParamsCreatePaymentMethod = {
     name: string,
-    type: string
 }
 
 export type TParamsUpdatePaymentMethod = {
-    id: string,
+    id: number,
     name: string,
-    type: string
 }
 
 export type TParamsDeletePaymentMethod = {
-    id: string,
+    id: number,
 }
 
 export type TParamsDeleteMultiplePaymentMethods = {
-    paymentTypeIds: string[],
+    paymentTypeIds: number[],
 }

@@ -21,7 +21,7 @@ interface ProductState {
   
   // Actions
   fetchProducts: (categoryId?: string, query?: string) => Promise<void>;
-  fetchProductById: (id: string) => Promise<void>;
+  fetchProductById: (id: number) => Promise<void>;
   fetchCategories: () => Promise<void>;
   fetchFeaturedProducts: () => Promise<void>;
   setSelectedCategory: (categoryId?: string) => void;
@@ -62,12 +62,12 @@ export const useProductStore = create<ProductState>()(
         }
       },
       
-      fetchProductById: async (id: string) => {
+      fetchProductById: async (id: number) => {
         try {
           set({ isLoading: true, error: null });
           
           const getProductByIdUseCase = serviceLocator.get<GetProductByIdUseCase>('getProductByIdUseCase');
-          const product = await getProductByIdUseCase.execute(id);
+          const product = await getProductByIdUseCase.execute(id.toString());
           
           if (product) {
             set({ selectedProduct: product, isLoading: false });

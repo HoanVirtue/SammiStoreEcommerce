@@ -1,24 +1,25 @@
 import React from 'react';
 import { StyleSheet, Text, View, Pressable, Image, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Product } from '@/domain/entities/Product';
+import { TProduct } from '@/src/types/product';
 import { colors } from '@/src/constants/colors';
 import { Heart, ShoppingBag, Star } from 'lucide-react-native';
 import { useUserStore } from '../stores/userStore';
 import { useCartStore } from '../stores/cartStore';
+import { formatPrice } from '@/src/utils';
 
 interface ProductCardProps {
-  product: Product;
-  onPress?: (product: Product) => void;
+  product: TProduct;
+  onPress?: (product: TProduct) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) => {
   const router = useRouter();
   const { isInWishlist, toggleWishlist } = useUserStore();
   const { addToCart } = useCartStore();
-  
-  const isWishlisted = isInWishlist(product.id);
-  
+
+  const isWishlisted = isInWishlist(product.id.toString());
+
   const handlePress = () => {
     if (onPress) {
       onPress(product);
@@ -26,19 +27,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
       router.push(`/product/${product.id}`);
     }
   };
-  
+
   const handleWishlist = (e: any) => {
     e.stopPropagation();
-    toggleWishlist(product.id);
+    toggleWishlist(product.id.toString());
   };
-  
+
   const handleAddToCart = (e: any) => {
     e.stopPropagation();
-    addToCart(product, 1);
+    // addToCart(product, 1);
   };
-  
+
+  const calculateDiscountedPrice = () => {
+    if (product.discount > 0) {
+      return product.price * (1 - product.discount / 100);
+    }
+    return product.price;
+  };
+
+  const isOutOfStock = product.stockQuantity <= 0;
+
   return (
-    <Pressable 
+    <Pressable
       style={({ pressed }) => [
         styles.container,
         pressed && styles.pressed
@@ -46,55 +56,58 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
       onPress={handlePress}
     >
       <View style={styles.imageContainer}>
-        <Image 
-          source={{ uri: product.imageUrls[0] }} 
+        <Image
+          source={{ uri: product.images[0]?.imageUrl }}
           style={styles.image}
           resizeMode="cover"
         />
-        
-        {product.isNew && (
-          <View style={styles.newBadge}>
-            <Text style={styles.badgeText}>NEW</Text>
+
+        {product.discount > 0 && (
+          <View style={[styles.badge, styles.discountBadge]}>
+            <Text style={styles.badgeText}>-{product.discount * 100}%</Text>
           </View>
         )}
-        
-        {product.isOnSale && (
-          <View style={[styles.badge, styles.saleBadge]}>
-            <Text style={styles.badgeText}>SALE</Text>
-          </View>
-        )}
-        
-        <Pressable 
-          style={[styles.wishlistButton, isWishlisted && styles.wishlisted]} 
+
+        <Pressable
+          style={[styles.wishlistButton, isWishlisted && styles.wishlisted]}
           onPress={handleWishlist}
         >
-          <Heart 
-            size={18} 
-            color={isWishlisted ? colors.white : colors.text} 
-            fill={isWishlisted ? colors.primary : 'transparent'} 
+          <Heart
+            size={18}
+            color={isWishlisted ? colors.white : colors.text}
+            fill={isWishlisted ? colors.primary : 'transparent'}
           />
         </Pressable>
       </View>
-      
+
       <View style={styles.content}>
-        <Text style={styles.brand}>{product.brand}</Text>
         <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
-        
-        <View style={styles.ratingContainer}>
-          <Star size={14} color={colors.warning} fill={colors.warning} />
-          <Text style={styles.rating}>{product.rating.toFixed(1)}</Text>
-          <Text style={styles.reviews}>({product.reviewCount})</Text>
-        </View>
-        
+
         <View style={styles.priceContainer}>
-          <Text style={styles.price}>${product.price.toFixed(2)}</Text>
-          {product.originalPrice && (
-            <Text style={styles.originalPrice}>${product.originalPrice.toFixed(2)}</Text>
+          <Text style={styles.price}>{formatPrice(calculateDiscountedPrice())}</Text>
+          {product.discount > 0 && (
+            <Text style={styles.originalPrice}>{formatPrice(product.price)}</Text>
           )}
         </View>
+
+        <View style={styles.stockContainer}>
+          <Text style={[
+            styles.stockText,
+            isOutOfStock ? styles.outOfStock : styles.inStock
+          ]}>
+            {isOutOfStock ? 'Hết hàng' : `Còn ${product.stockQuantity} sản phẩm`}
+          </Text>
+        </View>
       </View>
-      
-      <Pressable style={styles.addToCartButton} onPress={handleAddToCart}>
+
+      <Pressable
+        style={[
+          styles.addToCartButton,
+          isOutOfStock && styles.disabledButton
+        ]}
+        onPress={handleAddToCart}
+        disabled={isOutOfStock}
+      >
         <ShoppingBag size={16} color={colors.white} />
         <Text style={styles.addToCartText}>Add</Text>
       </Pressable>
@@ -134,18 +147,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 4,
-    backgroundColor: colors.primary,
   },
-  newBadge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-  },
-  saleBadge: {
+  discountBadge: {
     backgroundColor: colors.error,
   },
   badgeText: {
@@ -175,11 +178,6 @@ const styles = StyleSheet.create({
   content: {
     padding: 12,
   },
-  brand: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginBottom: 4,
-  },
   name: {
     fontSize: 14,
     fontWeight: '600',
@@ -187,25 +185,10 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     height: 40,
   },
-  ratingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  rating: {
-    fontSize: 12,
-    color: colors.text,
-    fontWeight: '600',
-    marginLeft: 4,
-  },
-  reviews: {
-    fontSize: 12,
-    color: colors.textSecondary,
-    marginLeft: 2,
-  },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 8,
   },
   price: {
     fontSize: 16,
@@ -218,6 +201,19 @@ const styles = StyleSheet.create({
     textDecorationLine: 'line-through',
     marginLeft: 6,
   },
+  stockContainer: {
+    marginBottom: 8,
+  },
+  stockText: {
+    fontSize: 12,
+    fontWeight: '500',
+  },
+  inStock: {
+    color: colors.success,
+  },
+  outOfStock: {
+    color: colors.error,
+  },
   addToCartButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -225,6 +221,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     paddingVertical: 8,
     gap: 6,
+  },
+  disabledButton: {
+    backgroundColor: colors.textSecondary,
+    opacity: 0.7,
   },
   addToCartText: {
     color: colors.white,

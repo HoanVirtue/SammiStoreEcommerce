@@ -1,11 +1,13 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using Newtonsoft.Json;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 using SAMMI.ECOM.Utility;
@@ -18,19 +20,45 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly IEventRepository _eventRepository;
         private readonly IDiscountTypeRepository _typeRepository;
         private readonly IVoucherConditionRepository _conditionRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IProvinceRepository _provinceRepository;
         private readonly Dictionary<DiscountTypeEnum, List<ConditionTypeEnum>> validConditions = new Dictionary<DiscountTypeEnum, List<ConditionTypeEnum>>()
         {
-            { DiscountTypeEnum.Percentage, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue, ConditionTypeEnum.MaxDiscountAmount } },
-            { DiscountTypeEnum.FixedAmount, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue } },
-            { DiscountTypeEnum.FreeShipping, new List<ConditionTypeEnum> { ConditionTypeEnum.MinOrderValue, ConditionTypeEnum.AllowedRegions } },
-            //{ DiscountTypeEnum.TieredDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.TierLevels } },
-            //{ DiscountTypeEnum.BundleDiscount, new List<ConditionTypeEnum> { ConditionTypeEnum.RequiredProducts } }
+            // Giảm giá theo phần trăm
+            { DiscountTypeEnum.Percentage, new List<ConditionTypeEnum>
+                {
+                    ConditionTypeEnum.MinOrderValue,
+                    ConditionTypeEnum.MaxDiscountAmount,
+                    ConditionTypeEnum.RequiredProducts, // Thêm RequiredProducts
+                    ConditionTypeEnum.RequiredQuantity
+                }
+            },
+
+            // Giảm giá số tiền cố định
+            { DiscountTypeEnum.FixedAmount, new List<ConditionTypeEnum>
+                {
+                    ConditionTypeEnum.MinOrderValue,
+                    ConditionTypeEnum.RequiredProducts, // Thêm RequiredProducts
+                    ConditionTypeEnum.RequiredQuantity
+                }
+            },
+
+            // Miễn phí vận chuyển
+            { DiscountTypeEnum.FreeShipping, new List<ConditionTypeEnum>
+                {
+                    ConditionTypeEnum.MinOrderValue,
+                    ConditionTypeEnum.AllowedRegions,
+                    ConditionTypeEnum.RequiredQuantity,
+                }
+            }
         };
         public CUVoucherCommandHandler(
             IVoucherRepository voucherRepository,
             IEventRepository eventRepository,
             IDiscountTypeRepository discountTypeRepository,
             IVoucherConditionRepository voucherConditionRepository,
+            IProductRepository productRepository,
+            IProvinceRepository provinceRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -38,12 +66,15 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             _eventRepository = eventRepository;
             _typeRepository = discountTypeRepository;
             _conditionRepository = voucherConditionRepository;
+            _productRepository = productRepository;
+            _provinceRepository = provinceRepository;
         }
 
         public override async Task<ActionResponse<VoucherDTO>> Handle(CUVoucherCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<VoucherDTO>();
 
+            #region validate
             if (await _voucherRepository.CheckExistCode(request.Code, request.Id))
             {
                 actResponse.AddError("Mã phiếu giảm giá đã tồn tại");
@@ -61,6 +92,63 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
 
+            var discountType = await _typeRepository.FindById(request.DiscountTypeId);
+            if (!Enum.TryParse<DiscountTypeEnum>(discountType.Code, out var discountTypeEnum))
+            {
+                actResponse.AddError("Loại voucher không hợp lệ.");
+                return actResponse;
+            }
+            if (!validConditions.TryGetValue(discountTypeEnum, out var allowedConditions))
+            {
+                actResponse.AddError("Loại voucher không hợp lệ.");
+                return actResponse;
+            }
+
+            foreach (var condition in request.Conditions)
+            {
+                if (!allowedConditions.Contains(condition.ConditionType))
+                {
+                    actResponse.AddError($"Điều kiện {condition.ConditionType} không hợp lệ với loại voucher {discountTypeEnum.ToString()}.");
+                    return actResponse;
+                }
+            }
+
+            if (request.Conditions != null && request.Conditions.Any())
+            {
+                foreach(var c in request.Conditions)
+                {
+                    if(c.ConditionType == ConditionTypeEnum.RequiredProducts ||
+                        c.ConditionType == ConditionTypeEnum.AllowedRegions)
+                    {
+                        var values = c.ConditionValue.ToString().Split(",");
+                        if (c.ConditionType == ConditionTypeEnum.RequiredProducts)
+                        {
+                            foreach (var v in values)
+                            {
+                                if (!await _productRepository.IsExistCode(v))
+                                {
+                                    actResponse.AddError("Một số mã sản phẩm trong điều kiện giảm giá không tồn tại");
+                                    return actResponse;
+                                }
+                            }
+                        }
+                        else if (c.ConditionType == ConditionTypeEnum.AllowedRegions)
+                        {
+                            foreach (var v in values)
+                            {
+                                if (!await _provinceRepository.CheckExistCode(v))
+                                {
+                                    actResponse.AddError("Một số mã tỉnh/thành trong điều kiện giảm giá không tồn tại");
+                                    return actResponse;
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+            }
+
+            #endregion
             if (request.Id == 0)
             {
                 request.CreatedDate = DateTime.Now;
@@ -73,32 +161,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 }
                 var voucher = createResponse.Result;
 
-                // check condition
-                var discountType = await _typeRepository.FindById(voucher.DiscountTypeId);
-                if (!Enum.TryParse<DiscountTypeEnum>(discountType.Code, out var discountTypeEnum))
-                {
-                    actResponse.AddError("Loại voucher không hợp lệ.");
-                    return actResponse;
-                }
-                if (!validConditions.TryGetValue(discountTypeEnum, out var allowedConditions))
-                {
-                    actResponse.AddError("Loại voucher không hợp lệ.");
-                    return actResponse;
-                }
-
-                foreach (var condition in request.Conditions)
-                {
-                    if (!allowedConditions.Contains(condition.ConditionType))
-                    {
-                        actResponse.AddError($"Điều kiện {condition.ConditionType} không hợp lệ với loại voucher {voucher.DiscountType}.");
-                        return actResponse;
-                    }
-                }
-
                 //add condition
-                var conditions = FormatCondition(request.Conditions, voucher.Id);
-                foreach (var c in conditions)
+                foreach (var c in request.Conditions)
                 {
+                    c.VoucherId = voucher.Id;
                     c.CreatedDate = DateTime.Now;
                     c.CreatedBy = _currentUser.UserName;
                     actResponse.Combine(_conditionRepository.Create(c));
@@ -132,9 +198,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
                 var existingConditionDict = existingConditions.ToDictionary(c => c.Id);
 
-                var formattedConditions = FormatCondition(request.Conditions, request.Id);
-                foreach (var condition in formattedConditions)
+                foreach (var condition in request.Conditions)
                 {
+                    condition.VoucherId = request.Id;
                     if (existingConditionDict.TryGetValue(condition.Id, out var existingCondition))
                     {
                         existingCondition = _mapper.Map(condition, existingCondition);
@@ -160,40 +226,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             }
 
             return actResponse;
-        }
-
-        private List<VoucherCondition> FormatCondition(List<VoucherConditionCommand> conditions, int? voucherId)
-        {
-            var listCondition = new List<VoucherCondition>();
-            foreach (var c in conditions)
-            {
-                VoucherCondition vCondi = _mapper.Map<VoucherCondition>(c);
-                vCondi.VoucherId = voucherId ?? 0;
-                switch (c.ConditionType)
-                {
-                    case ConditionTypeEnum.AllowedRegions:
-                        var regions = c.ConditionType.ToString().DeserializeJson<List<AllowedRegionCommand>>();
-                        string regionFormated = string.Join(",", regions.Select(r => r.RegionId));
-
-                        vCondi.ConditionValue = regionFormated;
-                        break;
-                    case ConditionTypeEnum.RequiredProducts:
-                        var products = c.ConditionType.ToString().DeserializeJson<List<RequiredProductCommand>>();
-                        string productFormated = string.Join(",", products.Select(r => r.ProductId));
-
-                        vCondi.ConditionValue = productFormated;
-                        break;
-                    //case ConditionTypeEnum.TierLevels:
-                    //    var tierLevels = c.ConditionType.ToString().DeserializeJson<List<TierLevelCommand>>();
-                    //    string valueFormated = string.Join(",", tierLevels.Select(t => $"{t.Level}:{t.Discount}"));
-
-                    //    vCondi.ConditionValue = valueFormated;
-                    //    break;
-                }
-
-                listCondition.Add(vCondi);
-            }
-            return listCondition;
         }
     }
 
@@ -225,8 +257,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .WithMessage("Ngày kết thúc không được bỏ trống")
                 .Must(x => x > DateTime.Now)
                 .WithMessage("Ngày kết thúc phải lớn hơn ngày hiện tại")
-                .GreaterThanOrEqualTo(x => x.StartDate)
-                .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu");
+                .GreaterThan(x => x.StartDate)
+                .WithMessage("Ngày kết thúc phải lớn hơn ngày bắt đầu");
 
             RuleFor(x => x.UsageLimit)
                 .Must(x => x >= 1)
@@ -235,6 +267,60 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             RuleFor(x => x.DiscountTypeId)
                 .NotEmpty()
                 .WithMessage("Loại phiếu giảm giá bắt buộc chọn");
+
+            RuleForEach(x => x.Conditions)
+                .SetValidator(new VoucherConditionCommandValidator())
+                .When(x => x.Conditions != null && x.Conditions.Any());
+
+            RuleFor(x => x.Conditions)
+                .Must(cons =>
+                {
+                    if (cons == null || !cons.Any())
+                    {
+                        return true;
+                    }
+                    var conditionTypes = cons.Select(c => c.ConditionType).ToList();
+                    return conditionTypes.Distinct().Count() == cons.Count();
+                })
+                .WithMessage("Danh sách điều kiện không được chứa các loại điều kiện trùng lặp.");
+        }
+    }
+
+    public class VoucherConditionCommandValidator : AbstractValidator<VoucherConditionCommand>
+    {
+        public VoucherConditionCommandValidator()
+        {
+            RuleFor(x => x.ConditionValue)
+                .Must((command, value) =>
+                {
+                    // Chỉ validate nếu ConditionType là MinOrderValue, MaxDiscountAmount, hoặc RequiredQuantity
+                    if (command.ConditionType == ConditionTypeEnum.MinOrderValue ||
+                        command.ConditionType == ConditionTypeEnum.MaxDiscountAmount ||
+                        command.ConditionType == ConditionTypeEnum.RequiredQuantity)
+                    {
+                        return decimal.TryParse(value?.ToString(), out _); // Kiểm tra giá trị có phải là số hay không
+                    }
+                    //else if(command.ConditionType == ConditionTypeEnum.RequiredProducts ||
+                    //        command.ConditionType == ConditionTypeEnum.AllowedRegions)
+                    //{
+                    //    try
+                    //    {
+                    //        var values = JsonConvert.DeserializeObject<List<string>>(command.ConditionValue?.ToString() ?? string.Empty);
+                    //        if (values == null || !values.Any())
+                    //        {
+                    //            return false;
+                    //        }
+                    //        return true;
+                    //    }
+                    //    catch
+                    //    {
+                    //        return false;
+                    //    }
+                    //}
+
+                    return true;
+                })
+                .WithMessage("Giá trị của điều kiện giảm giá MinOrderValue, MaxDiscountAmount, RequiredQuantity phải là số.");
         }
     }
 }

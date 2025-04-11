@@ -6,18 +6,13 @@ namespace SAMMI.ECOM.Domain.DomainModels.Products
     {
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
-
         public int StockQuantity { get; set; }
-
         public decimal? Price { get; set; }
         public decimal? Discount { get; set; }
         public decimal? NewPrice { get; set; }
         public string? Ingredient { get; set; }
-
         public string? Uses { get; set; }
-
         public string? UsageGuide { get; set; }
-
         public int? BrandId { get; set; }
         public string? BrandCode { get; set; }
         public string? BrandName { get; set; }

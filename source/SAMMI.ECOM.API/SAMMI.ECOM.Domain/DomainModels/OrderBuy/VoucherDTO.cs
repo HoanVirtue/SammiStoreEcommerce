@@ -13,6 +13,7 @@
         public int UsedCount { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
+        public List<VoucherConditionDTO>? Conditions { get; set; }
 
 
         public int Id { get; set; }

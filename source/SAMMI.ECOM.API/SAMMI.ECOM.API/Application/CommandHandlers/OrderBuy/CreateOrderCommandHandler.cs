@@ -78,6 +78,14 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actResponse.AddError("Có ít nhất 1 sản phẩm không tồn tại");
                 return actResponse;
             }
+
+            var paymentMethod = await _methodRepository.GetByIdAsync(request.PaymentMethodId);
+            if(paymentMethod == null)
+            {
+                actResponse.AddError("Mã phương thức thanh toán không tồn tại");
+                return actResponse;
+            }
+
             decimal totalAmount = 0;
             foreach (var item in request.Details)
             {
@@ -100,8 +108,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     return actResponse;
                 }
             }
-
-            var paymentMethod = await _methodRepository.GetByIdAsync(request.PaymentMethodId);
 
 
             // create order
@@ -225,7 +231,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             RuleFor(x => x.PaymentMethodId)
                 .NotEmpty()
                 .WithMessage("Phương thức thanh toán không được bỏ trống");
-
         }
     }
 }

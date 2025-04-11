@@ -300,24 +300,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     {
                         return decimal.TryParse(value?.ToString(), out _); // Kiểm tra giá trị có phải là số hay không
                     }
-                    //else if(command.ConditionType == ConditionTypeEnum.RequiredProducts ||
-                    //        command.ConditionType == ConditionTypeEnum.AllowedRegions)
-                    //{
-                    //    try
-                    //    {
-                    //        var values = JsonConvert.DeserializeObject<List<string>>(command.ConditionValue?.ToString() ?? string.Empty);
-                    //        if (values == null || !values.Any())
-                    //        {
-                    //            return false;
-                    //        }
-                    //        return true;
-                    //    }
-                    //    catch
-                    //    {
-                    //        return false;
-                    //    }
-                    //}
-
                     return true;
                 })
                 .WithMessage("Giá trị của điều kiện giảm giá MinOrderValue, MaxDiscountAmount, RequiredQuantity phải là số.");

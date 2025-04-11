@@ -82,16 +82,17 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
 
         bool IPaymentRepository.IsValidPaymentStatus(PaymentStatusEnum currentStatus, PaymentStatusEnum newStatus)
         {
-            switch(currentStatus)
+            return (currentStatus, newStatus) switch
             {
-                case PaymentStatusEnum.Pending:
-                case PaymentStatusEnum.Unpaid:
-                    return newStatus == PaymentStatusEnum.Paid || newStatus == PaymentStatusEnum.Failed;
-                case PaymentStatusEnum.Paid:
-                case PaymentStatusEnum.Failed:
-                default:
-                    return false;
-            }
+                (PaymentStatusEnum.Pending, PaymentStatusEnum.Unpaid) => true,
+                (PaymentStatusEnum.Pending, PaymentStatusEnum.Failed) => true,
+                (PaymentStatusEnum.Pending, PaymentStatusEnum.Paid) => true,
+                (PaymentStatusEnum.Unpaid, PaymentStatusEnum.Paid) => true,
+                (PaymentStatusEnum.Unpaid, PaymentStatusEnum.Failed) => true,
+                (PaymentStatusEnum.Paid, PaymentStatusEnum.Paid) => true,
+                (PaymentStatusEnum.Failed, _) => false,
+                _ => false
+            };
         }
     }
 }

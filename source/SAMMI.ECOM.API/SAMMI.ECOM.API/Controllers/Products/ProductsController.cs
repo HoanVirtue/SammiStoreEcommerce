@@ -1,5 +1,8 @@
-﻿using MediatR;
+﻿using System.Threading.Tasks;
+using Azure;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Infrastructure.Queries.Products;
@@ -11,14 +14,17 @@ namespace SAMMI.ECOM.API.Controllers.Products
     {
         private readonly IProductQueries _productQueries;
         private readonly IProductRepository _productRepository;
+        private readonly IProductElasticService _productElasticService;
         public ProductsController(
             IProductQueries productQueries,
             IProductRepository productRepository,
+            IProductElasticService productElasticService,
             IMediator mediator,
             ILogger<ProductsController> logger) : base(mediator, logger)
         {
             _productQueries = productQueries;
             _productRepository = productRepository;
+            _productElasticService = productElasticService;
         }
 
         [HttpGet]
@@ -49,6 +55,10 @@ namespace SAMMI.ECOM.API.Controllers.Products
             {
                 return BadRequest(response);
             }
+            //if(_productElasticService != null && await _productElasticService.IsConnected())
+            //{
+            //    _productElasticService.AddOrUpdateProduct(await _productQueries.GetById(response.Result.Id));
+            //}
             return Ok(response);
         }
 
@@ -69,21 +79,29 @@ namespace SAMMI.ECOM.API.Controllers.Products
             {
                 return BadRequest(response);
             }
+            //if (_productElasticService != null && await _productElasticService.IsConnected())
+            //{
+            //    _productElasticService.AddOrUpdateProduct(await _productQueries.GetById(response.Result.Id));
+            //}
             return Ok(response);
         }
 
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (!_productRepository.IsExisted(id))
             {
-                return NotFound();
+                return BadRequest("Sản phẩm không tồn tại.");
+            }
+            if (_productElasticService != null && await _productElasticService.IsConnected())
+            {
+                _productElasticService.DeleteProduct(id);
             }
             return Ok(_productRepository.DeleteAndSave(id));
         }
 
         [HttpDelete]
-        public IActionResult DeleteRange([FromBody] List<int> ids)
+        public async Task<IActionResult> DeleteRange([FromBody] List<int> ids)
         {
             var actErrorResponse = new ActionResponse<List<string>>();
             var listError = new Dictionary<int, string>();
@@ -96,18 +114,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
                 actErrorResponse.AddError("Một số sản phẩm không tồn tại.");
                 return BadRequest(actErrorResponse);
             }
-            //foreach (var id in ids)
-            //{
-            //    if (!_productRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
-            //    {
-            //        listError[id] = $"Không tồn tại sản phẩm có mã {id}";
-            //    }
-            //}
-            //if (listError.Count > 0)
-            //{
-            //    actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
-            //    return BadRequest(actErrorResponse);
-            //}
+            _productElasticService.DeleteRangeProduct(ids);
             return Ok(_productRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
 
@@ -115,6 +122,12 @@ namespace SAMMI.ECOM.API.Controllers.Products
         public async Task<IActionResult> GetCodeByLastId()
         {
             return Ok(await _productQueries.GetCodeByLastId());
+        }
+
+        [HttpGet("get-suggest")]
+        public async Task<IActionResult> GetDataSuggest([FromQuery]string keyWord, [FromQuery] int size = 5)
+        {
+            return Ok(await _productElasticService.SuggestProducts(keyWord, size));
         }
     }
 }

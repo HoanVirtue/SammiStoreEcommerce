@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Azure;
 using FluentValidation;
 using MediatR;
+using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.API.Services.MediaResource;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
@@ -23,6 +25,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         private readonly IConfiguration _config;
         private readonly IMediator _mediator;
         private readonly IProductImageRepository _productImageRepository;
+        private readonly IProductElasticService _productElasticService;
         public CreateProductCommandHandler(
             IProductRepository productRepository,
             IBrandRepository brandRepository,
@@ -33,6 +36,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             IConfiguration config,
             IMediator mediator,
             IProductImageRepository productImageRepository,
+            IProductElasticService productElasticService,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -45,6 +49,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             _config = config;
             _productImageRepository = productImageRepository;
             _mediator = mediator;
+            _productElasticService = productElasticService;
         }
 
         public override async Task<ActionResponse<ProductDTO>> Handle(CreateProductCommand request, CancellationToken cancellationToken)
@@ -112,7 +117,19 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 }
             }
 
-            actResponse.SetResult(_mapper.Map<ProductDTO>(createRes.Result));
+            var productResult = _mapper.Map<ProductDTO>(createRes.Result);
+            var brand = await _brandRepository.FindById(productResult.BrandId);
+            var category = await _categoryRepository.FindById(productResult.CategoryId);
+            productResult.BrandName = brand?.Name;
+            productResult.BrandCode = brand?.Code;
+            productResult.CategoryName = category?.Name;
+            productResult.CategoryCode = category?.Code;
+            if (_productElasticService != null && await _productElasticService.IsConnected())
+            {
+                _productElasticService.AddOrUpdateProduct(productResult);
+            }
+
+            actResponse.SetResult(_mapper.Map<ProductDTO>(productResult));
             return actResponse;
         }
     }
@@ -148,8 +165,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 .When(x => x.StartDate.HasValue || (x.Discount.HasValue && x.Discount > 0));
 
             RuleFor(x => x.EndDate)
-                .GreaterThanOrEqualTo(x => x.StartDate)
-                .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu")
+                .GreaterThan(x => x.StartDate)
+                .WithMessage("Ngày kết thúc phải lớn hơn ngày bắt đầu")
                 .When(x => x.StartDate.HasValue);
 
             RuleFor(x => x.StartDate)
@@ -196,6 +213,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         private readonly IConfiguration _config;
         private readonly IMediator _mediator;
         private readonly IProductImageRepository _productImageRepository;
+        private readonly IProductElasticService _productElasticService;
         public UpdateProductCommandHandler(
             IProductRepository productRepository,
             IBrandRepository brandRepository,
@@ -206,6 +224,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             IConfiguration config,
             IMediator mediator,
             IProductImageRepository productImageRepository,
+            IProductElasticService productElasticService,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -218,6 +237,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             _config = config;
             _productImageRepository = productImageRepository;
             _mediator = mediator;
+            _productElasticService = productElasticService;
         }
 
         public override async Task<ActionResponse<ProductDTO>> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
@@ -304,9 +324,20 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                     }
                 }
             }
-            actResponse.SetResult(_mapper.Map<ProductDTO>(updateRes.Result));
 
+            var productResult = _mapper.Map<ProductDTO>(updateRes.Result);
+            var brand = await _brandRepository.FindById(productResult.BrandId);
+            var category = await _categoryRepository.FindById(productResult.CategoryId);
+            productResult.BrandName = brand?.Name;
+            productResult.BrandCode = brand?.Code;
+            productResult.CategoryName = category?.Name;
+            productResult.CategoryCode = category?.Code;
+            if (_productElasticService != null && await _productElasticService.IsConnected())
+            {
+                _productElasticService.AddOrUpdateProduct(productResult);
+            }
 
+            actResponse.SetResult(_mapper.Map<ProductDTO>(productResult));
             return actResponse;
         }
     }
@@ -349,7 +380,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 .When(x => x.StartDate.HasValue || (x.Discount.HasValue && x.Discount > 0));
 
             RuleFor(x => x.EndDate)
-                .GreaterThanOrEqualTo(x => x.StartDate)
+                .GreaterThan(x => x.StartDate)
                 .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu")
                 .When(x => x.StartDate.HasValue);
 

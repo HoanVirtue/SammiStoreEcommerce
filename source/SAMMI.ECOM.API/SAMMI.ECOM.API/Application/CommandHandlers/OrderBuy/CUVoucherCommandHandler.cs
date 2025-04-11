@@ -225,8 +225,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .WithMessage("Ngày kết thúc không được bỏ trống")
                 .Must(x => x > DateTime.Now)
                 .WithMessage("Ngày kết thúc phải lớn hơn ngày hiện tại")
-                .GreaterThanOrEqualTo(x => x.StartDate)
-                .WithMessage("Ngày kết thúc phải lớn hơn hoặc bằng ngày bắt đầu");
+                .GreaterThan(x => x.StartDate)
+                .WithMessage("Ngày kết thúc phải lớn hơn ngày bắt đầu");
 
             RuleFor(x => x.UsageLimit)
                 .Must(x => x >= 1)

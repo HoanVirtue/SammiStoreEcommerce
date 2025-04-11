@@ -11,15 +11,18 @@ import axios from 'axios'
 import authConfig, { LIST_PUBLIC_PAGE } from 'src/configs/auth'
 
 // ** Types
-import { AuthValuesType, LoginParams, ErrCallbackType, UserDataType } from './types'
-import { loginAuth, logoutAuth } from 'src/services/auth'
+import { AuthValuesType, ErrCallbackType, UserDataType } from './types'
+import { getLoginUser, loginAuth, logoutAuth, loginAdminAuth } from 'src/services/auth'
 import { API_ENDPOINT } from 'src/configs/api'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from 'src/helpers/storage'
 import instance from 'src/helpers/axios'
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import { updateProductToCart } from 'src/stores/order'
 import { AppDispatch } from 'src/stores'
 import { useDispatch } from 'react-redux'
+import { LoginParams } from 'src/types/auth'
+import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -28,6 +31,7 @@ const defaultProvider: AuthValuesType = {
   setUser: () => null,
   setLoading: () => Boolean,
   login: () => Promise.resolve(),
+  loginAdmin: () => Promise.resolve(),
   logout: () => Promise.resolve()
 }
 
@@ -44,83 +48,167 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter()
+  const { t } = useTranslation()
 
   //redux
   const dispatch: AppDispatch = useDispatch()
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
-      const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName)
+      const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName);
       if (storedToken) {
-        setLoading(true)
-        await instance
-          .get(API_ENDPOINT.AUTH.AUTH_ME)
-          .then(async response => {
-            setLoading(false)
-            setUser({ ...response.data.data })
-
-          })
-          .catch(() => {
-            removeLocalUserData()
-            setUser(null)
-            setLoading(false)
-            // if (authConfig.onTokenExpiration === 'logout' && !router.pathname.includes('login')) {
-            if (!router.pathname.includes('login')) {
-              router.replace('/login')
-            }
-          })
+        setLoading(true);
+        try {
+          instance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+          const response = await getLoginUser();
+          setUser({ ...response.result });
+          setLoading(false);
+        } catch (error) {
+          removeLocalUserData();
+          delete instance.defaults.headers.common['Authorization'];
+          setUser(null);
+          setLoading(false);
+          if (!router.pathname.includes('login')) {
+            router.replace('/login');
+          }
+        }
       } else {
-        setLoading(false)
+        setLoading(false);
       }
     }
 
     initAuth()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleLogin = (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    loginAuth({ email: params.email, password: params.password })
-      .then(async response => {
-        if (params.rememberMe) {
-          setLocalUserData(
-            JSON.stringify(response.data.user),
-            response.data.access_token,
-            response.data.refresh_token)
-        } else {
-          setTemporaryToken(response.data.access_token)
-        }
-        toast.success('Login success')
-        const returnUrl = router.query.returnUrl
-        setUser({ ...response.data.user })
-        // params.rememberMe ? window.localStorage.setItem('userData', JSON.stringify(response.data.user)) : null
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-        router.replace(redirectURL as string)
-      })
-      .catch(err => {
-        if (errorCallback) errorCallback(err)
-      })
-  }
+  const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
+    setLoading(true);
+    try {
+      const response = await loginAuth({
+        username: params.username,
+        password: params.password,
+        rememberMe: params.rememberMe,
+        returnUrl: params.returnUrl,
+        isEmployee: params.isEmployee,
+      });
+
+      const accessToken = response.result?.accessToken;
+      if (!accessToken) throw new Error('No access token received');
+
+      instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+      const userResponse = await getLoginUser();
+      setUser({ ...userResponse.result });
+
+      const userData = userResponse.result;
+      if (params.rememberMe) {
+        setLocalUserData(
+          JSON.stringify(userData || {}),
+          accessToken,
+          response.result?.refreshToken || null
+        );
+      } else {
+        setTemporaryToken(accessToken);
+      }
+
+      toast.success(t('login_success'));
+      const returnUrl = params.returnUrl || router.query.returnUrl || '/';
+      const redirectURL = returnUrl !== '/' ? returnUrl : '/';
+      router.replace(redirectURL as string);
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      if (errorCallback) errorCallback(err);
+      toast.error(t('login_error'));
+    }
+  };
+
+  const handleAdminLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
+    setLoading(true);
+    try {
+      const response = await loginAdminAuth({
+        username: params.username,
+        password: params.password,
+        rememberMe: params.rememberMe,
+        returnUrl: params.returnUrl,
+        isEmployee: params.isEmployee,
+      });
+
+      const accessToken = response.result?.accessToken;
+      if (!accessToken) throw new Error('No access token received');
+
+      instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
+      const userResponse = await getLoginUser();
+      setUser({ ...userResponse.result });
+
+      const userData = userResponse.result;
+      if (params.rememberMe) {
+        setLocalUserData(
+          JSON.stringify(userData || {}),
+          accessToken,
+          response.result?.refreshToken || null
+        );
+      } else {
+        setTemporaryToken(accessToken);
+      }
+
+      toast.success(t('login_success'));
+      const returnUrl = params.returnUrl || router.query.returnUrl || '/';
+      const redirectURL = returnUrl !== '/' ? returnUrl : '/';
+      router.replace(redirectURL as string);
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      if (errorCallback) errorCallback(err);
+      toast.error(t('login_error'));
+    }
+  };
+
+
+
+  // const handleLogout = () => {
+  //   logoutAuth().then((res) => {
+  //     setUser(null)
+  //     removeLocalUserData()
+  //     delete instance.defaults.headers.common['Authorization'];
+  //     dispatch(updateProductToCart({
+  //       orderItems: []
+  //     }))
+  //     if (!LIST_PUBLIC_PAGE?.some((item) => router.asPath.includes(item))) {
+  //       if (router.asPath !== '/') {
+  //         router.replace({
+  //           pathname: '/login',
+  //           query: {
+  //             returnUrl: router.asPath
+  //           }
+  //         })
+  //       } else {
+  //         router.replace('/login')
+  //       }
+  //     }
+  //   })
+  // }
 
   const handleLogout = () => {
-    logoutAuth().then((res) => {
-      setUser(null)
-      removeLocalUserData()
-      dispatch(updateProductToCart({
-        orderItems: []
-      }))
-      // if (!LIST_PUBLIC_PAGE?.some((item) => router.asPath.includes(item))) {
-      //   if (router.asPath !== '/') {
-      //     router.replace({
-      //       pathname: '/login',
-      //       query: {
-      //         returnUrl: router.asPath
-      //       }
-      //     })
-      //   } else {
-      //     router.replace('/login')
-      //   }
-      // }
-    })
+
+    setUser(null)
+    removeLocalUserData()
+    delete instance.defaults.headers.common['Authorization'];
+    dispatch(updateProductToCart({
+      orderItems: []
+    }))
+    // if (!LIST_PUBLIC_PAGE?.some((item) => router.asPath.includes(item))) {
+    //   if (router.asPath !== '/') {
+    //     router.replace({
+    //       pathname: '/login',
+    //       query: {
+    //         returnUrl: router.asPath
+    //       }
+    //     })
+    //   } else {
+    //     router.replace('/login')
+    //   }
+    // }
   }
 
   const values = {
@@ -129,7 +217,8 @@ const AuthProvider = ({ children }: Props) => {
     setUser,
     setLoading,
     login: handleLogin,
-    logout: handleLogout
+    logout: handleLogout,
+    loginAdmin: handleAdminLogin
   }
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>

@@ -22,14 +22,15 @@ import { ROUTE_CONFIG } from "src/configs/route";
 import Link from "next/link";
 import ProductCart from "./components/product-cart";
 import { useTranslation } from "react-i18next";
-import SearchField from "src/components/search-field";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import HomeSearch from "src/components/home-search";
+
 
 type TProps = {
     open: boolean
     toggleDrawer: () => void
     showIcon?: boolean
+    showBanner?: boolean
 }
 
 const drawerWidth: number = 0
@@ -53,35 +54,16 @@ const AppBar = styled(MuiAppBar, {
     }),
 }))
 
-const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) => {
+const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon, showBanner }) => {
 
     //state
     const [searchBy, setSearchBy] = useState("");
-    const [isScrolled, setIsScrolled] = useState(false);
 
     //hooks
     const { user } = useAuth()
     const router = useRouter()
     const theme = useTheme()
     const { t } = useTranslation()
-
-
-    useEffect(() => {
-        console.log(" event triggered"); 
-        const handleScroll = () => {
-            console.log("Scroll event triggered"); 
-            if (window.scrollY > 1) {
-                setIsScrolled(true);
-            } else {
-                setIsScrolled(false);
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    console.log("fe1", isScrolled)
 
     const handleNavigateLogin = () => {
         if (router.asPath !== '/') {
@@ -98,8 +80,13 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) =>
 
     return (
         <AppBar position="fixed" open={open}
-            sx={{transition: 'background-color 0.3s ease' }}>
-            <Toolbar sx={{ margin: '0 auto', display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, width: '100%', paddingLeft: '2rem !important', paddingRight: '2rem !important',  transition: 'background-color 0.3s ease'}} >
+            sx={{ transition: 'background-color 0.3s ease' }}>
+            {/* {showBanner && (
+                <Box sx={{ width: "100%", height: "auto", maxWidth: "100%" }}>
+                    <Image src={TopBanner} width={0} height={0} alt="Top Banner" style={{ width: "100%", height: "auto", maxWidth: "1440px", margin: "0 auto" }} />
+                </Box>
+            )} */}
+            <Toolbar sx={{ margin: '0 auto', display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6, width: '100%', paddingLeft: '2rem !important', paddingRight: '2rem !important', transition: 'background-color 0.3s ease', maxWidth: '1440px' }} >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
                     {showIcon && (
                         <IconButton
@@ -123,13 +110,13 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) =>
                             display: "flex",
                             alignItems: "center",
                         }}>
-                            <Typography component="h1" variant="h2" color="primary" noWrap
+                            <Typography component="h4" variant="h3" color="primary" noWrap
                                 sx={{
                                     display: "flex",
                                     alignItems: "center",
                                     width: "fit-content",
                                     fontWeight: "600",
-                                    background: 'linear-gradient(90deg, rgba(6,196,235,1) 10%, rgba(175,21,213,1) 90%)',
+                                    background: "linear-gradient(to right, #d82e4d, #f26398)",
                                     WebkitBackgroundClip: 'text',
                                     WebkitTextFillColor: 'transparent',
                                     backgroundClip: 'text',
@@ -151,7 +138,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon }) =>
                     justifyContent: "center",
                     gap: 1
                 }}>
-                    <IconifyIcon fontSize='3rem' icon='line-md:phone-call-loop' />
+                    <IconifyIcon fontSize='2.5rem' icon='line-md:phone-call-loop' />
                     <Box sx={{
                         display: "flex",
                         flexDirection: "column",

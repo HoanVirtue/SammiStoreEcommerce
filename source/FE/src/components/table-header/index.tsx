@@ -17,17 +17,16 @@ const StyledTableHeader = styled(Box)(({ theme }) => ({
 }))
 
 type TProp = {
-    selectedRowNumber: number,
+    selectedRowNumber?: number,
     onClear: () => void,
     actions: { label: string, value: string, disabled?: boolean }[],
-    handleAction: (type: string) => void
+    handleAction: (type: string) => void,
+    selectedRows?: number[]
 }
 
 const TableHeader = (props: TProp) => {
-
     //Props
     const { selectedRowNumber, onClear, actions, handleAction } = props
-
 
     // ** Hook
     const theme = useTheme()

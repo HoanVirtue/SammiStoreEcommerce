@@ -1,12 +1,8 @@
-import Typography from '@mui/material/Typography'
 import BlankLayout from 'src/view/layout/BlankLayout'
+import Unauthorized from 'src/view/pages/401'
 
 const Error401 = () => {
-  return (
-    <Typography variant='h2' sx={{ mb: 1.5 }}>
-      You are not authorized!
-    </Typography>
-  )
+  return <Unauthorized />
 }
 
 export default Error401

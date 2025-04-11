@@ -34,7 +34,7 @@ import { convertBase64, separationFullname, toFullName } from "src/utils";
 import { InputLabel } from "@mui/material";
 import CustomSelect from "src/components/custom-select";
 import { getAllRoles } from "src/services/role";
-import { getAllCities } from "src/services/city";
+
 
 interface TCreateUpdateUser {
     open: boolean
@@ -119,7 +119,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
                     address: data?.address,
                     city: data?.city,
                     avatar: avatar,
-                    id: idUser,
+                    id: Number(idUser),
                     status: data?.status ? 1 : 0,
                 }))
             } else {
@@ -144,7 +144,7 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
         setAvatar(base64 as string)
     }
 
-    const fetchDetailUser = async (id: string) => {
+    const fetchDetailUser = async (id: number) => {
         setLoading(true)
         await getUserDetail(id).then((res) => {
             const data = res?.data
@@ -184,22 +184,6 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
         })
     }
 
-    const fetchAllCities = async () => {
-        setLoading(true)
-        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.cities
-            if (data) {
-                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
-
     useEffect(() => {
         if (!open) {
             reset({
@@ -209,14 +193,13 @@ const CreateUpdateUser = (props: TCreateUpdateUser) => {
             setShowPassword(false)
         } else {
             if (idUser && open) {
-                fetchDetailUser(idUser)
+                fetchDetailUser(Number(idUser))
             }
         }
     }, [open, idUser])
 
     useEffect(() => {
         fetchAllRoles()
-        fetchAllCities()
     }, [])
 
     return (

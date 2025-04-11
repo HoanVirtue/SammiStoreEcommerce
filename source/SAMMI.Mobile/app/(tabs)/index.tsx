@@ -2,17 +2,18 @@ import React, { useEffect } from 'react';
 import { StyleSheet, View, Text, ScrollView, FlatList, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors } from '@/constants/colors';
-import { useProductStore } from '@/presentation/stores/productStore';
-import { useUserStore } from '@/presentation/stores/userStore';
-import { ProductCard } from '@/presentation/components/ProductCard';
-import { CategoryCard } from '@/presentation/components/CategoryCard';
-import { SearchBar } from '@/presentation/components/SearchBar';
-import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
-import { ErrorView } from '@/presentation/components/ErrorView';
 import { Category } from '@/domain/entities/Category';
 import { Product } from '@/domain/entities/Product';
 import { ChevronRight } from 'lucide-react-native';
+import { colors } from '@/src/constants/colors';
+import { LoadingIndicator } from '@/src/presentation/components/LoadingIndicator';
+import { ErrorView } from '@/src/presentation/components/ErrorView';
+import { SearchBar } from '@/src/presentation/components/SearchBar';
+import { CategoryCard } from '@/src/presentation/components/CategoryCard';
+import { ProductCard } from '@/src/presentation/components/ProductCard';
+import { useProductStore } from '@/src/presentation/stores/productStore';
+import { useUserStore } from '@/src/presentation/stores/userStore';
+import { useAuth } from '@/src/hooks/useAuth';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -28,6 +29,8 @@ export default function HomeScreen() {
   } = useProductStore();
   
   const { fetchUser } = useUserStore();
+
+  const { user } = useAuth();
   
   useEffect(() => {
     fetchFeaturedProducts();

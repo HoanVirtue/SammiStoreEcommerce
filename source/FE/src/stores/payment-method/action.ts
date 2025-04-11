@@ -23,7 +23,7 @@ export const updatePaymentMethodAsync = createAsyncThunk(`${serviceName}/update`
     return response
 })
 
-export const deletePaymentMethodAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deletePaymentMethodAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deletePaymentMethod(id)
     return response
 })

@@ -24,12 +24,12 @@ export const updateMyReviewAsync = createAsyncThunk(`${serviceName}/my-update`, 
     return response
 })
 
-export const deleteReviewAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteReviewAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteReview(id)
     return response
 })
 
-export const deleteMyReviewAsync = createAsyncThunk(`${serviceName}/delete-me`, async (id: string) => {
+export const deleteMyReviewAsync = createAsyncThunk(`${serviceName}/delete-me`, async (id: number) => {
     const response = await deleteMyReview(id)
     return response
 })

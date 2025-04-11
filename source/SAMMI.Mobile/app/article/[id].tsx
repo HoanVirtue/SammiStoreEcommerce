@@ -6,7 +6,7 @@ import { colors } from '@/constants/colors';
 import { useArticleStore } from '@/presentation/stores/articleStore';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
-import { formatDate } from '@/utils/dateUtils';
+import { formatDate } from '@/src/utils/dateUtils';
 import { ArrowLeft, ExternalLink, Clock, User } from 'lucide-react-native';
 
 export default function ArticleDetailScreen() {
@@ -43,7 +43,7 @@ export default function ArticleDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
-      <Stack.Screen 
+      <Stack.Screen
         options={{
           headerShown: true,
           headerTitle: '',
@@ -55,11 +55,11 @@ export default function ArticleDetailScreen() {
           headerShadowVisible: false,
         }}
       />
-      
+
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <Text style={styles.source}>{selectedArticle.source.name}</Text>
         <Text style={styles.title}>{selectedArticle.title}</Text>
-        
+
         <View style={styles.metaInfo}>
           {selectedArticle.author && (
             <View style={styles.metaItem}>
@@ -67,29 +67,29 @@ export default function ArticleDetailScreen() {
               <Text style={styles.metaText}>{selectedArticle.author}</Text>
             </View>
           )}
-          
+
           <View style={styles.metaItem}>
             <Clock size={16} color={colors.textSecondary} />
             <Text style={styles.metaText}>{formatDate(selectedArticle.publishedAt)}</Text>
           </View>
         </View>
-        
+
         {selectedArticle.urlToImage && (
-          <Image 
-            source={{ uri: selectedArticle.urlToImage }} 
+          <Image
+            source={{ uri: selectedArticle.urlToImage }}
             style={styles.image}
             resizeMode="cover"
           />
         )}
-        
+
         <Text style={styles.description}>{selectedArticle.description}</Text>
-        
+
         {selectedArticle.content && (
           <Text style={styles.content}>
             {selectedArticle.content.replace(/\[\+\d+ chars\]$/, '')}
           </Text>
         )}
-        
+
         <Pressable style={styles.readMoreButton} onPress={handleOpenArticle}>
           <Text style={styles.readMoreText}>Read Full Article</Text>
           <ExternalLink size={16} color={colors.background} />

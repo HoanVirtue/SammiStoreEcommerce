@@ -23,17 +23,17 @@ export const createProvince = async (data: TParamsCreateProvince) => {
 
 
 export const updateProvince = async (data: TParamsUpdateProvince) => {
-    const { id, ...rests } = data
+    // const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/${id}`, rests)
+        const res = await instance.put(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/${data.id}`, data)
         return res.data
     } catch (error: any) {
-        return error?.response?.data
+        return error
     }
 }
 
 
-export const deleteProvince = async (id: string) => {
+export const deleteProvince = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deleteProvince = async (id: string) => {
     }
 }
 
-export const getProvinceDetail = async (id: string) => {
+export const getProvinceDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/${id}`)
         return res.data

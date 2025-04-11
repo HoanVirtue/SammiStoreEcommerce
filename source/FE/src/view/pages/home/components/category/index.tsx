@@ -2,7 +2,18 @@ import React from 'react';
 import { Box, Typography, Card, CardContent, CardMedia, Grid, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import Category from '/public/images/category1.jpg';
+import Category1 from '/public/images/cate1.png';
+import Category2 from '/public/images/cate2.png';
+import Category3 from '/public/images/cate3.png';
+import Category4 from '/public/images/cate4.png';
+import Category5 from '/public/images/cate5.png';
+import Category6 from '/public/images/cate6.png';
+import Category7 from '/public/images/cate7.png';
+import Category8 from '/public/images/cate8.png';
+import Category9 from '/public/images/cate9.png';
+import Category10 from '/public/images/cate10.png';
+
+
 import { StaticImageData } from 'next/image';
 
 interface TCategory {
@@ -14,33 +25,53 @@ interface TCategory {
 const categories = [
     {
         id: 1,
-        title: 'Danh Mục 1',
-        image: Category,
+        title: 'Tẩy trang',
+        image: Category1,
     },
     {
         id: 2,
-        title: 'Danh Mục 2',
-        image: Category,
+        title: 'Sữa rửa mặt',
+        image: Category2,
     },
     {
         id: 3,
-        title: 'Danh Mục 3',
-        image: Category,
+        title: 'Mặt nạ',
+        image: Category3,
     },
     {
         id: 4,
-        title: 'Danh Mục 1',
-        image: Category,
+        title: 'Nước hoa hồng',
+        image: Category4,
     },
     {
         id: 5,
-        title: 'Danh Mục 2',
-        image: Category,
+        title: 'Tinh chất',
+        image: Category5,
     },
     {
         id: 6,
-        title: 'Danh Mục 3',
-        image: Category,
+        title: 'Dưỡng ẩm',
+        image: Category6,
+    },
+    {
+        id: 7,
+        title: 'Dưỡng thể',
+        image: Category7,
+    },
+    {
+        id: 8,
+        title: 'Trang điểm',
+        image: Category8,
+    },
+    {
+        id: 9,
+        title: 'Chăm sóc tóc',
+        image: Category9,
+    },
+    {
+        id: 10,
+        title: 'Nước hoa',
+        image: Category10,
     },
 ];
 
@@ -52,19 +83,19 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.6 }} 
+            initial={{ opacity: 0, scale: 0.6 }}
             // animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 2 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: false }}
         >
-            <Box sx={{ flexGrow: 1, padding: 4, mt: 10 }}>
-                <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 'bold', mb: 4 }}>
+            <Box sx={{ flexGrow: 1, maxWidth: '1440px', pt: 10, margin: '0 auto', pb: '1.2rem', backgroundColor: theme.palette.background.paper }}>
+                <Typography variant="h4" gutterBottom align="left" sx={{ fontWeight: 'bold', mb: '1.6rem', ml: '15px', textTransform: 'uppercase', fontFamily: 'Yeseva One' }}>
                     {t('outstanding_category')}
                 </Typography>
-                <Grid container spacing={4}>
+                <Box sx={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'center', width: '100%', flex: 1 }}>
                     {categories.map((category: TCategory) => (
-                        <Grid item xs={12} sm={4} md={2} key={category.id}>
+                        <Box key={category.id} sx={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
                             <motion.div
                                 whileHover={{
                                     scale: 1.1,
@@ -77,19 +108,26 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
                                     duration: 0.5,
                                 }}
                             >
-                                <Card sx={{ maxWidth: 345, margin: 'auto', cursor: 'pointer' }}>
+                                <Card sx={{ width: '100%', maxWidth: '114px', margin: 'auto', cursor: 'pointer', backgroundColor: 'transparent', boxShadow: 'none' }}>
                                     <CardMedia
                                         component="img"
-                                        height="80"
+                                        height="50"
+                                        width="114"
+                                        sizes='small'
                                         image={typeof category.image === 'string' ? category.image : category.image.src}
                                         alt={category.title}
                                     />
-                                    <CardContent>
-                                        <Typography gutterBottom variant="h5" component="div"
+                                    <CardContent sx={{ padding: 0, pb: '0 !important' }}>
+                                        <Typography gutterBottom variant="h6"
                                             sx={{
+                                                width: '100%',
                                                 padding: 0,
+                                                mt: '12px',
+                                                fontSize: '14px',
                                                 fontWeight: 'bold',
                                                 textAlign: 'center',
+                                                fontFamily: 'Roboto, sans-serif',
+                                                textWrap: 'nowrap',
                                                 "&:hover": {
                                                     color: theme.palette.primary.main
                                                 }
@@ -99,9 +137,9 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
                                     </CardContent>
                                 </Card>
                             </motion.div>
-                        </Grid>
+                        </Box>
                     ))}
-                </Grid>
+                </Box>
             </Box>
         </motion.div>
     );

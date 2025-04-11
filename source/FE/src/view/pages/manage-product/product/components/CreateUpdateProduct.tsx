@@ -1,708 +1,696 @@
-//react
-import { useEffect, useState } from "react"
-
-//form
-import { yupResolver } from "@hookform/resolvers/yup"
-import { Controller, useForm } from "react-hook-form"
-import * as yup from 'yup';
-
-//Mui
-import { Avatar, Box, Button, FormHelperText, Grid, IconButton, InputAdornment, Typography } from "@mui/material"
-import { useTheme } from "@mui/material"
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-
-//components
-import CustomModal from "src/components/custom-modal"
-import IconifyIcon from "src/components/Icon"
-import Spinner from "src/components/spinner"
-import CustomTextField from "src/components/text-field"
-
-//services
-import { getUserDetail } from "src/services/user"
-
-//translation
-import { useTranslation } from "react-i18next"
-
-//redux
-import { useDispatch } from "react-redux"
-import { AppDispatch } from "src/stores"
+import { useEffect, useState } from "react";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { Controller, useForm, SubmitHandler } from "react-hook-form";
+import * as yup from "yup";
+import {
+    Box,
+    Button,
+    FormHelperText,
+    Grid,
+    IconButton,
+    InputLabel,
+    Tab,
+    Tabs,
+    Typography,
+    Paper,
+    Avatar,
+    FormControlLabel,
+    Switch,
+} from "@mui/material";
+import { useTheme } from "@mui/material";
+import CustomTextField from "src/components/text-field";
+import IconifyIcon from "src/components/Icon";
+import Spinner from "src/components/spinner";
+import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "src/stores";
 import FileUploadWrapper from "src/components/file-upload-wrapper";
-import { convertBase64, convertHTMLToDraft, stringToSlug } from "src/utils";
-import { InputLabel } from "@mui/material";
-import CustomSelect from "src/components/custom-select";
+import { convertBase64, convertHTMLToDraft } from "src/utils";
+import CustomAutocomplete from "src/components/custom-autocomplete";
+import { DesktopDateTimePicker } from '@mui/x-date-pickers/DesktopDateTimePicker';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { createProductAsync, updateProductAsync } from "src/stores/product/action";
 import { getAllProductCategories } from "src/services/product-category";
-import CustomDatePicker from "src/components/custom-date-picker";
+import { getProductCode, getProductDetail } from "src/services/product";
+import { getAllBrands } from "src/services/brand";
+import { ProductImage, TParamsCreateProduct } from "src/types/product";
+import { TParamsGetAllProductCategories } from "src/types/product-category";
+import { TParamsGetAllBrands } from "src/types/brand";
 import CustomEditor from "src/components/custom-editor";
 import { convertToRaw, EditorState } from "draft-js";
 import draftToHtml from "draftjs-to-html";
-import { getProductDetail } from "src/services/product";
-import { getAllCities } from "src/services/city";
 
 interface TCreateUpdateProduct {
-    open: boolean
-    onClose: () => void
-    idProduct?: string
+    id?: number;
+    onClose: () => void;
 }
 
 type TDefaultValues = {
-    name: string,
-    category: string,
-    location: string,
-    discount?: string | null,
-    price: string,
-    description: EditorState,
-    slug: string,
-    countInStock: string,
-    status: number,
-    discountStartDate?: Date | null,
-    discountEndDate?: Date | null,
-}
+    code: string;
+    name: string;
+    stockQuantity: string;
+    price: string;
+    discount?: string | null;
+    ingredient: EditorState;
+    uses: EditorState;
+    usageGuide: EditorState;
+    brandId: string;
+    categoryId: string;
+    status: number;
+    startDate?: Date | null;
+    endDate?: Date | null;
+    images?: ProductImage[];
+};
 
 const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
+    const [loading, setLoading] = useState(false);
+    const [categoryOptions, setCategoryOptions] = useState<{ label: string; value: string }[]>([]);
+    const [brandOptions, setBrandOptions] = useState<{ label: string; value: string }[]>([]);
+    const [productImages, setProductImages] = useState<ProductImage[]>([]);
+    const [tabValue, setTabValue] = useState(0);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [productCode, setProductCode] = useState<string>("");
 
-    //state
-    const [loading, setLoading] = useState(false)
-    const [productImage, setProductImage] = useState("")
-    const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>([])
-    const [cityOptions, setCityOptions] = useState<{ label: string, value: string }[]>([])
-
-    //props
-    const { open, onClose, idProduct } = props
-
-    //translation
-    const { t, i18n } = useTranslation()
-
-    //theme
-    const theme = useTheme()
-
-    //redux
-    const dispatch: AppDispatch = useDispatch()
+    const { id, onClose } = props;
+    const { t } = useTranslation();
+    const theme = useTheme();
+    const dispatch: AppDispatch = useDispatch();
 
     const schema = yup.object().shape({
+        code: yup.string().required(t("required_product_code")),
         name: yup.string().required(t("required_product_name")),
-        slug: yup.string().required(t("required_product_slug")),
-        category: yup.string().required(t("required_product_category")),
-        location: yup.string().required(t("required_product_location")),
-        countInStock: yup.string().required(t("required_product_count_in_stock"))
-            .test('least_count', t('at_least_count_product'), (value) => Number(value) >= 1),
+        stockQuantity: yup
+            .string()
+            .required(t("required_product_count_in_stock"))
+            .matches(/^\d+$/, t("must_be_number"))
+            .test("least_count", t("at_least_count_product"), (value) => Number(value) >= 1),
+        ingredient: yup.mixed<EditorState>().required(t('required_ingredient')),
+        uses: yup.mixed<EditorState>().required(t('required_uses')),
+        usageGuide: yup.mixed<EditorState>().required(t('required_usage_guide')),
+        brandId: yup.string().required(t("required_brand")),
+        categoryId: yup.string().required(t("required_product_category")),
         discount: yup.string().notRequired()
             .test('least_discount', t('at_least_discount'), (value, context) => {
-                const discountStartDate = context?.parent?.discountStartDate
-                const discountEndDate = context?.parent?.discountEndDate
+                const startDate = context?.parent?.startDate;
+                const endDate = context?.parent?.endDate;
                 if (value) {
-                    if (!discountStartDate) {
-                        setError('discountStartDate', {
-                            message: t('required_start_discount_date'),
-                            type: 'required_start_discount'
-                        })
-                    }
-                    if (!discountEndDate) {
-                        setError('discountEndDate', {
-                            message: t('required_end_discount_date'),
-                            type: 'required_end_discount'
-                        })
-                    }
+                    if (!startDate) setError('startDate', { message: t('required_discount_start_date'), type: 'required_start_discount' });
+                    if (!endDate) setError('endDate', { message: t('required_discount_end_date'), type: 'required_end_discount' });
                 } else {
-                    clearErrors('discountStartDate')
-                    clearErrors('discountEndDate')
+                    clearErrors('startDate');
+                    clearErrors('endDate');
                 }
-
-                return !value || Number(value) >= 1
+                return !value || Number(value) >= 1;
             }),
-        discountStartDate: yup.date().notRequired()
-            .test('required_start_discount', t('required_start_discount_date'), (value, context) => {
-                const discount = context?.parent?.discount
-                return !discount || (value && discount)
+        startDate: yup.date().notRequired()
+            .test('required_start_discount', t('required_discount_start_date'), (value, context) => {
+                const discount = context?.parent?.discount;
+                return !discount || (value && discount);
             })
-            .test('less_start_discount', t('less_start_discount_date'), (value, context: any) => {
-                const discountEndDate = context?.parent?.discountEndDate
-                if (value && discountEndDate && discountEndDate.getTime() > value?.getTime()) {
-                    clearErrors("discountEndDate")
-                }
-                return !discountEndDate || (discountEndDate && value && discountEndDate.getTime() > value?.getTime())
+            .test('less_start_discount', t('less_discount_start_date'), (value, context: any) => {
+                const endDate = context?.parent?.endDate;
+                if (value && endDate && endDate.getTime() > value?.getTime()) clearErrors("endDate");
+                return !endDate || (endDate && value && endDate.getTime() > value?.getTime());
             }),
-        discountEndDate: yup.date().notRequired()
-            .test('required_end_discount', t('required_end_discount_date'), (value, context: any) => {
-                const discountStartDate = context?.parent?.discountStartDate
-                return !discountStartDate || (discountStartDate && value)
+        endDate: yup.date().notRequired()
+            .test('required_end_discount', t('required_discount_end_date'), (value, context: any) => {
+                const startDate = context?.parent?.startDate;
+                return !startDate || (startDate && value);
             })
-            .test('greater_start_discount', t('greater_start_discount_date'), (value, context: any) => {
-                const discountStartDate = context?.parent?.discountStartDate
-                if (value && discountStartDate && discountStartDate.getTime() < value?.getTime()) {
-                    clearErrors("discountStartDate")
-                }
-                return !discountStartDate || (discountStartDate && value && discountStartDate.getTime() < value?.getTime())
+            .test('greater_start_discount', t('greater_discount_start_date'), (value, context: any) => {
+                const startDate = context?.parent?.startDate;
+                if (value && startDate && startDate.getTime() < value?.getTime()) clearErrors("startDate");
+                return !startDate || (startDate && value && startDate.getTime() < value?.getTime());
             }),
         status: yup.number().required(t('required_product_status')),
-        description: yup.mixed<EditorState>().required(t('required_product_description')),
-        price: yup.string().required("required_product_price")
+        price: yup.string().required(t("required_product_price"))
             .test('least_price', t('at_least_price_product'), (value) => Number(value) >= 1000),
+        images: yup
+            .array()
+            .of(
+                yup.object().shape({
+                    imageBase64: yup.string().required(t("required_image")),
+                    imageUrl: yup.string().default(""),
+                    publicId: yup.string().default(""),
+                    typeImage: yup.string().default(""),
+                    value: yup.string().default("main"),
+                    id: yup.number().default(0),
+                    displayOrder: yup.number().default(0),
+                })
+            )
+            .min(1, t("images_required")),
     });
 
     const defaultValues: TDefaultValues = {
-        name: '',
-        category: '',
-        location: '',
-        discount: '',
-        price: '',
-        description: EditorState.createEmpty(),
-        slug: '',
-        countInStock: '',
+        code: productCode,
+        name: "",
+        stockQuantity: "",
+        price: "",
+        discount: "",
+        ingredient: EditorState.createEmpty(),
+        uses: EditorState.createEmpty(),
+        usageGuide: EditorState.createEmpty(),
+        brandId: "",
+        categoryId: "",
         status: 0,
-        discountStartDate: null,
-        discountEndDate: null,
-    }
+        startDate: null,
+        endDate: null,
+        images: [],
+    };
 
-    const { handleSubmit, getValues, setError, clearErrors, control, formState: { errors }, reset } = useForm<TDefaultValues>({
+    const {
+        handleSubmit,
+        getValues,
+        setError,
+        clearErrors,
+        control,
+        formState: { errors },
+        reset,
+        setValue
+    } = useForm<TDefaultValues>({
         defaultValues,
         mode: 'onChange',
         resolver: yupResolver(schema)
     });
 
-
-    const onSubmit = (data: TDefaultValues) => {
-        if (!Object.keys(errors)?.length) {
-            if (idProduct) {
-                //update
-                dispatch(updateProductAsync({
-                    id: idProduct,
-                    name: data?.name,
-                    type: data?.category,
-                    location: data?.location,
-                    discount: Number(data?.discount) || 0,
-                    description: data?.description ? draftToHtml(convertToRaw(data?.description.getCurrentContent())) : "",
-                    slug: data?.slug,
-                    price: Number(data?.price),
-                    countInStock: Number(data?.countInStock),
-                    status: data?.status ? 1 : 0,
-                    discountStartDate: data?.discountStartDate instanceof Date ? data.discountStartDate : null,
-                    discountEndDate: data?.discountEndDate instanceof Date ? data.discountEndDate : null,
-                    image: productImage
-                }))
-            } else {
-                //create
-                dispatch(createProductAsync({
-                    name: data?.name,
-                    type: data?.category,
-                    location: data?.location,
-                    discount: Number(data?.discount) || 0,
-                    description: data?.description ? draftToHtml(convertToRaw(data?.description.getCurrentContent())) : "",
-                    slug: data?.slug,
-                    price: Number(data?.price),
-                    countInStock: Number(data?.countInStock),
-                    status: data?.status ? 1 : 0,
-                    discountStartDate: data?.discountStartDate instanceof Date ? data.discountStartDate : null,
-                    discountEndDate: data?.discountEndDate instanceof Date ? data.discountEndDate : null,
-                    image: productImage
-                }))
-            }
+    const onSubmit: SubmitHandler<TDefaultValues> = (data) => {
+        const payload: TParamsCreateProduct = {
+            code: data.code,
+            name: data.name,
+            stockQuantity: Number(data.stockQuantity),
+            price: Number(data.price),
+            discount: data.discount ? Number(data.discount) : 0,
+            ingredient: data?.ingredient ? draftToHtml(convertToRaw(data?.ingredient.getCurrentContent())) : "",
+            uses: data?.uses ? draftToHtml(convertToRaw(data?.uses.getCurrentContent())) : "",
+            usageGuide: data?.usageGuide ? draftToHtml(convertToRaw(data?.usageGuide.getCurrentContent())) : "",
+            brandId: Number(data.brandId),
+            categoryId: Number(data.categoryId),
+            status: data.status,
+            startDate: data.startDate ? data.startDate.toISOString() : new Date().toISOString(),
+            endDate: data.endDate ? data.endDate.toISOString() : new Date().toISOString(),
+            images: productImages,
+        };
+        if (id) {
+            dispatch(updateProductAsync({ id: id, ...payload }));
+        } else {
+            dispatch(createProductAsync(payload));
         }
-    }
 
-    //handler
+        // onClose();
+    };
+
     const handleUploadProductImage = async (file: File) => {
-        const base64 = await convertBase64(file)
-        setProductImage(base64 as string)
-    }
+        const base64WithPrefix = await convertBase64(file);
+        const base64 = base64WithPrefix.split(",")[1];
+        const newImage: ProductImage = {
+            imageUrl: "",
+            imageBase64: base64,
+            publicId: "''",
+            typeImage: file.type.split("/")[1],
+            value: "main",
+            id: 0,
+            displayOrder: productImages.length + 1,
+        };
+        const updatedImages = [...productImages, newImage];
+        setProductImages(updatedImages);
+        setValue("images", updatedImages, { shouldValidate: true });
+    };
 
-    const fetchDetailProduct = async (id: string) => {
-        setLoading(true)
-        await getProductDetail(id).then((res) => {
-            const data = res?.data
+    const fetchAllCategories = async () => {
+        setLoading(true);
+        try {
+            const res = await getAllProductCategories({
+                params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" } as TParamsGetAllProductCategories,
+            });
+            const data = res?.result?.subset;
+            if (data) {
+                setCategoryOptions(data.map((item: { name: string; id: string }) => ({ label: item.name, value: item.id })));
+            }
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchAllBrands = async () => {
+        setLoading(true);
+        try {
+            const res = await getAllBrands({
+                params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" } as TParamsGetAllBrands,
+            });
+            const data = res?.result?.subset;
+            if (data) {
+                setBrandOptions(data.map((item: { name: string; id: string }) => ({ label: item.name, value: item.id })));
+            }
+        } catch (error) {
+            console.error('Error fetching brands:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchDetailProduct = async (productId: number) => {
+        setLoading(true);
+        try {
+            const res = await getProductDetail(productId);
+            const data = res?.result;
             if (data) {
                 reset({
-                    name: data?.name,
-                    category: data?.type,
-                    location: data?.location,
-                    discount: data?.discount || '',
-                    price: data?.price,
-                    description: data?.description ? convertHTMLToDraft(data?.description) : '',
-                    slug: data?.slug,
-                    countInStock: data?.countInStock,
-                    status: data?.status,
-                    discountStartDate: data?.discountStartDate ? new Date(data.discountStartDate) : null,
-                    discountEndDate: data?.discountEndDate ? new Date(data.discountEndDate) : null,
-                })
-                setProductImage(data?.image)
+                    code: data.code,
+                    name: data.name,
+                    stockQuantity: data.stockQuantity.toString(),
+                    price: data.price.toString(),
+                    discount: data.discount ? (data.discount * 100).toString() : '',
+                    ingredient: data?.ingredient ? convertHTMLToDraft(data?.ingredient) : EditorState.createEmpty(),
+                    uses: data?.uses ? convertHTMLToDraft(data?.uses) : EditorState.createEmpty(),
+                    usageGuide: data?.usageGuide ? convertHTMLToDraft(data?.usageGuide) : EditorState.createEmpty(),
+                    brandId: data.brandId.toString(),
+                    categoryId: data.categoryId.toString(),
+                    status: data.status,
+                    startDate: data.startDate ? new Date(data.startDate) : null,
+                    endDate: data.endDate ? new Date(data.endDate) : null,
+                    images: data.images,
+                });
+                setProductImages(data.images || []);
             }
-            setLoading(false)
-        }).catch((e) => {
-            setLoading(false)
-        })
-    }
-
-    const fetchAllProductCategories = async () => {
-        setLoading(true)
-        await getAllProductCategories({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.productTypes
-            if (data) {
-                setCategoryOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
-
-    const fetchAllCities = async () => {
-        setLoading(true)
-        await getAllCities({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.cities
-            if (data) {
-                setCityOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
-
-    useEffect(() => {
-        if (!open) {
-            reset({
-                ...defaultValues
-            })
-            setProductImage("")
-        } else {
-            if (idProduct && open) {
-                fetchDetailProduct(idProduct)
-            }
+        } catch (error) {
+            console.error('Error fetching product details:', error);
+        } finally {
+            setLoading(false);
         }
-    }, [open, idProduct])
+    };
+
+    const getProductDefaultCode = async () => {
+        const res = await getProductCode({
+            params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" }
+        });
+        setProductCode(res?.result);
+    };
 
     useEffect(() => {
-        fetchAllProductCategories()
-        fetchAllCities()
-    }, [])
+        if (id) {
+            setIsEditMode(true);
+            fetchDetailProduct(id);
+        } else {
+            setIsEditMode(false);
+            reset(defaultValues);
+        }
+    }, [id]);
+
+    useEffect(() => {
+        fetchAllCategories();
+        fetchAllBrands();
+        getProductDefaultCode();
+    }, []);
+
+    const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+        setTabValue(newValue);
+    };
 
     return (
-        <>
-            {loading && <Spinner />}
-            <CustomModal open={open} onClose={onClose}>
-                <Box
-                    sx={{
-                        backgroundColor: theme.palette.customColors.bodyBg,
-                        padding: '20px',
-                        borderRadius: '15px',
-                    }}
-                    minWidth={{ md: '800px', xs: '80vw' }}
-                    maxWidth={{ md: '80vw', xs: '80vw' }}
-                >
-                    <Box sx={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        position: 'relative',
-                        paddingBottom: '20px'
-                    }}>
-                        <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idProduct ? t('update_product') : t('create_product')}
-                        </Typography>
-                        <IconButton sx={{
-                            position: 'absolute',
-                            right: "-10px",
-                            top: "-6px",
-                        }}>
-                            <IconifyIcon
-                                icon="material-symbols-light:close-rounded"
-                                fontSize={"30px"}
-                                onClick={onClose}
-                            />
-                        </IconButton>
-                    </Box>
-                    <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
-                        <Box
-                            sx={{
-                                backgroundColor: theme.palette.background.paper,
-                                borderRadius: "15px",
-                                py: 5, px: 4
-                            }}>
-                            <Grid container
-                                spacing={4}
-                            >
-                                <Grid container item md={6} xs={12}>
-                                    <Box sx={{
-                                        width: "100%",
-                                        height: "100%",
-                                    }}>
-                                        <Grid container spacing={4}>
-                                            <Grid item md={12} xs={12}>
-                                                <Box sx={{
-                                                    width: "100%",
-                                                    height: "100%",
-                                                    display: "flex",
-                                                    alignItems: "center",
-                                                    justifyContent: "center",
-                                                    flexDirection: "column",
-                                                    gap: 2,
-                                                }}>
-                                                    <Box sx={{
-                                                        position: "relative",
-                                                    }}>
-                                                        {productImage && (
-                                                            <IconButton
-                                                                sx={{
-                                                                    position: "absolute",
-                                                                    bottom: -4,
-                                                                    right: -6,
-                                                                    zIndex: 2,
-                                                                    color: theme.palette.error.main
-                                                                }}
-                                                                edge="start"
-                                                                color="inherit"
-                                                                aria-label="delete-avatar"
-                                                                onClick={() => setProductImage('')}
-                                                            >
-                                                                <IconifyIcon icon="material-symbols:delete-rounded" />
-                                                            </IconButton>
-                                                        )}
-                                                        {productImage ? (
-                                                            <Avatar src={productImage} alt="productImage" sx={{ width: 100, height: 100 }}>
-                                                                <IconifyIcon icon="fluent-mdl2:product-variant" fontSize={70} />
-                                                            </Avatar>
-                                                        ) : (
-                                                            <Avatar alt="default-product-image" sx={{ width: 100, height: 100 }}>
-                                                                <IconifyIcon icon="fluent-mdl2:product-variant" fontSize={70} />
-                                                            </Avatar>
-                                                        )}
-                                                    </Box>
-                                                    <FileUploadWrapper uploadFile={handleUploadProductImage} objectAcceptedFile={{
-                                                        "image/jpeg": [".jpg", ".jpeg"],
-                                                        "image/png": [".png"]
-                                                    }}>
-                                                        <Button variant="outlined" sx={{
-                                                            width: "auto",
-                                                            display: "flex",
-                                                            alignItems: "center",
-                                                            justifyContent: "center",
-                                                            gap: 1
-                                                        }}>
-                                                            <IconifyIcon icon="ph:camera-thin" />
-                                                            {productImage ? t('change_product_image') : t('upload_product_image')}
-                                                        </Button>
-                                                    </FileUploadWrapper>
-                                                </Box>
-                                            </Grid>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Box sx={{ p: 3 }}>
+                {loading && <Spinner />}
+                <Paper sx={{ p: 2 }}>
+                    <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate>
+                        {/* Header */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                            <Typography variant="h5">{isEditMode ? t("update_product") : t("create_product")}</Typography>
+                            <Box sx={{ display: 'flex', gap: 1 }}>
+                                <Button variant="outlined" onClick={onClose}>
+                                    {t("cancel")}
+                                </Button>
+                                <Button type="submit" variant="contained" color="primary" disabled={loading}>
+                                    {isEditMode ? t("update") : t("create")}
+                                </Button>
+                            </Box>
+                        </Box>
 
-                                                            required
-                                                            label={t('product_name')}
-                                                            onChange={(e) => {
-                                                                const value = e.target.value
-                                                                const replacedValue = stringToSlug(value)
-                                                                onChange(value)
-                                                                reset({
-                                                                    ...getValues(),
-                                                                    slug: replacedValue
-                                                                })
-                                                            }}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_product_name')}
-                                                            error={errors.name ? true : false}
-                                                            helperText={errors.name?.message}
-                                                        />
-                                                    )}
-                                                    name='name'
-                                                />
-                                            </Grid>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-
-                                                            disabled
-                                                            required
-                                                            label={t('slug')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_slug')}
-                                                            error={errors.slug ? true : false}
-                                                            helperText={errors.slug?.message}
-                                                        />
-                                                    )}
-                                                    name='slug'
-                                                />
-                                            </Grid>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => {
-                                                        return (
-                                                            <Box sx={{
-                                                                display: "flex",
-                                                                alignItems: "center",
-                                                                gap: 4
-                                                            }}>
-                                                                <InputLabel sx={{
-                                                                    fontSize: "13px",
-                                                                    mb: "4px",
-                                                                    display: "block",
-                                                                    color: `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                                }}>
-                                                                    {t('status')}
-                                                                </InputLabel>
-                                                                <FormControlLabel
-                                                                    control={
-                                                                        <Switch
-                                                                            checked={Boolean(value)}
-                                                                            value={value}
-                                                                            onChange={
-                                                                                (e) => onChange(e.target.checked ? 1 : 0)
-                                                                            }
-                                                                            sx={{
-                                                                                '& .MuiSwitch-switchBase': {
-                                                                                    color: theme.palette.common.white,
-                                                                                },
-                                                                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                                                                },
-                                                                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                                                                    backgroundColor: theme.palette.primary.main,
-                                                                                },
-                                                                                '& .MuiSwitch-track': {
-                                                                                    backgroundColor: theme.palette.grey[400],
-                                                                                },
-                                                                            }}
-                                                                        />
-                                                                    }
-                                                                    label={Boolean(value) ? t('public') : t('private')}
-                                                                    sx={{
-                                                                        '& .MuiFormControlLabel-label': {
-                                                                            color: theme.palette.text.primary,
-                                                                        }
-                                                                    }}
-                                                                />
-                                                            </Box>
-                                                        )
+                        {/* Image Upload Section */}
+                        <Box sx={{ mb: 4 }}>
+                            <Typography variant="subtitle1" sx={{ mb: 2 }}>{t("product_image")}</Typography>
+                            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                                <Box sx={{
+                                    display: 'flex',
+                                    gap: 2,
+                                    flexWrap: 'wrap',
+                                    justifyContent: 'center',
+                                    maxWidth: '100%',
+                                    '& > *': {
+                                        flex: '0 0 auto',
+                                        minWidth: '100px',
+                                        maxWidth: '150px'
+                                    }
+                                }}>
+                                    {productImages.length > 0 ? (
+                                        productImages.map((img, index) => (
+                                            <Box key={index} sx={{ position: 'relative' }}>
+                                                <Avatar
+                                                    src={img.imageBase64 ? `data:image/${img.typeImage};base64,${img.imageBase64}` : img.imageUrl}
+                                                    sx={{
+                                                        width: '100%',
+                                                        height: 'auto',
+                                                        aspectRatio: '1/1',
+                                                        objectFit: 'cover'
                                                     }}
-                                                    name='status'
+                                                    variant="rounded"
+                                                    alt={`product-image-${index}`}
                                                 />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                </Grid>
-                                <Grid container item md={6} xs={12} >
-                                    <Box>
-                                        <Grid container spacing={5}>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            required
-                                                            label={t('price')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_product_price')}
-                                                            error={errors.price ? true : false}
-                                                            helperText={errors.price?.message}
-                                                        />
-                                                    )}
-                                                    name='price'
+                                                <IconButton
+                                                    sx={{
+                                                        position: 'absolute',
+                                                        top: -8,
+                                                        right: -8,
+                                                        color: theme.palette.error.main,
+                                                        backgroundColor: theme.palette.background.paper,
+                                                        '&:hover': {
+                                                            backgroundColor: theme.palette.background.paper
+                                                        }
+                                                    }}
+                                                    onClick={() => {
+                                                        const updatedImages = productImages.filter((_, i) => i !== index);
+                                                        setProductImages(updatedImages);
+                                                        setValue('images', updatedImages, { shouldValidate: true });
+                                                    }}
+                                                >
+                                                    <IconifyIcon icon='material-symbols:delete-rounded' />
+                                                </IconButton>
+                                            </Box>
+                                        ))
+                                    ) : (
+                                        <Avatar
+                                            sx={{
+                                                width: '100%',
+                                                height: 'auto',
+                                                aspectRatio: '1/1'
+                                            }}
+                                            variant="rounded"
+                                            alt='default-product-image'
+                                        >
+                                            <IconifyIcon fontSize={40} icon='solar:cosmetic-outline' />
+                                        </Avatar>
+                                    )}
+                                </Box>
+                                <FileUploadWrapper
+                                    uploadFile={handleUploadProductImage}
+                                    objectAcceptedFile={{ "image/jpeg": [".jpg", ".jpeg"], "image/png": [".png"] }}
+                                >
+                                    <Button variant="outlined" sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                                        <IconifyIcon icon="ph:camera-thin" />
+                                        {t("upload_product_image")}
+                                    </Button>
+                                </FileUploadWrapper>
+                                {errors.images && (
+                                    <FormHelperText error>{errors.images.message}</FormHelperText>
+                                )}
+                            </Box>
+                        </Box>
+
+                        {/* Basic Information */}
+                        <Grid container spacing={4}>
+                            {/* Left Column */}
+                            <Grid item xs={12} md={6}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12}>
+                                        <Controller
+                                            name="code"
+                                            control={control}
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    required
+                                                    label={t("product_code")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value || productCode}
+                                                    placeholder={t("enter_product_code")}
+                                                    error={!!errors.code}
+                                                    helperText={errors.code?.message}
+                                                    disabled={isEditMode}
                                                 />
-                                            </Grid>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    name='countInStock'
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            label={t('count_in_stock')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_product_count_in_stock')}
-                                                            helperText={errors.countInStock?.message}
-                                                        />
-                                                    )}
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Controller
+                                            name="name"
+                                            control={control}
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    required
+                                                    label={t("product_name")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_product_name")}
+                                                    error={!!errors.name}
+                                                    helperText={errors.name?.message}
                                                 />
-                                            </Grid>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    name='category'
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <Box>
-                                                            <InputLabel sx={{
-                                                                fontSize: "13px",
-                                                                mb: "4px",
-                                                                display: "block",
-                                                                color: errors?.category ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
-                                                            }}>
-                                                                {t('category')}
-                                                            </InputLabel>
-                                                            <CustomSelect
-                                                                fullWidth
-                                                                onChange={onChange}
-                                                                onBlur={onBlur}
-                                                                value={value}
-                                                                options={categoryOptions}
-                                                                placeholder={t('select_product_category')}
-                                                                error={errors.category ? true : false}
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Controller
+                                            name="stockQuantity"
+                                            control={control}
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    required
+                                                    type="number"
+                                                    label={t("stock_quantity")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_product_stock_quantity")}
+                                                    error={!!errors.stockQuantity}
+                                                    helperText={errors.stockQuantity?.message}
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Controller
+                                            name="status"
+                                            control={control}
+                                            render={({ field: { onChange, value } }) => (
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                    <InputLabel>{t("status")}</InputLabel>
+                                                    <FormControlLabel
+                                                        control={
+                                                            <Switch
+                                                                checked={Boolean(value)}
+                                                                onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                                                                sx={{
+                                                                    '& .MuiSwitch-track': {
+                                                                        color: theme.palette.primary.main,
+                                                                        border: `1px solid ${theme.palette.primary.main}`,
+                                                                        backgroundColor: theme.palette.primary.main,
+                                                                        '&:hover': {
+                                                                            backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                                                        },
+                                                                    },
+                                                                }}
                                                             />
-                                                            {errors?.category?.message && (
-                                                                <FormHelperText sx={{
-                                                                    color: errors?.category ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
-                                                                }}>
-                                                                    {errors?.category?.message}
-                                                                </FormHelperText>
-                                                            )}
-                                                        </Box>
-                                                    )}
-                                                />
-                                            </Grid>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            fullWidth
-                                                            label={t('discount_percent')}
-                                                            onChange={(e) => {
-                                                                const numberValue = e.target.value.replace(/\D/g, '');
-                                                                onChange(numberValue);
-                                                            }}
-                                                            onBlur={onBlur}
-                                                            inputProps={{
-                                                                inputMode: 'numeric',
-                                                                pattern: '[0-9]*',
-                                                                minLength: 1
-                                                            }}
-                                                            value={value}
-                                                            placeholder={t('enter_product_discount')}
-                                                            error={errors.discount ? true : false}
-                                                            helperText={errors.discount?.message}
-                                                        />
-                                                    )}
-                                                    name='discount'
-                                                />
-                                            </Grid>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomDatePicker
-                                                            required
-                                                            onChange={(date: Date | null) => {
-                                                                onChange(date);
-                                                            }}
-                                                            label={t('discount_start_date')}
-                                                            onBlur={onBlur}
-                                                            minDate={new Date()}
-                                                            selectedDate={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
-                                                            placeholder={t('select_discount_start_date')}
-                                                            error={errors.discountStartDate ? true : false}
-                                                            helperText={errors.discountStartDate?.message}
-                                                        />
-                                                    )}
-                                                    name='discountStartDate'
-                                                />
-                                            </Grid>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomDatePicker
-                                                            required
-                                                            onChange={(date: Date | null) => {
-                                                                onChange(date);
-                                                            }}
-                                                            label={t('discount_end_date')}
-                                                            onBlur={onBlur}
-                                                            selectedDate={value && !isNaN(new Date(value).getTime()) ? new Date(value) : null}
-                                                            placeholder={t('select_discount_end_date')}
-                                                            error={errors.discountEndDate ? true : false}
-                                                            helperText={errors.discountEndDate?.message}
-                                                        />
-                                                    )}
-                                                    name='discountEndDate'
-                                                />
-                                            </Grid>
-                                            <Grid item md={6} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    name='location'
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <Box>
-                                                            <InputLabel sx={{
-                                                                fontSize: "13px",
-                                                                mb: "4px",
-                                                                display: "block",
-                                                                color: errors?.location ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
-                                                            }}>
-                                                                {t('location')}
-                                                            </InputLabel>
-                                                            <CustomSelect
-                                                                fullWidth
-                                                                onChange={onChange}
-                                                                onBlur={onBlur}
-                                                                value={value}
-                                                                options={cityOptions}
-                                                                placeholder={t('select_product_location')}
-                                                                error={errors.location ? true : false}
-                                                            />
-                                                            {errors?.location?.message && (
-                                                                <FormHelperText sx={{
-                                                                    color: errors?.location ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.68)`
-                                                                }}>
-                                                                    {errors?.location?.message}
-                                                                </FormHelperText>
-                                                            )}
-                                                        </Box>
-                                                    )}
-                                                />
-                                            </Grid>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomEditor
-                                                            label={t('description')}
-                                                            onBlur={onBlur}
-                                                            editorState={value as EditorState}
-                                                            placeholder={t('enter_your_description')}
-                                                            error={errors.description ? true : false}
-                                                            helperText={errors.description?.message}
-                                                            onEditorStateChange={onChange}
-                                                        />
-                                                    )}
-                                                    name='description'
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
+                                                        }
+                                                        label={Boolean(value) ? t("public") : t("private")}
+                                                    />
+                                                </Box>
+                                            )}
+                                        />
+                                    </Grid>
                                 </Grid>
                             </Grid>
+
+                            {/* Right Column */}
+                            <Grid item xs={12} md={6}>
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={6}>
+                                        <Controller
+                                            name="price"
+                                            control={control}
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    required
+                                                    type="number"
+                                                    label={t("price")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_product_price")}
+                                                    error={!!errors.price}
+                                                    helperText={errors.price?.message}
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Controller
+                                            name="discount"
+                                            control={control}
+                                            render={({ field: { onChange, onBlur, value } }) => (
+                                                <CustomTextField
+                                                    fullWidth
+                                                    type="number"
+                                                    label={t("discount")}
+                                                    onChange={onChange}
+                                                    onBlur={onBlur}
+                                                    value={value}
+                                                    placeholder={t("enter_product_discount")}
+                                                    error={!!errors.discount}
+                                                    helperText={errors.discount?.message}
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Controller
+                                            name="categoryId"
+                                            control={control}
+                                            render={({ field: { onChange, value } }) => (
+                                                <CustomAutocomplete
+                                                    options={categoryOptions}
+                                                    value={categoryOptions.find(option => option.value === value) || null}
+                                                    onChange={(newValue) => onChange(newValue?.value || '')}
+                                                    label={t("category")}
+                                                    error={!!errors.categoryId}
+                                                    helperText={errors.categoryId?.message}
+                                                    placeholder={t("select_product_category")}
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12} sm={6}>
+                                        <Controller
+                                            name="brandId"
+                                            control={control}
+                                            render={({ field: { onChange, value } }) => (
+                                                <CustomAutocomplete
+                                                    options={brandOptions}
+                                                    value={brandOptions.find(option => option.value === value) || null}
+                                                    onChange={(newValue) => onChange(newValue?.value || '')}
+                                                    label={t("brand")}
+                                                    error={!!errors.brandId}
+                                                    helperText={errors.brandId?.message}
+                                                    placeholder={t("select_brand")}
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Controller
+                                            name="startDate"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <DesktopDateTimePicker
+                                                    label={t("discount_start_date")}
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    slotProps={{
+                                                        textField: {
+                                                            fullWidth: true,
+                                                            size: "small",
+                                                            error: !!errors.startDate,
+                                                            helperText: errors.startDate?.message
+                                                        }
+                                                    }}
+                                                    timezone="system"
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <Controller
+                                            name="endDate"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <DesktopDateTimePicker
+                                                    label={t("discount_end_date")}
+                                                    value={field.value}
+                                                    onChange={field.onChange}
+                                                    slotProps={{
+                                                        textField: {
+                                                            fullWidth: true,
+                                                            size: "small",
+                                                            error: !!errors.endDate,
+                                                            helperText: errors.endDate?.message
+                                                        }
+                                                    }}
+                                                    timezone="system"
+                                                />
+                                            )}
+                                        />
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </Grid>
+
+                        {/* Tabs Section */}
+                        <Box sx={{ width: '100%', mt: 4 }}>
+                            <Tabs value={tabValue} onChange={handleTabChange}>
+                                <Tab label={t("ingredient")} />
+                                <Tab label={t("uses")} />
+                                <Tab label={t("usage_guide")} />
+                            </Tabs>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                            <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idProduct ? t('update') : t('create')}
-                            </Button>
+
+                        {/* Tab Panels */}
+                        <Box sx={{ mt: 2 }}>
+                            {tabValue === 0 && (
+                                <Controller
+                                    name="ingredient"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <CustomEditor
+                                            editorState={field.value}
+                                            placeholder={t("enter_product_ingredient")}
+                                            onEditorStateChange={(state) => field.onChange(state)}
+                                            error={!!errors.ingredient}
+                                            helperText={errors.ingredient?.message}
+                                        />
+                                    )}
+                                />
+                            )}
+                            {tabValue === 1 && (
+                                <Controller
+                                    name="uses"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <CustomEditor
+                                            editorState={field.value}
+                                            placeholder={t("enter_product_uses")}
+                                            onEditorStateChange={(state) => field.onChange(state)}
+                                            error={!!errors.uses}
+                                            helperText={errors.uses?.message}
+                                        />
+                                    )}
+                                />
+                            )}
+                            {tabValue === 2 && (
+                                <Controller
+                                    name="usageGuide"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <CustomEditor
+                                            editorState={field.value}
+                                            placeholder={t("enter_product_usage_guide")}
+                                            onEditorStateChange={(state) => field.onChange(state)}
+                                            error={!!errors.usageGuide}
+                                            helperText={errors.usageGuide?.message}
+                                        />
+                                    )}
+                                />
+                            )}
                         </Box>
                     </form>
-                </Box>
-            </CustomModal>
-        </>
-    )
-}
+                </Paper>
+            </Box>
+        </LocalizationProvider>
+    );
+};
 
-export default CreateUpdateProduct
+export default CreateUpdateProduct;

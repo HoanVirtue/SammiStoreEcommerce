@@ -31,7 +31,7 @@ import CustomTextArea from "src/components/text-area";
 interface TUpdateReview {
     open: boolean
     onClose: () => void
-    idReview?: string
+    idReview?: number
 }
 
 type TDefaultValues = {
@@ -94,7 +94,7 @@ const UpdateReview = (props: TUpdateReview) => {
 
     //handler
 
-    const fetchReviewDetail = async (id: string) => {
+    const fetchReviewDetail = async (id: number) => {
         setLoading(true)
         await getReviewDetail(id).then((res) => {
             const data = res?.data

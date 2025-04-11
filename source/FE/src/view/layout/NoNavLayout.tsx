@@ -7,6 +7,7 @@ import { Box, Container, CssBaseline, Toolbar, useTheme, } from "@mui/material";
 
 //views
 import HorizontalLayout from "./HorizontalLayout";
+import Footer from "./components/footer";
 
 type TProps = {
     children: React.ReactNode
@@ -15,37 +16,39 @@ type TProps = {
 const NoNavLayout: NextPage<TProps> = ({ children }) => {
     const theme = useTheme()
     return (
-        <Box sx={{ display: 'flex' }}>
+        <Box sx={{ display: 'flex', flexDirection: "column" }}>
             <CssBaseline />
-            <HorizontalLayout open={false} toggleDrawer={() => { }} />
+            <HorizontalLayout open={false} toggleDrawer={() => { }} showBanner={true} />
             <Box
                 component='main'
                 sx={{
                     backgroundColor:
                         theme => theme.palette.mode === 'light'
                             ? theme.palette.grey[100]
-                            // ? theme.palette.background.paper
                             : theme.palette.grey[900],
                     flexGrow: 1,
-                    height: '100vh',
-                    overflow: 'auto'
+                    // height: '100vh',
+                    overflow: 'auto',
+                    overflowX: 'hidden', 
+                    width: '100%' 
                 }}
             >
                 <Toolbar />
                 <Container
                     sx={{
-                            width: "100vw", 
-                            // marginTop: '-4rem',
-                            maxWidth: "unset !important",
-                            overflow: "auto",
-                            maxHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight} - 32px)`,
-                            paddingLeft: "0rem !important",
-                            paddingRight: "0rem !important",
-                            // borderRadius: "15px"
+                        maxWidth: "unset !important",
+                        width: "100vw",
+                        overflow: "auto",
+                        px: '0 !important',
+                        maxHeight: {
+                            xs: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 16px)`, // Mobile
+                            md: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 32px)`, // Desktop
+                        },
                     }}>
                     {children}
                 </Container>
             </Box>
+            <Footer />
         </Box >
     )
 }

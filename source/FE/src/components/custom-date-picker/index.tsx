@@ -21,12 +21,12 @@ interface StyledDatePickerProps extends BoxProps {
 
 const StyledDatePicker = styled(Box)<StyledDatePickerProps>(({ theme, error }) => ({
 
-    borderRadius: 8,
     backgroundColor: 'transparent !important',
-    border: error ? `1px solid ${theme.palette.error.main}` : `1px solid rgba(${theme.palette.customColors.main}, 0.2)`,
+    border: error ? `1px solid ${theme.palette.error.main}` : `1px solid ${theme.palette.customColors.borderColor}`,
     height: "38px",
     padding: "8px",
     position: "relative",
+    borderRadius: 8,
     ".react-datepicker__header": {
         backgroundColor: `${theme.palette.background.paper} !important`,
         ".react-datepicker__day-name": {
@@ -38,6 +38,7 @@ const StyledDatePicker = styled(Box)<StyledDatePickerProps>(({ theme, error }) =
     },
     ".react-datepicker-wrapper": {
         width: "100%",
+        border: 'none',
         input: {
             width: "100%",
             border: "none",

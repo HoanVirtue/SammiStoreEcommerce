@@ -49,11 +49,12 @@ namespace SAMMI.ECOM.Domain.Enums
     da thanh toan - lost(mat hang, khong nhan) -> da huy(khong nhan, mat hang)
 
 
-    ==> Pending - NotShipped -> WaitingForPayment
-    Pending - NotShipped -> Cancelled
+    Pending - NotShipped -> WaitingForPayment
     Paid - Processing -> Processing
     Paid - Delivered -> Completed
     Paid - Lost -> Cancelled
+
+    Pending - NotShipped -> Cancelled
 
 
 
@@ -64,10 +65,11 @@ namespace SAMMI.ECOM.Domain.Enums
     chua thanh toan - lost(k nhan hang, mat hang) -> da huy
 
     Unpaid - NotShipped -> Pending
-    Unpaid - NotShipped -> Cancelled
     Unpaid - Processing -> Processing
     Paid - Delivered -> Completed
     Paid - Lost -> Cancelled
+
+    Unpaid - NotShipped -> Cancelled
     */
 
     // 1. Cod

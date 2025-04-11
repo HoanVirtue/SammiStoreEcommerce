@@ -32,7 +32,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             IConfiguration config,
             IMapper mapper,
             IMediator mediator,
-            ILogger logger) : base(mediator, logger)
+            ILogger<FavouriteProductsController> logger) : base(mediator, logger)
         {
             _favouriteQueries = favouriteQueries;
             _productRepository = productRepository;

@@ -114,7 +114,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             request.CustomerId = _currentUser.Id;
             request.Code = Guid.NewGuid().ToString();
             request.ShippingStatus = ShippingStatusEnum.NotShipped.ToString();
-            request.OrderStatus = paymentMethod.Code == PaymentMethodEnum.COD.ToString()
+            request.OrderStatus = paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString()
                 ? OrderStatusEnum.WaitingForPayment.ToString()
                 : OrderStatusEnum.Pending.ToString();
             request.CreatedDate = DateTime.Now;

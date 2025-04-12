@@ -159,6 +159,17 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         public async Task<ActionResponse<bool>> ValidVoucher(int voucherId, int customerId, int wardId, decimal totalAmount, List<OrderDetailCommand> details)
         {
             var actResponse = new ActionResponse<bool>();
+            var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(voucherId, customerId);
+            if(myVoucher == null)
+            {
+                actResponse.AddError("Phiếu giảm giá không tồn tại.");
+                return actResponse;
+            }    
+            if (myVoucher.IsUsed)
+            {
+                actResponse.AddError("Phiếu này đã được sử dụng trước đó.");
+                return actResponse;
+            }
             var voucher = await GetByIdAsync(voucherId);
             if (voucher == null)
             {
@@ -175,13 +186,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 actResponse.AddError("Số lượng phiếu giảm giá đã hết.");
                 return actResponse;
             }
-
-            var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(voucherId, customerId);
-            if (myVoucher != null && myVoucher.IsUsed)
-            {
-                actResponse.AddError("Phiếu này đã được sử dụng trước đó.");
-                return actResponse;
-            }
+            
 
             var discountType = await _typeRepository.FindById(voucher.DiscountTypeId);
             var conditions = await _context.VoucherConditions
@@ -198,8 +203,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             }
             foreach (var con in conditions)
             {
-                if (Enum.TryParse(con.ConditionType, true, out ConditionTypeEnum conType))
-                    conType = ConditionTypeEnum.MinOrderValue;
+                if (!Enum.TryParse(con.ConditionType, true, out ConditionTypeEnum conType))
+                {
+                    actResponse.AddError("Lỗi không thể chuyển đổi thành ConditionTypeEnum");
+                    return actResponse;
+                }
                 switch (conType)
                 {
                     case ConditionTypeEnum.MinOrderValue:
@@ -220,17 +228,26 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                         break;
                     case ConditionTypeEnum.AllowedRegions:
                         var allowedRegions = con.ConditionValue.Split(',');
-                        if (!allowedRegions.Contains(wardCustomer.ProvinceId.ToString()))
+                        if (!allowedRegions.Contains(wardCustomer.Code))
                         {
                             actResponse.AddError($"Áp dụng voucher không hợp lệ. Không áp dụng cho đơn hàng thuộc tỉnh {wardCustomer.ProvinceName}");
                             return actResponse;
                         }
                         break;
                     case ConditionTypeEnum.RequiredProducts:
-                        var requiredProducts = con.ConditionValue.Split(',').Select(int.Parse);
+                        var requiredProducts = con.ConditionValue.Split(',');
                         var productIdsInCart = new HashSet<int>(details.Select(d => d.ProductId));
+                        var productCodesInCart = new List<string>();
+                        foreach(var pi in productIdsInCart)
+                        {
+                            var product = await _productRepository.GetByIdAsync(pi);
+                            if(product != null)
+                            {
+                                productCodesInCart.Add(product.Code);
+                            }    
+                        }
                         // Kiểm tra xem tất cả requiredProducts có trong giỏ hàng không
-                        if (!requiredProducts.All(id => productIdsInCart.Contains(id)))
+                        if (!requiredProducts.All(code => productCodesInCart.Contains(code)))
                         {
                             actResponse.AddError("Áp dụng voucher không hợp lệ. Thiếu sản phẩm yêu cầu");
                             return actResponse;
@@ -354,8 +371,10 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             }
             foreach (var con in conditions)
             {
-                if (Enum.TryParse(con.ConditionType, true, out ConditionTypeEnum conType))
-                    conType = ConditionTypeEnum.MinOrderValue;
+                if (!Enum.TryParse(con.ConditionType, true, out ConditionTypeEnum conType))
+                {
+                    return false;
+                }
                 switch (conType)
                 {
                     case ConditionTypeEnum.MinOrderValue:
@@ -374,16 +393,25 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                         break;
                     case ConditionTypeEnum.AllowedRegions:
                         var allowedRegions = con.ConditionValue.Split(',');
-                        if (!allowedRegions.Contains(wardCustomer.ProvinceId.ToString()))
+                        if (!allowedRegions.Contains(wardCustomer.Code))
                         {
                             return false;
                         }
                         break;
                     case ConditionTypeEnum.RequiredProducts:
-                        var requiredProducts = con.ConditionValue.Split(',').Select(int.Parse);
+                        var requiredProducts = con.ConditionValue.Split(',');
                         var productIdsInCart = new HashSet<int>(details.Select(d => d.ProductId));
+                        var productCodesInCart = new List<string>();
+                        foreach (var pi in productIdsInCart)
+                        {
+                            var product = await _productRepository.GetByIdAsync(pi);
+                            if (product != null)
+                            {
+                                productCodesInCart.Add(product.Code);
+                            }
+                        }
                         // Kiểm tra xem tất cả requiredProducts có trong giỏ hàng không
-                        if (!requiredProducts.All(id => productIdsInCart.Contains(id)))
+                        if (!requiredProducts.All(code => productCodesInCart.Contains(code)))
                         {
                             return false;
                         }

@@ -26,7 +26,7 @@ namespace SAMMI.ECOM.Domain.Enums
     public enum ShippingStatusEnum
     {
         NotShipped, // (Chưa giao)	Đơn hàng chưa được vận chuyển.
-        Processing, // (Đang xử lý)	Đơn hàng đang được chuẩn bị để vận chuyển.
+        Processing, // (Đang xử lý)	Đơn hàng đang được chuẩn bị để vận chuyển. + vận chuyển
         Delivered, // (Đã nhận)	Khách hàng đã nhận được hàng.
         Lost, // (Mất hàng)	Đơn hàng bị thất lạc trong quá trình vận chuyển.
     }
@@ -43,32 +43,29 @@ namespace SAMMI.ECOM.Domain.Enums
 
     /*
     cho thanh toan(chưa thanh toan) - chưa giao(chưa thanh toan) -> chờ thanh toan
-    cho thanh toan(chưa thanh toan) - chưa giao(chưa thanh toan) -> da huy(khong thanh toan)
     da thanh toan - dang xu ly(chuẩn bị + dang giao) -> dang xu ly
     da thanh toan - da nhan -> hoan tat
     da thanh toan - lost(mat hang, khong nhan) -> da huy(khong nhan, mat hang)
-
+    cho thanh toan(chưa thanh toan) - chưa giao(chưa thanh toan) -> da huy(khong thanh toan)
 
     Pending - NotShipped -> WaitingForPayment
+    Paid - NotShipped -> WaitingForPayment
     Paid - Processing -> Processing
     Paid - Delivered -> Completed
     Paid - Lost -> Cancelled
-
     Pending - NotShipped -> Cancelled
 
 
-
     chua thanh toan - chua giao(chua xac nhan) -> chờ xử lý(chua xac nhan)
-    chua thanh toan - chua giao(chua xac nhan) -> da huy
     chua thanh toan - dang xu ly(da xac nhan) -> dang xu ly(dong goi hang + dang giao)
     da thanh toan - da nhan -> hoan tat
     chua thanh toan - lost(k nhan hang, mat hang) -> da huy
+    chua thanh toan - chua giao(chua xac nhan) -> da huy
 
     Unpaid - NotShipped -> Pending
     Unpaid - Processing -> Processing
     Paid - Delivered -> Completed
     Paid - Lost -> Cancelled
-
     Unpaid - NotShipped -> Cancelled
     */
 

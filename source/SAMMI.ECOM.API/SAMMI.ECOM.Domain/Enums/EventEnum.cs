@@ -32,8 +32,9 @@ namespace SAMMI.ECOM.Domain.Enums
         MinOrderValue, // đơn hàng tối thiểu
         MaxDiscountAmount, // Giảm tối đa
         RequiredQuantity, // Mua ít nhất
-        AllowedRegions, // Chỉ áp dụng cho tại địa chỉ cụ thể
-        RequiredProducts // Chỉ áp dụng khi mua sản phẩm ID 101,102,..
+        AllowedRegions, // Chỉ áp dụng cho tại địa chỉ cụ thể: 20,326,89
+        RequiredProducts // Chỉ áp dụng khi mua sản phẩm code 101,102,..
         //TierLevels, // VALUES (5, 'TierLevels', '2:5%,3:10%');  -- Mua 2 sản phẩm giảm 5%, mua 3 giảm 10%
     }
+    // "20,312"
 }

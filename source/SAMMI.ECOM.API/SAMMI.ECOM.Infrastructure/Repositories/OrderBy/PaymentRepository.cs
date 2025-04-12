@@ -87,6 +87,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 (PaymentStatusEnum.Pending, PaymentStatusEnum.Unpaid) => true,
                 (PaymentStatusEnum.Pending, PaymentStatusEnum.Failed) => true,
                 (PaymentStatusEnum.Pending, PaymentStatusEnum.Paid) => true,
+                (PaymentStatusEnum.Unpaid, PaymentStatusEnum.Unpaid) => true,
                 (PaymentStatusEnum.Unpaid, PaymentStatusEnum.Paid) => true,
                 (PaymentStatusEnum.Unpaid, PaymentStatusEnum.Failed) => true,
                 (PaymentStatusEnum.Paid, PaymentStatusEnum.Paid) => true,

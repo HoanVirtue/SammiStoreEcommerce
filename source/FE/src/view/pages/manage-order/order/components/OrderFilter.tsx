@@ -188,42 +188,6 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
 
     return (
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'nowrap', p: 2 }}>
-            <FormControl sx={{
-                minWidth: 200,
-                '& .MuiOutlinedInput-root': { height: 40 },
-                '& .MuiInputLabel-root': {
-                    top: -6
-                }
-            }}>
-                <InputLabel>{t('order_status')}</InputLabel>
-                <Select<string>
-                    value={orderStatus}
-                    onChange={handleOrderStatusChange}
-                    input={<OutlinedInput label={t('order_status')} />}
-                    endAdornment={
-                        orderStatus && (
-                            <IconButton
-                                size="small"
-                                onClick={handleClearOrderStatus}
-                                sx={{ position: 'absolute', right: 30 }}
-                            >
-                                <ClearIcon fontSize="small" />
-                            </IconButton>
-                        )
-                    }
-                    sx={{
-                        '& .MuiSelect-select': {
-                            textAlign: orderStatus ? 'left' : 'center'
-                        }
-                    }}
-                >
-                    {orderStatusOptions.map((option) => (
-                        <MenuItem key={option.value} value={option.value}>
-                            {option.label}
-                        </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
 
             <FormControl sx={{
                 minWidth: 200,
@@ -292,6 +256,43 @@ const OrderFilter: React.FC<OrderFilterProps> = ({ onFilterChange }) => {
                     }}
                 >
                     {shippingStatusOptions.map((option) => (
+                        <MenuItem key={option.value} value={option.value}>
+                            {option.label}
+                        </MenuItem>
+                    ))}
+                </Select>
+            </FormControl>
+
+            <FormControl sx={{
+                minWidth: 200,
+                '& .MuiOutlinedInput-root': { height: 40 },
+                '& .MuiInputLabel-root': {
+                    top: -6
+                }
+            }}>
+                <InputLabel>{t('order_status')}</InputLabel>
+                <Select<string>
+                    value={orderStatus}
+                    onChange={handleOrderStatusChange}
+                    input={<OutlinedInput label={t('order_status')} />}
+                    endAdornment={
+                        orderStatus && (
+                            <IconButton
+                                size="small"
+                                onClick={handleClearOrderStatus}
+                                sx={{ position: 'absolute', right: 30 }}
+                            >
+                                <ClearIcon fontSize="small" />
+                            </IconButton>
+                        )
+                    }
+                    sx={{
+                        '& .MuiSelect-select': {
+                            textAlign: orderStatus ? 'left' : 'center'
+                        }
+                    }}
+                >
+                    {orderStatusOptions.map((option) => (
                         <MenuItem key={option.value} value={option.value}>
                             {option.label}
                         </MenuItem>

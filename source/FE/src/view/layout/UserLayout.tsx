@@ -38,8 +38,8 @@ const UserLayout: NextPage<TProps> = ({ children }) => {
                             // ? theme.palette.background.paper
                             : theme.palette.grey[900],
                     flexGrow: 1,
-                    height: '100vh',
-                    overflow: 'auto'
+                    height: '90vh',
+                    overflow: 'hidden',
                 }}
             >
                 <Toolbar />

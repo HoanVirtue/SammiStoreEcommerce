@@ -3,13 +3,13 @@ import { StyleSheet, Text, View, Pressable, ScrollView, Switch, Image } from 're
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/presentation/stores/userStore';
-import { 
-  User, 
-  Bell, 
-  Moon, 
-  CreditCard, 
+import {
+  User,
+  Bell,
+  Moon,
+  CreditCard,
   MapPin,
-  HelpCircle, 
+  HelpCircle,
   LogOut,
   ChevronRight,
   Heart,
@@ -39,10 +39,10 @@ export default function ProfileScreen() {
           <Text style={styles.username}>{user?.name || 'Guest User'}</Text>
           <Text style={styles.email}>{user?.email || 'Sign in to sync your preferences'}</Text>
         </View>
-        
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>My Account</Text>
-          
+
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
@@ -52,7 +52,7 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
-          
+
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: colors.secondaryLight }]}>
@@ -62,7 +62,7 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
-          
+
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
@@ -72,7 +72,7 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
-          
+
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
@@ -82,7 +82,7 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
-          
+
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
@@ -93,10 +93,10 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
         </View>
-        
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
-          
+
           <View style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#EDE7F6' }]}>
@@ -111,7 +111,7 @@ export default function ProfileScreen() {
               thumbColor={colors.white}
             />
           </View>
-          
+
           <View style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
@@ -126,7 +126,7 @@ export default function ProfileScreen() {
               thumbColor={colors.white}
             />
           </View>
-          
+
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E0F7FA' }]}>
@@ -137,10 +137,10 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
         </View>
-        
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Support</Text>
-          
+
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#F1F8E9' }]}>
@@ -150,7 +150,7 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
-          
+
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>
@@ -160,7 +160,7 @@ export default function ProfileScreen() {
             </View>
           </Pressable>
         </View>
-        
+
         <Text style={styles.version}>Version 1.0.0</Text>
       </ScrollView>
     </SafeAreaView>

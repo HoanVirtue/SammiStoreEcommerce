@@ -6,8 +6,9 @@ import { colors } from '@/constants/colors';
 import { useArticleStore } from '@/presentation/stores/articleStore';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
-import { formatDate } from '@/src/utils/dateUtils';
+
 import { ArrowLeft, ExternalLink, Clock, User } from 'lucide-react-native';
+import { formatDate } from '@/utils';
 
 export default function ArticleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

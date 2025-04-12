@@ -95,7 +95,6 @@ export default function App(props: ExtendedAppProps) {
 
   const permission = Component.permission ?? []
 
-
   return (
     <Provider store={store}>
       <Head>

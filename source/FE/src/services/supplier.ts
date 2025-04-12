@@ -54,7 +54,7 @@ export const getSupplierDetail = async (id: number) => {
 
 export const deleteMultipleSuppliers = async (data: TParamsDeleteMultipleSuppliers) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.USER.SUPPLIER.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.USER.SUPPLIER.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

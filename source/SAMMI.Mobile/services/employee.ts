@@ -54,7 +54,7 @@ export const getEmployeeDetail = async (id: number) => {
 
 export const deleteMultipleEmployees = async (data: TParamsDeleteMultipleEmployees) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.USER.EMPLOYEE.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.USER.EMPLOYEE.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

@@ -63,7 +63,7 @@ export const getAddressDetail = async (id: string) => {
 
 export const deleteMultipleAddresses= async (data: TParamsDeleteMultipleAddresses) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.CUSTOMER_ADDRESS.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.CUSTOMER_ADDRESS.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

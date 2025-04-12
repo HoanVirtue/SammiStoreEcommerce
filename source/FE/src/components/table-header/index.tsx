@@ -4,7 +4,7 @@ import { Box, Typography } from '@mui/material'
 import { styled, useTheme } from '@mui/material/styles'
 import { useTranslation } from 'react-i18next'
 import IconifyIcon from '../Icon'
-
+import { memo } from 'react'
 const StyledTableHeader = styled(Box)(({ theme }) => ({
     borderRadius: "15px",
     border: `1px solid ${theme.palette.customColors.borderColor}`,
@@ -77,4 +77,4 @@ const TableHeader = (props: TProp) => {
     )
 }
 
-export default TableHeader
+export default memo(TableHeader)

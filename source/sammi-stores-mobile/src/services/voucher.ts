@@ -80,7 +80,7 @@ export const getVoucherDetail = async (id: string) => {
 
 export const deleteMultipleVouchers = async (data: TParamsDeleteMultipleVouchers) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.VOUCHER.INDEX}/delete-many`, { data })
+        const res = await instance.delete(`${API_ENDPOINT.VOUCHER.INDEX}`, { data })
         if (res?.data?.status === "Success") {
             return {
                 data: []

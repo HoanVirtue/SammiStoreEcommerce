@@ -38,5 +38,5 @@ export type TParamsDeleteCustomer = {
 }
 
 export type TParamsDeleteMultipleCustomers = {
-    customerIds: number[],
+    ids: number[],
 }

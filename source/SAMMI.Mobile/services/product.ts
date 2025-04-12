@@ -104,7 +104,7 @@ export const getListRelatedProductBySlug = async (data: {params: TParamsGetRelat
 
 export const deleteMultipleProducts = async (data: TParamsDeleteMultipleProducts) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

@@ -54,7 +54,7 @@ export const getPaymentMethodDetail = async (id: number) => {
 
 export const deleteMultiplePaymentMethods = async (data: TParamsDeleteMultiplePaymentMethods) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.SETTING.PAYMENT_METHOD.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.SETTING.PAYMENT_METHOD.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

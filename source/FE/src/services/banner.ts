@@ -54,7 +54,7 @@ export const getBannerDetail = async (id: number) => {
 
 export const deleteMultipleBanners = async (data: TParamsDeleteMultipleBanners) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.SETTING.BANNER.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.SETTING.BANNER.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

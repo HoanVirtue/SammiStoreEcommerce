@@ -53,7 +53,7 @@ export const getWardDetail = async (id: string) => {
 
 export const deleteMultipleWards= async (data: TParamsDeleteMultipleWards) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.ADDRESS.WARD.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.ADDRESS.WARD.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

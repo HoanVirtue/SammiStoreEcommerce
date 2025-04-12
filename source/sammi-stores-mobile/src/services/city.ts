@@ -55,7 +55,7 @@ export const getCityDetail = async (id: string) => {
 
 export const deleteMultipleCities = async (data: TParamsDeleteMultipleCities) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.ADDRESS.CITY.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.ADDRESS.CITY.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

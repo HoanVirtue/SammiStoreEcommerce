@@ -62,7 +62,7 @@ export const getEventDetail = async (id: number) => {
 
 export const deleteMultipleEvents= async (data: TParamsDeleteMultipleEvents) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.EVENT.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.EVENT.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

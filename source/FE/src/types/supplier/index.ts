@@ -37,5 +37,5 @@ export type TParamsDeleteSupplier = {
 }
 
 export type TParamsDeleteMultipleSuppliers = {
-    supplierIds: number[],
+    ids: number[],
 }

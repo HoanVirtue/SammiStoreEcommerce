@@ -131,7 +131,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
   const [openCreateUpdate, setOpenCreateUpdate] = useState<{ open: boolean; id: number }>({ open: false, id: 0 });
   const [openDelete, setOpenDelete] = useState<{ open: boolean; id: number }>({ open: false, id: 0 });
-  const [openDeleteMultiple, setOpenDeleteMultiple] = useState<boolean>(false);
+  const [openDeleteMultiple, setOpenDeleteMultiple] = useState<{ open: boolean; ids: number[] }>({ open: false, ids: [] });
   const [sortBy, setSortBy] = useState<string>("createdDate asc");
   const [filters, setFilters] = useState<TFilter[]>([]);
   const [selectedRow, setSelectedRow] = useState<number[]>([]);
@@ -211,7 +211,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
 
   const handleCloseCreateUpdate = () => setOpenCreateUpdate({ open: false, id: 0 });
   const handleCloseDeleteDialog = () => setOpenDelete({ open: false, id: 0 });
-  const handleCloseDeleteMultipleDialog = () => setOpenDeleteMultiple(false);
+  const handleCloseDeleteMultipleDialog = () => setOpenDeleteMultiple({ open: false, ids: [] });
 
   const handleDelete = () => {
     setIsDeleting(true);
@@ -220,10 +220,10 @@ const AdminPage: NextPage<AdminPageProps> = ({
 
   const handleDeleteMultiple = () => {
     setIsDeleting(true);
-    dispatch(deleteMultipleAction({ [`${entityName}Ids`]: selectedRow }));
+    dispatch(deleteMultipleAction({ ids: selectedRow }));
   };
 
-  const handleAction = (action: string) => action === "delete" && DELETE && setOpenDeleteMultiple(true);
+  const handleAction = (action: string) => action === "delete" && setOpenDeleteMultiple({ open: true, ids: selectedRow });
 
   const handleFilterChange = (newFilters: TFilter[]) => setFilters(newFilters);
 
@@ -334,7 +334,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
       </Suspense>
       <Suspense fallback={<Spinner />}>
         <ConfirmDialog
-          open={openDeleteMultiple}
+          open={openDeleteMultiple.open}
           onClose={handleCloseDeleteMultipleDialog}
           handleCancel={handleCloseDeleteMultipleDialog}
           handleConfirm={handleDeleteMultiple}

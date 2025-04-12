@@ -36,5 +36,5 @@ export type TParamsDeleteProvince = {
 }
 
 export type TParamsDeleteMultipleProvinces = {
-    provinceIds: number[],
+    ids: number[],
 }

@@ -44,5 +44,5 @@ export type TParamsDeleteBrand = {
 }
 
 export type TParamsDeleteMultipleBrands = {
-    brandIds: number[],
+    ids: number[],
 }

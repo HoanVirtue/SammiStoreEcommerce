@@ -21,7 +21,7 @@ export type TParamsDeleteDeliveryMethod = {
 }
 
 export type TParamsDeleteMultipleDeliveryMethods = {
-    deliveryTypeIds: number[],
+    ids: number[],
 }
 
 export type TParamsGetCaculatedFee = {

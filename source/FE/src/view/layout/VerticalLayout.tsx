@@ -24,6 +24,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
             marginTop: "64px",
             paddingTop: "5px",
             whiteSpace: 'nowrap',
+            height: "90vh",
             width: drawerWidth,
             transition: theme.transitions.create('width', {
                 easing: theme.transitions.easing.sharp,

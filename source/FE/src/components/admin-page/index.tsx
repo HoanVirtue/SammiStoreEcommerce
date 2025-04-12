@@ -353,7 +353,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
         </Suspense>
       )}
 
-      <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", height: '80vh',overflow: "hidden" }}>
+      <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", height: '80vh', overflow: "hidden", borderRadius: "15px" }}>
         {showTab && (
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
             <Tabs value={currentTab} onChange={(_, newValue) => onTabChange?.(newValue)}>
@@ -503,6 +503,9 @@ const AdminPage: NextPage<AdminPageProps> = ({
                     "& .MuiDataGrid-columnHeaders": {
                       backgroundColor: theme.palette.grey[100],
                       borderBottom: `1px solid ${theme.palette.divider}`,
+                      position: 'sticky',
+                      top: 0,
+                      zIndex: 1,
                     },
                     "& .MuiDataGrid-row:hover": { backgroundColor: theme.palette.action.hover },
                     "& .MuiDataGrid-row.Mui-selected": {

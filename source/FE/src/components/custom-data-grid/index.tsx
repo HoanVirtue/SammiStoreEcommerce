@@ -1,19 +1,26 @@
 import * as React from 'react';
-import Box from '@mui/material/Box';
 import { DataGrid, DataGridProps, GridColDef } from '@mui/x-data-grid';
 import { styled } from '@mui/material';
 
-const StyledDataGrid = styled(DataGrid)<DataGridProps>(({ theme }) => ({
-  border: `1px solid ${theme.palette.customColors.borderColor}`,
-  borderRadius: "8px",
-  height: "40vh",
+interface CustomDataGridProps extends DataGridProps {
+  gridHeight?: string;
+}
+
+const StyledDataGrid = styled(DataGrid, {
+  shouldForwardProp: (prop) => prop !== 'gridHeight',
+})<CustomDataGridProps>(({ theme, gridHeight }) => ({
+  border: `1px solid ${theme.palette.customColors?.borderColor || theme.palette.divider}`,
+  borderRadius: '8px',
+  height: gridHeight || '66vh !important',
+  overflow: 'auto',
   '& .MuiDataGrid-main': {
     position: 'relative',
-    overflow: 'hidden',
+    overflow: 'auto',
   },
   '& .MuiDataGrid-virtualScroller': {
     overflow: 'auto',
-    minHeight: '100%',
+    overflowY: 'auto !important',
+    // minHeight: '100%',
     '&::-webkit-scrollbar': {
       width: '8px',
       height: '8px',
@@ -35,11 +42,12 @@ const StyledDataGrid = styled(DataGrid)<DataGridProps>(({ theme }) => ({
     top: 0,
     zIndex: 2,
     backgroundColor: theme.palette.background.paper,
-    borderBottom: `1px solid ${theme.palette.customColors.borderColor}`,
+    borderBottom: `1px solid ${theme.palette.customColors?.borderColor || theme.palette.divider}`,
+    minHeight: '56px',
   },
   '& .MuiDataGrid-columnHeaders': {
     position: 'sticky',
-    top: 'var(--data-grid-toolbar-height, 0px)',
+    top: 0,
     zIndex: 1,
     backgroundColor: theme.palette.background.paper,
   },
@@ -47,26 +55,28 @@ const StyledDataGrid = styled(DataGrid)<DataGridProps>(({ theme }) => ({
     position: 'sticky',
     bottom: 0,
     backgroundColor: theme.palette.background.paper,
-    borderTop: `1px solid ${theme.palette.customColors.borderColor}`,
+    borderTop: `1px solid ${theme.palette.customColors?.borderColor || theme.palette.divider}`,
   },
-  ".MuiDataGrid-withBorderColor": {
-    outline: "none !important"
+  '.MuiDataGrid-withBorderColor': {
+    outline: 'none !important',
   },
-  ".MuiDataGrid-selectedRowCount": {
-    display: "none"
+  '.MuiDataGrid-selectedRowCount': {
+    display: 'none',
   },
-  ".MuiDataGrid-columnHeaderTitle": {
-    textTransform: "uppercase",
-    color: theme.palette.primary.main
+  '.MuiDataGrid-columnHeaderTitle': {
+    textTransform: 'uppercase',
+    color: theme.palette.primary.main,
+  },
+}));
+
+
+const CustomDataGrid = React.forwardRef(
+  (props: CustomDataGridProps, ref: React.Ref<any>) => {
+    const { gridHeight, ...dataGridProps } = props;
+    return <StyledDataGrid gridHeight={gridHeight} {...dataGridProps} ref={ref} />;
   }
-}))
+);
 
-const CustomDataGrid = React.forwardRef((props: DataGridProps, ref: React.Ref<any>) => {
-  return (
-    <StyledDataGrid
-      {...props}
-    />
-  );
-})
+CustomDataGrid.displayName = 'CustomDataGrid';
 
-export default CustomDataGrid
+export default CustomDataGrid;

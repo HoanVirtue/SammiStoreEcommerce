@@ -38,7 +38,7 @@ const UserLayout: NextPage<TProps> = ({ children }) => {
                             // ? theme.palette.background.paper
                             : theme.palette.grey[900],
                     flexGrow: 1,
-                    height: '90vh',
+                    height: 'fit-content',
                     overflow: 'hidden',
                 }}
             >
@@ -47,10 +47,11 @@ const UserLayout: NextPage<TProps> = ({ children }) => {
                     m: 4,
                     width: `calc(100% - 32px)`,
                     maxWidth: `calc(100% - 32px) !important`,
-                    overflow: "hidden",
-                    minHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 32px)`,
-                    maxHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 64px)`,
-                    height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 32px)`,
+                    overflow: "auto",
+                    // minHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 32px)`,
+                    // maxHeight: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 64px)`,
+                    // height: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 32px)`,
+                    height: 'fit-content',
                     p: "0 !important",
                     borderRadius: "15px"
                 }}>

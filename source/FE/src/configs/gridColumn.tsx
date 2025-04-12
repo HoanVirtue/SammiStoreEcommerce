@@ -1,6 +1,6 @@
 // src/configs/orderGridConfig.ts
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
-import { styled, Chip, ChipProps, Typography, useTheme } from '@mui/material'
+import { styled, Chip, ChipProps, Typography, useTheme, Tooltip } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { formatDate, formatPrice } from 'src/utils'
 import Image from 'src/components/image'
@@ -47,7 +47,13 @@ export const getOrderColumns = (): GridColDef[] => {
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
-        return <Typography>{row?.customerName} - {row?.phoneNumber}</Typography>
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.customerName} - {row?.phoneNumber}</Typography>
       }
     },
     {
@@ -221,16 +227,20 @@ export const getProvinceColumns = (): GridColDef[] => {
     {
       field: "province_code",
       headerName: t("province_code"),
-      minWidth: 200,
-      maxWidth: 200,
+      minWidth: 300,
+      maxWidth: 300,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
       field: "postal_code",
       headerName: t("postal_code"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.postalCode}</Typography>,
+      minWidth: 300,
+      maxWidth: 300,
+      renderCell: (params: GridRenderCellParams) => <Typography sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+      }}>{params.row.postalCode}</Typography>,
     },
   ];
 }
@@ -249,8 +259,8 @@ export const getDistrictColumns = (): GridColDef[] => {
     {
       field: "code",
       headerName: t("district_code"),
-      minWidth: 200,
-      maxWidth: 200,
+      minWidth: 300,
+      maxWidth: 300,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
@@ -258,7 +268,13 @@ export const getDistrictColumns = (): GridColDef[] => {
       headerName: t("province_name"),
       flex: 1,
       minWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.provinceName}</Typography>,
+      renderCell: (params: GridRenderCellParams) => <Typography sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 3,
+        WebkitBoxOrient: 'vertical',
+      }}>{params.row.provinceName}</Typography>,
     },
   ]
 }
@@ -272,7 +288,16 @@ export const getWardColumns = (): GridColDef[] => {
       headerName: t("ward_name"),
       flex: 1,
       minWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>,
+      renderCell: (params: GridRenderCellParams) => 
+        <Tooltip title={params.row.name}>
+          <Typography sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+          }}>{params.row.name}</Typography>
+        </Tooltip>
     },
     {
       field: "ward_code",

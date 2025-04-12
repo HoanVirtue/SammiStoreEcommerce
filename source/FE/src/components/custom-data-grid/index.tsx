@@ -11,7 +11,7 @@ const StyledDataGrid = styled(DataGrid, {
 })<CustomDataGridProps>(({ theme, gridHeight }) => ({
   border: `1px solid ${theme.palette.customColors?.borderColor || theme.palette.divider}`,
   borderRadius: '8px',
-  height: gridHeight || '66vh !important',
+  height: gridHeight || '61vh !important',
   overflow: 'auto',
   '& .MuiDataGrid-main': {
     position: 'relative',

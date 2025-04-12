@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
+using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Repositories.Products
@@ -9,15 +11,19 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         Task<bool> IsExistCode(string code, int? id = 0);
         Task<decimal> CalAmount(int productId, int quantity);
         Task<decimal> GetPrice(int productId);
+        Task<ActionResponse> RollbackProduct(int orderId);
     }
 
     public class ProductRepository : CrudRepository<Product>, IProductRepository, IDisposable
     {
         private readonly SammiEcommerceContext _context;
         private bool _disposed;
-        public ProductRepository(SammiEcommerceContext context) : base(context)
+        private readonly Lazy<IOrderDetailRepository> _orderDetailRepository;
+        public ProductRepository(SammiEcommerceContext context,
+            Lazy<IOrderDetailRepository> orderDetailRepository) : base(context)
         {
             _context = context;
+            _orderDetailRepository = orderDetailRepository;
         }
 
         public async Task<decimal> CalAmount(int productId, int quantity)
@@ -49,6 +55,24 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         public async Task<bool> IsExistCode(string code, int? id = 0)
         {
             return await DbSet.AnyAsync(x => x.Code.ToLower() == code.ToLower() && x.Id != id && x.IsDeleted != true);
+        }
+
+        public async Task<ActionResponse> RollbackProduct(int orderId)
+        {
+            var actRes = new ActionResponse();
+            var details = await _orderDetailRepository.Value.GetByOrderId(orderId);
+            foreach(var de in details)
+            {
+                var product = await FindById(de.ProductId);
+                product.StockQuantity += de.Quantity;
+                actRes.Combine(Update(product));
+                if (!actRes.IsSuccess)
+                {
+                    return actRes;
+                }
+            }
+            await SaveChangeAsync();
+            return actRes;
         }
     }
 }

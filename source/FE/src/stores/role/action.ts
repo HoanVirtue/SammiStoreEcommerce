@@ -19,7 +19,7 @@ export const updateRoleAsync = createAsyncThunk(`${serviceName}/update`, async (
     return response
 })
 
-export const deleteRoleAsync = createAsyncThunk(`${serviceName}/delete`, async (id: string) => {
+export const deleteRoleAsync = createAsyncThunk(`${serviceName}/delete`, async (id: number) => {
     const response = await deleteRole(id)
     return response
 })

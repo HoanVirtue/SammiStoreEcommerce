@@ -7,7 +7,7 @@ import { Controller, useForm } from "react-hook-form"
 import * as yup from 'yup';
 
 //Mui
-import { Box, Button, Grid, IconButton, Typography } from "@mui/material"
+import { Box, Button, FormHelperText, Grid, IconButton, Typography } from "@mui/material"
 import { useTheme } from "@mui/material"
 
 //components
@@ -17,7 +17,7 @@ import Spinner from "src/components/spinner"
 import CustomTextField from "src/components/text-field"
 
 //services
-import { getProductCategoryDetail } from "src/services/product-category"
+import { getAllProductCategories, getProductCategoryCode, getProductCategoryDetail } from "src/services/product-category"
 
 //translation
 import { useTranslation } from "react-i18next"
@@ -26,25 +26,33 @@ import { useDispatch } from "react-redux"
 import { AppDispatch } from "src/stores"
 import { createProductCategoryAsync, updateProductCategoryAsync } from "src/stores/product-category/action"
 import { stringToSlug } from "src/utils";
+import { InputLabel } from "@mui/material";
+import CustomSelect from "src/components/custom-select";
 
 interface TCreateUpdateProductCategory {
     open: boolean
     onClose: () => void
-    idProductCategory?: string
+        id?: number
 }
 
 type TDefaultValues = {
     name: string,
-    slug: string
+    code: string,
+    parentId: number,
+    parentName: string,
+    level: number
+    // slug: string
 }
 
 const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
 
     //state
     const [loading, setLoading] = useState(false)
+    const [parentOptions, setParentOptions] = useState<{ label: string, value: string }[]>([])
+    const [productCategoryCode, setProductCategoryCode] = useState<string>("");
 
     //props
-    const { open, onClose, idProductCategory } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -56,16 +64,24 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
     const dispatch: AppDispatch = useDispatch()
 
     const schema = yup.object().shape({
-        name: yup.string().required("Product category name is required"),
-        slug: yup.string().required("Product category slug is required")
+        name: yup.string().required(t("required_product_category_name")),
+        code: yup.string().required(t("required_product_category_code")),
+        parentId: yup.number().required(t("required_product_category_parent_code")),
+        parentName: yup.string().required(t("required_product_category_parent")),
+        level: yup.number().required(t("required_product_category_level")),
+        // slug: yup.string().required("Product category slug is required")
     });
 
     const defaultValues: TDefaultValues = {
         name: '',
-        slug: ''
+        code: productCategoryCode,
+        parentId: 0,
+        parentName: '',
+        level: 0
+        // slug: ''
     }
 
-    const { handleSubmit, getValues, control, formState: { errors }, reset } = useForm({
+    const { handleSubmit, getValues, setValue, control, formState: { errors }, reset } = useForm({
         defaultValues,
         mode: 'onChange',
         resolver: yupResolver(schema)
@@ -74,32 +90,44 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (idProductCategory) {
+            if (id) {
                 //update
                 dispatch(updateProductCategoryAsync({
                     name: data?.name,
-                    id: idProductCategory,
-                    slug: data?.slug
+                    code: data?.code,
+                    parentId: data?.parentId,
+                    parentName: data?.parentName,
+                    level: data?.level,
+                    id: id,
+                    // slug: data?.slug
                 }))
             } else {
                 //create
                 dispatch(createProductCategoryAsync({
                     name: data?.name,
-                    slug: data?.slug
+                    code: data?.code,
+                    parentId: data?.parentId,
+                    parentName: data?.parentName,
+                    level: data?.level,
+                    // slug: data?.slug
                 }))
             }
         }
     }
 
 
-    const fetchDetailProductCategory = async (id: string) => {
+    const fetchDetailProductCategory = async (id: number) => {
         setLoading(true)
         await getProductCategoryDetail(id).then((res) => {
-            const data = res?.data
+            const data = res?.result
             if (data) {
                 reset({
                     name: data?.name,
-                    slug: data?.slug
+                    code: data?.code,
+                    parentId: data?.parentId,
+                    parentName: data?.parentName,
+                    level: data?.level,
+                    // slug: data?.slug
                 })
             }
             setLoading(false)
@@ -108,6 +136,44 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
         })
     }
 
+    const fetchAllCategories = async () => {
+        setLoading(true)
+        await getAllProductCategories({
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: ""
+            }
+        }).then((res) => {
+            const data = res?.result?.subset
+            if (data) {
+                setParentOptions(data?.map((item: { name: string, id: string }) => ({
+                    label: item.name,
+                    value: item.id
+                })))
+            }
+            setLoading(false)
+        }).catch((err) => {
+            setLoading(false)
+        })
+    }
+
+    const getProductCategoryDefaultCode = async () => {
+        const res = await getProductCategoryCode({
+            params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" }
+        });
+        setProductCategoryCode(res?.result);
+    };
+
+    useEffect(() => {
+        fetchAllCategories()
+        getProductCategoryDefaultCode()
+    }, [])
+
 
     useEffect(() => {
         if (!open) {
@@ -115,11 +181,11 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                 ...defaultValues
             })
         } else {
-            if (idProductCategory && open) {
-                fetchDetailProductCategory(idProductCategory)
+            if (id && open) {
+                fetchDetailProductCategory(id)
             }
         }
-    }, [open, idProductCategory])
+    }, [open, id])
 
     return (
         <>
@@ -142,7 +208,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idProductCategory ? t('update_product_category') : t('create_product_category')}
+                            {id ? t('update_product_category') : t('create_product_category')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -170,17 +236,16 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
-
                                                 required
                                                 label={t('product_category_name')}
                                                 onChange={(e) => {
                                                     const value = e.target.value
                                                     const replacedValue = stringToSlug(value)
                                                     onChange(value)
-                                                    reset({
-                                                        ...getValues(),
-                                                        slug: replacedValue
-                                                    })
+                                                    // reset({
+                                                    //     ...getValues(),
+                                                    //     slug: replacedValue
+                                                    // })
                                                 }}
                                                 onBlur={onBlur}
                                                 value={value}
@@ -198,7 +263,110 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
+                                                required
+                                                label={t('product_category_code')}
+                                                onChange={onChange}
+                                                onBlur={onBlur}
+                                                value={value || productCategoryCode}
+                                                placeholder={t('enter_product_category_code')}
+                                                error={errors.code ? true : false}
+                                                helperText={errors.code?.message}
+                                            />
+                                        )}
+                                        name='code'
+                                    />
+                                </Grid>
+                                <Grid item md={12} xs={12} >
+                                    <Controller
+                                        control={control}
+                                        render={({ field: { onChange, onBlur, value } }) => (
+                                            <CustomTextField
+                                                fullWidth
+                                                disabled
+                                                required
+                                                label={t('product_category_parent_id')}
+                                                onChange={onChange}
+                                                onBlur={onBlur}
+                                                value={value}
+                                                placeholder={t('enter_product_category_parent_id')}
+                                                error={errors.parentId ? true : false}
+                                                helperText={errors.parentId?.message}
+                                            />
+                                        )}
+                                        name='parentId'
+                                    />
+                                </Grid>
+                                <Grid item md={12} xs={12} >
+                                    <Controller
+                                        control={control}
+                                        name='parentName'
+                                        render={({ field: { onChange, onBlur, value } }) => (
+                                            <Box sx={{
+                                                mt: -5
+                                            }}>
+                                                <InputLabel sx={{
+                                                    fontSize: "13px",
+                                                    mb: "4px",
+                                                    display: "block",
+                                                    color: errors?.parentName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                }}>
+                                                    {t('parent_name')}
+                                                </InputLabel>
+                                                <CustomSelect
+                                                    fullWidth
+                                                    onChange={(e) => {
+                                                        const selectedParent = parentOptions.find(opt => opt.value === e.target.value);
+                                                        if (selectedParent) {
+                                                            onChange(selectedParent.value);
+                                                            setValue('parentId', Number(selectedParent.value));
+                                                        } else {
+                                                            onChange('');
+                                                            setValue('parentId', 0);
+                                                        }
+                                                    }}
+                                                    onBlur={onBlur}
+                                                    value={value || ''}
+                                                    options={parentOptions}
+                                                    placeholder={t('select_parent_name')}
+                                                    error={errors.parentName ? true : false}
+                                                />
+                                                {errors?.parentName?.message && (
+                                                    <FormHelperText sx={{
+                                                        color: errors?.parentName ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                    }}>
+                                                        {errors?.parentName?.message}
+                                                    </FormHelperText>
+                                                )}
+                                            </Box>
+                                        )}
+                                    />
+                                </Grid>
+                                <Grid item md={12} xs={12} >
+                                    <Controller
+                                        control={control}
+                                        render={({ field: { onChange, onBlur, value } }) => (
+                                            <CustomTextField
+                                                fullWidth
 
+                                                required
+                                                label={t('product_category_level')}
+                                                onChange={onChange}
+                                                onBlur={onBlur}
+                                                value={value}
+                                                placeholder={t('enter_product_category_level')}
+                                                error={errors.level ? true : false}
+                                                helperText={errors.level?.message}
+                                            />
+                                        )}
+                                        name='level'
+                                    />
+                                </Grid>
+                                {/* <Grid item md={12} xs={12} >
+                                    <Controller
+                                        control={control}
+                                        render={({ field: { onChange, onBlur, value } }) => (
+                                            <CustomTextField
+                                                fullWidth
                                                 disabled
                                                 required
                                                 label={t('slug')}
@@ -212,12 +380,13 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                                         )}
                                         name='slug'
                                     />
-                                </Grid>
+                                </Grid> */}
                             </Grid>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3 }}>
+                            <Button variant="outlined" sx={{ mt: 3, mb: 2, ml: 2, py: 1.5 }} onClick={onClose}>{t('cancel')}</Button>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idProductCategory ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form >

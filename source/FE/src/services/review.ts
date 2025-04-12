@@ -12,7 +12,7 @@ export const getAllReviews = async (data: {params: TParamsGetAllReviews  }) => {
     }
 }
 
-export const getReviewDetail = async (id: string) => {
+export const getReviewDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`)
         return res.data
@@ -33,7 +33,7 @@ export const createReview = async (data: TParamsCreateReview) => {
 }
 
 
-export const deleteReview = async (id: string) => {
+export const deleteReview = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`)
         return res.data
@@ -42,7 +42,7 @@ export const deleteReview = async (id: string) => {
     }
 }
 
-export const deleteMyReview = async (id: string) => {
+export const deleteMyReview = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/me/${id}`)
         return res.data
@@ -60,7 +60,7 @@ export const deleteMultipleReview = async (data: TParamsDeleteMultipleReviews) =
     }
 }
 
-export const getManageReviewDetail = async (id: string) => {
+export const getManageReviewDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`)
         return res.data

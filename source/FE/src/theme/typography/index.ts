@@ -1,4 +1,7 @@
 const typography = {
+  allVariants: {
+    color: 'black',
+  },
   fontFamily: [
     'Public Sans',
     'sans-serif',

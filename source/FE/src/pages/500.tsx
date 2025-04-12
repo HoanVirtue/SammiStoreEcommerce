@@ -1,12 +1,8 @@
-import Typography from '@mui/material/Typography'
 import BlankLayout from 'src/view/layout/BlankLayout'
+import InternalServerError from 'src/view/pages/500'
 
 const Error500 = () => {
-  return (
-    <Typography variant='h2' sx={{ mb: 1.5 }}>
-      Oops, something went wrong!
-    </Typography>
-  )
+  return <InternalServerError />
 }
 
 export default Error500

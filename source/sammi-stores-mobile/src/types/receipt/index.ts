@@ -1,0 +1,42 @@
+export interface PropertyFilterModel {
+    field: string;      
+    operator: string;     
+    filterValue: string;   
+}
+
+export type TParamsGetAllReceipts = {
+    skip?: number;
+    take?: number;
+    filters?: string;
+    orderBy?: string;
+    dir?: string;
+    type?: number | (1 | 2 | 3 | 4 | 5 | 6)
+    paging?: boolean;
+    restrictOrderBy?: boolean;
+    keywords?: string;
+    propertyFilterModels?: PropertyFilterModel[]; 
+}
+
+export type TParamsCreateReceipt = {
+    // id: number;
+    name?: string;
+    code?: string;
+    provinceName?: string;
+    provinceId?: string,
+}
+
+export type TParamsUpdateReceipt = {
+    id: string,
+    name?: string,
+    code?: string
+    provinceName?: string,
+    provinceId?: string,
+}
+
+export type TParamsDeleteReceipt = {
+    id: string,
+}
+
+export type TParamsDeleteMultipleReceipts = {
+    receiptIds: string[],
+}

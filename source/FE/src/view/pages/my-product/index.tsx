@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
+import dynamic from 'next/dynamic'
 
 //MUI
 import { styled, Tab, TabsProps, useTheme } from '@mui/material'
@@ -17,24 +18,24 @@ import { Grid } from '@mui/material'
 import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
-
 //Redux
 import { AppDispatch, RootState } from 'src/stores'
 import { useDispatch, useSelector } from 'react-redux'
 import { resetInitialState } from 'src/stores/product'
 
 //Other
-import toast from 'react-hot-toast'
-import Spinner from 'src/components/spinner'
-import { useAuth } from 'src/hooks/useAuth'
+import { toast } from 'react-toastify'
 import { Tabs } from '@mui/material'
 import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig'
 import { getAllLikedProductsAsync, getAllViewedProductsAsync } from 'src/stores/product/action'
-import SearchField from 'src/components/search-field'
-import ProductCard from '../product/components/ProductCard'
-import NoData from 'src/components/no-data'
 import { TProduct } from 'src/types/product'
-import CustomPagination from 'src/components/custom-pagination'
+
+// Dynamic imports
+const Spinner = dynamic(() => import('src/components/spinner'), { ssr: false })
+const SearchField = dynamic(() => import('src/components/search-field'), { ssr: false })
+const ProductCard = dynamic(() => import('../product/components/ProductCard'), { ssr: false })
+const NoData = dynamic(() => import('src/components/no-data'), { ssr: false })
+const CustomPagination = dynamic(() => import('src/components/custom-pagination'), { ssr: false })
 
 type TProps = {}
 
@@ -82,14 +83,30 @@ const MyProductPage: NextPage<TProps> = () => {
     //API
     const handleGetListViewedProducts = () => {
         const query = {
-            params: { limit: pageSize, page: page, search: searchBy }
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: ""
+            }
         }
         dispatch(getAllViewedProductsAsync(query));
     }
 
     const handleGetListLikedProducts = () => {
         const query = {
-            params: { limit: pageSize, page: page, search: searchBy }
+            params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: "name",
+                dir: "asc",
+                keywords: "''",
+                filters: ""
+            }
         }
         dispatch(getAllLikedProductsAsync(query));
     }
@@ -111,7 +128,7 @@ const MyProductPage: NextPage<TProps> = () => {
         setPage(page)
         setPageSize(pageSize)
         setSearchBy("")
-        handleGetListData(); 
+        handleGetListData();
     }
 
     useEffect(() => {
@@ -178,13 +195,16 @@ const MyProductPage: NextPage<TProps> = () => {
                         <Box sx={{
                             width: "100%",
                             height: "100%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
                         }}>
                             <Grid container md={12} xs={12} spacing={4}>
                                 {likedProducts?.data?.length > 0 ? (
                                     <>
                                         {likedProducts?.data?.map((item: TProduct) => {
                                             return (
-                                                <Grid item key={item._id} md={3} sm={6} xs={12}>
+                                                <Grid item key={item.id} md={3} sm={6} xs={12}>
                                                     <ProductCard item={item} />
                                                 </Grid>
                                             )
@@ -205,13 +225,16 @@ const MyProductPage: NextPage<TProps> = () => {
                         <Box sx={{
                             width: "100%",
                             height: "100%",
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "center",
                         }}>
                             <Grid container md={12} xs={12} spacing={4}>
                                 {viewedProducts?.data?.length > 0 ? (
                                     <>
                                         {viewedProducts?.data?.map((item: TProduct) => {
                                             return (
-                                                <Grid item key={item._id} md={3} sm={6} xs={12}>
+                                                <Grid item key={item.id} md={3} sm={6} xs={12}>
                                                     <ProductCard item={item} />
                                                 </Grid>
                                             )
@@ -221,6 +244,7 @@ const MyProductPage: NextPage<TProps> = () => {
                                     <Box sx={{
                                         padding: "20px",
                                         width: "100%",
+
                                     }}>
                                         <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
                                     </Box>

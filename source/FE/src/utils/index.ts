@@ -9,13 +9,14 @@ export const toFullName = (lastName: string, middleName: string, firstName: stri
     return `${firstName ? firstName : ''} ${middleName ? middleName : ''} ${lastName ? lastName : ''}`.trim()
 }
 
-export const convertBase64 = (file: File) =>
-    new Promise((resolve, reject) => {
+export const convertBase64 = (file: File): Promise<string> =>{
+    return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result)
+        reader.onload = () => resolve(reader.result as string)
         reader.onerror = (error) => reject(error)
     })
+}
 
 
 export const separationFullname = (fullName: string, language: string) => {
@@ -130,11 +131,7 @@ export const convertHTMLToDraft = (html: string) => {
 
 export const formatPrice = (value: number | string) => {
     try {
-        return Number(value).toLocaleString(
-            "vi-VN", {
-            minimumFractionDigits: 0
-        }
-        )
+        return Number(value).toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })
     } catch (error) {
         return value
     }
@@ -152,13 +149,13 @@ export const convertUpdateProductToCart = (orderItems: TItemOrderProduct[], addI
     try {
         let result = []
         const cloneOrderItems = cloneDeep(orderItems)
-        const findItems = cloneOrderItems.find((item: TItemOrderProduct) => item.product === addItem.product)
+        const findItems = cloneOrderItems.find((item: TItemOrderProduct) => item.productId === addItem.productId)
         if (findItems) {
-            findItems.amount += addItem.amount
+            findItems.amount += addItem.quantity
         } else {
             cloneOrderItems.push(addItem)
         }
-        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.amount)
+        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.quantity)
         return result
     } catch (error) {
         return orderItems
@@ -170,14 +167,14 @@ export const convertUpdateMultipleProductsCard = (orderItems: TItemOrderProduct[
         let result = []
         const cloneOrderItems = cloneDeep(orderItems)
         addItems.forEach((addItem)=>{
-            const findItems = cloneOrderItems.find((item: TItemOrderProduct) => item.product === addItem.product)
+            const findItems = cloneOrderItems.find((item: TItemOrderProduct) => item.productId === addItem.productId)
             if (findItems) {
-                findItems.amount += addItem.amount
+                findItems.quantity += addItem.quantity
             } else {
                 cloneOrderItems.push(addItem)
             }
         })
-        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.amount)
+        result = cloneOrderItems.filter((item: TItemOrderProduct) => item.quantity)
         return result
     } catch (error) {
         return orderItems

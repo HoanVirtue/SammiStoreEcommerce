@@ -1,5 +1,6 @@
 // ** React
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 
 // ** Components
 import Spinner from 'src/components/spinner'
@@ -15,13 +16,15 @@ import {
   getCountRevenueYear,
   getCountUserType
 } from 'src/services/report'
-import CardCountRecords from 'src/view/pages/dashboard/components/CardCountRecords'
-import CardProductType from 'src/view/pages/dashboard/components/CardProductType'
-import CardCountRevenue from 'src/view/pages/dashboard/components/CardCountRevenue'
-import CardCountUserType from 'src/view/pages/dashboard/components/CardCountUserType'
-import CardCountOrderStatus from 'src/view/pages/dashboard/components/CardCountStatusOrder'
 import { getAllProducts } from 'src/services/product'
-import CardProductPopular from 'src/view/pages/dashboard/components/CardProductPopular'
+
+// Dynamic imports
+const CardCountRecords = dynamic(() => import('src/view/pages/dashboard/components/CardCountRecords'), { ssr: false })
+const CardProductType = dynamic(() => import('src/view/pages/dashboard/components/CardProductType'), { ssr: false })
+const CardCountRevenue = dynamic(() => import('src/view/pages/dashboard/components/CardCountRevenue'), { ssr: false })
+const CardCountUserType = dynamic(() => import('src/view/pages/dashboard/components/CardCountUserType'), { ssr: false })
+const CardCountOrderStatus = dynamic(() => import('src/view/pages/dashboard/components/CardCountStatusOrder'), { ssr: false })
+const CardProductPopular = dynamic(() => import('src/view/pages/dashboard/components/CardProductPopular'), { ssr: false })
 
 export interface TCountProductType {
   typeName: string
@@ -120,50 +123,49 @@ const DashboardPage = () => {
       })
   }
 
-  const fetchListProductPopular = async () => {
-    setLoading(true)
-    await getAllProducts({ params: { limit: 5, page: 1, order: 'sold desc' } })
-      .then(res => {
-        const data = res?.data
-        setLoading(false)
-        setListProductPopular(data?.products)
-      })
-
-      .catch(e => {
-        setLoading(false)
-      })
-  }
 
   useEffect(() => {
-    fetchAllCountRecords()
-    fetchAllProductTypes()
-    fetchAllTotalRevenues()
-    fetchAllCountUserType()
-    fetchAllCountStatusOrder()
-    fetchListProductPopular()
+    // fetchAllCountRecords()
+    // fetchAllProductTypes()
+    // fetchAllTotalRevenues()
+    // fetchAllCountUserType()
+    // fetchAllCountStatusOrder()
+    // fetchListProductPopular()
   }, [])
 
   return (
     <Box>
       {loading && <Spinner />}
-      <CardCountRecords data={countRecords} />
-      <Grid container spacing={6}>
-        <Grid item md={6} xs={12}>
-          <CardProductType data={countProductTypes} />
+      <Suspense fallback={<Spinner />}>
+        <CardCountRecords data={countRecords} />
+        <Grid container spacing={6}>
+          <Grid item md={6} xs={12}>
+            <Suspense fallback={<Spinner />}>
+              <CardProductType data={countProductTypes} />
+            </Suspense>
+          </Grid>
+          <Grid item md={6} xs={12}>
+            <Suspense fallback={<Spinner />}>
+              <CardCountRevenue data={countRevenues} />
+            </Suspense>
+          </Grid>
+          <Grid item md={4} xs={12}>
+            <Suspense fallback={<Spinner />}>
+              <CardProductPopular data={listProductPopular} />
+            </Suspense>
+          </Grid>
+          <Grid item md={4} xs={12}>
+            <Suspense fallback={<Spinner />}>
+              <CardCountUserType data={countUserType} />
+            </Suspense>
+          </Grid>
+          <Grid item md={4} xs={12}>
+            <Suspense fallback={<Spinner />}>
+              <CardCountOrderStatus data={countOrderStatus} />
+            </Suspense>
+          </Grid>
         </Grid>
-        <Grid item md={6} xs={12}>
-          <CardCountRevenue data={countRevenues} />
-        </Grid>
-        <Grid item md={4} xs={12}>
-          <CardProductPopular data={listProductPopular} />
-        </Grid>
-        <Grid item md={4} xs={12}>
-          <CardCountUserType data={countUserType} />
-        </Grid>
-        <Grid item md={4} xs={12}>
-          <CardCountOrderStatus data={countOrderStatus} />
-        </Grid>
-      </Grid>
+      </Suspense>
     </Box>
   )
 }

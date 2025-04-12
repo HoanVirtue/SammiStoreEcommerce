@@ -5,7 +5,16 @@ import { TParamsCreateProductCategory, TParamsDeleteMultipleProductCategories, T
 
 export const getAllProductCategories = async (data: {params: TParamsGetAllProductCategories}) => {
     try {
-        const res = await axios.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}`, data)
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+export const getProductCategoryCode = async (data: {params: TParamsGetAllProductCategories}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/get-code-by-last-id`, data)
         return res.data
     } catch (error) {
         return error
@@ -24,9 +33,9 @@ export const createProductCategory = async (data: TParamsCreateProductCategory) 
 
 
 export const updateProductCategory = async (data: TParamsUpdateProductCategory) => {
-    const { id, ...rests } = data
+    // const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/${id}`, rests)
+        const res = await instance.put(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/${data.id}`, data)
         return res.data
     } catch (error: any) {
         return error?.response?.data
@@ -34,7 +43,7 @@ export const updateProductCategory = async (data: TParamsUpdateProductCategory) 
 }
 
 
-export const deleteProductCategory = async (id: string) => {
+export const deleteProductCategory = async (id: number) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/${id}`)
         return res.data
@@ -43,7 +52,7 @@ export const deleteProductCategory = async (id: string) => {
     }
 }
 
-export const getProductCategoryDetail = async (id: string) => {
+export const getProductCategoryDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}/${id}`)
         return res.data

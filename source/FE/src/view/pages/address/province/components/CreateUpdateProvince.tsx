@@ -29,11 +29,13 @@ import { createProvinceAsync, updateProvinceAsync } from "src/stores/province/ac
 interface TCreateUpdateProvince {
     open: boolean
     onClose: () => void
-    idProvince?: string
+    id?: number
 }
 
 type TDefaultValues = {
-    name: string
+    name: string,
+    code: string,
+    postalCode: string
 }
 
 const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
@@ -42,7 +44,7 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
     const [loading, setLoading] = useState(false)
 
     //props
-    const { open, onClose, idProvince } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -54,11 +56,15 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
     const dispatch: AppDispatch = useDispatch()
 
     const schema = yup.object().shape({
-        name: yup.string().required("Province name is required")
+        name: yup.string().required(t('required_province_name')),
+        code: yup.string().required(t('required_province_code')),
+        postalCode: yup.string().required(t('required_postal_code'))
     });
 
     const defaultValues: TDefaultValues = {
         name: '',
+        code: '',
+        postalCode: ''
     }
 
     const { handleSubmit, control, formState: { errors }, reset } = useForm({
@@ -70,29 +76,35 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (idProvince) {
+            if (id) {
                 //update
                 dispatch(updateProvinceAsync({
                     name: data?.name,
-                    id: idProvince,
+                    code: data?.code,
+                    postalCode: data?.postalCode,
+                    id: id,
                 }))
             } else {
                 //create
                 dispatch(createProvinceAsync({
                     name: data?.name,
+                    code: data?.code,
+                    postalCode: data?.postalCode,
                 }))
             }
         }
     }
 
 
-    const fetchDetailProvince = async (id: string) => {
+    const fetchDetailProvince = async (id: number) => {
         setLoading(true)
         await getProvinceDetail(id).then((res) => {
-            const data = res?.data
+            const data = res?.result
             if (data) {
                 reset({
-                    name: data?.name
+                    name: data?.name,
+                    code: data?.code,
+                    postalCode: data?.postalCode
                 })
             }
             setLoading(false)
@@ -101,18 +113,17 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
         })
     }
 
-
     useEffect(() => {
         if (!open) {
             reset({
                 ...defaultValues
             })
         } else {
-            if (idProvince && open) {
-                fetchDetailProvince(idProvince)
+            if (id && open) {
+                fetchDetailProvince(id)
             }
         }
-    }, [open, idProvince])
+    }, [open, id])
 
     return (
         <>
@@ -135,7 +146,7 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idProvince ? t('update_province') : t('create_province')}
+                            {id ? t('update_province') : t('create_province')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -156,14 +167,13 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                                 borderRadius: "15px",
                                 py: 5, px: 4
                             }}>
-                            <Grid container item md={12} xs={12} >
+                            <Grid container item md={12} xs={12} spacing={6}>
                                 <Grid item md={12} xs={12} >
                                     <Controller
                                         control={control}
                                         render={({ field: { onChange, onBlur, value } }) => (
                                             <CustomTextField
                                                 fullWidth
-
                                                 required
                                                 label={t('province_name')}
                                                 onChange={onChange}
@@ -177,11 +187,50 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                                         name='name'
                                     />
                                 </Grid>
+                                <Grid item md={12} xs={12} >
+                                    <Controller
+                                        control={control}
+                                        render={({ field: { onChange, onBlur, value } }) => (
+                                            <CustomTextField
+                                                fullWidth
+                                                required
+                                                label={t('province_code')}
+                                                onChange={onChange}
+                                                onBlur={onBlur}
+                                                value={value}
+                                                placeholder={t('enter_province_code')}
+                                                error={errors.code ? true : false}
+                                                helperText={errors.code?.message}
+                                            />
+                                        )}
+                                        name='code'
+                                    />
+                                </Grid>
+                                <Grid item md={12} xs={12} >
+                                    <Controller
+                                        control={control}
+                                        render={({ field: { onChange, onBlur, value } }) => (
+                                            <CustomTextField
+                                                fullWidth
+                                                required
+                                                label={t('postal_code')}
+                                                onChange={onChange}
+                                                onBlur={onBlur}
+                                                value={value}
+                                                placeholder={t('enter_postal_code')}
+                                                error={errors.postalCode ? true : false}
+                                                helperText={errors.postalCode?.message}
+                                            />
+                                        )}
+                                        name='postalCode'
+                                    />
+                                </Grid>
                             </Grid>
                         </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 3 }}>
+                            <Button variant="outlined" sx={{ mt: 3, mb: 2, ml: 2, py: 1.5 }} onClick={onClose}>{t('cancel')}</Button>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idProvince ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form >

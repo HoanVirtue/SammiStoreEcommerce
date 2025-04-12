@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit'
 
 // ** Action Imports
 import { createProductAsync, deleteMultipleProductsAsync, deleteProductAsync, getAllLikedProductsAsync, getAllProductsAsync, getAllViewedProductsAsync, likeProductAsync, serviceName, unlikeProductAsync, updateProductAsync } from './action'
+import { ReduxPayload } from 'src/types/payload'
 
 const initialState = {
   isLoading: false,
@@ -79,8 +80,8 @@ export const productSlice = createSlice({
     })
     builder.addCase(getAllProductsAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.products.data = Array.isArray(action?.payload?.data?.products) ? action?.payload?.data?.products : [];
-      state.products.total = action?.payload?.data?.totalCount
+      state.products.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset: [];
+      state.products.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllProductsAsync.rejected, (state, action) => {
       state.isLoading = false
@@ -94,15 +95,16 @@ export const productSlice = createSlice({
     })
     builder.addCase(createProductAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.data?._id
-      state.isErrorCreateUpdate = !action.payload?.data?._id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
     builder.addCase(createProductAsync.rejected, (state, action) => {
+      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = action?.error?.message || 'Error creating Product'
+      state.errorMessageCreateUpdate =  payload?.errors?.errorMessage || 'Error creating Product'
     })
 
     //update Product
@@ -111,8 +113,8 @@ export const productSlice = createSlice({
     })
     builder.addCase(updateProductAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessCreateUpdate = !!action.payload?.data?._id
-      state.isErrorCreateUpdate = !action.payload?.data?._id
+      state.isSuccessCreateUpdate = !!action.payload?.isSuccess
+      state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -128,10 +130,10 @@ export const productSlice = createSlice({
     })
     builder.addCase(deleteProductAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessDelete = !!action.payload?.data?._id
-      state.isErrorDelete = !action.payload?.data?._id
+      state.isSuccessDelete = !!action.payload?.isSuccess
+      state.isErrorDelete = !action.payload?.isSuccess
       state.errorMessageDelete = action.payload?.message
-      state.typeError = action.payload?.typeError
+      state.typeError = action.payload?.result?.errorMessage
     })
     builder.addCase(deleteProductAsync.rejected, (state, action) => {
       state.isLoading = false
@@ -162,8 +164,8 @@ export const productSlice = createSlice({
     })
     builder.addCase(likeProductAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessLike = !!action.payload?.data?._id
-      state.isErrorLike = !action.payload?.data?._id
+      state.isSuccessLike = !!action.payload?.isSuccess
+      state.isErrorLike = !action.payload?.isSuccess
       state.errorMessageLike = action.payload?.message
       state.typeError = action.payload?.typeError
     })
@@ -179,8 +181,8 @@ export const productSlice = createSlice({
     })
     builder.addCase(unlikeProductAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.isSuccessUnlike = !!action.payload?.data?._id
-      state.isErrorUnlike = !action.payload?.data?._id
+      state.isSuccessUnlike = !!action.payload?.isSuccess
+      state.isErrorUnlike = !action.payload?.isSuccess
       state.errorMessageUnlike = action.payload?.message
       state.typeError = action.payload?.typeError
     })

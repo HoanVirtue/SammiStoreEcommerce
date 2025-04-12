@@ -10,6 +10,8 @@ import { Box, Container, CssBaseline, Toolbar, } from "@mui/material";
 import VerticalLayout from "./VerticalLayout";
 import HorizontalLayout from "./HorizontalLayout";
 import { useTheme } from "@mui/material";
+import Image from "next/image";
+
 
 type TProps = {
     children: React.ReactNode

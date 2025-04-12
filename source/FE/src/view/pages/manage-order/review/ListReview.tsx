@@ -31,7 +31,7 @@ import SearchField from 'src/components/search-field'
 import Spinner from 'src/components/spinner'
 
 //toast
-import toast from 'react-hot-toast'
+import { toast } from 'react-toastify'
 import ConfirmDialog from 'src/components/confirm-dialog'
 import { OBJECT_TYPE_ERROR } from 'src/configs/error'
 
@@ -45,7 +45,6 @@ import { usePermission } from 'src/hooks/usePermission'
 import { resetInitialState } from 'src/stores/user'
 import { styled } from '@mui/material'
 import CustomSelect from 'src/components/custom-select'
-import { getAllCities } from 'src/services/city'
 import { deleteReviewAsync, getAllReviewsAsync } from 'src/stores/review/action'
 import { FILTER_REVIEW_CMS } from 'src/configs/review'
 import UpdateReview from './components/UpdateReview'
@@ -59,11 +58,11 @@ const ListReviewPage: NextPage<TProps> = () => {
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
     const [openUpdateReview, setOpenUpdateReview] = useState({
         open: false,
-        id: ""
+        id: 0
     });
     const [openDeleteReview, setOpenDeleteReview] = useState({
         open: false,
-        id: ""
+        id: 0
     });
 
     const [sortBy, setSortBy] = useState("createdAt asc");
@@ -118,14 +117,14 @@ const ListReviewPage: NextPage<TProps> = () => {
     const handleCloseUpdateReview = () => {
         setOpenUpdateReview({
             open: false,
-            id: ""
+            id: 0
         })
     }
 
     const handleCloseDeleteDialog = () => {
         setOpenDeleteReview({
             open: false,
-            id: ""
+            id: 0
         })
     }
 
@@ -210,14 +209,14 @@ const ListReviewPage: NextPage<TProps> = () => {
                             disabled={!UPDATE}
                             onClick={() => setOpenUpdateReview({
                                 open: true,
-                                id: String(params.id)
+                                id: Number(params.id)
                             })}
                         />
                         <GridDelete
                             disabled={!DELETE}
                             onClick={() => setOpenDeleteReview({
                                 open: true,
-                                id: String(params.id)
+                                id: Number(params.id)
                             })}
                         />
                     </>

@@ -1,16 +1,16 @@
 import { NextPage } from 'next'
 import React from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
+import ListWardPage from '../../../view/pages/address/ward/ListWard'
 
 //views
-import ListCityPage from 'src/view/pages/address/city/ListCity'
 
 type TProps = {}
 
-const City: NextPage<TProps> = () => {
-    return <ListCityPage />
+const Ward: NextPage<TProps> = () => {
+    return <ListWardPage />
 }
 
-export default City
+export default Ward
 
-City.permission = [PERMISSIONS.SETTING.CITY.VIEW]
+Ward.permission = [PERMISSIONS.ADDRESS.WARD.VIEW]

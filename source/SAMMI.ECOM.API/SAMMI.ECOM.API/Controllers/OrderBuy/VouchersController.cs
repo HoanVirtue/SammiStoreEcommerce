@@ -53,6 +53,8 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _discountTypeQueries = discountTypeQueries;
         }
 
+        // top 20 vouchers cho trang chủ
+
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {

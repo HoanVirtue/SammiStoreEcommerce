@@ -183,6 +183,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 request.UpdatedBy = _currentUser.UserName;
 
                 var existingConditions = await _conditionRepository.GetByVoucherId(request.Id);
+                if (request.Conditions.Any(con => existingConditions.Any(c => c.ConditionType == con.ConditionType.ToString())))
+                {
+                    actResponse.AddError("Một hoặc nhiều điều kiện đã tồn tại trong phiếu giảm giá.");
+                    return actResponse;
+                }
                 if (request.Conditions.Count < existingConditions.Count())
                 {
                     actResponse.AddError($"Số lượng điều kiện của phiếu giảm giá phải lớn hơn hoặc bằng {existingConditions.Count()}.");

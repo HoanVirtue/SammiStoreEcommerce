@@ -213,8 +213,9 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                                             <CustomTextField
                                                 fullWidth
                                                 required
+                                                inputProps={{ inputMode: "numeric", pattern: "[0-9]*" }}
+                                                onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
                                                 label={t('postal_code')}
-                                                onChange={onChange}
                                                 onBlur={onBlur}
                                                 value={value}
                                                 placeholder={t('enter_postal_code')}

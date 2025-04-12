@@ -143,6 +143,21 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(updateStatus);
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CanceledOrderAsync([FromBody]int orderId)
+        {
+            var order = await _orderRepository.GetByIdAsync(orderId);
+            if (!_orderRepository.IsExisted(orderId))
+            {
+                return BadRequest("Mã đơn hàng không tồn tại.");
+            }
+
+            var updateRes = await _orderRepository.CanceldOrder(orderId);
+            if (updateRes.IsSuccess)
+                return Ok(updateRes);
+            return BadRequest(updateRes);
+        }
+
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand request)
         {

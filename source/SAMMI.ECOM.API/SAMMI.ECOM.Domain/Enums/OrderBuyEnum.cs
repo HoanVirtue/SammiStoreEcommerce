@@ -68,7 +68,6 @@ namespace SAMMI.ECOM.Domain.Enums
     Unpaid - Processing -> Processing
     Paid - Delivered -> Completed
     Paid - Lost -> Cancelled
-
     Unpaid - NotShipped -> Cancelled
     */
 

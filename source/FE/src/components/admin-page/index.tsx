@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, Suspense } from "react";
+import React, { useEffect, useState, Suspense, useMemo, useCallback } from "react";
 import { NextPage } from "next";
 import dynamic from 'next/dynamic';
 import { Box, Grid, useTheme, Tabs, Tab, IconButton, Stack } from "@mui/material";
@@ -170,7 +170,41 @@ const AdminPage: NextPage<AdminPageProps> = ({
     errorMessageDeleteMultiple,
   } = useSelector(reduxSelector);
 
-  const handleFetchData = () => {
+  // Memoize columns to prevent unnecessary re-renders
+  const actionColumn = useMemo(() => ({
+    field: "action",
+    headerName: t("action"),
+    width: 150,
+    sortable: false,
+    align: "left",
+    renderCell: (params: GridRenderCellParams) => (
+      <>
+        {showDetailButton && (
+          <GridDetail
+            onClick={() => {
+              setSelectedDetailId(params.row.id);
+              onDetailClick?.(params.row.id);
+            }}
+          />
+        )}
+
+        <GridUpdate
+          disabled={disableUpdateButton}
+          onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
+        />
+        <GridDelete
+          disabled={disableDeleteButton}
+          onClick={() => setOpenDelete({ open: true, id: params.row.id })}
+        />
+
+      </>
+    ),
+  }), [showDetailButton, disableUpdateButton, disableDeleteButton, t, onDetailClick]);
+
+  const allColumns = useMemo(() => [actionColumn, ...columns], [actionColumn, columns]);
+
+  // Memoize handlers
+  const handleFetchData = useCallback(() => {
     const [orderByField, orderByDir] = sortBy.split(" ");
     const validFilters = debouncedFilters.filter(
       (f) => f.field && f.operator && (f.value || ["isnull", "isnotnull", "isempty", "isnotempty"].includes(f.operator))
@@ -191,14 +225,14 @@ const AdminPage: NextPage<AdminPageProps> = ({
       },
     };
     dispatch(fetchAction(query));
-  };
+  }, [sortBy, page, pageSize, debouncedFilters, dispatch, fetchAction]);
 
-  const handleOnChangePagination = (newPage: number, newPageSize: number) => {
+  const handleOnChangePagination = useCallback((newPage: number, newPageSize: number) => {
     setPage(newPage);
     setPageSize(newPageSize);
-  };
+  }, []);
 
-  const handleSort = (sort: GridSortModel) => {
+  const handleSort = useCallback((sort: GridSortModel) => {
     const sortOption = sort[0];
     if (sortOption) {
       const gridField = sortOption.field;
@@ -207,27 +241,28 @@ const AdminPage: NextPage<AdminPageProps> = ({
     } else {
       setSortBy("createdDate asc");
     }
-  };
+  }, [fieldMapping]);
 
-  const handleCloseCreateUpdate = () => setOpenCreateUpdate({ open: false, id: 0 });
-  const handleCloseDeleteDialog = () => setOpenDelete({ open: false, id: 0 });
-  const handleCloseDeleteMultipleDialog = () => setOpenDeleteMultiple({ open: false, ids: [] });
+  const handleCloseCreateUpdate = useCallback(() => setOpenCreateUpdate({ open: false, id: 0 }), []);
+  const handleCloseDeleteDialog = useCallback(() => setOpenDelete({ open: false, id: 0 }), []);
+  const handleCloseDeleteMultipleDialog = useCallback(() => setOpenDeleteMultiple({ open: false, ids: [] }), []);
 
-  const handleDelete = () => {
+  const handleDelete = useCallback(() => {
     setIsDeleting(true);
     dispatch(deleteAction(openDelete.id));
-  };
+  }, [dispatch, deleteAction, openDelete.id]);
 
-  const handleDeleteMultiple = () => {
+  const handleDeleteMultiple = useCallback(() => {
     setIsDeleting(true);
-    dispatch(deleteMultipleAction({ ids: selectedRow }));
-  };
+    dispatch(deleteMultipleAction({ [openDelete.id]: selectedRow }));
+  }, [dispatch, deleteMultipleAction, selectedRow, openDelete.id]);
 
-  const handleAction = (action: string) => action === "delete" && setOpenDeleteMultiple({ open: true, ids: selectedRow });
+  const handleAction = useCallback((action: string) => action === "delete" && setOpenDeleteMultiple({ open: true, ids: selectedRow }), [selectedRow]);
 
-  const handleFilterChange = (newFilters: TFilter[]) => setFilters(newFilters);
+  const handleFilterChange = useCallback((newFilters: TFilter[]) => setFilters(newFilters), []);
 
-  const PaginationComponent = () => (
+  // Memoize PaginationComponent
+  const PaginationComponent = useMemo(() => (
     <CustomPagination
       pageSize={pageSize}
       pageSizeOptions={PAGE_SIZE_OPTIONS}
@@ -235,7 +270,29 @@ const AdminPage: NextPage<AdminPageProps> = ({
       page={page}
       rowLength={total}
     />
-  );
+  ), [pageSize, page, total, handleOnChangePagination]);
+
+  // Memoize DataGrid styles
+  const dataGridStyles = useMemo(() => ({
+    ".selected-row": {
+      backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
+      color: `${theme.palette.primary.main} !important`,
+    },
+    "& .MuiDataGrid-root": { border: `1px solid ${theme.palette.divider}` },
+    "& .MuiDataGrid-columnHeaders": {
+      backgroundColor: theme.palette.grey[100],
+      borderBottom: `1px solid ${theme.palette.divider}`,
+      position: 'sticky',
+      top: 0,
+      zIndex: 1,
+    },
+    "& .MuiDataGrid-row:hover": { backgroundColor: theme.palette.action.hover },
+    "& .MuiDataGrid-row.Mui-selected": {
+      backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
+      color: `${theme.palette.primary.main} !important`,
+    },
+    "& .MuiDataGrid-cell": { borderBottom: `1px solid ${theme.palette.divider}` },
+  }), [theme]);
 
   useEffect(() => {
     handleFetchData();
@@ -281,39 +338,6 @@ const AdminPage: NextPage<AdminPageProps> = ({
       setIsDeleting(false);
     }
   }, [isSuccessDelete, isErrorDelete, errorMessageDelete]);
-
-  // Define the action column
-  const actionColumn: GridColDef = {
-    field: "action",
-    headerName: t("action"),
-    width: 150,
-    sortable: false,
-    align: "left",
-    renderCell: (params: GridRenderCellParams) => (
-      <>
-        {showDetailButton && (
-          <GridDetail
-            onClick={() => {
-              setSelectedDetailId(params.row.id);
-              onDetailClick?.(params.row.id);
-            }}
-          />
-        )}
-
-        <GridUpdate
-          disabled={disableUpdateButton}
-          onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
-        />
-        <GridDelete
-          disabled={disableDeleteButton}
-          onClick={() => setOpenDelete({ open: true, id: params.row.id })}
-        />
-
-      </>
-    ),
-  };
-
-  const allColumns = [actionColumn, ...columns];
 
   return (
     <>
@@ -478,7 +502,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
               <Suspense fallback={<Spinner />}>
                 <CustomDataGrid
                   rows={data}
-                  columns={allColumns}
+                  columns={allColumns as GridColDef[]}
                   checkboxSelection
                   getRowId={(row) => row.id}
                   disableRowSelectionOnClick
@@ -487,33 +511,14 @@ const AdminPage: NextPage<AdminPageProps> = ({
                   sortingMode="server"
                   onSortModelChange={handleSort}
                   slots={{
-                    pagination: PaginationComponent,
-                    toolbar: AdminFilter,
+                    pagination: () => PaginationComponent,
+                    toolbar: () => <AdminFilter fields={fields} onFilterChange={handleFilterChange} />,
                     noRowsOverlay: () => <Box sx={{ p: 2, textAlign: "center" }}>{t(`${noDataText}`)}</Box>,
                   }}
                   slotProps={{ toolbar: { fields, onFilterChange: handleFilterChange } }}
                   disableColumnFilter
                   disableColumnMenu
-                  sx={{
-                    ".selected-row": {
-                      backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
-                      color: `${theme.palette.primary.main} !important`,
-                    },
-                    "& .MuiDataGrid-root": { border: `1px solid ${theme.palette.divider}` },
-                    "& .MuiDataGrid-columnHeaders": {
-                      backgroundColor: theme.palette.grey[100],
-                      borderBottom: `1px solid ${theme.palette.divider}`,
-                      position: 'sticky',
-                      top: 0,
-                      zIndex: 1,
-                    },
-                    "& .MuiDataGrid-row:hover": { backgroundColor: theme.palette.action.hover },
-                    "& .MuiDataGrid-row.Mui-selected": {
-                      backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
-                      color: `${theme.palette.primary.main} !important`,
-                    },
-                    "& .MuiDataGrid-cell": { borderBottom: `1px solid ${theme.palette.divider}` },
-                  }}
+                  sx={dataGridStyles}
                   onRowSelectionModelChange={(row: GridRowSelectionModel) => setSelectedRow(row as number[])}
                   rowSelectionModel={selectedRow}
                 />

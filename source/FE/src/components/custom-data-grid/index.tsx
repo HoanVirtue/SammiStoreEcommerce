@@ -77,6 +77,6 @@ const CustomDataGrid = React.forwardRef(
   }
 );
 
-CustomDataGrid.displayName = 'CustomDataGrid';
+CustomDataGrid.displayName = 'CustomDataGrid'
 
 export default CustomDataGrid;

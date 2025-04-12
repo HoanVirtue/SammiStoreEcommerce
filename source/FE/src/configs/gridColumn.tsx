@@ -360,7 +360,15 @@ export const getProductColumns = (): GridColDef[] => {
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
-          <Typography>{row?.name}</Typography>
+          <Tooltip title={row?.name}>
+            <Typography sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+            }}>{row?.name}</Typography>
+          </Tooltip>
         )
       }
     },
@@ -761,4 +769,50 @@ export const getEventColumns = (): GridColDef[] => {
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.eventType}</Typography>,
     },
   ];
+}
+
+
+export const getCustomerColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  return [
+    {
+      field: "customer_code",
+      headerName: t("customer_code"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
+  },
+  {
+    field: "name",
+    headerName: t("name"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.fullName}</Typography>,
+  },
+  {
+    field: "phone",
+    headerName: t("phone"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.phone}</Typography>,
+  },
+  {
+    field: "email",
+    headerName: t("email"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.email}</Typography>,
+  },
+  {
+    field: "gender",
+    headerName: t("gender"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography>
+          {params.row.gender === 1 ? t("male") : params.row.gender === 0 ? t("female") : t("unknown")}
+        </Typography>
+      ),
+    },
+  ]
 }

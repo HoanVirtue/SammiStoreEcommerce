@@ -698,6 +698,7 @@
     "invalid_voucher_description": "Mã giảm giá không hợp lệ, vui lòng kiểm tra lại!",
     "valid_vouchers": "Mã giảm giá hợp lệ",
     "valid_voucher_description": "Mã giảm giá hợp lệ, vui lòng áp dụng!",
+    "required_product_code": "Mã sản phẩm không được để trống",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

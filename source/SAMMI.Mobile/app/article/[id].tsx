@@ -2,13 +2,13 @@ import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, ScrollView, Pressable, Image, Linking, Platform } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/src/constants/colors';
-import { useArticleStore } from '@/src/presentation/stores/articleStore';
-import { LoadingIndicator } from '@/src/presentation/components/LoadingIndicator';
-import { ErrorView } from '@/src/presentation/components/ErrorView';
+import { colors } from '@/constants/colors';
+import { useArticleStore } from '@/presentation/stores/articleStore';
+import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
+import { ErrorView } from '@/presentation/components/ErrorView';
 
 import { ArrowLeft, ExternalLink, Clock, User } from 'lucide-react-native';
-import { formatDate } from '@/src/utils';
+import { formatDate } from '@/utils';
 
 export default function ArticleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();

@@ -1,29 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
-  ScrollView, 
-  Pressable, 
-  Image, 
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Pressable,
+  Image,
   Dimensions,
   FlatList
 } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { colors } from '@/src/constants/colors';
-import { useProductStore } from '@/src/presentation/stores/productStore';
-import { useCartStore } from '@/src/presentation/stores/cartStore';
-import { useUserStore } from '@/src/presentation/stores/userStore';
-import { LoadingIndicator } from '@/src/presentation/components/LoadingIndicator';
-import { ErrorView } from '@/src/presentation/components/ErrorView';
-import { Button } from '@/src/presentation/components/Button';
-import { 
-  ArrowLeft, 
-  Heart, 
-  ShoppingBag, 
-  Star, 
-  Minus, 
+import { colors } from '@/constants/colors';
+import { useProductStore } from '@/presentation/stores/productStore';
+import { useCartStore } from '@/presentation/stores/cartStore';
+import { useUserStore } from '@/presentation/stores/userStore';
+import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
+import { ErrorView } from '@/presentation/components/ErrorView';
+import { Button } from '@/presentation/components/Button';
+import {
+  ArrowLeft,
+  Heart,
+  ShoppingBag,
+  Star,
+  Minus,
   Plus,
   ChevronDown,
   ChevronUp
@@ -37,83 +37,83 @@ export default function ProductDetailScreen() {
   const { selectedProduct, isLoading, error, fetchProductById } = useProductStore();
   const { addToCart } = useCartStore();
   const { isInWishlist, toggleWishlist } = useUserStore();
-  
+
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [showDescription, setShowDescription] = useState(true);
   const [showIngredients, setShowIngredients] = useState(false);
   const [showHowToUse, setShowHowToUse] = useState(false);
-  
+
   const isWishlisted = selectedProduct ? isInWishlist(selectedProduct.id) : false;
-  
+
   useEffect(() => {
     if (id) {
       fetchProductById(id);
     }
   }, [id]);
-  
+
   const handleGoBack = () => {
     router.back();
   };
-  
+
   const handleAddToCart = () => {
     if (selectedProduct) {
       addToCart(selectedProduct, quantity);
     }
   };
-  
+
   const handleToggleWishlist = () => {
     if (selectedProduct) {
       toggleWishlist(selectedProduct.id);
     }
   };
-  
+
   const handleIncreaseQuantity = () => {
     setQuantity(prev => prev + 1);
   };
-  
+
   const handleDecreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(prev => prev - 1);
     }
   };
-  
+
   const toggleDescription = () => {
     setShowDescription(!showDescription);
   };
-  
+
   const toggleIngredients = () => {
     setShowIngredients(!showIngredients);
   };
-  
+
   const toggleHowToUse = () => {
     setShowHowToUse(!showHowToUse);
   };
-  
+
   if (isLoading) {
     return <LoadingIndicator fullScreen />;
   }
-  
+
   if (error || !selectedProduct) {
     return <ErrorView message={error || 'Product not found'} onRetry={() => id && fetchProductById(id)} />;
   }
-  
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
         <Pressable onPress={handleGoBack} style={styles.backButton}>
           <ArrowLeft size={24} color={colors.text} />
         </Pressable>
-        
+
         <Pressable onPress={handleToggleWishlist} style={styles.wishlistButton}>
-          <Heart 
-            size={24} 
-            color={isWishlisted ? colors.primary : colors.text} 
-            fill={isWishlisted ? colors.primary : 'transparent'} 
+          <Heart
+            size={24}
+            color={isWishlisted ? colors.primary : colors.text}
+            fill={isWishlisted ? colors.primary : 'transparent'}
           />
         </Pressable>
       </View>
-      
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageContainer}>
           <FlatList
@@ -126,76 +126,76 @@ export default function ProductDetailScreen() {
               setActiveImageIndex(newIndex);
             }}
             renderItem={({ item }) => (
-              <Image 
-                source={{ uri: item }} 
+              <Image
+                source={{ uri: item }}
                 style={styles.image}
                 resizeMode="cover"
               />
             )}
             keyExtractor={(_, index) => index.toString()}
           />
-          
+
           <View style={styles.pagination}>
             {selectedProduct.imageUrls.map((_, index) => (
-              <View 
-                key={index} 
+              <View
+                key={index}
                 style={[
                   styles.paginationDot,
                   index === activeImageIndex && styles.paginationDotActive
-                ]} 
+                ]}
               />
             ))}
           </View>
-          
+
           {selectedProduct.isNew && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>NEW</Text>
             </View>
           )}
-          
+
           {selectedProduct.isOnSale && (
             <View style={[styles.badge, styles.saleBadge]}>
               <Text style={styles.badgeText}>SALE</Text>
             </View>
           )}
         </View>
-        
+
         <View style={styles.content}>
           <Text style={styles.brand}>{selectedProduct.brand}</Text>
           <Text style={styles.name}>{selectedProduct.name}</Text>
-          
+
           <View style={styles.ratingContainer}>
             <Star size={16} color={colors.warning} fill={colors.warning} />
             <Text style={styles.rating}>{selectedProduct.rating.toFixed(1)}</Text>
             <Text style={styles.reviews}>({selectedProduct.reviewCount} reviews)</Text>
           </View>
-          
+
           <View style={styles.priceContainer}>
             <Text style={styles.price}>${selectedProduct.price.toFixed(2)}</Text>
             {selectedProduct.originalPrice && (
               <Text style={styles.originalPrice}>${selectedProduct.originalPrice.toFixed(2)}</Text>
             )}
           </View>
-          
+
           <View style={styles.quantityContainer}>
             <Text style={styles.quantityLabel}>Quantity</Text>
             <View style={styles.quantityControls}>
-              <Pressable 
-                style={[styles.quantityButton, quantity <= 1 && styles.quantityButtonDisabled]} 
+              <Pressable
+                style={[styles.quantityButton, quantity <= 1 && styles.quantityButtonDisabled]}
                 onPress={handleDecreaseQuantity}
                 disabled={quantity <= 1}
               >
                 <Minus size={16} color={quantity <= 1 ? colors.textSecondary : colors.text} />
               </Pressable>
-              
+
               <Text style={styles.quantity}>{quantity}</Text>
-              
+
               <Pressable style={styles.quantityButton} onPress={handleIncreaseQuantity}>
                 <Plus size={16} color={colors.text} />
               </Pressable>
             </View>
           </View>
-          
+
           <Pressable style={styles.section} onPress={toggleDescription}>
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>Description</Text>
@@ -205,12 +205,12 @@ export default function ProductDetailScreen() {
                 <ChevronDown size={20} color={colors.text} />
               )}
             </View>
-            
+
             {showDescription && (
               <Text style={styles.sectionContent}>{selectedProduct.description}</Text>
             )}
           </Pressable>
-          
+
           {selectedProduct.ingredients && (
             <Pressable style={styles.section} onPress={toggleIngredients}>
               <View style={styles.sectionHeader}>
@@ -221,13 +221,13 @@ export default function ProductDetailScreen() {
                   <ChevronDown size={20} color={colors.text} />
                 )}
               </View>
-              
+
               {showIngredients && (
                 <Text style={styles.sectionContent}>{selectedProduct.ingredients}</Text>
               )}
             </Pressable>
           )}
-          
+
           {selectedProduct.howToUse && (
             <Pressable style={styles.section} onPress={toggleHowToUse}>
               <View style={styles.sectionHeader}>
@@ -238,7 +238,7 @@ export default function ProductDetailScreen() {
                   <ChevronDown size={20} color={colors.text} />
                 )}
               </View>
-              
+
               {showHowToUse && (
                 <Text style={styles.sectionContent}>{selectedProduct.howToUse}</Text>
               )}
@@ -246,11 +246,11 @@ export default function ProductDetailScreen() {
           )}
         </View>
       </ScrollView>
-      
+
       <View style={styles.footer}>
-        <Button 
-          title="Add to Cart" 
-          onPress={handleAddToCart} 
+        <Button
+          title="Add to Cart"
+          onPress={handleAddToCart}
           icon={<ShoppingBag size={18} color={colors.white} />}
           style={styles.addToCartButton}
         />

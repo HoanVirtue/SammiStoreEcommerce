@@ -1,12 +1,14 @@
+import React from 'react';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet } from 'react-native';
+import { Slot } from 'expo-router';
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app hello 323 888!</Text>
+    <>
+      <Slot />
       <StatusBar style="auto" />
-    </View>
+    </>
   );
 }
 

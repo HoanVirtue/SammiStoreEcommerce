@@ -5,55 +5,47 @@ import { useRouter } from 'expo-router';
 import { Category } from '@/domain/entities/Category';
 import { Product } from '@/domain/entities/Product';
 import { ChevronRight } from 'lucide-react-native';
-import { colors } from '@/src/constants/colors';
-import { LoadingIndicator } from '@/src/presentation/components/LoadingIndicator';
-import { ErrorView } from '@/src/presentation/components/ErrorView';
-import { SearchBar } from '@/src/presentation/components/SearchBar';
-import { CategoryCard } from '@/src/presentation/components/CategoryCard';
-import { ProductCard } from '@/src/presentation/components/ProductCard';
-import { useProductStore } from '@/src/presentation/stores/productStore';
-import { useUserStore } from '@/src/presentation/stores/userStore';
-import { useAuth } from '@/src/hooks/useAuth';
-import { getAllProducts } from '@/src/services/product';
-import { TProduct } from '@/src/types/product';
+import { colors } from '@/constants/colors';
+import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
+import { ErrorView } from '@/presentation/components/ErrorView';
+import { SearchBar } from '@/presentation/components/SearchBar';
+import { CategoryCard } from '@/presentation/components/CategoryCard';
+import { ProductCard } from '@/presentation/components/ProductCard';
+import { useProductStore } from '@/presentation/stores/productStore';
+import { useUserStore } from '@/presentation/stores/userStore';
+import { getAllProducts } from '@/services/product';
+import { TProduct } from '@/types/product';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const {
-    featuredProducts,
-    categories,
-    isLoading,
-    error,
-    fetchFeaturedProducts,
-    fetchCategories,
-    setSearchQuery,
-    fetchProductById,
-  } = useProductStore();
-
-  const { fetchUser } = useUserStore();
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [publicProducts, setPublicProducts] = useState<TProduct[]>([]);
 
   const handleGetListProduct = async () => {
     setLoading(true);
-    const query = {
-      params: {
-        take: -1,
-        skip: 0,
-        paging: false,
-        orderBy: "name",
-        dir: "asc",
-        keywords: "''",
-        filters: ""
-      },
-    };
+    setError(null);
+
     try {
-      const response = await getAllProducts(query);
+      const response = await getAllProducts({
+        params: {
+          take: -1,
+          skip: 0,
+          paging: false,
+          orderBy: "name",
+          dir: "asc",
+          keywords: "''",
+          filters: "''"
+        }
+      });
 
       if (response?.result?.subset) {
         setPublicProducts(response.result.subset);
+      } else {
+        setError('No products found');
       }
     } catch (error) {
+      setError('Failed to fetch products');
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
@@ -62,9 +54,6 @@ export default function HomeScreen() {
 
   useEffect(() => {
     handleGetListProduct();
-    fetchFeaturedProducts();
-    fetchCategories();
-    fetchUser();
   }, []);
 
   const handleCategoryPress = (category: Category) => {
@@ -72,12 +61,12 @@ export default function HomeScreen() {
   };
 
   const handleProductPress = (product: TProduct) => {
-    fetchProductById(product.id);
-    router.push(`/product/${product.id}`);
+    if (product?.id) {
+      router.push(`/product/${product.id}`);
+    }
   };
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
     router.push('/search');
   };
 
@@ -85,14 +74,15 @@ export default function HomeScreen() {
     router.push('/search');
   };
 
-  if (isLoading && featuredProducts.length === 0 && categories.length === 0) {
+  if (loading && publicProducts.length === 0) {
     return <LoadingIndicator fullScreen />;
   }
 
-  if (error && featuredProducts.length === 0 && categories.length === 0) {
-    return <ErrorView message={error} onRetry={fetchFeaturedProducts} />;
+  if (error && publicProducts.length === 0) {
+    return <ErrorView message={error} onRetry={handleGetListProduct} />;
   }
-  // console.log("publicProducts", publicProducts);
+
+ 
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -110,41 +100,24 @@ export default function HomeScreen() {
         />
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>All Products</Text>
+          <Text style={styles.sectionTitle}>Tất cả sản phẩm</Text>
           <View style={styles.productsGrid}>
-            {publicProducts.map((product: TProduct) => (
-              <View key={product.id} style={styles.productItem}>
+            {publicProducts?.map((product: TProduct) => (
+              <View key={product?.id} style={styles.productItem}>
                 <ProductCard
                   product={product}
-                  onPress={handleProductPress}
-                  />
+                  onPress={() => handleProductPress(product)}
+                />
               </View>
             ))}
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Categories</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoriesContainer}
-          >
-            {categories.map((category) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                onPress={handleCategoryPress}
-              />
-            ))}
-          </ScrollView>
-        </View>
-
-        <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Featured Products</Text>
+            <Text style={styles.sectionTitle}>Sản phẩm bán chạy</Text>
             <Pressable style={styles.viewAllButton} onPress={handleViewAll}>
-              <Text style={styles.viewAllText}>View All</Text>
+              <Text style={styles.viewAllText}>Xem tất cả</Text>
               <ChevronRight size={16} color={colors.primary} />
             </Pressable>
           </View>

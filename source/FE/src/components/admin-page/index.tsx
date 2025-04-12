@@ -353,7 +353,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
         </Suspense>
       )}
 
-      <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", minHeight: "100vh" }}>
+      <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", height: '80vh',overflow: "hidden" }}>
         {showTab && (
           <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
             <Tabs value={currentTab} onChange={(_, newValue) => onTabChange?.(newValue)}>

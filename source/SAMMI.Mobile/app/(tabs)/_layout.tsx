@@ -1,13 +1,14 @@
 import React from 'react';
 import { Tabs } from 'expo-router';
-import { colors } from '@/src/constants/colors';
+import { colors } from '@/constants/colors';
 import { Home, Search, Heart, User, ShoppingBag } from 'lucide-react-native';
-import { useCartStore } from '@/src/presentation/stores/cartStore';
 import { StyleSheet, Text, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '@/stores';
 
 export default function TabLayout() {
-  const { cart } = useCartStore();
-  
+  const cart = useSelector((state: RootState) => state.cart);
+
   return (
     <Tabs
       screenOptions={{
@@ -62,10 +63,10 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }: { color: string; size: number }) => (
             <View>
               <ShoppingBag size={size} color={color} />
-              {cart.totalItems > 0 && (
+              {cart.carts.total > 0 && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>
-                    {cart.totalItems > 99 ? '99+' : cart.totalItems}
+                    {cart.carts.total > 99 ? '99+' : cart.carts.total}
                   </Text>
                 </View>
               )}
@@ -98,7 +99,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
   },
   badgeText: {
-    color: colors.white,
+    color: '#fff',
     fontSize: 10,
     fontWeight: 'bold',
   },

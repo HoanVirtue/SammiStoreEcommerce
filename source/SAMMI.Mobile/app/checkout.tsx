@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, ScrollView, TextInput, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
-import { colors } from '@/src/constants/colors';
-import { useCartStore } from '@/src/presentation/stores/cartStore';
-import { Button } from '@/src/presentation/components/Button';
+import { colors } from '@/constants/colors';
+import { useCartStore } from '@/presentation/stores/cartStore';
+import { Button } from '@/presentation/components/Button';
 import { CreditCard, MapPin, Truck, Check } from 'lucide-react-native';
 
 export default function CheckoutScreen() {

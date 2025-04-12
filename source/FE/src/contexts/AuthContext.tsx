@@ -23,6 +23,7 @@ import { useDispatch } from 'react-redux'
 import { LoginParams } from 'src/types/auth'
 import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
+import { ROUTE_CONFIG } from 'src/configs/route'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -86,7 +87,7 @@ const AuthProvider = ({ children }: Props) => {
       const response = await loginAuth({
         username: params.username,
         password: params.password,
-        rememberMe: params.rememberMe,
+        rememberMe: params.rememberMe || true,
         returnUrl: params.returnUrl,
         isEmployee: params.isEmployee,
       });
@@ -118,7 +119,7 @@ const AuthProvider = ({ children }: Props) => {
     } catch (err: any) {
       setLoading(false);
       if (errorCallback) errorCallback(err);
-      toast.error(t('login_error'));
+      toast.error(err?.response?.data?.message || t('login_error'));
     }
   };
 
@@ -153,14 +154,15 @@ const AuthProvider = ({ children }: Props) => {
       }
 
       toast.success(t('login_success'));
-      const returnUrl = params.returnUrl || router.query.returnUrl || '/';
-      const redirectURL = returnUrl !== '/' ? returnUrl : '/';
+      const returnUrl = params.returnUrl || router.query.returnUrl || ROUTE_CONFIG.DASHBOARD;
+      const redirectURL = returnUrl !== ROUTE_CONFIG.DASHBOARD ? returnUrl : ROUTE_CONFIG.DASHBOARD;
       router.replace(redirectURL as string);
       setLoading(false);
     } catch (err: any) {
       setLoading(false);
       if (errorCallback) errorCallback(err);
-      toast.error(t('login_error'));
+      console.log(err)
+      toast.error(err?.response?.data?.message || t('login_error'));
     }
   };
 

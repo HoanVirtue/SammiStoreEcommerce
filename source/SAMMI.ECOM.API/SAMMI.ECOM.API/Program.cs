@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
@@ -55,7 +56,20 @@ var tokenOptionSettingsSection = builder.Configuration.GetSection("TokenProvideO
 var tokenOptionSettings = tokenOptionSettingsSection.Get<AccessTokenProvideOptions>();
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+    })
+    .AddGoogle(options =>
+    {
+        IConfigurationSection googleSection = builder.Configuration.GetSection("Authentication:Google");
+        options.ClientId = googleSection["ClientId"];
+        options.ClientSecret = googleSection["ClientSecret"];
+        options.CallbackPath = "/login-google";
+        options.SaveTokens = true;
+
+    })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
     {
         x.SaveToken = true;
@@ -75,7 +89,6 @@ builder.Services
 await builder.Services.AddElasticSearch(builder.Configuration);
 
 builder.Services.AddAuthorization();
-
 try
 {
     var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisOptions:ConnectionString"));

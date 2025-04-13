@@ -8,6 +8,7 @@ using SAMMI.ECOM.Domain.Commands.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.I18N.Auths;
 using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Repositories.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Responses;
@@ -63,12 +64,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
 
             if (user == null)
             {
-                return ActionResponse<AuthTokenResult>.Failed(SignInResult.UserNotExisted.ToString());
+                return ActionResponse<AuthTokenResult>.Failed(SignInError.Failed);
             }
 
             if (user.IsLock == true)
             {
-                return ActionResponse<AuthTokenResult>.Failed(SignInResult.LockedOut.ToString());
+                return ActionResponse<AuthTokenResult>.Failed(string.Format(SignInError.UserIsLocked, user.Username));
             }
 
 

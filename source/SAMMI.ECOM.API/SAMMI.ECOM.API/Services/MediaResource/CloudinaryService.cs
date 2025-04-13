@@ -8,6 +8,7 @@ namespace SAMMI.ECOM.API.Services.MediaResource
     public interface ICloudinaryService
     {
         Task<string> UploadBase64Image(string base64Image, string fileName, string type);
+        Task<bool> UploadImages(List<IFormFile> files, ImageEnum type);
         Task<bool> DeleteImage(string publicId);
     }
     public class CloudinaryService : ICloudinaryService
@@ -73,6 +74,57 @@ namespace SAMMI.ECOM.API.Services.MediaResource
 
                 return null;
             }
+        }
+
+        public async Task<bool> UploadImages(List<IFormFile> files, ImageEnum type)
+        {
+            // Lấy thư mục tương ứng với ImageEnum
+            var folderMapping = new Dictionary<ImageEnum, string>
+            {
+                { ImageEnum.Product, _configuration["CloundSettings:ImageProductFolder"] },
+                { ImageEnum.Brand, _configuration["CloundSettings:ImageBrandFolder"] },
+                { ImageEnum.User, _configuration["CloundSettings:ImageUserFolder"] },
+                { ImageEnum.Banner, _configuration["CloundSettings:ImageBannerFolder"] },
+                { ImageEnum.Event, _configuration["CloundSettings:ImageEventFolder"] }
+            };
+
+            string folder = folderMapping.TryGetValue(type, out var mappedFolder)
+                            ? mappedFolder
+                            : _configuration["CloundSettings:ImageProductFolder"];
+
+            // Duyệt qua danh sách tệp và tải lên từng tệp
+            foreach (var file in files)
+            {
+                if (file.Length > 0)
+                {
+                    using (var stream = file.OpenReadStream())
+                    {
+                        var uploadParams = new ImageUploadParams()
+                        {
+                            File = new FileDescription(file.FileName, stream),
+                            PublicId = Path.GetFileNameWithoutExtension(file.FileName),
+                            Folder = folder
+                        };
+
+                        try
+                        {
+                            var uploadResult = await _cloudinary.UploadAsync(uploadParams);
+                            if (uploadResult.Error != null)
+                            {
+                                Console.WriteLine($"Error uploading file {file.FileName}: {uploadResult.Error.Message}");
+                                return false; // Dừng lại nếu có lỗi
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"Exception uploading file {file.FileName}: {ex.Message}");
+                            return false; // Dừng lại nếu có lỗi
+                        }
+                    }
+                }
+            }
+
+            return true; // Trả về true nếu tất cả tệp được tải lên thành công
         }
     }
 }

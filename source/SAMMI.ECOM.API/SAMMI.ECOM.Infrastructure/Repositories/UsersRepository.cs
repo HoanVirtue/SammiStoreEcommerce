@@ -21,6 +21,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         Task<User?> FindByUserNameAsync(string userName);
         Task<UserDTO> GetUserById(int id);
         Task<bool> IsExistedType(int id, TypeUserEnum? type = TypeUserEnum.Employee);
+        Task<User> GetByEmail(string email);
     }
     public class UsersRepository : CrudRepository<User>, IUsersRepository, IDisposable
     {
@@ -150,6 +151,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         public async Task<bool> IsExistedType(int id, TypeUserEnum? type = TypeUserEnum.Employee)
         {
             return await DbSet.SingleOrDefaultAsync(x => x.Id == id && x.Type == type.ToString() && x.IsDeleted != true) != null;
+        }
+
+        public async Task<User> GetByEmail(string email)
+        {
+            return await DbSet.SingleOrDefaultAsync(x => x.Email == email && x.IsDeleted != true);
         }
     }
 }

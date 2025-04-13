@@ -77,6 +77,15 @@ namespace SAMMI.ECOM.API.Controllers
             return BadRequest(SignInError.PasswordMismatch);
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        [Route("register")]
+        public IActionResult Register([FromBody]RegisterCommand request)
+        {
+
+            return Ok();
+        }
+
         [HttpPost("refreshtoken")]
         [AllowAnonymous]
         public async Task<IActionResult> RefreshTokenAsync(RefreshTokenCommand request)

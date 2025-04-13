@@ -1,6 +1,9 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Services.MediaResource;
 using SAMMI.ECOM.Domain.DomainModels.Shipping;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
 
@@ -11,16 +14,19 @@ namespace SAMMI.ECOM.API.Controllers
         private readonly IGHNService _ghnService;
         private readonly IWardRepository _wardRepository;
         private readonly IConfiguration _config;
+        private readonly ICloudinaryService _cloudinaryService;
         public GHNController(
             IGHNService ghnService,
             IWardRepository wardRepository,
             IConfiguration config,
+            ICloudinaryService cloudinaryService,
             IMediator mediator,
             ILogger<GHNController> logger) : base(mediator, logger)
         {
             _ghnService = ghnService;
             _wardRepository = wardRepository;
             _config = config;
+            _cloudinaryService = cloudinaryService;
         }
 
         [HttpGet]
@@ -57,6 +63,18 @@ namespace SAMMI.ECOM.API.Controllers
             }
 
             return Ok(await _ghnService.GetServices(_config.GetValue<int>("GHN_API:DistrictId"), ward.DistrictId ?? 1));
+        }
+
+        [HttpPost("upload-images")]
+        [AllowAnonymous]
+        public async Task<IActionResult> UploadImageAsync(List<IFormFile> files, [FromQuery] ImageEnum type)
+        {
+            if (files == null || !files.Any())
+            {
+                return BadRequest("Danh sách tệp không được để trống.");
+            }
+            var result = await _cloudinaryService.UploadImages(files, type);
+            return Ok();
         }
     }
 }

@@ -18,6 +18,7 @@ const AdminPage = dynamic(() => import("src/components/admin-page"), {
 
 // Config imports
 import { getSupplierFields } from "src/configs/gridConfig";
+import { getSupplierColumns } from "src/configs/gridColumn";
 import Spinner from 'src/components/spinner';
 
 // Redux imports
@@ -44,47 +45,7 @@ const ListSupplierPage: NextPage = () => {
   const { t } = useTranslation();
 
   // Sử dụng useMemo để cache columns, tránh tính toán lại mỗi lần render
-  const columns: GridColDef[] = useMemo(() => [
-    {
-      field: "supplier_code",
-      headerName: t("supplier_code"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
-    },
-    {
-      field: "name",
-      headerName: t("name"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.fullName}</Typography>,
-    },
-    {
-      field: "phone",
-      headerName: t("phone"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.phone}</Typography>,
-    },
-    {
-      field: "email",
-      headerName: t("email"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.email}</Typography>,
-    },
-    {
-      field: "gender",
-      headerName: t("gender"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => (
-        <Typography>
-          {params.row.gender === 1 ? t("male") : params.row.gender === 0 ? t("female") : t("unknown")}
-        </Typography>
-      ),
-    },
-  ], [t]);
+  const columns: GridColDef[] = getSupplierColumns();
 
   return (
     <Suspense fallback={<Spinner />}>

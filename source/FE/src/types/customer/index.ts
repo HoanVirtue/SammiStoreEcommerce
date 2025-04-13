@@ -11,7 +11,7 @@ export type TParamsGetAllCustomers = {
 }
 
 export type TParamsCreateCustomer = {
-    roleIds: number[];
+    roleId: number;
     code: string;
     identityGuid: string;
     type: string;

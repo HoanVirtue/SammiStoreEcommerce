@@ -25,7 +25,7 @@ export const createCustomer = async (data: TParamsCreateCustomer) => {
 export const updateCustomer = async (data: TParamsUpdateCustomer) => {
     const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.USER.CUSTOMER.DELETE}/${data.id}`, data)
+        const res = await instance.put(`${API_ENDPOINT.USER.CUSTOMER.INDEX}/${data.id}`, data)
         return res.data
     } catch (error: any) {
         return error?.response?.data

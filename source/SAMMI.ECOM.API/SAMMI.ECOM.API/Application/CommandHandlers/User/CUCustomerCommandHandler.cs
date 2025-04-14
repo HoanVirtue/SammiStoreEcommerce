@@ -2,6 +2,7 @@
 using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Core.Utillity;
 using SAMMI.ECOM.Domain.AggregateModels;
 using SAMMI.ECOM.Domain.Commands.User;
 using SAMMI.ECOM.Domain.DomainModels.Users;
@@ -23,6 +24,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private readonly IWardRepository _wardRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly ICustomerAddressRepository _addressRepository;
+        private readonly IConfiguration _config;
+        private readonly EmailHelper emailHelper;
 
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
@@ -32,6 +35,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             IWardRepository wardRepository,
             IRoleRepository roleRepository,
             ICustomerAddressRepository addressRepository,
+            IConfiguration config,
             UserIdentity currentUser, IMapper mapper) : base(currentUser, mapper)
         {
             _authService = authService;
@@ -39,6 +43,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             _wardRepository = wardRepository;
             _roleRepository = roleRepository;
             _addressRepository = addressRepository;
+            _config = config;
+            emailHelper = new EmailHelper(config);
         }
 
         public override async Task<ActionResponse<CustomerDTO>> Handle(CUCustomerCommand request, CancellationToken cancellationToken)
@@ -56,7 +62,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 actionResponse.AddError("Mật khẩu không được bỏ trống");
                 return actionResponse;
             }
-
             if (await _userRepository.IsExistCode(request.Code, request.Id))
             {
                 actionResponse.AddError("Mã khách hàng đã tồn tại");
@@ -77,7 +82,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             #endregion
 
             // check foreign key
-            if (!_wardRepository.IsExisted(request.WardId))
+            if (request.WardId != null && !_wardRepository.IsExisted(request.WardId))
             {
                 actionResponse.AddError("Không tìm thấy xã");
                 return actionResponse;
@@ -113,37 +118,40 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 customer.SecurityStamp = this.NewSecurityStamp();
                 //mã hóa thuật toán PBKDF2
                 customer.Password = _authService.EncryptPassword(customer.Password!);
+
+                customer.VerifyToken = _authService.CreateVerifyToken();
+                customer.VerifiedAt = DateTime.Now;
                 await _userRepository.SaveChangeAsync();
 
-                var customerAddress = new CustomerAddress
+                // send email
+                emailHelper.SendEmailVerify(request.Email, request.FullName, customer.VerifyToken);
+
+                if (request.WardId != null && request.WardId != 0)
                 {
-                    CustomerId = customer.Id,
-                    StreetAddress = customer.StreetAddress,
-                    WardId = customer.WardId,
-                    IsDefault = true,
-                    CreatedDate = DateTime.Now,
-                    CreatedBy = _currentUser.UserName
-                };
-                actionResponse.Combine(await _addressRepository.CreateAndSave(customerAddress));
-                if (!actionResponse.IsSuccess)
-                {
-                    return actionResponse;
+                    var customerAddress = new CustomerAddress
+                    {
+                        CustomerId = customer.Id,
+                        StreetAddress = customer.StreetAddress,
+                        WardId = customer.WardId,
+                        IsDefault = true,
+                        CreatedDate = DateTime.Now,
+                        CreatedBy = _currentUser.UserName
+                    };
+                    actionResponse.Combine(await _addressRepository.CreateAndSave(customerAddress));
+                    if (!actionResponse.IsSuccess)
+                    {
+                        return actionResponse;
+                    }
                 }
+
+                
+                
                 actionResponse.SetResult(_mapper.Map<CustomerDTO>(customer));
             }
             else
             {
                 request.UpdatedDate = DateTime.Now;
                 request.UpdatedBy = _currentUser.UserName;
-                //customer.Code = request.Code;
-                //customer.FirstName = request.FirstName;
-                //customer.LastName = request.LastName;
-                //customer.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
-                //customer.Email = request.Email;
-                //customer.Phone = request.Phone;
-                //customer.StreetAddress = request.StreetAddress;
-                //customer.WardId = request.WardId;
-                //customer.Gender = request.Gender;
 
                 var customerUpdate = await _userRepository.UpdateAndSave(request);
                 actionResponse.Combine(customerUpdate);
@@ -188,14 +196,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 .Must(x => StringExtensions.IsValidEmail(x))
                 .WithMessage("Email không đúng định dạng")
                 .When(x => !string.IsNullOrEmpty(x.Email));
-
-            //RuleFor(x => x.Username)
-            //    .NotEmpty()
-            //    .WithMessage("Tên tài khoản không bỏ trống");
-
-            //RuleFor(x => x.Password)
-            //    .NotEmpty()
-            //    .WithMessage("Mật khẩu không được bỏ trống");
         }
     }
 }

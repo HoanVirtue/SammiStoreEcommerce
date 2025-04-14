@@ -1,8 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Core.Utillity;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Services.Auth;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Repositories
@@ -22,6 +26,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         Task<UserDTO> GetUserById(int id);
         Task<bool> IsExistedType(int id, TypeUserEnum? type = TypeUserEnum.Employee);
         Task<User> GetByEmail(string email);
+        Task<ActionResponse> VerifyToken(string token);
     }
     public class UsersRepository : CrudRepository<User>, IUsersRepository, IDisposable
     {
@@ -156,6 +161,31 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         public async Task<User> GetByEmail(string email)
         {
             return await DbSet.SingleOrDefaultAsync(x => x.Email == email && x.IsDeleted != true);
+        }
+
+        public async Task<ActionResponse> VerifyToken(string token)
+        {
+            var actionResponse = new ActionResponse();
+            var user = await DbSet.SingleOrDefaultAsync(x => x.VerifyToken == token && x.IsDeleted != true);
+            if(user == null)
+            {
+                actionResponse.AddError("Liên kết xác nhận không hợp lệ. Vui lòng kiểm tra lại hoặc yêu cầu gửi lại email xác nhận.");
+                return actionResponse;
+            }
+            if(user.IsVerify == true)
+            {
+                actionResponse.AddError("Liên kết xác nhận đã được sử dụng. Vui lòng đăng nhập hoặc yêu cầu gửi lại email xác nhận nếu cần.");
+                return actionResponse;
+            }
+            if (DateTime.Now > user.VerifiedAt.Value.AddHours(24))
+            {
+                actionResponse.AddError("Liên kết xác nhận đã hết hạn. Vui lòng yêu cầu gửi lại email xác nhận để nhận liên kết mới.");
+                return actionResponse;
+            }
+
+            user.IsVerify = true;
+            actionResponse.Combine(await UpdateAndSave(user));
+            return actionResponse;
         }
     }
 }

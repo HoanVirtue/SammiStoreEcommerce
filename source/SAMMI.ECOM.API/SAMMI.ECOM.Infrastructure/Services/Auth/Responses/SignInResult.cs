@@ -13,6 +13,7 @@ namespace SAMMI.ECOM.Infrastructure.Services.Auth.Responses
         private static readonly SignInResult _lockedOut = new SignInResult { IsLockedOut = true };
         private static readonly SignInResult _notAllowed = new SignInResult { IsNotAllowed = true };
         private static readonly SignInResult _twoFactorRequired = new SignInResult { RequiresTwoFactor = true };
+        private static readonly SignInResult _notVerify = new SignInResult { IsNotVerify = true };
 
         /// <summary>
         /// Returns a flag indication whether the sign-in was successful.
@@ -43,6 +44,8 @@ namespace SAMMI.ECOM.Infrastructure.Services.Auth.Responses
         /// </summary>
         /// <value>True if the user attempting to sign-in requires two factor authentication, otherwise false.</value>
         public bool RequiresTwoFactor { get; protected set; }
+
+        public bool IsNotVerify { get; protected set; }
 
         /// <summary>
         /// Returns a <see cref="SignInResult"/> that represents a successful sign-in.
@@ -84,6 +87,8 @@ namespace SAMMI.ECOM.Infrastructure.Services.Auth.Responses
         /// <returns>A <see cref="SignInResult"/> that represents sign-in attempt that needs two-factor
         /// authentication.</returns>
         public static SignInResult TwoFactorRequired => _twoFactorRequired;
+
+        public static SignInResult NotVerify => _notVerify;
 
         /// <summary>
         /// Converts the value of the current <see cref="SignInResult"/> object to its equivalent string representation.

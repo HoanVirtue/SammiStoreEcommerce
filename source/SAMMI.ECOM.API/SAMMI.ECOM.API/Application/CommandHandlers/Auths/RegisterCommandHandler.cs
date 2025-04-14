@@ -13,32 +13,55 @@ using SAMMI.ECOM.Utility;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Helpers.PasswordVerification;
 using Microsoft.AspNetCore.Identity;
 using SAMMI.ECOM.Infrastructure.Services.Auth;
+using SAMMI.ECOM.Domain.Commands.User;
+using SAMMI.ECOM.Core.Utillity;
+using SAMMI.ECOM.Infrastructure.Queries;
+using SAMMI.ECOM.Domain.Enums;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
 {
     public class RegisterCommandHandler : CustombaseCommandHandler<RegisterCommand, RegisterResult>
     {
         private readonly IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> _authService;
+        private readonly IMediator _mediator;
+        private readonly IUsersQueries _userQueries;
         public RegisterCommandHandler(
+            IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
+            IMediator mediator,
+            IConfiguration config,
+            IUsersQueries userQueries,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
+            _authService = authService;
+            _mediator = mediator;
+            _userQueries = userQueries;
         }
 
         public override async Task<ActionResponse<RegisterResult>> Handle(RegisterCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<RegisterResult>();
-            var errors = new List<UserIdentityError>();
 
-            //var result = await PasswordValidator<User>.ValidateAsync(request.Password);
-            //if (!result.Succeeded)
-            //{
-            //    errors.AddRange(result.Errors);
-            //}
-            //if (await PasswordValidator.ValidateAsync(request.Password))
-            //{
+            var checkValidatePassword = await _authService.ValidatePassword(request.Password);
+            if (!checkValidatePassword.Succeeded)
+            {
+                foreach (var err in checkValidatePassword.Errors)
+                {
+                    actResponse.AddError(err.Description, err.Code);
+                }
+                return actResponse;
+            }
 
-            //}    
+            var customer = _mapper.Map<CUCustomerCommand>(request);
+            customer.Code = await _userQueries.GetCodeByLastId(CodeEnum.Customer);
+            customer.IsActive = true;
+            var createResponse = await _mediator.Send(customer, cancellationToken);
+            actResponse.Combine(createResponse);
+            if (!createResponse.IsSuccess)
+            {
+                return actResponse;
+            }
+
             return actResponse;
         }
     }

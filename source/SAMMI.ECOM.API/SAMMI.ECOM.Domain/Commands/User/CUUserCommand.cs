@@ -43,6 +43,8 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public string Password { get; set; }
         public string? SecurityStamp { get; set; }
         public int RoleId { get; set; }
+        public string? VerifyToken { get; set; }
+        public DateTime? VerifiedAt { get; set; }
     }
 
     public class UpdateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
@@ -61,6 +63,8 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public string? Password { get; set; }
         public string? SecurityStamp { get; set; }
         public int? RoleId { get; set; }
+        public string? VerifyToken { get; set; }
+        public DateTime? VerifiedAt { get; set; }
     }
 
     public class CUSupplierCommand : CUUserCommand, IRequest<ActionResponse<SupplierDTO>>

@@ -86,6 +86,14 @@ public partial class User : Entity
     [ForeignKey("Role")]
     public int? RoleId { get; set; }
 
+    [Column("IsVerify")]
+    public bool? IsVerify { get; set; }
+
+    [Column("VerifyToken")]
+    public string? VerifyToken { get; set; }
+    [Column("VerifiedAt")]
+    public DateTime? VerifiedAt { get; set; }
+
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 
     public virtual ICollection<FavouriteProduct> FavouriteProducts { get; set; } = new List<FavouriteProduct>();

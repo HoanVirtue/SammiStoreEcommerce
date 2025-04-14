@@ -165,4 +165,7 @@
   <data name="UserNotExisted" xml:space="preserve">
     <value>Tài khoản '{0}' không tồn tại hoặc đã bị xóa khỏi hệ thống.</value>
   </data>
+  <data name="UserNotVerify" xml:space="preserve">
+    <value>Tài khoản của bạn chưa được xác thực. Vui lòng kiểm tra email và nhấn vào liên kết xác nhận để kích hoạt tài khoản.</value>
+  </data>
 </root>

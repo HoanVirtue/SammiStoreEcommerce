@@ -158,6 +158,11 @@ namespace SAMMI.ECOM.Infrastructure.Services.Auth
                 return SignInResult.UserNotExisted;
             }
 
+            if(user.IsVerify != true)
+            {
+                return SignInResult.NotVerify;
+            }
+
             if (user.IsLock)
             {
                 return SignInResult.LockedOut;

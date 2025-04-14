@@ -115,7 +115,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             await _userRepository.SaveChangeAsync();
 
             // send email
-            emailHelper.SendEmailVerify(request.Email, request.FullName, $"{_config["EmailSettings:VerifyUrl"]}?token={employee.VerifyToken}");
+            emailHelper.SendEmailVerify(request.Email, request.FullName, employee.VerifyToken);
             await _userRepository.SaveChangeAsync();
 
             // add role và send password email(nếu có)

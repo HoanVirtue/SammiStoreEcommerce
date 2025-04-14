@@ -86,6 +86,9 @@ public partial class User : Entity
     [ForeignKey("Role")]
     public int? RoleId { get; set; }
 
+    [Column("IsVerify")]
+    public bool? IsVerify { get; set; }
+
     [Column("VerifyToken")]
     public string? VerifyToken { get; set; }
     [Column("VerifiedAt")]

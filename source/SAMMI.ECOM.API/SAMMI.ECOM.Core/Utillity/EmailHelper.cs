@@ -17,13 +17,13 @@ namespace SAMMI.ECOM.Core.Utillity
         private readonly IConfiguration _config;
         public static string RootLocation => Assembly.GetExecutingAssembly().Location;
         public static string DirPath => Path.GetDirectoryName(RootLocation);
-        public static string EmailTemplatePath(string templateFile) => Path.GetFullPath(Path.Combine(DirPath, @"Utility\EmailTemplate", templateFile));
+        public static string EmailTemplatePath(string templateFile) => Path.GetFullPath(Path.Combine(DirPath, @"Utillity\EmailTemplate", templateFile));
         public EmailHelper(IConfiguration config)
         {
             _config = config.GetSection("EmailSettings");
         }
 
-        public void SendEmailVerify(string sendTo, string customerName, string verifyUrl)
+        public void SendEmailVerify(string sendTo, string customerName, string token)
         {
             try
             {
@@ -35,7 +35,8 @@ namespace SAMMI.ECOM.Core.Utillity
                 var emailTemplate = File.ReadAllText(EmailTemplatePath("CrmSendEmailVerify.html"));
 
                 emailTemplate = Regex.Replace(emailTemplate, "{{customer_name}}", customerName);
-                emailTemplate = Regex.Replace(emailTemplate, "{{verify_url}}", verifyUrl);
+                emailTemplate = Regex.Replace(emailTemplate, "{{verify_url}}", $"{_config["VerifyUrl"]}?token={token}");
+                emailTemplate = Regex.Replace(emailTemplate, "{{re_verify_url}}", $"{_config["ReVerifyUrl"]}?email={sendTo}");
 
                 email.Body = new TextPart(MimeKit.Text.TextFormat.Html) { Text = emailTemplate };
 

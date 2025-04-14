@@ -124,7 +124,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 await _userRepository.SaveChangeAsync();
 
                 // send email
-                emailHelper.SendEmailVerify(request.Email, request.FullName, $"{_config["EmailSettings:VerifyUrl"]}?token={customer.VerifyToken}");
+                emailHelper.SendEmailVerify(request.Email, request.FullName, customer.VerifyToken);
 
                 if (request.WardId != null && request.WardId != 0)
                 {

@@ -54,6 +54,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
 
             var customer = _mapper.Map<CUCustomerCommand>(request);
             customer.Code = await _userQueries.GetCodeByLastId(CodeEnum.Customer);
+            customer.IsActive = true;
             var createResponse = await _mediator.Send(customer, cancellationToken);
             actResponse.Combine(createResponse);
             if (!createResponse.IsSuccess)

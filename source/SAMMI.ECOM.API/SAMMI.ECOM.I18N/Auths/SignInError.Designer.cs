@@ -203,5 +203,13 @@ namespace SAMMI.ECOM.I18N.Auths {
                 return ResourceManager.GetString("UserNotExisted", resourceCulture);
             }
         }
+
+        public static string UserNotVerify
+        {
+            get
+            {
+                return ResourceManager.GetString("UserNotVerify", resourceCulture);
+            }
+        }
     }
 }

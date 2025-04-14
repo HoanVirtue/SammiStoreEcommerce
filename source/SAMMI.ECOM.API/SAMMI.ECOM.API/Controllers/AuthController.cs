@@ -80,10 +80,14 @@ namespace SAMMI.ECOM.API.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("register")]
-        public IActionResult Register([FromBody]RegisterCommand request)
+        public async Task<IActionResult> RegisterAsync([FromBody]RegisterCommand request)
         {
-
-            return Ok();
+            var registerRes = await _mediator.Send(request);
+            if(!registerRes.IsSuccess)
+            {
+                return BadRequest(registerRes);
+            }
+            return Ok(registerRes);
         }
 
         [HttpPost("refreshtoken")]

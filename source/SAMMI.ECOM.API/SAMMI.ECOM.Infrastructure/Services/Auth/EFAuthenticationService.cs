@@ -395,5 +395,39 @@ namespace SAMMI.ECOM.Infrastructure.Services.Auth
         {
             return default;
         }
+
+        public async Task<UserIdentityResult> ValidatePassword(string password)
+        {
+            var errors = new List<UserIdentityError>();
+
+            var result = await PasswordValidator.ValidateAsync(password);
+            if (!result.Succeeded)
+            {
+                errors.AddRange(result.Errors);
+            }
+
+            if (errors.Count > 0)
+            {
+                _logger.LogWarning(14, "Password validation failed: {errors}.",
+                    string.Join(";", errors.Select(e => e.Code)));
+                return UserIdentityResult.Failed(errors.ToArray());
+            }
+
+            return UserIdentityResult.Success;
+        }
+
+        public string CreateVerifyToken()
+        {
+            var salt = new byte[128 / 8];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(salt);
+            }
+            var token = Convert.ToBase64String(salt)
+                .Replace("+", "-")
+                .Replace("/", "_")
+                .Replace("=", "");
+            return token;
+        }
     }
 }

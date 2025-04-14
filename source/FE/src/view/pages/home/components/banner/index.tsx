@@ -1,9 +1,6 @@
-import { Box, Grid } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import React from 'react';
 import Carousel from './Carousel';
-import Image from 'next/image';
-import SideBanner1 from '/public/images/right_banner_1.jpg'
-import SideBanner2 from '/public/images/right_banner_2.jpg'
 
 
 const Banner: React.FC = () => {

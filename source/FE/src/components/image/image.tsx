@@ -51,7 +51,7 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
       <Box
         component={LazyLoadImage}
         alt={alt}
-        src={src || '/assets/placeholder.svg'}
+        src={src}
         threshold={threshold}
         beforeLoad={beforeLoad}
         placeholder={placeholder}
@@ -61,7 +61,7 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
         effect={disabledEffect ? undefined : effect}
         useIntersectionObserver={useIntersectionObserver}
         wrapperClassName={wrapperClassName || 'component-image-wrapper'}
-        placeholderSrc={disabledEffect ? '/assets/transparent.png' : '/assets/placeholder.svg'}
+        placeholderSrc={'/assets/transparent.png'}
         sx={{
           width: '100%',
           height: '100%',

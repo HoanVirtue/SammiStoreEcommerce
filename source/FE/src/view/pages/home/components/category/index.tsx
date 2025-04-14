@@ -1,5 +1,6 @@
-import React from 'react';
-import { Box, Typography, Card, CardContent, CardMedia, Grid, useTheme } from '@mui/material';
+import React, { useMemo } from 'react';
+import Image from 'next/image';
+import { Box, Typography, Card, CardContent, Grid, useTheme } from '@mui/material';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import Category1 from '/public/images/cate1.png';
@@ -13,7 +14,6 @@ import Category8 from '/public/images/cate8.png';
 import Category9 from '/public/images/cate9.png';
 import Category10 from '/public/images/cate10.png';
 
-
 import { StaticImageData } from 'next/image';
 
 interface TCategory {
@@ -22,103 +22,126 @@ interface TCategory {
     image: StaticImageData;
 }
 
-const categories = [
-    {
-        id: 1,
-        title: 'Tẩy trang',
-        image: Category1,
-    },
-    {
-        id: 2,
-        title: 'Sữa rửa mặt',
-        image: Category2,
-    },
-    {
-        id: 3,
-        title: 'Mặt nạ',
-        image: Category3,
-    },
-    {
-        id: 4,
-        title: 'Nước hoa hồng',
-        image: Category4,
-    },
-    {
-        id: 5,
-        title: 'Tinh chất',
-        image: Category5,
-    },
-    {
-        id: 6,
-        title: 'Dưỡng ẩm',
-        image: Category6,
-    },
-    {
-        id: 7,
-        title: 'Dưỡng thể',
-        image: Category7,
-    },
-    {
-        id: 8,
-        title: 'Trang điểm',
-        image: Category8,
-    },
-    {
-        id: 9,
-        title: 'Chăm sóc tóc',
-        image: Category9,
-    },
-    {
-        id: 10,
-        title: 'Nước hoa',
-        image: Category10,
-    },
-];
+const useCategories = () => {
+    return useMemo(() => [
+        { id: 1, title: 'Tẩy trang', image: Category1 },
+        { id: 2, title: 'Sữa rửa mặt', image: Category2 },
+        { id: 3, title: 'Mặt nạ', image: Category3 },
+        { id: 4, title: 'Nước hoa hồng', image: Category4 },
+        { id: 5, title: 'Tinh chất', image: Category5 },
+        { id: 6, title: 'Dưỡng ẩm', image: Category6 },
+        { id: 7, title: 'Dưỡng thể', image: Category7 },
+        { id: 8, title: 'Trang điểm', image: Category8 },
+        { id: 9, title: 'Chăm sóc tóc', image: Category9 },
+        { id: 10, title: 'Nước hoa', image: Category10 },
+    ], []);
+};
 
 interface OutstandingCategoryProps { }
 
 const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
     const { t } = useTranslation();
     const theme = useTheme();
+    const categories = useCategories();
+
+    const containerVariants = {
+        hidden: { opacity: 0, scale: 0.6 },
+        visible: { opacity: 1, scale: 1 }
+    };
+
+    const cardVariants = {
+        hover: {
+            scale: 1.1,
+            x: [-5, 5, -5, 5, 0],
+            transition: {
+                type: 'spring',
+                stiffness: 300,
+                damping: 10,
+                duration: 0.5,
+            }
+        }
+    };
 
     return (
         <motion.div
-            initial={{ opacity: 0, scale: 0.6 }}
-            // animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 2 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            initial="hidden"
+            whileInView="visible"
             viewport={{ once: false }}
+            variants={containerVariants}
+            transition={{ duration: 2 }}
         >
-            <Box sx={{ flexGrow: 1, maxWidth: '1440px', pt: 10, margin: '0 auto', pb: '1.2rem', backgroundColor: theme.palette.background.paper }}>
-                <Typography variant="h4" gutterBottom align="left" sx={{ fontWeight: 'bold', mb: '1.6rem', ml: '15px', textTransform: 'uppercase', fontFamily: 'Yeseva One' }}>
+            <Box
+                sx={{
+                    flexGrow: 1,
+                    maxWidth: '1440px',
+                    pt: 10,
+                    margin: '0 auto',
+                    pb: '1.2rem',
+                    backgroundColor: theme.palette.background.paper
+                }}
+            >
+                <Typography
+                    variant="h4"
+                    gutterBottom
+                    align="left"
+                    sx={{
+                        fontWeight: 'bold',
+                        mb: '1.6rem',
+                        ml: '15px',
+                        textTransform: 'uppercase',
+                        fontFamily: 'Yeseva One'
+                    }}
+                >
                     {t('outstanding_category')}
                 </Typography>
-                <Box sx={{ display: 'flex', flexWrap: 'nowrap', justifyContent: 'center', width: '100%', flex: 1 }}>
+                <Box
+                    sx={{
+                        display: 'flex',
+                        flexWrap: 'nowrap',
+                        justifyContent: 'center',
+                        width: '100%',
+                        flex: 1
+                    }}
+                >
                     {categories.map((category: TCategory) => (
-                        <Box key={category.id} sx={{ width: '100%', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center' }}>
+                        <Box
+                            key={category.id}
+                            sx={{
+                                width: '100%',
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                justifyContent: 'center',
+                                alignItems: 'center'
+                            }}
+                        >
                             <motion.div
-                                whileHover={{
-                                    scale: 1.1,
-                                    x: [-5, 5, -5, 5, 0],
-                                }}
-                                transition={{
-                                    type: 'spring',
-                                    stiffness: 300,
-                                    damping: 10,
-                                    duration: 0.5,
-                                }}
+                                whileHover="hover"
+                                variants={cardVariants}
                             >
-                                <Card sx={{ width: '100%', maxWidth: '114px', margin: 'auto', cursor: 'pointer', backgroundColor: 'transparent', boxShadow: 'none' }}>
-                                    <CardMedia
-                                        component="img"
-                                        height="50"
-                                        width="114"
-                                        sizes='small'
-                                        image={typeof category.image === 'string' ? category.image : category.image.src}
-                                        alt={category.title}
-                                    />
+                                <Card
+                                    sx={{
+                                        width: '100%',
+                                        maxWidth: '114px',
+                                        margin: 'auto',
+                                        cursor: 'pointer',
+                                        backgroundColor: 'transparent',
+                                        boxShadow: 'none'
+                                    }}
+                                >
+                                    <Box sx={{ position: 'relative', width: '100%', height: '50px' }}>
+                                        <Image
+                                            src={category.image}
+                                            alt={category.title}
+                                            fill
+                                            sizes="114px"
+                                            style={{ objectFit: 'contain' }}
+                                            priority={category.id <= 3}
+                                        />
+                                    </Box>
                                     <CardContent sx={{ padding: 0, pb: '0 !important' }}>
-                                        <Typography gutterBottom variant="h6"
+                                        <Typography
+                                            gutterBottom
+                                            variant="h6"
                                             sx={{
                                                 width: '100%',
                                                 padding: 0,
@@ -131,7 +154,8 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
                                                 "&:hover": {
                                                     color: theme.palette.primary.main
                                                 }
-                                            }}>
+                                            }}
+                                        >
                                             {category.title}
                                         </Typography>
                                     </CardContent>

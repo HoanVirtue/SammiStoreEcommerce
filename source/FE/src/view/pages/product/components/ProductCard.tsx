@@ -1,30 +1,35 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useMemo, lazy, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { styled, useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
-import CardMedia, { CardMediaProps } from '@mui/material/CardMedia';
+import CardMedia from '@mui/material/CardMedia';
 import CardContent from '@mui/material/CardContent';
-import IconButton, { IconButtonProps } from '@mui/material/IconButton';
+import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
 import IconifyIcon from 'src/components/Icon';
-import { Box, Button, Fab, LinearProgress, Rating, Tooltip } from '@mui/material';
+import { Box, Fab, LinearProgress, Rating, Tooltip, ButtonGroup, Skeleton } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TProduct } from 'src/types/product';
 import { hexToRGBA } from 'src/utils/hex-to-rgba';
 import { useRouter } from 'next/router';
 import { ROUTE_CONFIG } from 'src/configs/route';
-import { convertUpdateProductToCart, formatPrice, isExpired } from 'src/utils';
+import { formatPrice, isExpired } from 'src/utils';
 import { AppDispatch, RootState } from 'src/stores';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateProductToCart } from 'src/stores/order';
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage';
 import { useAuth } from 'src/hooks/useAuth';
 import { likeProductAsync, unlikeProductAsync } from 'src/stores/product/action';
-import { ButtonGroup } from '@mui/material';
 import { toast } from 'react-toastify';
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action';
 
+// Dynamic imports for heavy components
+const ProductCardSkeleton = dynamic(() => import('./ProductCardSkeleton'), {
+    loading: () => <Skeleton variant="rectangular" width="100%" height={400} />,
+    ssr: false
+});
+
 interface TProductCard {
     item: TProduct
+    isLoading?: boolean
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -55,13 +60,9 @@ const ButtonGroupWrapper = styled(Box)(({ theme }) => ({
     transition: "all 0.3s ease",
 }));
 
-// const ProductCard = (props: TProductCard) => {
-const ProductCard = (props: any) => {
+const ProductCard: React.FC<TProductCard> = (props: any) => {
 
-    //props
-    const { item } = props
-
-    //state
+    const { item, isLoading = false } = props
 
     //hooks
     const { t } = useTranslation()
@@ -133,13 +134,12 @@ const ProductCard = (props: any) => {
         }
     }
 
-
     const memoCheckExpire = useMemo(() => {
         if (item.startDate && item.endDate) {
             return isExpired(item.startDate, item.endDate);
         }
-    }, [item])
-
+        return false;
+    }, [item]);
 
     const soldPercentage = useMemo(() => {
         if (item.stockQuantity === 0) return 100;
@@ -157,6 +157,10 @@ const ProductCard = (props: any) => {
         if (item.stockQuantity <= 10) return t('selling_fast');
         return t('product_sold', { count: item.sold || 0 });
     }, [item, t]);
+
+    if (isLoading) {
+        return <ProductCardSkeleton />;
+    }
 
     return (
         <StyledCard sx={{ width: "100%", boxShadow: "none" }}>
@@ -214,7 +218,6 @@ const ProductCard = (props: any) => {
                 </ButtonGroup>
             </ButtonGroupWrapper>
             <CardContent sx={{ padding: "8px 12px 0px 12px", pb: "10px !important", }}>
-                {/* <Typography variant="h5" onClick={() => handleNavigateProductDetail(item?.slug)} */}
                 <Typography variant="h5" onClick={() => handleNavigateProductDetail(+item?.id)}
                     sx={{
                         color: theme.palette.primary.main,
@@ -314,16 +317,6 @@ const ProductCard = (props: any) => {
                         alignItems: "flex-start",
                         justifyContent: "center"
                     }}>
-                        {/* <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                            {item?.stockQuantity > 0 ? (
-                                <>{t("product_count_in_stock", { count: item?.stockQuantity })}</>
-                            ) : (
-                                <span>
-                                    {t('out_of_stock')}
-                                </span>
-                            )}
-                        </Typography> */}
-
                         <Box sx={{ width: "100%", mt: 1, position: 'relative' }}>
                             <LinearProgress
                                 variant="determinate"
@@ -352,15 +345,6 @@ const ProductCard = (props: any) => {
                                 {statusText}
                             </Typography>
                         </Box>
-
-                        {item?.location?.name && (
-                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
-                                <IconifyIcon icon="carbon:location" width={20} height={20} />
-                                <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: "14px", fontWeight: "bold", mt: 1 }}>
-                                    {item?.location?.name}
-                                </Typography>
-                            </Box>
-                        )}
                     </Box>
                 </Box>
             </CardContent>
@@ -368,4 +352,4 @@ const ProductCard = (props: any) => {
     )
 }
 
-export default ProductCard
+export default React.memo(ProductCard)

@@ -4,16 +4,12 @@ import { createContext, useEffect, useState, ReactNode } from 'react'
 // ** Next Import
 import { useRouter } from 'next/router'
 
-// ** Axios
-import axios from 'axios'
-
 // ** Config
-import authConfig, { LIST_PUBLIC_PAGE } from 'src/configs/auth'
+import authConfig from 'src/configs/auth'
 
 // ** Types
 import { AuthValuesType, ErrCallbackType, UserDataType } from './types'
-import { getLoginUser, loginAuth, logoutAuth, loginAdminAuth } from 'src/services/auth'
-import { API_ENDPOINT } from 'src/configs/api'
+import { getLoginUser, loginAuth, loginAdminAuth } from 'src/services/auth'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from 'src/helpers/storage'
 import instance from 'src/helpers/axios'
 import { toast } from 'react-toastify'
@@ -21,7 +17,6 @@ import { updateProductToCart } from 'src/stores/order'
 import { AppDispatch } from 'src/stores'
 import { useDispatch } from 'react-redux'
 import { LoginParams } from 'src/types/auth'
-import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import { ROUTE_CONFIG } from 'src/configs/route'
 

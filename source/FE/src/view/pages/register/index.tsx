@@ -11,7 +11,7 @@ import Link from 'next/link'
 
 //MUI
 import { IconButton, InputAdornment, useTheme } from '@mui/material'
-import { Box, Button, Checkbox, CssBaseline, FormControlLabel, Typography } from '@mui/material'
+import { Box, Button, CssBaseline, Typography } from '@mui/material'
 
 //Form
 import { Controller, useForm } from 'react-hook-form'
@@ -43,26 +43,31 @@ import { resetInitialState } from 'src/stores/auth'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
+import Spinner from 'src/components/spinner'
 
 type TProps = {}
 
 interface IDefaultValues {
+    firstName: string
+    lastName: string
+    phone: string
     email: string
+    username: string
     password: string
-    confirmPassword: string
+    rePassword: string
 }
 const RegisterPage: NextPage<TProps> = () => {
     //States
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    // const [isRemember, setIsRemember] = useState(false);
+
 
     //router
     const router = useRouter();
 
     //Redux
     const dispatch: AppDispatch = useDispatch();
-    const { isLoading, isError, isSuccess, message } = useSelector((state: RootState) => state.auth)
+    const { isLoading, isError, isSuccess, errorMessage } = useSelector((state: RootState) => state.auth)
 
     //Theme
     const theme = useTheme();
@@ -71,16 +76,19 @@ const RegisterPage: NextPage<TProps> = () => {
     const { t } = useTranslation()
 
     const schema = yup.object().shape({
-        // email: yup.string().email().required(t("required_email")),
+        firstName: yup.string().required(t("required_first_name")),
+        lastName: yup.string().required(t("required_last_name")),
+        phone: yup.string().required(t("required_phone")),
         email: yup
             .string()
             .required(t("required_email"))
             .matches(EMAIL_REG, t("incorrect_email_format")),
+        username: yup.string().required(t("required_username")),
         password: yup
             .string()
             .required(t("required_password"))
             .matches(PASSWORD_REG, t("incorrect_password_format")),
-        confirmPassword: yup
+        rePassword: yup
             .string()
             .required(t("required_confirm_password"))
             .matches(PASSWORD_REG, t("incorrect_confirm_password_format"))
@@ -89,36 +97,37 @@ const RegisterPage: NextPage<TProps> = () => {
 
     const { handleSubmit, control, formState: { errors } } = useForm({
         defaultValues: {
+            firstName: '',
+            lastName: '',
+            phone: '',
             email: '',
+            username: '',
             password: '',
-            confirmPassword: ''
+            rePassword: ''
         },
         mode: 'onChange',
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = (data: { email: string, password: string }) => {
+    const onSubmit = (data: IDefaultValues) => {
         if (!Object.keys(errors).length) {
-            dispatch(registerAuthAsync({ email: data.email, password: data.password }))
+            dispatch(registerAuthAsync(data))
         }
     }
 
     useEffect(() => {
-        if (message) {
-            if (isError) {
-                toast.error(message)
-            }
-            else if (isSuccess) {
-                toast.success(message)
-                router.push(ROUTE_CONFIG.LOGIN)
-            }
+        if (isSuccess) {
+            toast.success(t('register_success'))
+            router.push(ROUTE_CONFIG.LOGIN)
+            dispatch(resetInitialState())
+        } else if (isError && errorMessage) {
+            toast.error(errorMessage)
+            dispatch(resetInitialState())
         }
-        dispatch(resetInitialState())
-    }, [isError, isSuccess, message])
+    }, [isError, isSuccess, errorMessage])
 
     return (
         <>
-            {isLoading && <FallbackSpinner />}
             <Box sx={{
                 height: '100vh',
                 width: '100vw',
@@ -172,6 +181,66 @@ const RegisterPage: NextPage<TProps> = () => {
                                         <CustomTextField
                                             required
                                             fullWidth
+                                            label={t('first_name')}
+                                            onChange={onChange}
+                                            onBlur={onBlur}
+                                            value={value}
+                                            placeholder={t('enter_first_name')}
+                                            error={errors.firstName ? true : false}
+                                            helperText={errors.firstName?.message}
+                                        />
+                                    )}
+                                    name='firstName'
+                                />
+                            </Box>
+                            <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
+                                <Controller
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <CustomTextField
+                                            required
+                                            fullWidth
+                                            label={t('last_name')}
+                                            onChange={onChange}
+                                            onBlur={onBlur}
+                                            value={value}
+                                            placeholder={t('enter_last_name')}
+                                            error={errors.lastName ? true : false}
+                                            helperText={errors.lastName?.message}
+                                        />
+                                    )}
+                                    name='lastName'
+                                />
+                            </Box>
+                            <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
+                                <Controller
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <CustomTextField
+                                            required
+                                            fullWidth
+                                            label={t('phone')}
+                                            onChange={onChange}
+                                            onBlur={onBlur}
+                                            value={value}
+                                            placeholder={t('enter_phone')}
+                                            error={errors.phone ? true : false}
+                                            helperText={errors.phone?.message}
+                                        />
+                                    )}
+                                    name='phone'
+                                />
+                            </Box>
+                            <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
+                                <Controller
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <CustomTextField
+                                            required
+                                            fullWidth
                                             label={t('email')}
                                             onChange={onChange}
                                             onBlur={onBlur}
@@ -182,6 +251,26 @@ const RegisterPage: NextPage<TProps> = () => {
                                         />
                                     )}
                                     name='email'
+                                />
+                            </Box>
+                            <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
+                                <Controller
+                                    control={control}
+                                    rules={{ required: true }}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <CustomTextField
+                                            required
+                                            fullWidth
+                                            label={t('username')}
+                                            onChange={onChange}
+                                            onBlur={onBlur}
+                                            value={value}
+                                            placeholder={t('enter_username')}
+                                            error={errors.username ? true : false}
+                                            helperText={errors.username?.message}
+                                        />
+                                    )}
+                                    name='username'
                                 />
                             </Box>
                             <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
@@ -227,7 +316,7 @@ const RegisterPage: NextPage<TProps> = () => {
                             <Box sx={{ mt: 4 }} width={{ md: '18rem', xs: '20rem' }}>
                                 <Controller
                                     control={control}
-                                    name='confirmPassword'
+                                    name='rePassword'
                                     rules={{ required: true }}
                                     render={({ field: { onChange, onBlur, value } }) => (
                                         <CustomTextField
@@ -238,8 +327,8 @@ const RegisterPage: NextPage<TProps> = () => {
                                             onBlur={onBlur}
                                             value={value}
                                             placeholder={t('enter_confirm_password')}
-                                            helperText={errors.confirmPassword?.message}
-                                            error={errors.confirmPassword ? true : false}
+                                            helperText={errors.rePassword?.message}
+                                            error={errors.rePassword ? true : false}
                                             type={showConfirmPassword ? 'text' : 'password'}
                                             InputProps={{
                                                 endAdornment: (
@@ -264,8 +353,14 @@ const RegisterPage: NextPage<TProps> = () => {
                                     )}
                                 />
                             </Box>
-                            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {t('register')}
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2, py: 1.5 }}
+                                disabled={isLoading}
+                            >
+                                {isLoading ? t('loading') : t('register')}
                             </Button>
                             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: "4px" }}>
                                 <Typography>

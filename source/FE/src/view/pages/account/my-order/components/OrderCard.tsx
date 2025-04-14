@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import { Avatar, Button, Divider, Stack, Typography, useTheme } from '@mui/material'
+import {  Button, Divider, Stack, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -18,32 +18,29 @@ import { useTranslation } from 'react-i18next'
 import { AppDispatch, RootState } from 'src/stores'
 import { useDispatch, useSelector } from 'react-redux'
 
+//Dynamic imports
+import dynamic from 'next/dynamic'
 
 //Other
-
 import { formatPrice } from 'src/utils'
-import { TItemOrderProduct, TOrderDetail, TOrderItem } from 'src/types/order'
+import { TOrderDetail, TOrderItem } from 'src/types/order'
 import IconifyIcon from 'src/components/Icon'
-import ConfirmDialog from 'src/components/confirm-dialog'
-import { cancelOrderAsync } from 'src/stores/order/action'
+import { cancelOrderAsync, createOrderAsync } from 'src/stores/order/action'
 import { OrderStatus, PaymentStatus } from 'src/configs/order'
 import { useAuth } from 'src/hooks/useAuth'
 import { useRouter } from 'next/router'
 import { ROUTE_CONFIG } from 'src/configs/route'
-import { PAYMENT_METHOD } from 'src/configs/payment'
-import { createVNPayPaymentUrl } from 'src/services/payment'
-import Spinner from 'src/components/spinner'
-import Image from 'src/components/image'
-
 import { toast } from 'react-toastify'
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
-import { createOrderAsync } from 'src/stores/order/action'
+import Spinner from 'src/components/spinner'
+import Image from 'next/image'
 
+//Components
+const ConfirmDialog = dynamic(() => import('src/components/confirm-dialog'), { ssr: false })
 
 type TProps = {
     orderData: TOrderItem
 }
-
 
 const OrderCard: NextPage<TProps> = (props) => {
 
@@ -57,50 +54,54 @@ const OrderCard: NextPage<TProps> = (props) => {
     const { t, i18n } = useTranslation();
     const { user } = useAuth()
     const router = useRouter()
-
-
+    const theme = useTheme()
 
     //redux
     const dispatch: AppDispatch = useDispatch();
     const { isSuccessCancel, isSuccessCreate, errorMessageCancel, errorMessageCreate } = useSelector((state: RootState) => state.order)
     const { isSuccessCreate: isSuccessCreateCart, errorMessageCreate: errorMessageCreateCart } = useSelector((state: RootState) => state.cart)
 
-    //Theme
-    const theme = useTheme();
+    //Memoized values
+    const memoDisableBuyAgain = useMemo(() => {
+        return orderData.details?.some((item) => !item.quantity)
+    }, [orderData.details])
 
     const handleConfirm = () => {
         dispatch(cancelOrderAsync(orderData.code))
     }
 
-    const handleAddProductToCart = (item: TOrderDetail) => {
-        if (user?.id) {
-            dispatch(
+    const handleAddProductToCart = async (item: TOrderDetail) => {
+        if (!user?.id) return
+
+        try {
+            await dispatch(
                 createCartAsync({
                     cartId: 0,
                     productId: item.productId,
                     quantity: item.quantity,
                     operation: 0,
                 })
-            ).then(() => {
-                if (isSuccessCreateCart) {
-                    dispatch(
-                        getCartsAsync({
-                            params: {
-                                take: -1,
-                                skip: 0,
-                                paging: false,
-                                orderBy: 'name',
-                                dir: 'asc',
-                                keywords: "''",
-                                filters: '',
-                            },
-                        })
-                    );
-                }
-                else {
-                    toast.error(errorMessageCreateCart)
-                }
-            })
+            ).unwrap()
+
+            if (isSuccessCreateCart) {
+                await dispatch(
+                    getCartsAsync({
+                        params: {
+                            take: -1,
+                            skip: 0,
+                            paging: false,
+                            orderBy: 'name',
+                            dir: 'asc',
+                            keywords: "''",
+                            filters: '',
+                        },
+                    })
+                )
+            } else {
+                toast.error(errorMessageCreateCart)
+            }
+        } catch (error) {
+            toast.error(errorMessageCreateCart)
         }
     }
 
@@ -222,10 +223,6 @@ const OrderCard: NextPage<TProps> = (props) => {
         }
     }, [isSuccessCancel])
 
-    const memoDisableBuyAgain = useMemo(() => {
-        return orderData.details?.some((item) => !item.quantity)
-    }, [orderData.details])
-
     return (
         <>
             {loading && <Spinner />}
@@ -266,7 +263,7 @@ const OrderCard: NextPage<TProps> = (props) => {
                         return (
                             <Stack direction="row" alignItems="center" key={item.productId}>
                                 <Box sx={{ border: `1px solid ${theme.palette.customColors.borderColor}`, height: 'fit-content' }}>
-                                    <Image src={item?.imageUrl} sx={{ width: "80px", height: "80px" }} />
+                                    <Image src={item?.imageUrl} alt={item?.productName} width={80} height={80} />
                                 </Box>
                                 <Stack direction="row" justifyContent="space-between" alignItems="center" key={item.productId} sx={{ px: 4, width: "100%" }}>
                                     <Stack >

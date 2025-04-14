@@ -11,14 +11,14 @@ type TInitialState = {
   isLoading: boolean,
   isSuccess: boolean,
   isError: boolean,
-  message: string,
+  errorMessage: string,
   typeError: string,
   isSuccessUpdateMe: boolean,
   isErrorUpdateMe: boolean,
-  messageUpdateMe: string,
+  errorMessageUpdateMe: string,
   isSuccessChangePassword: boolean,
   isErrorChangePassword: boolean,
-  messageChangePassword: string,
+  errorMessageChangePassword: string,
   userData: UserDataType | null
 }
 
@@ -27,15 +27,15 @@ const initialState: TInitialState = {
   isLoading: false,
   isSuccess: true,
   isError: false,
-  message: '',
+  errorMessage: '',
   // statusCode: 0
   typeError: '',
   isSuccessUpdateMe: true,
   isErrorUpdateMe: false,
-  messageUpdateMe: '',
+  errorMessageUpdateMe: '',
   isSuccessChangePassword: true,
   isErrorChangePassword: false,
-  messageChangePassword: '',
+  errorMessageChangePassword: '',
   userData: null
 }
 
@@ -47,14 +47,14 @@ export const authSlice = createSlice({
       state.isLoading = false
       state.isSuccess = false
       state.isError = true
-      state.message = ""
+      state.errorMessage = ""
       state.typeError = ""
       state.isSuccessUpdateMe = false
       state.isErrorUpdateMe = true
-      state.messageUpdateMe = ""
+      state.errorMessageUpdateMe = ""
       state.isSuccessChangePassword = false
       state.isErrorChangePassword = true
-      state.messageChangePassword = ""
+      state.errorMessageChangePassword = ""
     }
   },
   extraReducers: builder => {
@@ -64,17 +64,17 @@ export const authSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(registerAuthAsync.fulfilled, (state, action) => {
+
       state.isLoading = false
-      state.isSuccess = !!action.payload?.data?.email
-      state.isError = !action.payload?.data?.email
-      state.message = action.payload?.message
-      state.typeError = action.payload?.typeError
+      state.isSuccess = !!action.payload?.isSuccess
+      state.isError = !action.payload?.isSuccess
+      state.errorMessage = action.payload?.response?.data?.message
     })
     builder.addCase(registerAuthAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isSuccess = false
       state.isError = true
-      state.message = ""
+      state.errorMessage = ""
       state.typeError = ""
     })
 
@@ -86,7 +86,7 @@ export const authSlice = createSlice({
       state.isLoading = false
       state.isSuccessUpdateMe = !!action.payload?.data?.email
       state.isErrorUpdateMe = !action.payload?.data?.email
-      state.messageUpdateMe = action.payload?.message
+      state.errorMessageUpdateMe = action.payload?.message
       state.typeError = action.payload?.typeError
       state.userData = action.payload?.data
     })
@@ -94,7 +94,7 @@ export const authSlice = createSlice({
       state.isLoading = false
       state.isSuccessUpdateMe = false
       state.isErrorUpdateMe = false
-      state.messageUpdateMe = ""
+      state.errorMessageUpdateMe = ""
       state.typeError = ""
       state.userData = null
     })
@@ -107,14 +107,14 @@ export const authSlice = createSlice({
       state.isLoading = false
       state.isSuccessChangePassword = !!action.payload?.data
       state.isErrorChangePassword = !action.payload?.data
-      state.messageChangePassword = action.payload?.message
+      state.errorMessageChangePassword = action.payload?.message
       state.typeError = action.payload?.typeError
     })
     builder.addCase(changePasswordAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isSuccessChangePassword = false
       state.isErrorChangePassword = false
-      state.messageChangePassword = ""
+      state.errorMessageChangePassword = ""
       state.typeError = ""
     })
   }

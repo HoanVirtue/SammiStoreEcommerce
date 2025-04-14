@@ -686,7 +686,7 @@
     "order_has_been_processing": "Đơn hàng đang được xử lý",
     "my_account": "Tài khoản của tôi",
     "empty_order": "Không có đơn hàng nào",
-    "pending": "Chờ duyệt",
+    "pending": "Chờ xử lý",
     "waiting_for_payment": "Chờ thanh toán",
     "failed": "Thất bại",
     "unpaid": "Chưa thanh toán",

@@ -15,43 +15,43 @@ import { Heart } from 'lucide-react-native';
 export default function WishlistScreen() {
   const router = useRouter();
   const { user, isLoading: userLoading, error: userError, fetchUser } = useUserStore();
-  const { 
-    products, 
-    isLoading: productsLoading, 
+  const {
+    products,
+    isLoading: productsLoading,
     error: productsError,
     fetchProducts,
     fetchProductById,
   } = useProductStore();
-  
+
   useEffect(() => {
     fetchUser();
     fetchProducts();
   }, []);
-  
+
   const wishlistProducts = products.filter(
     product => user?.wishlist.includes(product.id)
   );
-  
+
   const handleProductPress = (product: Product) => {
     fetchProductById(product.id);
     router.push(`/product/${product.id}`);
   };
-  
+
   const handleShopNow = () => {
     router.back();
   };
-  
+
   const isLoading = userLoading || productsLoading;
   const error = userError || productsError;
-  
+
   if (isLoading && wishlistProducts.length === 0) {
     return <LoadingIndicator fullScreen />;
   }
-  
+
   if (error) {
     return <ErrorView message={error} onRetry={fetchUser} />;
   }
-  
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
@@ -60,7 +60,7 @@ export default function WishlistScreen() {
           {wishlistProducts.length} {wishlistProducts.length === 1 ? 'item' : 'items'}
         </Text>
       </View>
-      
+
       {wishlistProducts.length === 0 ? (
         <View style={styles.emptyContainer}>
           <Heart size={64} color={colors.primaryLight} />
@@ -68,9 +68,9 @@ export default function WishlistScreen() {
           <Text style={styles.emptyText}>
             Save your favorite products to buy them later
           </Text>
-          <Button 
-            title="Shop Now" 
-            onPress={handleShopNow} 
+          <Button
+            title="Shop Now"
+            onPress={handleShopNow}
             style={styles.shopButton}
           />
         </View>

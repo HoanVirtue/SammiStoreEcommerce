@@ -12,48 +12,48 @@ import { ShoppingBag } from 'lucide-react-native';
 
 export default function CartScreen() {
   const router = useRouter();
-  const { 
-    cart, 
-    isLoading, 
+  const {
+    cart,
+    isLoading,
     error,
     fetchCart,
     updateQuantity,
     removeFromCart,
     clearCart,
   } = useCartStore();
-  
+
   useEffect(() => {
     fetchCart();
   }, []);
-  
+
   const handleUpdateQuantity = (productId: string, quantity: number) => {
     updateQuantity(productId, quantity);
   };
-  
+
   const handleRemoveItem = (productId: string) => {
     removeFromCart(productId);
   };
-  
+
   const handleClearCart = () => {
     clearCart();
   };
-  
+
   const handleCheckout = () => {
     router.push('/checkout');
   };
-  
+
   const handleContinueShopping = () => {
     router.push('/');
   };
-  
+
   if (isLoading && cart.items.length === 0) {
     return <LoadingIndicator fullScreen />;
   }
-  
+
   if (error) {
     return <ErrorView message={error} onRetry={fetchCart} />;
   }
-  
+
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
@@ -62,7 +62,7 @@ export default function CartScreen() {
           {cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'}
         </Text>
       </View>
-      
+
       {cart.items.length === 0 ? (
         <View style={styles.emptyContainer}>
           <ShoppingBag size={64} color={colors.primaryLight} />
@@ -70,9 +70,9 @@ export default function CartScreen() {
           <Text style={styles.emptyText}>
             Add products to your cart to checkout
           </Text>
-          <Button 
-            title="Continue Shopping" 
-            onPress={handleContinueShopping} 
+          <Button
+            title="Continue Shopping"
+            onPress={handleContinueShopping}
             style={styles.shopButton}
           />
         </View>
@@ -88,7 +88,7 @@ export default function CartScreen() {
               />
             ))}
           </ScrollView>
-          
+
           <View style={styles.footer}>
             <View style={styles.summaryContainer}>
               <View style={styles.summaryRow}>
@@ -105,16 +105,16 @@ export default function CartScreen() {
                 <Text style={styles.totalValue}>${cart.subtotal.toFixed(2)}</Text>
               </View>
             </View>
-            
+
             <View style={styles.buttonsContainer}>
-              <Button 
-                title="Checkout" 
-                onPress={handleCheckout} 
+              <Button
+                title="Checkout"
+                onPress={handleCheckout}
                 style={styles.checkoutButton}
               />
-              <Button 
-                title="Clear Cart" 
-                onPress={handleClearCart} 
+              <Button
+                title="Clear Cart"
+                onPress={handleClearCart}
                 variant="outline"
                 style={styles.clearButton}
               />

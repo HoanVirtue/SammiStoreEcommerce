@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
+using Castle.Core.Resource;
 using FluentValidation;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Core.Utillity;
 using SAMMI.ECOM.Domain.Commands.User;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
@@ -21,11 +23,14 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private readonly IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> _authService;
         private readonly IWardRepository _wardRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly IConfiguration _config;
+        private readonly EmailHelper emailHelper;
         public CreateEmployeeCommandHandler(
             IUsersRepository userRepository,
             IAuthenticationService<SAMMI.ECOM.Domain.AggregateModels.Others.User> authService,
             IWardRepository wardRepository,
             IRoleRepository roleRepository,
+            IConfiguration config,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -33,6 +38,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             _userRepository = userRepository;
             _wardRepository = wardRepository;
             _roleRepository = roleRepository;
+            _config = config;
+            emailHelper = new EmailHelper(config);
         }
 
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
@@ -102,6 +109,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             employee.SecurityStamp = this.NewSecurityStamp();
             //mã hóa thuật toán PBKDF2
             employee.Password = _authService.EncryptPassword(employee.Password!);
+
+            employee.VerifyToken = _authService.CreateVerifyToken();
+            employee.VerifiedAt = DateTime.Now;
+            await _userRepository.SaveChangeAsync();
+
+            // send email
+            emailHelper.SendEmailVerify(request.Email, request.FullName, $"{_config["EmailSettings:VerifyUrl"]}?token={employee.VerifyToken}");
             await _userRepository.SaveChangeAsync();
 
             // add role và send password email(nếu có)

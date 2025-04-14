@@ -24,6 +24,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
         private readonly IWardRepository _wardRepository;
         private readonly IRoleRepository _roleRepository;
         private readonly ICustomerAddressRepository _addressRepository;
+        private readonly IConfiguration _config;
         private readonly EmailHelper emailHelper;
 
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
@@ -42,6 +43,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             _wardRepository = wardRepository;
             _roleRepository = roleRepository;
             _addressRepository = addressRepository;
+            _config = config;
             emailHelper = new EmailHelper(config);
         }
 
@@ -116,9 +118,15 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 customer.SecurityStamp = this.NewSecurityStamp();
                 //mã hóa thuật toán PBKDF2
                 customer.Password = _authService.EncryptPassword(customer.Password!);
+
+                customer.VerifyToken = _authService.CreateVerifyToken();
+                customer.VerifiedAt = DateTime.Now;
                 await _userRepository.SaveChangeAsync();
 
-                if(request.WardId != null && request.WardId != 0)
+                // send email
+                emailHelper.SendEmailVerify(request.Email, request.FullName, $"{_config["EmailSettings:VerifyUrl"]}?token={customer.VerifyToken}");
+
+                if (request.WardId != null && request.WardId != 0)
                 {
                     var customerAddress = new CustomerAddress
                     {
@@ -135,6 +143,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                         return actionResponse;
                     }
                 }
+
+                
                 
                 actionResponse.SetResult(_mapper.Map<CustomerDTO>(customer));
             }

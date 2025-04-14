@@ -90,6 +90,12 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(registerRes);
         }
 
+        [HttpPost("register-employee")]
+        public async Task<IActionResult> VerifyEmail(string token)
+        {
+            return Ok();
+        }
+
         [HttpPost("refreshtoken")]
         [AllowAnonymous]
         public async Task<IActionResult> RefreshTokenAsync(RefreshTokenCommand request)

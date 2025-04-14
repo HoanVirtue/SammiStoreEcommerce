@@ -135,9 +135,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                         return actionResponse;
                     }
                 }
-
-                // send email
-                //emailHelper.SendEmailVerify(request.Email, request.FullName, );
                 
                 actionResponse.SetResult(_mapper.Map<CustomerDTO>(customer));
             }

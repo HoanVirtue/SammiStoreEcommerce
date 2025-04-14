@@ -53,7 +53,7 @@ export const deleteMyReview = async (id: number) => {
 
 export const deleteMultipleReview = async (data: TParamsDeleteMultipleReviews) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}`, {data})
         return res.data
     } catch (error: any) {
         return error?.response?.data

@@ -77,13 +77,11 @@ export const districtSlice = createSlice({
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
-      state.typeError = action.payload?.errors
     })
-    builder.addCase(createDistrictAsync.rejected, (state, action) => {
-      const payload = action.payload as ReduxPayload;
+    builder.addCase(createDistrictAsync.rejected, (state, action: any) => {
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating District'
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.errors && action.payload?.response?.data?.message  || 'Error creating District'
     })
 
     //update District
@@ -91,16 +89,16 @@ export const districtSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(updateDistrictAsync.fulfilled, (state, action) => {
+   
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
-      state.typeError = action.payload?.errors
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.errors && action.payload?.response?.data?.message || 'Error updating District'
     })
     builder.addCase(updateDistrictAsync.rejected, (state, action) => {
-      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating District'
+      state.errorMessageCreateUpdate = action.error?.message || 'Error updating District'
     })
 
     //delete District

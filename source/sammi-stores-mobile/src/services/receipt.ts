@@ -53,7 +53,7 @@ export const getReceiptDetail = async (id: string) => {
 
 export const deleteMultipleReceipts = async (data: TParamsDeleteMultipleReceipts) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/delete-many`, { data })
+        const res = await instance.delete(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}`, { data })
         if (res?.data?.status === "Success") {
             return {
                 data: []

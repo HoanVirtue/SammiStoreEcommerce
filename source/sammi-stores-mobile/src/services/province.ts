@@ -53,7 +53,7 @@ export const getProvinceDetail = async (id: string) => {
 
 export const deleteMultipleProvinces= async (data: TParamsDeleteMultipleProvinces) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.ADDRESS.PROVINCE.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

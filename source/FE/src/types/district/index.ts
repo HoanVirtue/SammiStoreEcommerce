@@ -38,5 +38,5 @@ export type TParamsDeleteDistrict = {
 }
 
 export type TParamsDeleteMultipleDistricts = {
-    districtIds: number[],
+    ids: number[],
 }

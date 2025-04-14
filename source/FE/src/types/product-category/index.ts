@@ -34,5 +34,5 @@ export type TParamsDeleteProductCategory = {
 }
 
 export type TParamsDeleteMultipleProductCategories = {
-    productCategoryIds: number[],
+    ids: number[],
 }

@@ -5,18 +5,16 @@ import { createSlice } from '@reduxjs/toolkit'
 import { createProvinceAsync, deleteMultipleProvincesAsync, deleteProvinceAsync, getAllProvincesAsync, serviceName, updateProvinceAsync } from './action'
 
 interface ProvincePayload {
-  result?: {
-    subset?: any[];
-    id?: string;
-    errorMessage?: string;
-    totalItemCount?: number;
-  };
-  message?: string;
-  isSuccess?: boolean;
-  errors?: {
-    memberName: string,
-    errorMessage: string
+  response?: {
+    data?: {
+      errors?: {
+        memberName: string,
+        errorMessage: string
+      }
+      message?: string
+    }
   }
+  isSuccess?: boolean;
 }
 
 const initialState = {
@@ -87,14 +85,13 @@ export const provinceSlice = createSlice({
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
-      state.errorMessageCreateUpdate = action.payload?.message
-      state.typeError = action.payload?.errors
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.errors[0]?.errorMessage || 'Error creating Province'
     })
     builder.addCase(createProvinceAsync.rejected, (state, action) => {
       const payload = action.payload as ProvincePayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating Province'
+      state.errorMessageCreateUpdate = payload.response?.data?.errors && payload?.response?.data?.message || 'Error creating Province'
     })
 
     //update Province
@@ -102,16 +99,17 @@ export const provinceSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(updateProvinceAsync.fulfilled, (state, action) => {
+      const payload = action.payload as ProvincePayload;
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
-      state.typeError = action.payload?.errors
+      state.errorMessageCreateUpdate = payload.response?.data?.errors && payload?.response?.data?.message || 'Error updating Province'
     })
     builder.addCase(updateProvinceAsync.rejected, (state, action) => {
       const payload = action.payload as ProvincePayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating Province'
+      state.errorMessageCreateUpdate = payload.response?.data?.errors && payload?.response?.data?.message || 'Error updating Province'
     })
 
     //delete Province
@@ -122,8 +120,7 @@ export const provinceSlice = createSlice({
       state.isLoading = false
       state.isSuccessDelete = !!action.payload?.isSuccess
       state.isErrorDelete = !action.payload?.isSuccess
-      state.errorMessageDelete = action.payload?.message
-      state.typeError = action.payload?.result?.errorMessage
+      state.errorMessageDelete = action.payload?.errors?.errorMessage || 'Error deleting Province'
     })
     builder.addCase(deleteProvinceAsync.rejected, (state, action) => {
       state.isLoading = false

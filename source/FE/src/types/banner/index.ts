@@ -40,5 +40,5 @@ export type TParamsDeleteBanner = {
 }
 
 export type TParamsDeleteMultipleBanners = {
-    bannerIds: number[],
+    ids: number[],
 }

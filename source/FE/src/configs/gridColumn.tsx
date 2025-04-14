@@ -1,11 +1,12 @@
 // src/configs/orderGridConfig.ts
 import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
-import { styled, Chip, ChipProps, Typography, useTheme } from '@mui/material'
+import { styled, Chip, ChipProps, Typography, useTheme, Tooltip } from '@mui/material'
 import { useTranslation } from 'react-i18next'
 import { formatDate, formatPrice } from 'src/utils'
 import Image from 'src/components/image'
 import { getReceiptStatusLabel } from 'src/configs/receipt'
 import { PaymentStatus, ShippingStatus, OrderStatus } from 'src/configs/order'
+import { useMemo } from 'react'
 
 const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   backgroundColor: "#28c76f29",
@@ -47,7 +48,13 @@ export const getOrderColumns = (): GridColDef[] => {
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
-        return <Typography>{row?.customerName} - {row?.phoneNumber}</Typography>
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.customerName} - {row?.phoneNumber}</Typography>
       }
     },
     {
@@ -221,16 +228,20 @@ export const getProvinceColumns = (): GridColDef[] => {
     {
       field: "province_code",
       headerName: t("province_code"),
-      minWidth: 200,
-      maxWidth: 200,
+      minWidth: 300,
+      maxWidth: 300,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
       field: "postal_code",
       headerName: t("postal_code"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.postalCode}</Typography>,
+      minWidth: 300,
+      maxWidth: 300,
+      renderCell: (params: GridRenderCellParams) => <Typography sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+      }}>{params.row.postalCode}</Typography>,
     },
   ];
 }
@@ -249,8 +260,8 @@ export const getDistrictColumns = (): GridColDef[] => {
     {
       field: "code",
       headerName: t("district_code"),
-      minWidth: 200,
-      maxWidth: 200,
+      minWidth: 300,
+      maxWidth: 300,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
@@ -258,7 +269,13 @@ export const getDistrictColumns = (): GridColDef[] => {
       headerName: t("province_name"),
       flex: 1,
       minWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.provinceName}</Typography>,
+      renderCell: (params: GridRenderCellParams) => <Typography sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 3,
+        WebkitBoxOrient: 'vertical',
+      }}>{params.row.provinceName}</Typography>,
     },
   ]
 }
@@ -272,7 +289,16 @@ export const getWardColumns = (): GridColDef[] => {
       headerName: t("ward_name"),
       flex: 1,
       minWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>,
+      renderCell: (params: GridRenderCellParams) => 
+        <Tooltip title={params.row.name}>
+          <Typography sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+          }}>{params.row.name}</Typography>
+        </Tooltip>
     },
     {
       field: "ward_code",
@@ -335,7 +361,15 @@ export const getProductColumns = (): GridColDef[] => {
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
-          <Typography>{row?.name}</Typography>
+          <Tooltip title={row?.name}>
+            <Typography sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              display: '-webkit-box',
+              WebkitLineClamp: 3,
+              WebkitBoxOrient: 'vertical',
+            }}>{row?.name}</Typography>
+          </Tooltip>
         )
       }
     },
@@ -736,4 +770,141 @@ export const getEventColumns = (): GridColDef[] => {
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.eventType}</Typography>,
     },
   ];
+}
+
+
+export const getCustomerColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  return [
+    {
+      field: "customer_code",
+      headerName: t("customer_code"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
+  },
+  {
+    field: "fullName",
+    headerName: t("name"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.fullName}</Typography>,
+  },
+  {
+    field: "phone",
+    headerName: t("phone"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.phone}</Typography>,
+  },
+  {
+    field: "email",
+    headerName: t("email"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.email}</Typography>,
+  },
+  {
+    field: "gender",
+    headerName: t("gender"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography>
+          {params.row.gender === 1 ? t("male") : params.row.gender === 0 ? t("female") : t("unknown")}
+        </Typography>
+      ),
+    },
+  ]
+}
+
+export const getEmployeeColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  return [
+    {
+      field: "employee_code",
+      headerName: t("employee_code"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
+  },
+  {
+    field: "fullName",
+    headerName: t("name"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.fullName}</Typography>,
+  },
+  {
+    field: "phone",
+    headerName: t("phone"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.phone}</Typography>,
+  },
+  {
+    field: "email",
+    headerName: t("email"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.email}</Typography>,
+  },
+  {
+    field: "gender",
+    headerName: t("gender"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography>
+        {params.row.gender === 1 ? t("male") : params.row.gender === 0 ? t("female") : t("unknown")}
+      </Typography>
+    ),
+  },
+  ]
+}
+
+
+export const getSupplierColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  return [
+    {
+      field: "supplier_code",
+      headerName: t("supplier_code"),
+      minWidth: 200,
+      maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
+  },
+  {
+    field: "fullName",
+    headerName: t("name"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.fullName}</Typography>,
+  },
+  {
+    field: "phone",
+    headerName: t("phone"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.phone}</Typography>,
+  },
+  {
+    field: "email",
+    headerName: t("email"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.email}</Typography>,
+  },
+  {
+    field: "gender",
+    headerName: t("gender"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => (
+      <Typography>
+        {params.row.gender === 1 ? t("male") : params.row.gender === 0 ? t("female") : t("unknown")}
+      </Typography>
+    ),
+  },
+  ]
 }

@@ -39,5 +39,5 @@ export type TParamsDeleteEmployee = {
 }
 
 export type TParamsDeleteMultipleEmployees = {
-    employeeIds: number[],
+    ids: number[],
 }

@@ -87,14 +87,12 @@ export const WardSlice = createSlice({
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
-      state.errorMessageCreateUpdate = action.payload?.message
-      state.typeError = action.payload?.errors
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.errors && action.payload?.response?.data?.message || 'Error creating Ward'
     })
-    builder.addCase(createWardAsync.rejected, (state, action) => {
-      const payload = action.payload as WardPayload;
+    builder.addCase(createWardAsync.rejected, (state, action: any) => {
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating Ward'
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.errors && action.payload?.response?.data?.message  || 'Error creating Ward'
     })
 
     //update Ward
@@ -105,13 +103,12 @@ export const WardSlice = createSlice({
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
-      state.typeError = action.payload?.errors
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.errors && action.payload?.response?.data?.message  || 'Error updating Ward'
     })
-    builder.addCase(updateWardAsync.rejected, (state, action) => {
-      const payload = action.payload as WardPayload;
+    builder.addCase(updateWardAsync.rejected, (state, action: any) => {
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error updating Ward'
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.errors && action.payload?.response?.data?.message  || 'Error updating Ward'
     })
 
     //delete Ward

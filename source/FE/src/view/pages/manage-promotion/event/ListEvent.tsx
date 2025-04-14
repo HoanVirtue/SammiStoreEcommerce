@@ -1,29 +1,44 @@
 "use client";
 
 import { NextPage } from "next";
+import { useState, Suspense, lazy } from "react";
 
+// Redux imports
+import { RootState } from "src/stores";
 import {
     deleteMultipleEventsAsync,
     deleteEventAsync,
     getAllEventsAsync,
 } from "src/stores/event/action";
 import { resetInitialState } from "src/stores/event";
-import { RootState } from "src/stores";
+
+// Components imports
 import AdminPage from "src/components/admin-page";
 import { getEventColumns } from "src/configs/gridColumn";
 import { getEventFields } from "src/configs/gridConfig";
-import CreateUpdateEvent from "./components/CreateUpdateEvent";
-import { useState } from "react";
-const ListEventPage: NextPage = () => { 
+import Spinner from "src/components/spinner";
+// Lazy load CreateUpdateEvent component
+const CreateUpdateEvent = lazy(() => import("./components/CreateUpdateEvent"));
 
-    const columns = getEventColumns();
+// Constants
+const EVENT_PERMISSION_KEY = "MANAGE_PROMOTION.EVENT";
+const EVENT_FIELD_MAPPING = {
+    "event_name": "name",
+    "event_code": "code",
+    "start_date": "startDate",
+    "end_date": "endDate",
+    "status": "status",
+};
 
+const ListEventPage: NextPage = () => {
+    // State management
     const [currentTab, setCurrentTab] = useState(0);
     const [selectedEventId, setSelectedEventId] = useState<number>(0);
     const [showCreateTab, setShowCreateTab] = useState(false);
     const [showUpdateTab, setShowUpdateTab] = useState(false);
     const [showDetailTab, setShowDetailTab] = useState(false);
 
+    // Event handlers
     const handleTabChange = (newTab: number) => {
         setCurrentTab(newTab);
         if (newTab === 0) {
@@ -41,41 +56,36 @@ const ListEventPage: NextPage = () => {
         setCurrentTab(1);
         setShowCreateTab(true);
     };
+
     return (
-        <AdminPage
-            entityName="event"
-            columns={columns}
-            fields={getEventFields()}
-            reduxSelector={(state: RootState) => ({
-                data: state.event.events.data,
-                total: state.event.events.total,
-                ...state.event,
-            })}
-            fetchAction={getAllEventsAsync}
-            deleteAction={deleteEventAsync}
-            deleteMultipleAction={deleteMultipleEventsAsync as unknown as (ids: { [key: number]: number[] }) => any}
-            resetAction={resetInitialState}
-            showTab={true}
-            showCreateTab={showCreateTab}
-            showUpdateTab={showUpdateTab}
-            showDetailTab={showDetailTab}
-            currentTab={currentTab}
-            onTabChange={handleTabChange}
-            onAddClick={handleAddClick}
-            onDetailClick={handleDetailClick}
-            CreateUpdateTabComponent={CreateUpdateEvent}
-
-
-            permissionKey="MANAGE_PROMOTION.EVENT"
-            fieldMapping={{
-                "event_name": "name",
-                "event_code": "code",
-                "start_date": "startDate",
-                "end_date": "endDate",
-                "status": "status",
-            }}
-            noDataText="no_data_event"
-        />
+        <Suspense fallback={<Spinner />}>
+            <AdminPage
+                entityName="event"
+                columns={getEventColumns()}
+                fields={getEventFields()}
+                reduxSelector={(state: RootState) => ({
+                    data: state.event.events.data,
+                    total: state.event.events.total,
+                    ...state.event,
+                })}
+                fetchAction={getAllEventsAsync}
+                deleteAction={deleteEventAsync}
+                deleteMultipleAction={deleteMultipleEventsAsync as unknown as (ids: { [key: number]: number[] }) => any}
+                resetAction={resetInitialState}
+                showTab={true}
+                showCreateTab={showCreateTab}
+                showUpdateTab={showUpdateTab}
+                showDetailTab={showDetailTab}
+                currentTab={currentTab}
+                onTabChange={handleTabChange}
+                onAddClick={handleAddClick}
+                onDetailClick={handleDetailClick}
+                CreateUpdateTabComponent={CreateUpdateEvent}
+                permissionKey={EVENT_PERMISSION_KEY}
+                fieldMapping={EVENT_FIELD_MAPPING}
+                noDataText="no_data_event"
+            />
+        </Suspense>
     );
 };
 

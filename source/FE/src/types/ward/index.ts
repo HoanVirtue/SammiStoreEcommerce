@@ -37,5 +37,5 @@ export type TParamsDeleteWard = {
 }
 
 export type TParamsDeleteMultipleWards = {
-    wardIds: number[],
+    ids: number[],
 }

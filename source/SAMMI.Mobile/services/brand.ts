@@ -63,7 +63,7 @@ export const getBrandDetail = async (id: number) => {
 
 export const deleteMultipleBrands = async (data: TParamsDeleteMultipleBrands) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

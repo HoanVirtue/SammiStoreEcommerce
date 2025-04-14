@@ -53,7 +53,7 @@ export const getDistrictDetail = async (id: string) => {
 
 export const deleteMultipleDistricts= async (data: TParamsDeleteMultipleDistricts) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.ADDRESS.DISTRICT.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.ADDRESS.DISTRICT.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

@@ -97,7 +97,7 @@ export type TParamsDeleteProduct = {
 }
 
 export type TParamsDeleteMultipleProducts = {
-    productIds: number[],
+    ids: number[],
 }
 
 

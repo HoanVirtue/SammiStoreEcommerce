@@ -64,7 +64,7 @@ export const getDeliveryMethodDetail = async (id: number) => {
 
 export const deleteMultipleDeliveryMethods = async (data: TParamsDeleteMultipleDeliveryMethods) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.SETTING.DELIVERY_METHOD.INDEX}/delete-many`, {data})
+        const res = await instance.delete(`${API_ENDPOINT.SETTING.DELIVERY_METHOD.INDEX}`, {data})
         if(res?.data?.status === "Success") {
             return {
                 data: []

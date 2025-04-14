@@ -69,20 +69,20 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
                                     setTemporaryToken(newAccessToken)
                                 }
                             } else {
-                                handleRedirectToLogin(router, setUser)
+                                // handleRedirectToLogin(router, setUser)
                             }
                         }).catch(() => {
-                            handleRedirectToLogin(router, setUser)
+                            // handleRedirectToLogin(router, setUser)
                         })
                     } else {
-                        handleRedirectToLogin(router, setUser)
+                        // handleRedirectToLogin(router, setUser)
                     }
                 } else {
-                    handleRedirectToLogin(router, setUser)
+                    // handleRedirectToLogin(router, setUser)
                 }
             }
         } else if (!isPublicApi) {
-            handleRedirectToLogin(router, setUser)
+            // handleRedirectToLogin(router, setUser)
         }
         return config
     })

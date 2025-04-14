@@ -24,5 +24,5 @@ export type TParamsDeletePaymentMethod = {
 }
 
 export type TParamsDeleteMultiplePaymentMethods = {
-    paymentTypeIds: number[],
+    ids: number[],
 }

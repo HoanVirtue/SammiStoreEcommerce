@@ -93,5 +93,5 @@ export type TParamsDeleteVoucher = {
 }
 
 export type TParamsDeleteMultipleVouchers = {
-    voucherIds: number[],
+    ids: number[],
 }

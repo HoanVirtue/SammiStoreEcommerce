@@ -1,23 +1,46 @@
 "use client";
 
+// React và Next.js imports
 import { NextPage } from "next";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import dynamic from "next/dynamic";
+import { FC } from "react";
+
+
+// Third-party imports
 import { useTranslation } from "react-i18next";
-import { Typography } from "@mui/material";
+
+// Config imports
 import { getProductCategoryFields } from "src/configs/gridConfig";
-import CreateUpdateProductCategory from "./components/CreateUpdateProductCategory";
+import { getProductCategoryColumns } from "src/configs/gridColumn";
+
+// Store imports
+import { RootState } from "src/stores";
+import { resetInitialState } from "src/stores/product-category";
 import {
     deleteMultipleProductCategoriesAsync,
     deleteProductCategoryAsync,
     getAllProductCategoriesAsync,
 } from "src/stores/product-category/action";
-import { resetInitialState } from "src/stores/product-category";
-import { RootState } from "src/stores";
-import AdminPage from "src/components/admin-page";
-import { getProductCategoryColumns } from "src/configs/gridColumn";
+import Spinner from "src/components/spinner";
+
+// Dynamic imports cho các components lớn
+const AdminPage = dynamic(() => import("src/components/admin-page"), {
+    loading: () => <Spinner />,
+    ssr: false
+});
+
+const CreateUpdateProductCategory = dynamic(
+    () => import("./components/CreateUpdateProductCategory").then(mod => mod.default),
+    {
+        loading: () => <Spinner />,
+        ssr: false
+    }
+) as FC<any>;
+
 const ListProductCategoryPage: NextPage = () => {
     const { t } = useTranslation();
 
+    // Lấy columns từ config
     const columns = getProductCategoryColumns();
 
     return (
@@ -47,4 +70,5 @@ const ListProductCategoryPage: NextPage = () => {
     );
 };
 
+// Sử dụng React.memo để tránh re-render không cần thiết
 export default ListProductCategoryPage;

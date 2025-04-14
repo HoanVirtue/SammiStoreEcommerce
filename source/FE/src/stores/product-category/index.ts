@@ -74,7 +74,6 @@ export const productCategorySlice = createSlice({
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.errorMessageCreateUpdate = action.payload?.message
-      state.typeError = action.payload?.typeError
     })
     builder.addCase(createProductCategoryAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;
@@ -91,8 +90,7 @@ export const productCategorySlice = createSlice({
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
-      state.errorMessageCreateUpdate = action.payload?.message
-      state.typeError = action.payload?.typeError
+      state.errorMessageCreateUpdate = action.payload?.errors?.errorMessage || 'Error updating ProductCategory'
     })
     builder.addCase(updateProductCategoryAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;

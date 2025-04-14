@@ -7,8 +7,13 @@ export type TLoginAuth = {
 };
 
 export type TRegisterAuth = {
+    firstName: string,
+    lastName: string,
+    phone: string,
+    username: string,
     email: string,
-    password: string
+    password: string,
+    rePassword: string
 }
 
 export type TChangePassword = {

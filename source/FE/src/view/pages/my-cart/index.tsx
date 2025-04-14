@@ -1,7 +1,9 @@
 'use client';
 
-import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import React, { Fragment, useEffect, useMemo, useState, useCallback, Suspense } from 'react';
 import { NextPage } from 'next';
+import dynamic from 'next/dynamic';
+import { useRouter } from 'next/router';
 import {
     Box,
     Button,
@@ -24,7 +26,6 @@ import { TItemOrderProduct } from 'src/types/order';
 import IconifyIcon from 'src/components/Icon';
 import { getCartsAsync, createCartAsync, deleteCartAsync } from 'src/stores/cart/action';
 import NoData from 'src/components/no-data';
-import { useRouter } from 'next/router';
 import { ROUTE_CONFIG } from 'src/configs/route';
 import ProductCartItem from './components/ProductCartItem';
 import CartSummary from './components/CartSummary';
@@ -46,48 +47,6 @@ const MyCartPage: NextPage<TProps> = () => {
     const dispatch: AppDispatch = useDispatch();
     const { carts, isLoading } = useSelector((state: RootState) => state.cart);
 
-    useEffect(() => {
-        if (user?.id) {
-            dispatch(
-                getCartsAsync({
-                    params: {
-                        take: -1,
-                        skip: 0,
-                        paging: false,
-                        orderBy: 'name',
-                        dir: 'asc',
-                        keywords: "''",
-                        filters: '',
-                    },
-                })
-            );
-        }
-    }, [dispatch, user?.id]);
-
-
-    useEffect(() => {
-        const fetchDiscounts = async () => {
-            for (const productId of selectedRow) {
-                const res = await getProductDetail(productId);
-                const data = res?.result;
-                if (data) {
-                    const discount = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0;
-                    setDiscountValue(discount);
-                    setOriginalPrice(data.price);
-                }
-            }
-        };
-
-        if (selectedRow.length > 0) {
-            fetchDiscounts();
-        }
-    }, [selectedRow]);
-
-    const breadcrumbItems = [
-        { label: t('home'), href: '/', icon: <IconifyIcon color="primary" icon="healthicons:home-outline" /> },
-        { label: t('my_cart'), href: '/my-cart' },
-    ];
-
     const memoListAllProductIds = useMemo(() => {
         return carts?.data?.map((item: TItemOrderProduct) => item.productId) || [];
     }, [carts]);
@@ -95,43 +54,6 @@ const MyCartPage: NextPage<TProps> = () => {
     const memoSelectedProduct = useMemo(() => {
         return carts?.data?.filter((item: TItemOrderProduct) => selectedRow.includes(item.productId)) || [];
     }, [selectedRow, carts]);
-
-    const memoSubtotal = useMemo(() => {
-        return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
-            const price = current?.price || 0;
-            const discount = current?.discount || 0; // Discount is now in percentage (e.g., 10 for 10%)
-            const quantity = current?.quantity || 1;
-            const currentPrice = discount > 0 ? (price * (100 - discount)) / 100 : price; // Discount applied as percentage
-            return result + currentPrice * quantity;
-        }, 0);
-    }, [memoSelectedProduct]);
-
-
-    const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
-
-    const memoSave = useMemo(() => {
-        return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
-            const price = originalPrice || 0;
-            const discount = discountValue * 100 || 0;
-            const quantity = current?.quantity || 1;
-            if (discount > 0) {
-                const savedPrice = (price * discount) / 100 * quantity;
-                return result + savedPrice;
-            }
-            return result;
-        }, 0);
-    }, [memoSelectedProduct, discountValue]);
-
-    useEffect(() => {
-        const selectedProduct = router.query.selected;
-        if (selectedProduct) {
-            if (typeof selectedProduct === 'string') {
-                setSelectedRow([+selectedProduct]);
-            } else if (Array.isArray(selectedProduct)) {
-                setSelectedRow(selectedProduct.map((item) => +item));
-            }
-        }
-    }, [router.query]);
 
     const handleChangeCheckBox = (value: number) => {
         setSelectedRow((prev) =>
@@ -153,7 +75,84 @@ const MyCartPage: NextPage<TProps> = () => {
         }
     };
 
-    const handleNavigateCheckout = () => {
+    const memoSubtotal = useMemo(() => {
+        return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
+            const price = current?.price || 0;
+            const discount = current?.discount || 0;
+            const quantity = current?.quantity || 1;
+            const currentPrice = discount > 0 ? (price * (100 - discount)) / 100 : price;
+            return result + currentPrice * quantity;
+        }, 0);
+    }, [memoSelectedProduct]);
+
+    const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
+
+    const memoSave = useMemo(() => {
+        return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
+            const price = originalPrice || 0;
+            const discount = discountValue * 100 || 0;
+            const quantity = current?.quantity || 1;
+            if (discount > 0) {
+                const savedPrice = (price * discount) / 100 * quantity;
+                return result + savedPrice;
+            }
+            return result;
+        }, 0);
+    }, [memoSelectedProduct, discountValue, originalPrice]);
+
+    useEffect(() => {
+        if (user?.id) {
+            dispatch(
+                getCartsAsync({
+                    params: {
+                        take: -1,
+                        skip: 0,
+                        paging: false,
+                        orderBy: 'name',
+                        dir: 'asc',
+                        keywords: "''",
+                        filters: '',
+                    },
+                })
+            );
+        }
+    }, [dispatch, user?.id]);
+
+    useEffect(() => {
+        const fetchDiscounts = async () => {
+            for (const productId of selectedRow) {
+                const res = await getProductDetail(productId);
+                const data = res?.result;
+                if (data) {
+                    const discount = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0;
+                    setDiscountValue(discount);
+                    setOriginalPrice(data.price);
+                }
+            }
+        };
+
+        if (selectedRow.length > 0) {
+            fetchDiscounts();
+        }
+    }, [selectedRow]);
+
+    useEffect(() => {
+        const selectedProduct = router.query.selected;
+        if (selectedProduct) {
+            if (typeof selectedProduct === 'string') {
+                setSelectedRow([+selectedProduct]);
+            } else if (Array.isArray(selectedProduct)) {
+                setSelectedRow(selectedProduct.map((item) => +item));
+            }
+        }
+    }, [router.query]);
+
+    const breadcrumbItems = [
+        { label: t('home'), href: '/', icon: <IconifyIcon color="primary" icon="healthicons:home-outline" /> },
+        { label: t('my_cart'), href: '/my-cart' },
+    ];
+
+    const handleNavigateCheckout = useCallback(() => {
         const formattedData = JSON.stringify(
             memoSelectedProduct.map((item: TItemOrderProduct) => ({
                 productId: item.productId,
@@ -164,7 +163,7 @@ const MyCartPage: NextPage<TProps> = () => {
             pathname: ROUTE_CONFIG.CHECKOUT,
             query: { totalPrice: memoTotalPrice, selectedProduct: formattedData },
         });
-    };
+    }, [memoSelectedProduct, memoTotalPrice, router]);
 
     return (
         <Box
@@ -250,25 +249,30 @@ const MyCartPage: NextPage<TProps> = () => {
                                 </Grid>
 
                                 <Grid container item spacing={2} sx={{ maxWidth: '100%' }}>
-                                    {carts?.data?.map((item: TItemOrderProduct, index: number) => (
-                                        <ProductCartItem
-                                            item={item}
-                                            key={item.productId}
-                                            handleChangeCheckBox={handleChangeCheckBox}
-                                            selectedRow={selectedRow}
-                                            index={index}
-                                        />
-                                    ))}
+                                    <Suspense fallback={<CircularProgress />}>
+                                        {carts?.data?.map((item: TItemOrderProduct, index: number) => (
+                                            <ProductCartItem
+                                                item={item}
+                                                key={item.productId}
+                                                handleChangeCheckBox={handleChangeCheckBox}
+                                                selectedRow={selectedRow}
+                                                index={index}
+                                            />
+                                        ))}
+                                    </Suspense>
                                 </Grid>
                             </Stack>
                         </Grid>
 
                         <Grid item xs={12} md={3}>
-                            <CartSummary
-                                subtotal={memoSubtotal} total={memoTotalPrice}
-                                save={memoSave}
-                                onCheckout={handleNavigateCheckout}
-                            />
+                            <Suspense fallback={<CircularProgress />}>
+                                <CartSummary
+                                    subtotal={memoSubtotal}
+                                    total={memoTotalPrice}
+                                    save={memoSave}
+                                    onCheckout={handleNavigateCheckout}
+                                />
+                            </Suspense>
                         </Grid>
                     </Grid>
                 ) : (

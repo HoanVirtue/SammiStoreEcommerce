@@ -96,7 +96,7 @@ export default function HomeScreen() {
           value=""
           onSearch={handleSearch}
           onClear={() => { }}
-          placeholder="Search for products..."
+          placeholder="Tìm kiếm sản phẩm..."
         />
 
         <View style={styles.section}>

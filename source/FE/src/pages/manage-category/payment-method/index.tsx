@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import React from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListPaymentMethod from 'src/view/pages/setting/payment-method/ListPaymentMethod'
+import ListPaymentMethod from 'src/view/pages/manage-category/payment-method/ListPaymentMethod'
 
 //views
 

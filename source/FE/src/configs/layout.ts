@@ -118,6 +118,11 @@ export const VerticalLayoutItems = () => {
                     icon: 'mynaui:brand-slack',
                     path: ROUTE_CONFIG.MANAGE_CATEGORY.BRAND,
                 },
+                {
+                    title: t('banner'),
+                    icon: 'material-symbols:planner-banner-ad-pt-outline-rounded',
+                    path: ROUTE_CONFIG.MANAGE_CATEGORY.BANNER,
+                },
             ]
         },
         {
@@ -151,11 +156,6 @@ export const VerticalLayoutItems = () => {
                     title: t('payment_method'),
                     icon: 'streamline:payment-10',
                     path: ROUTE_CONFIG.SETTING.PAYMENT_METHOD,
-                },
-                {
-                    title: t('banner'),
-                    icon: 'material-symbols:planner-banner-ad-pt-outline-rounded',
-                    path: ROUTE_CONFIG.SETTING.BANNER,
                 },
             ]
         },

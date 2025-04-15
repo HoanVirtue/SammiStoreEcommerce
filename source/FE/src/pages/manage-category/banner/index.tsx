@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import React from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListBanner from 'src/view/pages/setting/banner/ListBanner'
+import ListBanner from 'src/view/pages/manage-category/banner/ListBanner'
 
 //views
 

@@ -209,7 +209,7 @@ const OrderDetail = (props: TOrderDetail) => {
                             {orderData?.details?.map((item: any, index: number) => (
                                 <Stack key={index} direction="row" alignItems="center" spacing={2}>
                                     <Image
-                                        src={item.imageUrl || '/placeholder.svg'}
+                                        src={item.imageUrl || '/public/svgs/placeholder.svg'}
                                         sx={{ width: 64, height: 64, borderRadius: 1.5 }}
                                     />
                                     <Stack spacing={0.5} flexGrow={1}>

@@ -41,6 +41,11 @@ export default function Nav({ open, onClose }: Props) {
             path: '/account/my-order',
             icon: <IconifyIcon icon="carbon:document" />,
         },
+        {
+            title: t('wishlist'),
+            path: '/account/my-product',
+            icon: <IconifyIcon icon="carbon:document" />,
+        },
     ];
 
     const renderContent = (

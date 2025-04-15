@@ -2,7 +2,6 @@
 
 import React, { Fragment, useEffect, useMemo, useState, useCallback, Suspense } from 'react';
 import { NextPage } from 'next';
-import dynamic from 'next/dynamic';
 import { useRouter } from 'next/router';
 import {
     Box,
@@ -55,25 +54,25 @@ const MyCartPage: NextPage<TProps> = () => {
         return carts?.data?.filter((item: TItemOrderProduct) => selectedRow.includes(item.productId)) || [];
     }, [selectedRow, carts]);
 
-    const handleChangeCheckBox = (value: number) => {
+    const handleChangeCheckBox = useCallback((value: number) => {
         setSelectedRow((prev) =>
             prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
         );
-    };
+    }, []);
 
-    const handleCheckAll = () => {
+    const handleCheckAll = useCallback(() => {
         const isCheckAll = memoListAllProductIds.every((item: number) => selectedRow.includes(item));
         setSelectedRow(isCheckAll ? [] : memoListAllProductIds);
-    };
+    }, [memoListAllProductIds]);
 
-    const handleDeleteMany = () => {
+    const handleDeleteMany = useCallback(() => {
         if (user) {
             selectedRow.forEach((productId) => {
                 dispatch(deleteCartAsync(productId));
             });
             setSelectedRow([]);
         }
-    };
+    }, [dispatch, selectedRow, user]);
 
     const memoSubtotal = useMemo(() => {
         return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
@@ -190,7 +189,7 @@ const MyCartPage: NextPage<TProps> = () => {
                     backgroundColor: theme.palette.background.paper,
                 }}
             >
-                {isLoading ? (
+                {isLoading && !carts?.data?.length ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
                         <CircularProgress />
                     </Box>

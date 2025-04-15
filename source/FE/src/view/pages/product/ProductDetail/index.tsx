@@ -1,24 +1,30 @@
 "use client"
 
-//React
-import React, { useEffect, useState } from 'react'
+// React & Next Imports
+import React, { useEffect, useState, useMemo } from 'react'
 import dynamic from 'next/dynamic'
-
-//Next
 import { NextPage } from 'next'
+import { useRouter } from 'next/router'
 
-//MUI
-import { IconButton, Rating, useTheme, Box, Button, Tab, Tabs, Stack } from '@mui/material'
-import { Grid } from '@mui/material'
+// Material UI Component Imports
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
+import Stack from '@mui/material/Stack'
+import Button from '@mui/material/Button'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import Rating from '@mui/material/Rating'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
+import { useTheme } from '@mui/material/styles'
 
-//Configs
-
-//Translate
+// Third Party Imports
 import { t } from 'i18next'
+import { useTranslation } from 'react-i18next'
+import { toast } from 'react-toastify'
+import { useDispatch, useSelector } from 'react-redux'
 
-//Redux
-
-//Dynamic imports
+// Dynamic Imports for Code Splitting
 const Spinner = dynamic(() => import('src/components/spinner'), { ssr: false })
 const CustomTextField = dynamic(() => import('src/components/text-field'), { ssr: false })
 const IconifyIcon = dynamic(() => import('src/components/Icon'), { ssr: false })
@@ -26,93 +32,87 @@ const CustomBreadcrumbs = dynamic(() => import('src/components/custom-breadcrum'
 const ReviewCard = dynamic(() => import('../components/ReviewCard'), { ssr: false })
 const Image = dynamic(() => import('src/components/image'), { ssr: false })
 
-//Other
-import { useAuth } from 'src/hooks/useAuth'
-import { useTranslation } from 'react-i18next'
-import { getListRelatedProductBySlug, getProductDetail, getProductDetailPublicBySlug } from 'src/services/product'
-import { useRouter } from 'next/router'
+// Service & API Imports
+import { getListRelatedProductBySlug, getProductDetail } from 'src/services/product'
+
+// Type Imports
 import { TProduct } from 'src/types/product'
-import { Typography } from '@mui/material'
-import { hexToRGBA } from 'src/utils/hex-to-rgba'
-import { convertUpdateProductToCart, formatFilter, formatPrice, isExpired } from 'src/utils'
-import { useDispatch, useSelector } from 'react-redux'
-import { AppDispatch, RootState } from 'src/stores'
-import { getLocalProductFromCart, setLocalProductToCart } from 'src/helpers/storage'
-import { updateProductToCart } from 'src/stores/order'
-import { ROUTE_CONFIG } from 'src/configs/route'
-import { getAllReviews } from 'src/services/review'
 import { TReviewItem } from 'src/types/review'
-import { toast } from 'react-toastify'
-import { resetInitialState } from 'src/stores/review'
+
+// Store & Redux Imports
+import { AppDispatch, RootState } from 'src/stores'
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
 
-type TProps = {}
 
+// Utils & Helpers Imports
+import { useAuth } from 'src/hooks/useAuth'
+import { hexToRGBA } from 'src/utils/hex-to-rgba'
+import { formatPrice, isExpired } from 'src/utils'
+import { ROUTE_CONFIG } from 'src/configs/route'
 
-const ProductDetailPage: NextPage<TProps> = () => {
-    //States
-    const [loading, setLoading] = useState<boolean>(false)
-    const router = useRouter();
-    console.log(router)
-    const productId = Number(router.query.productId) || 0
-    const [productData, setProductData] = useState<TProduct>({
+// Constants
+const INITIAL_PRODUCT_STATE: TProduct = {
+    id: 0,
+    code: '',
+    name: '',
+    stockQuantity: 0,
+    price: 0,
+    ingredient: '',
+    uses: '',
+    discount: 0,
+    usageGuide: '',
+    brandId: 0,
+    categoryId: 0,
+    status: 0,
+    images: [{
         id: 0,
-        code: '',
-        name: '',
-        stockQuantity: 0,
-        price: 0,
-        ingredient: '',
-        uses: '',
-        discount: 0,
-        usageGuide: '',
-        brandId: 0,
-        categoryId: 0,
-        status: 0,
-        images: [
-            {
-                id: 0,
-                imageUrl: '',
-                imageBase64: '',
-                value: '',
-                publicId: '',
-                typeImage: '',
-                displayOrder: 0
-            }
-        ]
-    })
-    const [listRelatedProduct, setListRelatedProduct] = useState<TProduct[]>([])
+        imageUrl: '',
+        imageBase64: '',
+        value: '',
+        publicId: '',
+        typeImage: '',
+        displayOrder: 0
+    }]
+}
 
+const ProductDetailPage: NextPage = () => {
+    // State Management
+    const [loading, setLoading] = useState<boolean>(false)
+    const [productData, setProductData] = useState<TProduct>(INITIAL_PRODUCT_STATE)
+    const [listRelatedProduct, setListRelatedProduct] = useState<TProduct[]>([])
     const [productAmount, setProductAmount] = useState<number>(1)
     const [listReview, setListReview] = useState<TReviewItem[]>([])
-    const [activeTab, setActiveTab] = useState(0);
-    const [selectedImage, setSelectedImage] = useState(0);
-    const [isZoomed, setIsZoomed] = useState(false);
-    const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
-    const [showZoom, setShowZoom] = useState(false);
+    const [activeTab, setActiveTab] = useState(0)
+    const [selectedImage, setSelectedImage] = useState(0)
+    const [showZoom, setShowZoom] = useState(false)
+    const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 })
 
-    //hooks
+    // Hooks & Context
+    const router = useRouter()
     const { user } = useAuth()
-    const { i18n } = useTranslation();
+    const { i18n } = useTranslation()
+    const theme = useTheme()
+    const dispatch: AppDispatch = useDispatch()
 
-
-    //Redux
-    const { details } = useSelector((state: RootState) => state.order)
-    const { reviews, isSuccessUpdate, isErrorUpdate, isLoading,
-        errorMessageUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.review)
-    const dispatch: AppDispatch = useDispatch();
+    // Redux State
     const { carts, isSuccessCreate, isErrorCreate, errorMessageCreate } = useSelector((state: RootState) => state.cart)
-    //Theme
-    const theme = useTheme();
+
+
+    // Computed Values
+    const productId = Number(router.query.productId) || 0
 
     const breadcrumbItems = [
         { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
         { label: t('product_detail'), href: '/product' },
         { label: productData?.name || t('product'), href: `/product/${productId}` },
-    ];
+    ]
 
-    // const roundedAverageRating = productData?.averageRating
-    //     ? parseFloat(Number(productData.averageRating).toFixed(1))
-    //     : 0;
+    // Memoized Values
+    const memoCheckExpire = useMemo(() => {
+        if (productData.startDate && productData.endDate) {
+            return isExpired(productData.startDate, productData.endDate)
+        }
+    }, [productData])
 
     //fetch api
     const fetchGetProductDetail = async (id: number) => {
@@ -144,27 +144,6 @@ const ProductDetailPage: NextPage<TProps> = () => {
                 setLoading(false)
             })
     }
-
-    // const fetchGetAllReviews = async (id: number) => {
-    //     setLoading(true)
-    //     await getAllReviews({
-    //         params: {
-    //             limit: -1, page: -1, order: 'createAt desc', isPublic: true, ...formatFilter({ productId: id })
-    //         }
-    //     })
-    //         .then(async response => {
-    //             setLoading(false)
-    //             const data = response?.data?.reviews
-    //             if (data) {
-    //                 setListReview(data)
-    //             }
-    //         })
-    //         .catch(() => {
-    //             setLoading(false)
-    //         })
-    // }
-
-
 
     //handler
     const handleAddProductToCart = (item: TProduct) => {
@@ -224,12 +203,6 @@ const ProductDetailPage: NextPage<TProps> = () => {
         }
     }, [productId])
 
-    // useEffect(() => {
-    //     if (productData.id) {
-    //         fetchGetAllReviews(productData.id)
-    //     }
-    // }, [productData.id])
-
     useEffect(() => {
         if (user?.id) {
             dispatch(
@@ -247,15 +220,6 @@ const ProductDetailPage: NextPage<TProps> = () => {
             );
         }
     }, [dispatch, user?.id]);
-
-
-
-    const memoCheckExpire = React.useMemo(() => {
-        if (productData.startDate && productData.endDate) {
-            return isExpired(productData.startDate, productData.endDate);
-        }
-    }, [productData])
-
 
     const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
         setActiveTab(newValue);
@@ -281,7 +245,6 @@ const ProductDetailPage: NextPage<TProps> = () => {
     };
 
     return (
-
         <Box sx={{
             maxWidth: '1440px',
             margin: '0 auto',

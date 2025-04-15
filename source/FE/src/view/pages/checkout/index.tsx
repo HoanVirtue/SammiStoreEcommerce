@@ -66,6 +66,7 @@ import { createVNPayPaymentUrl } from 'src/services/payment';
 import { PAYMENT_METHOD } from 'src/configs/payment';
 import { getVoucherDetail } from 'src/services/voucher';
 import StepLabel from 'src/components/step-label';
+import { toast } from 'react-toastify';
 
 // ----------------------------------------------------------------------
 
@@ -152,6 +153,24 @@ const CheckoutPage: NextPage<TProps> = () => {
         leadTime: leadTime,
     }], [t, shippingPrice, leadTime]);
 
+    const handleFormatProductData = (items: any) => {
+        const objectMap: Record<string, TItemOrderProduct> = {};
+        carts?.data?.forEach((cart: CartItem) => {
+            objectMap[cart.productId] = {
+                productId: cart.productId,
+                quantity: cart.quantity,
+                name: cart.productName || '',
+                price: cart.price || 0,
+                discount: cart.discount,
+                images: cart.images || [],
+            };
+        });
+        return items.map((item: any) => ({
+            ...objectMap[+item.productId],
+            quantity: item.quantity,
+        }));
+    };
+
     // ============= Memoized Calculations =============
     const memoQueryProduct = useMemo(() => {
         const result = { totalPrice: 0, selectedProduct: [] };
@@ -179,21 +198,6 @@ const CheckoutPage: NextPage<TProps> = () => {
         }
         return discountPrice;
     }, [selectedVoucherId, memoQueryProduct.totalPrice]);
-
-    // ============= Effects =============
-    useEffect(() => {
-        if (user) {
-            getMyCurrentAddress();
-        }
-    }, [addresses, user]);
-
-    useEffect(() => {
-        getListPaymentMethod();
-    }, []);
-
-    useEffect(() => {
-        getShippingFee();
-    }, [myCurrentAddress, memoQueryProduct.totalPrice]);
 
     // ============= Handlers =============
     const handlePlaceOrder = () => {
@@ -234,31 +238,17 @@ const CheckoutPage: NextPage<TProps> = () => {
                 paymentMethodId: Number(selectedPayment),
             })
         ).then(res => {
-            const returnUrl = res?.payload?.result?.returnUrl;
-            if (returnUrl) {
-                window.location.href = returnUrl;
+            if (res?.payload?.isSuccess) {
+                const returnUrl = res?.payload?.result?.returnUrl;
+                if (returnUrl) {
+                    window.location.href = returnUrl;
+                } else {
+                    router.push(ROUTE_CONFIG.PAYMENT)
+                }
             } else {
-                router.push(ROUTE_CONFIG.PAYMENT)
+                toast.error(res?.payload?.message);
             }
         });
-    };
-
-    const handleFormatProductData = (items: any) => {
-        const objectMap: Record<string, TItemOrderProduct> = {};
-        carts?.data?.forEach((cart: CartItem) => {
-            objectMap[cart.productId] = {
-                productId: cart.productId,
-                quantity: cart.quantity,
-                name: cart.productName || '',
-                price: cart.price || 0,
-                discount: cart.discount,
-                images: cart.images || [],
-            };
-        });
-        return items.map((item: any) => ({
-            ...objectMap[+item.productId],
-            quantity: item.quantity,
-        }));
     };
 
     const onChangeDelivery = (value: string) => setSelectedDelivery(value);
@@ -351,6 +341,22 @@ const CheckoutPage: NextPage<TProps> = () => {
             setLoading(false);
         }
     };
+
+    // ============= Effects =============
+    useEffect(() => {
+        if (user) {
+            getMyCurrentAddress();
+        }
+    }, [addresses, user]);
+
+    useEffect(() => {
+        getListPaymentMethod();
+    }, []);
+
+    useEffect(() => {
+        getShippingFee();
+    }, [myCurrentAddress, memoQueryProduct.totalPrice]);
+
 
     // ============= Render =============
     return (

@@ -72,6 +72,7 @@ const useOrderList = () => {
         dispatch(getMyOrdersAsync(query))
     }, [page, pageSize, searchBy, selectedStatus, dispatch])
 
+
     const handleOnChangePagination = useCallback((page: number, pageSize: number) => {
         setPage(page)
         setPageSize(pageSize)

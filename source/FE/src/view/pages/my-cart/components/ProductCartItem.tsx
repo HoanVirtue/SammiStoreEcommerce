@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Box, Checkbox, Stack, useTheme } from '@mui/material';
@@ -5,7 +6,7 @@ import { Typography } from '@mui/material';
 import { IconButton } from '@mui/material';
 import { TextField } from '@mui/material';
 import Link from 'next/link';
-import { Fragment, useEffect, useState, useMemo } from 'react';
+import { Fragment, useEffect, useState, useMemo, memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import IconifyIcon from 'src/components/Icon';
@@ -38,41 +39,44 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
   const { carts } = useSelector((state: RootState) => state.cart);
 
   const [itemState, setItemState] = useState<TItemOrderProductState>(item);
-  const [inputQuantity, setInputQuantity] = useState<string | number>(itemState.quantity); // Allow string for empty state
-  const debouncedQuantity = useDebounce(inputQuantity, 500); // Debounce the input value
+  const [inputQuantity, setInputQuantity] = useState<string | number>(item.quantity);
+  const debouncedQuantity = useDebounce(inputQuantity, 500);
 
   const fetchProductDetail = async (id: number) => {
-    const res = await getProductDetail(id);
-    const data = res?.result;
-    if (data) {
-      const discountItem = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0;
-      const cartItem: TItemCartProduct = carts?.data?.find((cart: TItemCartProduct) => cart.productId === id) || {
-        cartId: 0,
-        productId: id,
-        productName: data.name,
-        price: data.price,
-        quantity: 1,
-      };
-      setItemState({
-        name: data.name,
-        images: data.images,
-        price: data.price,
-        discount: discountItem * 100,
-        productId: id,
-        quantity: cartItem?.quantity || 1,
-        stockQuantity: data.stockQuantity,
-      });
-      setInputQuantity(cartItem?.quantity || 1); // Sync input with fetched quantity
+    try {
+      const res = await getProductDetail(id);
+      const data = res?.result;
+      if (data) {
+        const discountItem = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0;
+        const cartItem: TItemCartProduct = carts?.data?.find((cart: TItemCartProduct) => cart.productId === id) || {
+          cartId: 0,
+          productId: id,
+          productName: data.name,
+          price: data.price,
+          quantity: item.quantity || 1,
+        };
+        setItemState({
+          name: data.name,
+          images: data.images,
+          price: data.price,
+          discount: discountItem * 100,
+          productId: id,
+          quantity: cartItem?.quantity || item.quantity || 1,
+          stockQuantity: data.stockQuantity,
+        });
+        setInputQuantity(cartItem?.quantity || item.quantity || 1);
+      }
+    } catch (error) {
+      toast.error('Không thể tải thông tin sản phẩm!');
     }
   };
 
   useEffect(() => {
-    if (item.productId) {
+    if (item.productId && item.productId == itemState.productId) {
       fetchProductDetail(item.productId);
     }
-  }, [item.productId]);
+  }, []);
 
-  // Handle debounced quantity updates
   useEffect(() => {
     if (debouncedQuantity !== itemState.quantity && debouncedQuantity !== '') {
       handleDebouncedQuantityChange(Number(debouncedQuantity));
@@ -95,6 +99,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     const prevQuantity = itemState.quantity;
     setItemState((prev) => ({ ...prev, quantity: newQuantity }));
     setInputQuantity(newQuantity);
+    dispatch(updateCartQuantity({ productId: itemState.productId, quantity: newQuantity }));
 
     try {
       await dispatch(
@@ -116,16 +121,15 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     if (value === '') {
-      setInputQuantity(''); // Allow empty input while typing
+      setInputQuantity('');
       return;
     }
     const newQuantity = parseInt(value);
     if (isNaN(newQuantity)) {
       toast.error('Vui lòng nhập số hợp lệ!');
-      setInputQuantity(itemState.quantity); // Revert to last valid quantity
       return;
     }
-    setInputQuantity(newQuantity); // Update local input state immediately
+    setInputQuantity(newQuantity);
   };
 
   const handleDebouncedQuantityChange = async (newQuantity: number) => {
@@ -165,7 +169,11 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
 
   const handleDeleteProductInCart = async (id: number) => {
     if (!user) return;
-    await dispatch(deleteCartAsync(id));
+    try {
+      await dispatch(deleteCartAsync(id)).unwrap();
+    } catch (error) {
+      toast.error('Xóa sản phẩm thất bại!');
+    }
   };
 
   const totalPrice = useMemo(() => {
@@ -199,12 +207,12 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
 
         <Stack direction="row" alignItems="center" flexGrow={1} sx={{ width: { xs: '100%', md: '40%' } }}>
           <Image
-            src={itemState.images?.[0]?.imageUrl}
+            src={itemState.images?.[0]?.imageUrl || '/public/svgs/placeholder.svg'}
             sx={{ width: 80, height: 80, flexShrink: 0, borderRadius: 1.5, bgcolor: 'background.neutral' }}
           />
           <Stack spacing={0.5} sx={{ p: 2 }}>
             <Typography variant="subtitle2" sx={{ textWrap: 'wrap' }}>
-              <Link href={`/product/${itemState.productId}`}>{itemState?.name}</Link>
+              <Link href={`/product/${itemState.productId}`}>{itemState?.name || 'Đang tải...'}</Link>
             </Typography>
           </Stack>
         </Stack>
@@ -225,12 +233,12 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
               textDecoration: itemState?.discount && itemState?.discount > 0 ? 'line-through' : 'none',
             }}
           >
-            {formatPrice(itemState?.price)}
+            {formatPrice(itemState?.price || 0)}
           </Typography>
           <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main }}>
             {itemState?.discount && itemState?.discount > 0
-              ? formatPrice((itemState?.price * (100 - itemState?.discount) / 100))
-              : formatPrice(itemState?.price)}
+              ? formatPrice((itemState?.price * (100 - itemState?.discount)) / 100)
+              : formatPrice(itemState?.price || 0)}
           </Typography>
         </Stack>
 
@@ -256,6 +264,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
                   px: 0,
                   textAlign: 'center',
                   '&::-webkit-inner-spin-button, &::-webkit-outer-spin-button': { display: 'none' },
+                  '-moz-appearance': 'textfield',
                 },
               }}
             />
@@ -275,7 +284,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
               textAlign: 'center',
               width: '100%',
               mt: 0.5,
-              display: 'block'
+              display: 'block',
             }}
           >
             Còn {itemState?.stockQuantity || 0} sản phẩm
@@ -298,4 +307,4 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
   );
 };
 
-export default ProductCartItem;
+export default memo(ProductCartItem);

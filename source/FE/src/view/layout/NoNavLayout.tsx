@@ -38,12 +38,14 @@ const NoNavLayout: NextPage<TProps> = ({ children }) => {
                     sx={{
                         maxWidth: "unset !important",
                         width: "100vw",
-                        overflow: "auto",
+                        overflow: "unset",
+                        height: 'fit-content',
                         px: '0 !important',
-                        maxHeight: {
-                            xs: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 16px)`, // Mobile
-                            md: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 32px)`, // Desktop
-                        },
+                        // maxHeight: {
+                        //     xs: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 16px)`, // Mobile
+                        //     md: `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 32px)`, // Desktop
+                        // },
+                        maxHeight: 'unset',
                     }}>
                     {children}
                 </Container>

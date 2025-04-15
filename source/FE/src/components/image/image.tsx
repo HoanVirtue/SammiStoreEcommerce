@@ -8,6 +8,9 @@ import { alpha, useTheme } from '@mui/material/styles';
 import { getRatio } from './utils';
 import { ImageProps } from './types';
 
+import Placeholder from '/public/svgs/placeholder.svg'
+import Transparent from '/public/images/transparent.png'
+
 // ----------------------------------------------------------------------
 
 const Image = forwardRef<HTMLSpanElement, ImageProps>(
@@ -51,7 +54,7 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
       <Box
         component={LazyLoadImage}
         alt={alt}
-        src={src || '/assets/placeholder.svg'}
+        src={src || Placeholder}
         threshold={threshold}
         beforeLoad={beforeLoad}
         placeholder={placeholder}
@@ -61,7 +64,7 @@ const Image = forwardRef<HTMLSpanElement, ImageProps>(
         effect={disabledEffect ? undefined : effect}
         useIntersectionObserver={useIntersectionObserver}
         wrapperClassName={wrapperClassName || 'component-image-wrapper'}
-        placeholderSrc={disabledEffect ? '/assets/transparent.png' : '/assets/placeholder.svg'}
+        placeholderSrc={disabledEffect ? Transparent : Placeholder}
         sx={{
           width: '100%',
           height: '100%',

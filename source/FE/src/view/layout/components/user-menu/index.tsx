@@ -83,12 +83,12 @@ const UserMenu = (props: TProps) => {
     }
 
     const handleNavigateMyProduct = () => {
-        router.push(ROUTE_CONFIG.MY_PRODUCT)
+        router.push(ROUTE_CONFIG.ACCOUNT.MY_PRODUCT)
         handleClose()
     }
 
     const handleNavigateMyOrder = () => {
-        router.push(ROUTE_CONFIG.MY_ORDER)
+        router.push(ROUTE_CONFIG.ACCOUNT.MY_ORDER)
         handleClose()
     }
 
@@ -228,10 +228,15 @@ const UserMenu = (props: TProps) => {
                     <IconifyIcon icon="streamline:user-profile-focus" />
                     {t("my_account")}
                 </MenuItem>
+                <MenuItem onClick={handleNavigateMyOrder}
+                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                    <IconifyIcon icon="carbon:document" />
+                    {t("my_order")}
+                </MenuItem>
                 <MenuItem onClick={handleNavigateMyProduct}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                     <IconifyIcon icon="iconoir:favourite-book" />
-                    {t("fav_product")}
+                    {t("wishlist")}
                 </MenuItem>
                 <MenuItem onClick={handleNavigateChangePassword}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>

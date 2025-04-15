@@ -66,6 +66,7 @@ import { createVNPayPaymentUrl } from 'src/services/payment';
 import { PAYMENT_METHOD } from 'src/configs/payment';
 import { getVoucherDetail } from 'src/services/voucher';
 import StepLabel from 'src/components/step-label';
+import { toast } from 'react-toastify';
 
 // ----------------------------------------------------------------------
 
@@ -237,11 +238,15 @@ const CheckoutPage: NextPage<TProps> = () => {
                 paymentMethodId: Number(selectedPayment),
             })
         ).then(res => {
-            const returnUrl = res?.payload?.result?.returnUrl;
-            if (returnUrl) {
-                window.location.href = returnUrl;
+            if (res?.payload?.isSuccess) {
+                const returnUrl = res?.payload?.result?.returnUrl;
+                if (returnUrl) {
+                    window.location.href = returnUrl;
+                } else {
+                    router.push(ROUTE_CONFIG.PAYMENT)
+                }
             } else {
-                router.push(ROUTE_CONFIG.PAYMENT)
+                toast.error(res?.payload?.message);
             }
         });
     };

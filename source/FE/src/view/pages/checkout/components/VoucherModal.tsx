@@ -18,10 +18,9 @@ import {
 import { useTranslation } from 'react-i18next';
 import IconifyIcon from 'src/components/Icon';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAllVouchersAsync } from 'src/stores/voucher/action';
-import { RootState } from 'src/stores';
-import { applyVoucher, fetchListApplyVoucher, getAllVouchers, getMyVouchers } from 'src/services/voucher';
+import { applyVoucher, fetchListApplyVoucher } from 'src/services/voucher';
 import { TParamsVouchers } from 'src/types/voucher';
+import { toast } from 'react-toastify';
 
 type VoucherModalProps = {
     open: boolean;
@@ -97,12 +96,15 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
             };
 
             const response = await applyVoucher(voucherCode, formattedDetails);
-            if (response?.status === "success") {
+            if (response?.isSuccess) {
                 onSelectVoucher(voucherCode);
-                onClose();
+                toast.success(t('apply_voucher_success'));
+                fetchVouchers();
+            } else {
+                toast.error(response?.message);
             }
         } catch (error) {
-            console.error('Error applying voucher:', error);
+            toast.error(t('apply_voucher_error'));
         } finally {
             setApplyLoading(false);
         }

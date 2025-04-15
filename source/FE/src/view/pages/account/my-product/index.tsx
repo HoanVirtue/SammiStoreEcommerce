@@ -33,7 +33,7 @@ import { TProduct } from 'src/types/product'
 // Dynamic imports
 const Spinner = dynamic(() => import('src/components/spinner'), { ssr: false })
 const SearchField = dynamic(() => import('src/components/search-field'), { ssr: false })
-const ProductCard = dynamic(() => import('../product/components/ProductCard'), { ssr: false })
+const ProductCard = dynamic(() => import('../../product/components/ProductCard'), { ssr: false })
 const NoData = dynamic(() => import('src/components/no-data'), { ssr: false })
 const CustomPagination = dynamic(() => import('src/components/custom-pagination'), { ssr: false })
 

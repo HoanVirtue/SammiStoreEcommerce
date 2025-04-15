@@ -13,6 +13,7 @@ export const ROUTE_CONFIG = {
     ACCOUNT: {
         MY_PROFILE: "/account/my-profile",
         MY_ORDER: "/account/my-order",
+        MY_PRODUCT: "/account/my-product",
     },
     SYSTEM: {
         ROLE: "/system/role",

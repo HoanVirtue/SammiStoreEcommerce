@@ -33,7 +33,7 @@ import { ROUTE_CONFIG } from 'src/configs/route'
 import { toast } from 'react-toastify'
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
 import Spinner from 'src/components/spinner'
-import Image from 'next/image'
+import Image from 'src/components/image'
 
 //Components
 const ConfirmDialog = dynamic(() => import('src/components/confirm-dialog'), { ssr: false })

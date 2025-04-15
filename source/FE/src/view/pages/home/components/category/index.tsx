@@ -117,6 +117,7 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
                             <motion.div
                                 whileHover="hover"
                                 variants={cardVariants}
+                                className='w-full h-full'
                             >
                                 <Card
                                     sx={{
@@ -128,7 +129,7 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
                                         boxShadow: 'none'
                                     }}
                                 >
-                                    <Box sx={{ position: 'relative', width: '100%', height: '50px' }}>
+                                    <Box sx={{ position: 'relative', width: '100%', height: '91px' }}>
                                         <Image
                                             src={category.image}
                                             alt={category.title}
@@ -136,6 +137,7 @@ const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
                                             sizes="114px"
                                             style={{ objectFit: 'contain' }}
                                             priority={category.id <= 3}
+                                            className='object-contain object-center w-[114px] h-[50px]'
                                         />
                                     </Box>
                                     <CardContent sx={{ padding: 0, pb: '0 !important' }}>

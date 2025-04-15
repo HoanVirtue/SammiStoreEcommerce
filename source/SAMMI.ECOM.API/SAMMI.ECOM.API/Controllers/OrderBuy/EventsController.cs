@@ -131,7 +131,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                         return BadRequest(actErrorResponse);
                     }
                 }
-            }    
+            }
             return Ok(_eventRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
 

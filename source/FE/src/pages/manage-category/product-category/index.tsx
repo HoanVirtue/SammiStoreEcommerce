@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import React from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListProductCategory from 'src/view/pages/manage-product/product-category/ListProductCategory'
+import ListProductCategory from 'src/view/pages/manage-category/product-category/ListProductCategory'
 
 //views
 

@@ -1,7 +1,7 @@
 import { NextPage } from 'next'
 import React from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListBrand from '../../../view/pages/manage-product/brand/ListBrand'
+import ListBrand from '../../../view/pages/manage-category/brand/ListBrand'
 
 //views
 

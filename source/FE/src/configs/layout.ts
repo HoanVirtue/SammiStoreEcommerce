@@ -26,25 +26,65 @@ export const VerticalLayoutItems = () => {
             // permission: PERMISSIONS.DASHBOARD
         },
         {
-            title: t('system'),
-            icon: 'icon-park-outline:system',
+            title: t('manage_order'),
+            icon: 'lsicon:work-order-info-outline',
             children: [
                 {
-                    title: t('user'),
-                    icon: 'iconoir:user',
-                    path: ROUTE_CONFIG.SYSTEM.USER,
-                    // permission: PERMISSIONS.SYSTEM.USER.VIEW
+                    title: t('order_list'),
+                    icon: 'lsicon:order-outline',
+                    path: ROUTE_CONFIG.MANAGE_ORDER.ORDER,
                 },
-                {
-                    title: t('role'),
-                    icon: 'oui:app-users-roles',
-                    path: ROUTE_CONFIG.SYSTEM.ROLE,
-                    // permission: PERMISSIONS.SYSTEM.ROLE.VIEW
-                }
             ]
         },
         {
-            title: t('user'),
+            title: t('manage_goods_receipt'),
+            icon: 'fluent:receipt-bag-20-regular',
+            children: [
+                {
+                    title: t('receipt_list'),
+                    icon: 'material-symbols-light:receipt-long-outline-rounded',
+                    path: ROUTE_CONFIG.GOODS_RECEIPT.RECEIPT,
+                    // permission: PERMISSIONS.GOODS_RECEIPT.RECEIPT_LIST.VIEW
+                },
+            ]
+        },
+        {
+            title: t('manage_promotion'),
+            icon: 'lsicon:badge-promotion-outline',
+            children: [
+                {
+                    title: t('event_list'),
+                    icon: 'carbon:event',
+                    path: ROUTE_CONFIG.MANAGE_PROMOTION.EVENT,
+                    // permission: PERMISSIONS.MANAGE_PROMOTION.EVENT.VIEW
+                },
+                {
+                    title: t('list_voucher'),
+                    icon: 'ci:ticket-voucher',
+                    path: ROUTE_CONFIG.MANAGE_PROMOTION.VOUCHER,
+                    // permission: PERMISSIONS.MANAGE_PROMOTION.VOUCHER.VIEW
+                },
+            ]
+        },
+        {
+            title: t('product_manage'),
+            icon: 'fluent-mdl2:product-release',
+            children: [
+                {
+                    title: t('product_list'),
+                    icon: 'fluent-mdl2:product-catalog',
+                    path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT,
+                    // permission: PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW
+                },
+                {
+                    title: t('review_list'),
+                    icon: 'iconoir:page-star',
+                    path: ROUTE_CONFIG.MANAGE_PRODUCT.REVIEW,
+                },
+            ]
+        },
+        {
+            title: t('manage_user'),
             icon: 'iconoir:user',
             children: [
                 {
@@ -65,42 +105,37 @@ export const VerticalLayoutItems = () => {
             ]
         },
         {
-            title: t('manage_order'),
-            icon: 'lsicon:work-order-info-outline',
+            title: t('manage_category'),
+            icon: 'material-symbols-light:category-outline-rounded',
             children: [
-                {
-                    title: t('order_list'),
-                    icon: 'lsicon:order-outline',
-                    path: ROUTE_CONFIG.MANAGE_ORDER.ORDER,
-                    // permission: PERMISSIONS.MANAGE_ORDER.ORDER.VIEW
-                },
-                {
-                    title: t('review_list'),
-                    icon: 'iconoir:page-star',
-                    path: ROUTE_CONFIG.MANAGE_ORDER.REVIEW,
-                },
-            ]
-        },
-        {
-            title: t('product_manage'),
-            icon: 'fluent-mdl2:product-release',
-            children: [
-                {
-                    title: t('product_list'),
-                    icon: 'fluent-mdl2:product-catalog',
-                    path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT,
-                    // permission: PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW
-                },
                 {
                     title: t('product_category'),
                     icon: 'fluent-mdl2:product-variant',
-                    path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT_CATEGORY,
+                    path: ROUTE_CONFIG.MANAGE_CATEGORY.PRODUCT_CATEGORY,
                 },
                 {
                     title: t('brand'),
                     icon: 'mynaui:brand-slack',
-                    path: ROUTE_CONFIG.MANAGE_PRODUCT.BRAND,
+                    path: ROUTE_CONFIG.MANAGE_CATEGORY.BRAND,
                 },
+            ]
+        },
+        {
+            title: t('system'),
+            icon: 'icon-park-outline:system',
+            children: [
+                {
+                    title: t('user'),
+                    icon: 'iconoir:user',
+                    path: ROUTE_CONFIG.SYSTEM.USER,
+                    // permission: PERMISSIONS.SYSTEM.USER.VIEW
+                },
+                {
+                    title: t('role'),
+                    icon: 'oui:app-users-roles',
+                    path: ROUTE_CONFIG.SYSTEM.ROLE,
+                    // permission: PERMISSIONS.SYSTEM.ROLE.VIEW
+                }
             ]
         },
         {
@@ -142,36 +177,6 @@ export const VerticalLayoutItems = () => {
                     title: t('ward'),
                     icon: 'material-symbols-light:home-work-outline-rounded',
                     path: ROUTE_CONFIG.ADDRESS.WARD,
-                },
-            ]
-        },
-        {
-            title: t('goods_receipt'),
-            icon: 'fluent:receipt-bag-20-regular',
-            children: [
-                {
-                    title: t('receipt_list'),
-                    icon: 'material-symbols-light:receipt-long-outline-rounded',
-                    path: ROUTE_CONFIG.GOODS_RECEIPT.RECEIPT,
-                    // permission: PERMISSIONS.GOODS_RECEIPT.RECEIPT_LIST.VIEW
-                },
-            ]
-        },
-        {
-            title: t('manage_promotion'),
-            icon: 'lsicon:badge-promotion-outline',
-            children: [
-                {
-                    title: t('event_list'),
-                    icon: 'carbon:event',
-                    path: ROUTE_CONFIG.MANAGE_PROMOTION.EVENT,
-                    // permission: PERMISSIONS.MANAGE_PROMOTION.EVENT.VIEW
-                },
-                {
-                    title: t('list_voucher'),
-                    icon: 'ci:ticket-voucher',
-                    path: ROUTE_CONFIG.MANAGE_PROMOTION.VOUCHER,
-                    // permission: PERMISSIONS.MANAGE_PROMOTION.VOUCHER.VIEW
                 },
             ]
         },

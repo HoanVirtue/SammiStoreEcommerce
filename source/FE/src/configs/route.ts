@@ -26,12 +26,14 @@ export const ROUTE_CONFIG = {
     },
     MANAGE_PRODUCT: {
         PRODUCT: "/manage-product/product",
-        PRODUCT_CATEGORY: "/manage-product/product-category",
-        BRAND: '/manage-product/brand'
+        REVIEW: "/manage-product/review",
+    },
+    MANAGE_CATEGORY: {
+        PRODUCT_CATEGORY: "/manage-category/product-category",
+        BRAND: '/manage-category/brand'
     },
     MANAGE_ORDER: {
         ORDER: "/manage-order/order",
-        REVIEW: "/manage-order/review",
     },
     SETTING: {
         PAYMENT_METHOD: "/setting/payment-method",

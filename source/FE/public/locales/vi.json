@@ -707,6 +707,9 @@
     "loading": "Đang tải...",
     "wishlist": "Danh sách yêu thích",
     "my_product": "Danh sách yêu thích",
+    "manage_goods_receipt": "Quản lý nhập hàng",
+    "manage_user": "Quản lý người dùng",
+    "manage_category": "Quản lý danh mục",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

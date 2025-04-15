@@ -166,8 +166,7 @@ export const productSlice = createSlice({
       state.isLoading = false
       state.isSuccessLike = !!action.payload?.isSuccess
       state.isErrorLike = !action.payload?.isSuccess
-      state.errorMessageLike = action.payload?.message
-      state.typeError = action.payload?.typeError
+      state.errorMessageLike = action.payload?.response?.result?.errorMessage
     })
     builder.addCase(likeProductAsync.rejected, (state, action) => {
       state.isLoading = false

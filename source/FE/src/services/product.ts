@@ -120,7 +120,7 @@ export const deleteMultipleProducts = async (data: TParamsDeleteMultipleProducts
 
 export const likeProduct = async (data: {productId: number }) => {
     try {
-        const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/like`, data)
+        const res = await instance.post(`${API_ENDPOINT.FAVOURITE_PRODUCT.INDEX}`, data)
         if(res?.data?.status === "Success") {
             return {
                 data: {id: 1}
@@ -136,7 +136,7 @@ export const likeProduct = async (data: {productId: number }) => {
 
 export const unlikeProduct = async (data: {productId: number }) => {
     try {
-        const res = await instance.post(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/unlike`, data)
+        const res = await instance.delete(`${API_ENDPOINT.FAVOURITE_PRODUCT.INDEX}/${data.productId}`)
         if(res?.data?.status === "Success") {
             return {
                 data: {id: 1}
@@ -153,7 +153,7 @@ export const unlikeProduct = async (data: {productId: number }) => {
 
 export const getAllLikedProduct = async (data: {params: TParamsGetAllProducts}) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/liked/me`, data)
+        const res = await instance.get(`${API_ENDPOINT.FAVOURITE_PRODUCT.INDEX}`, data)
         return res.data
     } catch (error: any) {
         return error?.response?.data

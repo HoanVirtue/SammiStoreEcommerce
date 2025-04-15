@@ -32,6 +32,9 @@ export const API_ENDPOINT = {
   EVENT: {
     INDEX: `${BASE_URL}/events`,
   },
+  FAVOURITE_PRODUCT: {
+    INDEX: `${BASE_URL}/favourite-product`,
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authentication.OAuth;
+﻿using AutoMapper;
+using MediatR;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Infrastructure.Repositories;
@@ -9,9 +11,17 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
     public class GoogleAuthenticationHandler
     {
         private readonly IUsersRepository _userRepository;
-        public GoogleAuthenticationHandler(IUsersRepository userRepository)
+        private readonly IMapper _mapper;
+        private readonly IMediator _mediator;
+        public GoogleAuthenticationHandler(
+            IUsersRepository userRepository,
+            IMapper mapper,
+            IMediator mediator
+            )
         {
             _userRepository = userRepository;
+            _mapper = mapper;
+            _mediator = mediator;
         }
         public async Task HandleOnCreatingTicket(OAuthCreatingTicketContext context)
         {

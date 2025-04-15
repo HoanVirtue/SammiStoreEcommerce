@@ -147,6 +147,32 @@ VALUES
 (68,68,88,'vn',NOW(),NULL,'System',NULL,1,0,1),
 (69,69,89,'vn',NOW(),NULL,'System',NULL,1,0,1);
 
+
+-- product 2
+INSERT INTO `image`
+VALUES
+(90,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692644/uploads/products/SP0000070.jpg','uploads/products/SP0000070','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(91,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692645/uploads/products/SP0000071.webp','uploads/products/SP0000071','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(92,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692646/uploads/products/SP0000072.jpg','uploads/products/SP0000072','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(93,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692648/uploads/products/SP0000073.avif','uploads/products/SP0000073','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(94,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692650/uploads/products/SP0000074.jpg','uploads/products/SP0000074','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(95,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692650/uploads/products/SP0000075.webp','uploads/products/SP0000075','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(96,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692651/uploads/products/SP0000076.webp','uploads/products/SP0000076','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(97,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692652/uploads/products/SP0000077.jpg','uploads/products/SP0000077','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(98,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692654/uploads/products/SP0000078.jpg','uploads/products/SP0000078','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(99,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692655/uploads/products/SP0000079.jpg','uploads/products/SP0000079','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(100,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692656/uploads/products/SP0000080.jpg','uploads/products/SP0000080','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(101,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692657/uploads/products/SP0000081.jpg','uploads/products/SP0000081','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(102,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692658/uploads/products/SP0000082.jpg','uploads/products/SP0000082','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(103,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692659/uploads/products/SP0000083.webp','uploads/products/SP0000083','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(104,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692660/uploads/products/SP0000084.webp','uploads/products/SP0000084','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(105,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692661/uploads/products/SP0000085.webp','uploads/products/SP0000085','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(106,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692662/uploads/products/SP0000086.webp','uploads/products/SP0000086','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(107,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692663/uploads/products/SP0000087.jpg','uploads/products/SP0000087','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(108,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692664/uploads/products/SP0000088.jpg','uploads/products/SP0000088','Product','vn',NOW(),NULL,'N/A','',1,0,1),
+(109,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692665/uploads/products/SP0000089.jpg','uploads/products/SP0000089','Product','vn',NOW(),NULL,'N/A','',1,0,1);
+
+
 INSERT INTO `product` VALUES 
 (70, 'SP0000070', 'Kem dưỡng trắng Whoo Brightening Cream', 50, 2100000.00, 0.10, 'Chiết xuất thảo dược', 'Làm sáng da, giảm thâm nám', 'Thoa đều lên mặt mỗi tối', 1, 50, 56, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0),
 (71, 'SP0000071', 'Mặt nạ Mediheal Vita Lightbeam', 60, 29000.00, 0.15, 'Vitamin C', 'Làm sáng da, cấp ẩm', 'Đắp 15-20 phút', 1, 50, 52, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0),
@@ -170,32 +196,53 @@ INSERT INTO `product` VALUES
 (89, 'SP0000089', 'Dầu xả Sao Thái Dương Dừa', 67, 140000.00, 0.05, 'Dầu dừa tự nhiên', 'Dưỡng tóc mềm mượt', 'Xả sau khi gội', 1, 50, 58, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0);
 
 
-
+INSERT INTO `productimage`
+VALUES
+(70,70,90,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(71,71,91,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(72,72,92,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(73,73,93,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(74,74,94,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(75,75,95,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(76,76,96,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(77,77,97,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(78,78,98,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(79,79,99,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(80,80,100,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(81,81,101,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(82,82,102,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(83,83,103,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(84,84,104,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(85,85,105,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(86,86,106,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(87,87,107,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(88,88,108,'vn',NOW(),NULL,'System',NULL,1,0,1),
+(89,89,109,'vn',NOW(),NULL,'System',NULL,1,0,1);
 
 
 -- event
 INSERT INTO `image`
 VALUES
-(90,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541562/uploads/events/EVE000050.jpg','uploads/events/EVE000050','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(91,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541565/uploads/events/EVE000051.jpg','uploads/events/EVE000051','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(92,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541565/uploads/events/EVE000052.jpg','uploads/events/EVE000052','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(93,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541566/uploads/events/EVE000053.jpg','uploads/events/EVE000053','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(94,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541567/uploads/events/EVE000054.jpg','uploads/events/EVE000054','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(95,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541567/uploads/events/EVE000055.jpg','uploads/events/EVE000055','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(96,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541568/uploads/events/EVE000056.png','uploads/events/EVE000056','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(97,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541569/uploads/events/EVE000057.jpg','uploads/events/EVE000057','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(98,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541569/uploads/events/EVE000058.jpg','uploads/events/EVE000058','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(99,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541570/uploads/events/EVE000059.jpg','uploads/events/EVE000059','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(100,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541570/uploads/events/EVE000060.jpg','uploads/events/EVE000060','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(101,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541571/uploads/events/EVE000061.jpg','uploads/events/EVE000061','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(102,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541571/uploads/events/EVE000062.jpg','uploads/events/EVE000062','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(103,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541572/uploads/events/EVE000063.jpg','uploads/events/EVE000063','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(104,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541573/uploads/events/EVE000064.jpg','uploads/events/EVE000064','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(105,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541573/uploads/events/EVE000065.jpg','uploads/events/EVE000065','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(106,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541574/uploads/events/EVE000066.jpg','uploads/events/EVE000066','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(107,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541575/uploads/events/EVE000067.jpg','uploads/events/EVE000067','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(108,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541575/uploads/events/EVE000068.jpg','uploads/events/EVE000068','Event','vn',NOW(),NULL,'N/A','',1,0,1),
-(109,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541576/uploads/events/EVE000069.jpg','uploads/events/EVE000069','Event','vn',NOW(),NULL,'N/A','',1,0,1);
+(110,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541562/uploads/events/EVE000050.jpg','uploads/events/EVE000050','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(111,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541565/uploads/events/EVE000051.jpg','uploads/events/EVE000051','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(112,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541565/uploads/events/EVE000052.jpg','uploads/events/EVE000052','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(113,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541566/uploads/events/EVE000053.jpg','uploads/events/EVE000053','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(114,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541567/uploads/events/EVE000054.jpg','uploads/events/EVE000054','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(115,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541567/uploads/events/EVE000055.jpg','uploads/events/EVE000055','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(116,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541568/uploads/events/EVE000056.png','uploads/events/EVE000056','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(117,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541569/uploads/events/EVE000057.jpg','uploads/events/EVE000057','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(118,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541569/uploads/events/EVE000058.jpg','uploads/events/EVE000058','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(119,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541570/uploads/events/EVE000059.jpg','uploads/events/EVE000059','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(120,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541570/uploads/events/EVE000060.jpg','uploads/events/EVE000060','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(121,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541571/uploads/events/EVE000061.jpg','uploads/events/EVE000061','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(122,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541571/uploads/events/EVE000062.jpg','uploads/events/EVE000062','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(123,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541572/uploads/events/EVE000063.jpg','uploads/events/EVE000063','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(124,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541573/uploads/events/EVE000064.jpg','uploads/events/EVE000064','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(125,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541573/uploads/events/EVE000065.jpg','uploads/events/EVE000065','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(126,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541574/uploads/events/EVE000066.jpg','uploads/events/EVE000066','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(127,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541575/uploads/events/EVE000067.jpg','uploads/events/EVE000067','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(128,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541575/uploads/events/EVE000068.jpg','uploads/events/EVE000068','Event','vn',NOW(),NULL,'N/A','',1,0,1),
+(129,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541576/uploads/events/EVE000069.jpg','uploads/events/EVE000069','Event','vn',NOW(),NULL,'N/A','',1,0,1);
 
 
 -- chưa nhập  id img vào into event

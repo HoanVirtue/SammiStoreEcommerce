@@ -8,6 +8,12 @@ import { Provider } from 'react-redux';
 import { store } from '@/stores';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AxiosInterceptor } from '@/helpers/axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Initialize AsyncStorage
+AsyncStorage.setItem('initialized', 'true').catch(error => {
+  console.error('Error initializing AsyncStorage:', error);
+});
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.

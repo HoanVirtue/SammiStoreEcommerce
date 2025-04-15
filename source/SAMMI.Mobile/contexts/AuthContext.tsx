@@ -24,6 +24,8 @@ import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useNavigation } from '@react-navigation/native'
+import { NavigationProp, ParamListBase } from '@react-navigation/native'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -38,6 +40,7 @@ const defaultProvider: AuthValuesType = {
 
 const AuthContext = createContext(defaultProvider)
 
+
 type Props = {
   children: ReactNode
 }
@@ -51,6 +54,7 @@ const AuthProvider = ({ children }: Props) => {
   const router = useRouter()
   const pathname = usePathname()
   const { t } = useTranslation()
+  const navigation = useNavigation<NavigationProp<ParamListBase>>()
 
   //redux
   const dispatch: AppDispatch = useDispatch()
@@ -76,6 +80,11 @@ const AuthProvider = ({ children }: Props) => {
         }
       } else {
         setLoading(false);
+        // Redirect to login if not on a public page and not already on login page
+        const isPublicPage = LIST_PUBLIC_PAGE.some(page => pathname?.startsWith(page));
+        if (!isPublicPage && !pathname?.includes('login')) {
+          router.replace('/login' as any);
+        }
       }
     }
 
@@ -117,8 +126,8 @@ const AuthProvider = ({ children }: Props) => {
         type: 'success'
       });
 
-      const returnUrl = params.returnUrl || '/';
-      const redirectURL = returnUrl !== '/' ? returnUrl : '/';
+      const returnUrl = params.returnUrl || '/(tabs)';
+      const redirectURL = returnUrl !== '/(tabs)' ? returnUrl : '/(tabs)';
       router.replace(redirectURL as any);
       setLoading(false);
     } catch (err: any) {
@@ -189,12 +198,17 @@ const AuthProvider = ({ children }: Props) => {
       dispatch(updateProductToCart({
         orderItems: []
       }));
-
-      if (!LIST_PUBLIC_PAGE?.some((item) => pathname?.includes(item))) {
-        router.replace('/login' as any);
-      }
+      navigation.navigate('Login' as never);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Error during logout:', error);
+      // Still try to clear local data even if logout API call fails
+      setUser(null);
+      await removeLocalUserData();
+      delete instance.defaults.headers.common['Authorization'];
+      dispatch(updateProductToCart({
+        orderItems: []
+      }));
+      navigation.navigate('Login' as never);
     }
   }
 

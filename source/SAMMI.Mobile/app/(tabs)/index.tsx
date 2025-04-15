@@ -83,7 +83,6 @@ export default function HomeScreen() {
   }
 
  
-
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>

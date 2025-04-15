@@ -1,8 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView, Switch, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
 import { useUserStore } from '@/presentation/stores/userStore';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ACCESS_TOKEN } from '@/configs/auth';
+import { ROUTE_CONFIG } from '@/configs/route';
+
 import {
   User,
   Bell,
@@ -16,14 +21,32 @@ import {
   ShoppingBag,
   Settings
 } from 'lucide-react-native';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfileScreen() {
   const { user } = useUserStore();
+  const { logout } = useAuth();
+  const router = useRouter();
   const [darkMode, setDarkMode] = React.useState(false);
   const [notifications, setNotifications] = React.useState(true);
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem(ACCESS_TOKEN);
+      console.log('token', token);
+      if (!token) {
+        router.replace(ROUTE_CONFIG.LOGIN as any);
+      }
+    };
+    checkAuth();
+  }, []);
+
   const toggleDarkMode = () => setDarkMode(prev => !prev);
   const toggleNotifications = () => setNotifications(prev => !prev);
+
+  const handleSignOut = () => {
+    logout();
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -151,7 +174,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleSignOut}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>
                 <LogOut size={18} color={colors.error} />

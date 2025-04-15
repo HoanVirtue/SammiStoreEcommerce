@@ -2,10 +2,12 @@
 using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.API.Infrastructure;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
+using SAMMI.ECOM.API.Infrastructure.Configuration;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Infrastructure;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
@@ -66,8 +68,19 @@ builder.Services
         IConfigurationSection googleSection = builder.Configuration.GetSection("Authentication:Google");
         options.ClientId = googleSection["ClientId"];
         options.ClientSecret = googleSection["ClientSecret"];
-        options.CallbackPath = "/login-google";
+        options.CallbackPath = "/google-login";
         options.SaveTokens = true;
+        options.Scope.Add("profile");
+        options.Scope.Add("https://www.googleapis.com/auth/user.phonenumbers.read");
+        options.Events = new OAuthEvents
+        {
+            OnCreatingTicket = async context =>
+            {
+                var serviceProvider = context.HttpContext.RequestServices;
+                var googleHandler = serviceProvider.GetRequiredService<GoogleAuthenticationHandler>();
+                await googleHandler.HandleOnCreatingTicket(context);
+            }
+        };
 
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>

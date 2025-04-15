@@ -565,7 +565,8 @@ namespace SAMMI.ECOM.Infrastructure
                         IsDeleted = false,
                         IsLock = false,
                         CreatedDate = DateTime.Now,
-                        CreatedBy = "N/A"
+                        CreatedBy = "N/A",
+                        IsVerify = true
                     },
                     new User()
                     {
@@ -586,7 +587,8 @@ namespace SAMMI.ECOM.Infrastructure
                         IsDeleted = false,
                         IsLock = false,
                         CreatedDate = DateTime.Now,
-                        CreatedBy = "N/A"
+                        CreatedBy = "N/A",
+                        IsVerify = true
                     },
                     new User()
                     {
@@ -607,7 +609,8 @@ namespace SAMMI.ECOM.Infrastructure
                         IsDeleted = false,
                         IsLock = false,
                         CreatedDate = DateTime.Now,
-                        CreatedBy = "N/A"
+                        CreatedBy = "N/A",
+                        IsVerify = true
                     },
                 };
 

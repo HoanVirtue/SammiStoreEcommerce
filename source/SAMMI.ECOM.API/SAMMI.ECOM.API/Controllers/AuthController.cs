@@ -90,6 +90,33 @@ namespace SAMMI.ECOM.API.Controllers
             return BadRequest(SignInError.PasswordMismatch);
         }
 
+        [HttpGet("google-login")]
+        public async Task<IActionResult> GoogleLoginAsync()
+        {
+            if(UserIdentity?.Id == 0 || UserIdentity?.Id == null)
+            {
+                return Unauthorized("Bạn chưa đăng nhập bằng google");
+            }
+
+            if(string.IsNullOrEmpty(UserIdentity.UserName))
+            {
+                return BadRequest("Thông tin người dùng không hợp lệ. Vui lòng thử lại sau");
+            }
+
+            var generateTokenRes = await _mediator.Send(new GenerateTokenCommand()
+            {
+                Username = UserIdentity.UserName,
+                TypeUser = TypeUserEnum.Customer,
+            });
+
+            if (generateTokenRes.IsSuccess)
+            {
+                return Ok(generateTokenRes);
+            }
+
+            return BadRequest(generateTokenRes);
+        }
+
         [HttpPost]
         [AllowAnonymous]
         [Route("register")]
@@ -167,7 +194,6 @@ namespace SAMMI.ECOM.API.Controllers
 
             return Ok(refreshTokenResult);
         }
-
 
         [HttpPost("change-password")]
         [AllowAnonymous]

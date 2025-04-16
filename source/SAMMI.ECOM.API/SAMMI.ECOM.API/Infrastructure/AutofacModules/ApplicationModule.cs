@@ -1,6 +1,7 @@
 ﻿using Autofac;
 using Nest;
 using SAMMI.ECOM.API.Controllers;
+using SAMMI.ECOM.API.Infrastructure.Configuration;
 using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.API.Services.MediaResource;
 using SAMMI.ECOM.Core.Authorizations;
@@ -59,6 +60,9 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
             builder.RegisterType<FileStorageService>().As<IFileStorageService>();
             builder.RegisterType<CloudinaryService>().As<ICloudinaryService>();
             builder.RegisterType<GHNService>().As<IGHNService>().InstancePerLifetimeScope();
+            builder.RegisterType<GoogleAuthenticationHandler>()
+                .AsSelf()
+                .InstancePerLifetimeScope();
 
             builder.RegisterType<ElasticClient>().As<IElasticClient>().SingleInstance();
             builder.RegisterType<ProductElasticService>().As<IProductElasticService>().SingleInstance();

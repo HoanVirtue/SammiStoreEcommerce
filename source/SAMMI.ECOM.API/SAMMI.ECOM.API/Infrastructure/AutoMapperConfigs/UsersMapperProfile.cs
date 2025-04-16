@@ -21,7 +21,7 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<CUSupplierCommand, User>();
             CreateMap<User, SupplierDTO>();
 
-            CreateMap<RegisterCommand, User>();
+            CreateMap<RegisterCommand, User>().ReverseMap();
             CreateMap<RegisterCommand, CUCustomerCommand>();
         }
     }

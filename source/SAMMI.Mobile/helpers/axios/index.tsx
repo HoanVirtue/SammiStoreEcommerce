@@ -86,10 +86,9 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
     })
 
     instance.interceptors.response.use((response) => {
-        console.log('API Response:', {response});
         return response
     }, (error) => {
-        console.log('API Error:', {error});
+        console.log('Instance Error:', {error});
         if (error.response?.status === 401) {
             handleRedirectToLogin(router, pathname, setUser)
         }

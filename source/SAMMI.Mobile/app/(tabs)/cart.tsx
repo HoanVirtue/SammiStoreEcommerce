@@ -1,116 +1,302 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView } from 'react-native';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { StyleSheet, View, Text, ScrollView, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors } from '@/constants/colors';
-import { CartItemComponent } from '@/presentation/components/CartItem';
-import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
-import { ErrorView } from '@/presentation/components/ErrorView';
 import { Button } from '@/presentation/components/Button';
 import { ShoppingBag } from 'lucide-react-native';
+import { CartItem } from '@/components/CartItem';
+import Toast from 'react-native-toast-message';
+import { getCarts, createCart, deleteCart } from '@/services/cart';
+import { TItemOrderProduct } from '@/types/cart';
+import { formatPrice } from '@/utils';
+import { getProductDetail } from '@/services/product';
+import { isExpired } from '@/utils';
 
 export default function CartScreen() {
   const router = useRouter();
+  const [cart, setCart] = useState<{ data: TItemOrderProduct[] }>({ data: [] });
+  const [isLoading, setIsLoading] = useState(true);
+  const [selectedItems, setSelectedItems] = useState<number[]>([]);
+  const [discountValue, setDiscountValue] = useState<number>(0);
+  const [originalPrice, setOriginalPrice] = useState<number>(0);
 
-  const handleUpdateQuantity = (productId: string, quantity: number) => {
-    // updateQuantity(productId, quantity);
-  };
+  const fetchCart = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      console.log("Fetching cart data...");
+      const response = await getCarts({
+        params: {
+          take: -1,
+          skip: 0,
+          paging: false,
+          orderBy: 'name',
+          dir: 'asc',
+          keywords: "''",
+          filters: '',
+        },
+      });
+      console.log("Cart API response:", response);
+      console.log("Cart data:", response?.result);
+      setCart({ data: response?.result || [] });
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to load cart',
+      });
+      setCart({ data: [] });
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
 
-  const handleRemoveItem = (productId: string) => {
-    // removeFromCart(productId);
-  };
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
-  const handleClearCart = () => {
-    // clearCart();
-  };
+  const handleUpdateQuantity = useCallback(
+    async (productId: number, quantity: number) => {
+      // Update cart state locally
+      setCart((prevCart) => ({
+        data: prevCart.data.map((item) =>
+          item.productId === productId ? { ...item, quantity } : item
+        ),
+      }));
 
-  const handleCheckout = () => {
-    router.push('/checkout');
-  };
+      // Call API immediately without debounce
+      try {
+        const data = {
+          cartId: 0,
+          productId,
+          quantity,
+          operation: 2,
+        };
+        await createCart(data);
+      } catch (error) {
+        Toast.show({
+          type: 'error',
+          text1: 'Failed to update quantity',
+        });
+        await fetchCart(); // Only call when there's an error
+      }
+    },
+    [fetchCart]
+  );
 
-  const handleContinueShopping = () => {
+  const handleRemoveItem = useCallback(
+    async (productId: number) => {
+      try {
+        await deleteCart(productId);
+        setCart((prevCart) => ({
+          data: prevCart.data.filter((item) => item.productId !== productId),
+        }));
+        setSelectedItems((prev) => prev.filter((id) => id !== productId));
+        Toast.show({
+          type: 'success',
+          text1: 'Item removed from cart',
+        });
+      } catch (error) {
+        Toast.show({
+          type: 'error',
+          text1: 'Failed to remove item',
+        });
+        await fetchCart();
+      }
+    },
+    [fetchCart]
+  );
+
+  const handleRemoveSelected = useCallback(async () => {
+    try {
+      for (const productId of selectedItems) {
+        await deleteCart(productId);
+      }
+      setCart((prevCart) => ({
+        data: prevCart.data.filter((item) => !selectedItems.includes(item.productId)),
+      }));
+      setSelectedItems([]);
+      Toast.show({
+        type: 'success',
+        text1: 'Selected items removed from cart',
+      });
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Failed to remove items',
+      });
+      await fetchCart();
+    }
+  }, [selectedItems, fetchCart]);
+
+  const handleContinueShopping = useCallback(() => {
     router.push('/');
-  };
+  }, [router]);
 
-  // if (isLoading && cart.items.length === 0) {
-  //   return <LoadingIndicator fullScreen />;
-  // }
+  const handleCheckout = useCallback(() => {
+    const selectedProducts = cart.data.filter((item) => selectedItems.includes(item.productId));
+    router.push({
+      pathname: '/checkout',
+      params: {
+        selectedProducts: JSON.stringify(
+          selectedProducts.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+          }))
+        ),
+        totalPrice: subtotal,
+      },
+    });
+  }, [router, cart.data, selectedItems]);
 
-  // if (error) {
-  //   return <ErrorView message={error} onRetry={fetchCart} />;
-  // }
+  const handleCheckboxChange = useCallback((productId: number) => {
+    setSelectedItems((prev) =>
+      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
+    );
+  }, []);
+
+  const handleCheckAll = useCallback(() => {
+    if (!cart?.data) return;
+    const allProductIds = cart.data.map((item) => item.productId);
+    const isAllSelected = allProductIds.every((id) => selectedItems.includes(id));
+    setSelectedItems(isAllSelected ? [] : allProductIds);
+  }, [cart?.data, selectedItems]);
+
+  useEffect(() => {
+    const fetchDiscounts = async ()=> {
+      for (const productId of selectedItems) {
+        const res = await getProductDetail(productId);
+        const data = res?.result;
+        if (data) {
+          const discount = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0;
+          setDiscountValue(discount);
+          setOriginalPrice(data.price);
+        }
+      }
+    };
+
+    if (selectedItems.length > 0) {
+      fetchDiscounts();
+    }
+  }, [selectedItems]);
+
+  const subtotal = useMemo(() => {
+    if (!cart?.data) return 0;
+    return cart.data
+      .filter((item) => selectedItems.includes(item.productId))
+      .reduce((total, item) => {
+        const price = item.price || 0;
+        const discount = item.discount || 0;
+        const quantity = item.quantity || 1;
+        const currentPrice = discount > 0 ? (price * (100 - discount)) / 100 : price;
+        return total + currentPrice * quantity;
+      }, 0);
+  }, [cart?.data, selectedItems]);
+
+  const totalSave = useMemo(() => {
+    if (!cart?.data) return 0;
+    return cart.data
+      .filter((item) => selectedItems.includes(item.productId))
+      .reduce((total, item) => {
+        const price = originalPrice || 0;
+        const discount = discountValue || 0;
+        const quantity = item.quantity || 1;
+        if (discount > 0) {
+          const savedPrice = (price * discount) / 100 * quantity;
+          return total + savedPrice;
+        }
+        return total;
+      }, 0);
+  }, [cart?.data, selectedItems, originalPrice, discountValue]);
+
+  const cartItems = useMemo(() => cart?.data || [], [cart?.data]);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
-        <Text style={styles.title}>Shopping Cart</Text>
-        <Text style={styles.subtitle}>
-          {/* {cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'} */}
-        </Text>
+        <Text style={styles.title}>Giỏ hàng của tôi</Text>
       </View>
 
-      <View style={styles.emptyContainer}>
-        <ShoppingBag size={64} color={colors.primaryLight} />
-        <Text style={styles.emptyTitle}>Your cart is empty</Text>
-        <Text style={styles.emptyText}>
-          Add products to your cart to checkout
-        </Text>
-        <Button
-          title="Continue Shopping"
-          onPress={handleContinueShopping}
-          style={styles.shopButton}
-        />
-      </View>
-
-      <ScrollView style={styles.itemsContainer}>
-        {/* {cart.items.map((item) => (
-          <CartItemComponent
-            key={item.id}
-            item={item}
-            onUpdateQuantity={handleUpdateQuantity}
-            onRemove={handleRemoveItem}
-          />
-        ))} */}
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <View style={styles.summaryContainer}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>${0.00}</Text>
-          </View>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Shipping</Text>
-            <Text style={styles.summaryValue}>$0.00</Text>
-          </View>
-          <View style={styles.divider} />
-          <View style={styles.summaryRow}>
-            <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>${0.00}</Text>
-          </View>
-        </View>
-
-        <View style={styles.buttonsContainer}>
+      {cartItems.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <ShoppingBag size={64} color={colors.primaryLight} />
+          <Text style={styles.emptyTitle}>Giỏ hàng trống</Text>
+          <Text style={styles.emptyText}>Hãy thêm sản phẩm vào giỏ hàng</Text>
           <Button
-            title="Checkout"
-            onPress={handleCheckout}
-            style={styles.checkoutButton}
-          />
-          <Button
-            title="Clear Cart"
-            onPress={handleClearCart}
-            variant="outline"
-            style={styles.clearButton}
+            title="Tiếp tục mua sắm"
+            onPress={handleContinueShopping}
+            style={styles.shopButton}
           />
         </View>
-      </View>
+      ) : (
+        <>
+          <ScrollView style={styles.itemsContainer}>
+            <View style={styles.cartHeader}>
+              <View style={styles.checkboxContainer}>
+                <Button
+                  title={selectedItems.length === cartItems.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                  onPress={handleCheckAll}
+                  style={styles.checkAllButton}
+                />
+              </View>
+              {selectedItems.length > 0 && (
+                <Button
+                  title="Xóa"
+                  onPress={handleRemoveSelected}
+                  style={styles.deleteSelectedButton}
+                />
+              )}
+            </View>
+            {cartItems.map((item: TItemOrderProduct) => (
+              <CartItem
+                key={item.productId}
+                item={item}
+                onUpdateQuantity={handleUpdateQuantity}
+                onRemove={handleRemoveItem}
+                onCheckboxChange={handleCheckboxChange}
+                isChecked={selectedItems.includes(item.productId)}
+              />
+            ))}
+          </ScrollView>
+
+          <View style={styles.footer}>
+            <View style={styles.totalContainer}>
+              <Text style={styles.totalLabel}>{selectedItems.length} sản phẩm đã chọn</Text>
+              <Text style={styles.totalText}>Tạm tính: {formatPrice(subtotal)}</Text>
+              {totalSave > 0 && (
+                <Text style={styles.saveText}>Tiết kiệm: {formatPrice(totalSave)}</Text>
+              )}
+            </View>
+            <Button
+              title="Mua hàng"
+              onPress={handleCheckout}
+              style={styles.checkoutButton}
+              disabled={selectedItems.length === 0}
+            />
+          </View>
+        </>
+      )}
     </SafeAreaView>
   );
 }
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     paddingHorizontal: 16,
@@ -122,15 +308,29 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: '700',
     color: colors.text,
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: colors.textSecondary,
+    textAlign: 'center',
   },
   itemsContainer: {
     flex: 1,
+  },
+  cartHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  checkboxContainer: {
+    flex: 1,
+  },
+  checkAllButton: {
+    backgroundColor: 'transparent',
+    padding: 0,
+  },
+  deleteSelectedButton: {
+    backgroundColor: colors.error,
+    marginLeft: 8,
   },
   emptyContainer: {
     flex: 1,
@@ -161,45 +361,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 16,
   },
-  summaryContainer: {
+  totalContainer: {
     marginBottom: 16,
   },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  summaryLabel: {
+  totalLabel: {
     fontSize: 14,
     color: colors.textSecondary,
+    marginBottom: 8,
   },
-  summaryValue: {
-    fontSize: 14,
-    color: colors.text,
-    fontWeight: '500',
-  },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: 8,
-  },
-  totalLabel: {
+  totalText: {
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+    marginBottom: 8,
   },
-  totalValue: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
-  },
-  buttonsContainer: {
-    gap: 12,
+  saveText: {
+    fontSize: 14,
+    color: colors.success,
+    marginBottom: 8,
   },
   checkoutButton: {
-    width: '100%',
-  },
-  clearButton: {
-    width: '100%',
+    backgroundColor: colors.primary,
   },
 });

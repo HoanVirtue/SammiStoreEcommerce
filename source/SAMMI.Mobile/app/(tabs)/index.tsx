@@ -34,9 +34,6 @@ export default function HomeScreen() {
           filters: "''"
         }
       });
-
-      console.log('product response', response);
-
       if (response?.result?.subset) {
         setPublicProducts(response.result.subset);
       } else {
@@ -85,7 +82,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello Beautiful !</Text>
+          <Text style={styles.greeting}>Hello Timmy !</Text>
           <Text style={styles.subtitle}>Find your beauty essentials cosmetics</Text>
         </View>
 

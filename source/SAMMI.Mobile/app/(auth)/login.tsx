@@ -11,8 +11,7 @@ import {
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { User, Lock, ArrowLeft, Eye, EyeOff } from 'lucide-react-native';
-import type { RootState } from '@/stores';
-import { useAppDispatch, useAppSelector } from '@/stores';
+import { RootState, useAppDispatch, useAppSelector } from '@/stores';
 import { useTheme } from '@/hooks/useTheme';
 import { palette } from '@/theme/palette';
 import { Input } from '@/components/Input';
@@ -20,14 +19,6 @@ import { Button } from '@/components/Button';
 import { Alert } from '@/components/Alert';
 import { useAuth } from '@/hooks/useAuth';
 import Toast from 'react-native-toast-message';
-
-interface LoginError {
-    response?: {
-        message?: string;
-        errors?: any;
-    };
-}
-
 export default function LoginScreen() {
     const router = useRouter();
     const dispatch = useAppDispatch();
@@ -47,6 +38,7 @@ export default function LoginScreen() {
     const validateForm = () => {
         let isValid = true;
 
+        // Username validation
         if (!username.trim()) {
             setUsernameError('Username is required');
             isValid = false;
@@ -54,6 +46,7 @@ export default function LoginScreen() {
             setUsernameError('');
         }
 
+        // Password validation
         if (!password) {
             setPasswordError('Password is required');
             isValid = false;
@@ -69,33 +62,15 @@ export default function LoginScreen() {
 
     const handleLogin = async () => {
         if (validateForm()) {
-            try {
-                await login({
-                    username,
-                    password,
-                    rememberMe: isRemember
-                }, (err: LoginError) => {
-                    if (err?.response) {
-                        Toast.show({
-                            type: 'error',
-                            text1: err.response?.message || 'Login failed',
-                            text2: 'Please check your credentials and try again'
-                        });
-                    } else {
-                        Toast.show({
-                            type: 'error',
-                            text1: 'An error occurred',
-                            text2: 'Please try again later'
-                        });
-                    }
-                });
-            } catch (error) {
-                Toast.show({
-                    type: 'error',
-                    text1: 'Login Error',
-                    text2: 'An unexpected error occurred'
-                });
-            }
+            login({ username, password, rememberMe: isRemember }, (err) => {
+                console.log("err", err);
+                if (err?.response?.errors !== "") {
+                    Toast.show({
+                        type: 'error',
+                        text1: err?.response?.message
+                    })
+                }
+            })
         }
     };
 

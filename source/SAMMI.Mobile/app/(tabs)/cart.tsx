@@ -12,8 +12,6 @@ import { ShoppingBag } from 'lucide-react-native';
 export default function CartScreen() {
   const router = useRouter();
 
-
-
   const handleUpdateQuantity = (productId: string, quantity: number) => {
     // updateQuantity(productId, quantity);
   };
@@ -51,69 +49,64 @@ export default function CartScreen() {
         </Text>
       </View>
 
-      {/* {cart.items.length === 0 ? ( */}
-        <View style={styles.emptyContainer}>
-          <ShoppingBag size={64} color={colors.primaryLight} />
-          <Text style={styles.emptyTitle}>Your cart is empty</Text>
-          <Text style={styles.emptyText}>
-            Add products to your cart to checkout
-          </Text>
+      <View style={styles.emptyContainer}>
+        <ShoppingBag size={64} color={colors.primaryLight} />
+        <Text style={styles.emptyTitle}>Your cart is empty</Text>
+        <Text style={styles.emptyText}>
+          Add products to your cart to checkout
+        </Text>
+        <Button
+          title="Continue Shopping"
+          onPress={handleContinueShopping}
+          style={styles.shopButton}
+        />
+      </View>
+
+      <ScrollView style={styles.itemsContainer}>
+        {/* {cart.items.map((item) => (
+          <CartItemComponent
+            key={item.id}
+            item={item}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemove={handleRemoveItem}
+          />
+        ))} */}
+      </ScrollView>
+
+      <View style={styles.footer}>
+        <View style={styles.summaryContainer}>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Subtotal</Text>
+            <Text style={styles.summaryValue}>${0.00}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryLabel}>Shipping</Text>
+            <Text style={styles.summaryValue}>$0.00</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.summaryRow}>
+            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalValue}>${0.00}</Text>
+          </View>
+        </View>
+
+        <View style={styles.buttonsContainer}>
           <Button
-            title="Continue Shopping"
-            onPress={handleContinueShopping}
-            style={styles.shopButton}
+            title="Checkout"
+            onPress={handleCheckout}
+            style={styles.checkoutButton}
+          />
+          <Button
+            title="Clear Cart"
+            onPress={handleClearCart}
+            variant="outline"
+            style={styles.clearButton}
           />
         </View>
-      ) : (
-        <>
-          <ScrollView style={styles.itemsContainer}>
-            {/* {cart.items.map((item) => (
-              <CartItemComponent
-                key={item.id}
-                item={item}
-                onUpdateQuantity={handleUpdateQuantity}
-                onRemove={handleRemoveItem}
-              />
-            ))} */}
-          </ScrollView>
-
-          <View style={styles.footer}>
-            <View style={styles.summaryContainer}>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Subtotal</Text>
-                <Text style={styles.summaryValue}>${0.00}</Text>
-              </View>
-              <View style={styles.summaryRow}>
-                <Text style={styles.summaryLabel}>Shipping</Text>
-                <Text style={styles.summaryValue}>$0.00</Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.summaryRow}>
-                <Text style={styles.totalLabel}>Total</Text>
-                <Text style={styles.totalValue}>${0.00}</Text>
-              </View>
-            </View>
-
-            <View style={styles.buttonsContainer}>
-              <Button
-                title="Checkout"
-                onPress={handleCheckout}
-                style={styles.checkoutButton}
-              />
-              <Button
-                title="Clear Cart"
-                onPress={handleClearCart}
-                variant="outline"
-                style={styles.clearButton}
-              />
-            </View>
-          </View>
-        </>
-      {/* )} */}
+      </View>
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,

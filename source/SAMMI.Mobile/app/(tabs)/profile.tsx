@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView, Switch, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
@@ -21,6 +21,7 @@ import {
   Settings
 } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
+import LoginScreen from '../(auth)/login';
 
 export default function ProfileScreen() {
 
@@ -28,17 +29,23 @@ export default function ProfileScreen() {
   const router = useRouter();
   const [darkMode, setDarkMode] = React.useState(false);
   const [notifications, setNotifications] = React.useState(true);
+  const [hasToken, setHasToken] = useState<boolean | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem(ACCESS_TOKEN);
-      console.log('token', token);
-      if (!token) {
-        router.replace(ROUTE_CONFIG.LOGIN as any);
-      }
+      setHasToken(!!token);
     };
     checkAuth();
   }, []);
+
+  if (hasToken === null) {
+    return null; // or a loading spinner
+  }
+
+  if (!hasToken) {
+    return <LoginScreen />;
+  }
 
   const toggleDarkMode = () => setDarkMode(prev => !prev);
   const toggleNotifications = () => setNotifications(prev => !prev);
@@ -53,10 +60,10 @@ export default function ProfileScreen() {
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
             {/* {user?.imageUrl ? (
-              <Image source={{ uri: user.imageUrl }} style={styles.avatar} />
-            ) : (
-              <User size={40} color={colors.primary} />
-            )} */}
+            <Image source={{ uri: user.imageUrl }} style={styles.avatar} />
+          ) : (
+            <User size={40} color={colors.primary} />
+          )} */}
           </View>
           <Text style={styles.username}>{'Guest User'}</Text>
           <Text style={styles.email}>{'Sign in to sync your preferences'}</Text>

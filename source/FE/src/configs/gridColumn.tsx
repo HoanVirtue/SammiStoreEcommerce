@@ -863,7 +863,6 @@ export const getEmployeeColumns = (): GridColDef[] => {
   ]
 }
 
-
 export const getSupplierColumns = (): GridColDef[] => {
   const { t } = useTranslation()
   return [

@@ -99,18 +99,27 @@ export const getProductCategoryFields = (): FieldConfig[] => [
 ];
 
 export const getEmployeeFields = (): FieldConfig[] => [
-    { value: "name", label: i18n.t("brand_name"), type: "string", operators: getStringOperators() },
-    { value: "code", label: i18n.t("brand_code"), type: "string", operators: getStringOperators() },
+    { value: "employee_code", label: i18n.t("employee_code"), type: "string", operators: getStringOperators() },
+    { value: "fullName", label: i18n.t("name"), type: "string", operators: getStringOperators() },
+    { value: "phone", label: i18n.t("phone"), type: "string", operators: getStringOperators() },
+    { value: "email", label: i18n.t("email"), type: "string", operators: getStringOperators() },
+    { value: "gender", label: i18n.t("gender"), type: "number", operators: getNumberOperators() },
 ];
 
 export const getCustomerFields = (): FieldConfig[] => [
-    { value: "name", label: i18n.t("brand_name"), type: "string", operators: getStringOperators() },
-    { value: "code", label: i18n.t("brand_code"), type: "string", operators: getStringOperators() },
+    { value: "customer_code", label: i18n.t("customer_code"), type: "string", operators: getStringOperators() },
+    { value: "fullName", label: i18n.t("name"), type: "string", operators: getStringOperators() },
+    { value: "phone", label: i18n.t("phone"), type: "string", operators: getStringOperators() },
+    { value: "email", label: i18n.t("email"), type: "string", operators: getStringOperators() },
+    { value: "gender", label: i18n.t("gender"), type: "number", operators: getNumberOperators() },
 ];
 
 export const getSupplierFields = (): FieldConfig[] => [
-    { value: "name", label: i18n.t("brand_name"), type: "string", operators: getStringOperators() },
-    { value: "code", label: i18n.t("brand_code"), type: "string", operators: getStringOperators() },
+    { value: "supplier_code", label: i18n.t("supplier_code"), type: "string", operators: getStringOperators() },
+    { value: "fullName", label: i18n.t("name"), type: "string", operators: getStringOperators() },
+    { value: "phone", label: i18n.t("phone"), type: "string", operators: getStringOperators() },
+    { value: "email", label: i18n.t("email"), type: "string", operators: getStringOperators() },
+    { value: "gender", label: i18n.t("gender"), type: "number", operators: getNumberOperators() },
 ];
 
 export const getReceiptFields = (): FieldConfig[] => [

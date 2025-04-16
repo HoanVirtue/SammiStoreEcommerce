@@ -101,8 +101,6 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       const accessToken = response.result?.accessToken;
       const refreshToken = response.result?.refreshToken;
 
-      console.log('accessToken login', accessToken);
-      console.log('refreshToken login', refreshToken);
 
       if (!accessToken) throw new Error('No access token received');
 
@@ -113,7 +111,6 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       setUser({ ...userResponse.result });
 
       const userData = userResponse.result;
-      console.log('userData', userData);
 
       // if (params.rememberMe) {
       if (true) {

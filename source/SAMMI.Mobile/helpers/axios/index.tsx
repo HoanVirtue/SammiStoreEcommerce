@@ -86,7 +86,6 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
     })
 
     instance.interceptors.response.use((response) => {
-        console.log('Instance Response:', {response});
         return response
     }, (error) => {
         console.log('Instance Error:', {error});

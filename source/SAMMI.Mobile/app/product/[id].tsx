@@ -12,9 +12,6 @@ import {
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
-import { useProductStore } from '@/presentation/stores/productStore';
-import { useCartStore } from '@/presentation/stores/cartStore';
-import { useUserStore } from '@/presentation/stores/userStore';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
 import { Button } from '@/presentation/components/Button';
@@ -34,9 +31,6 @@ const { width } = Dimensions.get('window');
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { selectedProduct, isLoading, error, fetchProductById } = useProductStore();
-  const { addToCart } = useCartStore();
-  const { isInWishlist, toggleWishlist } = useUserStore();
 
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
@@ -44,12 +38,12 @@ export default function ProductDetailScreen() {
   const [showIngredients, setShowIngredients] = useState(false);
   const [showHowToUse, setShowHowToUse] = useState(false);
 
-  const isWishlisted = selectedProduct ? isInWishlist(selectedProduct.id) : false;
+  // const isWishlisted = selectedProduct ? isInWishlist(selectedProduct.id) : false;
 
   useEffect(() => {
-    if (id) {
-      fetchProductById(id);
-    }
+    // if (id) {
+    //   fetchProductById(id);
+    // }
   }, [id]);
 
   const handleGoBack = () => {
@@ -57,15 +51,15 @@ export default function ProductDetailScreen() {
   };
 
   const handleAddToCart = () => {
-    if (selectedProduct) {
-      addToCart(selectedProduct, quantity);
-    }
+    // if (selectedProduct) {
+    //   addToCart(selectedProduct, quantity);
+    // }
   };
 
   const handleToggleWishlist = () => {
-    if (selectedProduct) {
-      toggleWishlist(selectedProduct.id);
-    }
+    // if (selectedProduct) {
+    //   toggleWishlist(selectedProduct.id);
+    // }
   };
 
   const handleIncreaseQuantity = () => {
@@ -90,13 +84,13 @@ export default function ProductDetailScreen() {
     setShowHowToUse(!showHowToUse);
   };
 
-  if (isLoading) {
-    return <LoadingIndicator fullScreen />;
-  }
+  // if (isLoading) {
+  //   return <LoadingIndicator fullScreen />;
+  // }
 
-  if (error || !selectedProduct) {
-    return <ErrorView message={error || 'Product not found'} onRetry={() => id && fetchProductById(id)} />;
-  }
+  // if (error || !selectedProduct) {
+  //   return <ErrorView message={error || 'Product not found'} onRetry={() => id && fetchProductById(id)} />;
+  // }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -108,8 +102,8 @@ export default function ProductDetailScreen() {
         <Pressable onPress={handleToggleWishlist} style={styles.wishlistButton}>
           <Heart
             size={24}
-            color={isWishlisted ? colors.primary : colors.text}
-            fill={isWishlisted ? colors.primary : 'transparent'}
+          // color={isWishlisted ? colors.primary : colors.text}
+          // fill={isWishlisted ? colors.primary : 'transparent'}
           />
         </Pressable>
       </View>
@@ -117,7 +111,7 @@ export default function ProductDetailScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.imageContainer}>
           <FlatList
-            data={selectedProduct.imageUrls}
+            data={[]}
             horizontal
             pagingEnabled
             showsHorizontalScrollIndicator={false}
@@ -136,7 +130,8 @@ export default function ProductDetailScreen() {
           />
 
           <View style={styles.pagination}>
-            {selectedProduct.imageUrls.map((_, index) => (
+            {[]}
+            {/* {selectedProduct.imageUrls.map((_, index) => (
               <View
                 key={index}
                 style={[
@@ -144,37 +139,37 @@ export default function ProductDetailScreen() {
                   index === activeImageIndex && styles.paginationDotActive
                 ]}
               />
-            ))}
+            ))} */}
           </View>
 
-          {selectedProduct.isNew && (
+          {/* {selectedProduct.isNew && (
             <View style={styles.badge}>
               <Text style={styles.badgeText}>NEW</Text>
             </View>
-          )}
+          )} */}
 
-          {selectedProduct.isOnSale && (
+          {/* {selectedProduct.isOnSale && (
             <View style={[styles.badge, styles.saleBadge]}>
               <Text style={styles.badgeText}>SALE</Text>
-            </View>
-          )}
+            </View> 
+          )} */}
         </View>
 
         <View style={styles.content}>
-          <Text style={styles.brand}>{selectedProduct.brand}</Text>
-          <Text style={styles.name}>{selectedProduct.name}</Text>
+          <Text style={styles.brand}>{'brand'}</Text>
+          <Text style={styles.name}>{'name'}</Text>
 
           <View style={styles.ratingContainer}>
             <Star size={16} color={colors.warning} fill={colors.warning} />
-            <Text style={styles.rating}>{selectedProduct.rating.toFixed(1)}</Text>
-            <Text style={styles.reviews}>({selectedProduct.reviewCount} reviews)</Text>
+            <Text style={styles.rating}>{'rating.toFixed(1)'}</Text>
+            <Text style={styles.reviews}>{'reviewCount'}</Text>
           </View>
 
           <View style={styles.priceContainer}>
-            <Text style={styles.price}>${selectedProduct.price.toFixed(2)}</Text>
-            {selectedProduct.originalPrice && (
+            <Text style={styles.price}>{'price.toFixed(2)'}</Text>
+            {/* {selectedProduct.originalPrice && (
               <Text style={styles.originalPrice}>${selectedProduct.originalPrice.toFixed(2)}</Text>
-            )}
+            )} */}
           </View>
 
           <View style={styles.quantityContainer}>
@@ -207,11 +202,11 @@ export default function ProductDetailScreen() {
             </View>
 
             {showDescription && (
-              <Text style={styles.sectionContent}>{selectedProduct.description}</Text>
+              <Text style={styles.sectionContent}>{'description'}</Text>
             )}
           </Pressable>
 
-          {selectedProduct.ingredients && (
+          {( 
             <Pressable style={styles.section} onPress={toggleIngredients}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>Ingredients</Text>
@@ -223,12 +218,12 @@ export default function ProductDetailScreen() {
               </View>
 
               {showIngredients && (
-                <Text style={styles.sectionContent}>{selectedProduct.ingredients}</Text>
+                <Text style={styles.sectionContent}>{'ingredients'}</Text>
               )}
             </Pressable>
           )}
 
-          {selectedProduct.howToUse && (
+          {(
             <Pressable style={styles.section} onPress={toggleHowToUse}>
               <View style={styles.sectionHeader}>
                 <Text style={styles.sectionTitle}>How to Use</Text>
@@ -240,7 +235,7 @@ export default function ProductDetailScreen() {
               </View>
 
               {showHowToUse && (
-                <Text style={styles.sectionContent}>{selectedProduct.howToUse}</Text>
+                <Text style={styles.sectionContent}>{'howToUse'}</Text>
               )}
             </Pressable>
           )}

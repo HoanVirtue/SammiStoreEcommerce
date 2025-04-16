@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Pressable, Image } from 'react-native';
-import { useRouter } from 'expo-router';
+
 import { Article } from '@/domain/entities/Article';
 import { colors } from '@/constants/colors';
 import { Clock, User } from 'lucide-react-native';

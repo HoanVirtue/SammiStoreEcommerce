@@ -3,16 +3,12 @@ import { StyleSheet, View, Text, ScrollView, FlatList, Pressable } from 'react-n
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Category } from '@/domain/entities/Category';
-import { Product } from '@/domain/entities/Product';
 import { ChevronRight } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
 import { SearchBar } from '@/presentation/components/SearchBar';
-import { CategoryCard } from '@/presentation/components/CategoryCard';
 import { ProductCard } from '@/presentation/components/ProductCard';
-import { useProductStore } from '@/presentation/stores/productStore';
-import { useUserStore } from '@/presentation/stores/userStore';
 import { getAllProducts } from '@/services/product';
 import { TProduct } from '@/types/product';
 
@@ -57,7 +53,7 @@ export default function HomeScreen() {
   }, []);
 
   const handleCategoryPress = (category: Category) => {
-    router.push(`/search?category=${category.id}`);
+    // router.push(`/search?category=${category.id}`);
   };
 
   const handleProductPress = (product: TProduct) => {

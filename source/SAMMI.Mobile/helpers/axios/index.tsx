@@ -35,8 +35,8 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
     const { setUser, user } = useAuth()
 
     instance.interceptors.request.use(async (config) => {
-        const { accessToken, refreshToken } = getLocalUserData()
-        const { temporaryToken } = getTemporaryToken()
+        const { accessToken, refreshToken } = await getLocalUserData()
+        const { temporaryToken } = await getTemporaryToken()
         const isPublicApi = config?.params?.isPublic
 
         if (accessToken || temporaryToken) {
@@ -86,8 +86,20 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
     })
 
     instance.interceptors.response.use((response) => {
+        console.log('API Response:', {
+            url: response.config.url,
+            method: response.config.method,
+            status: response.status,
+            data: response.data
+        });
         return response
     }, (error) => {
+        console.log('API Error:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            data: error.response?.data
+        });
         if (error.response?.status === 401) {
             handleRedirectToLogin(router, pathname, setUser)
         }

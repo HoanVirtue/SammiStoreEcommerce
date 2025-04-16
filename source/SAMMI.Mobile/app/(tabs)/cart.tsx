@@ -3,7 +3,6 @@ import { StyleSheet, View, Text, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors } from '@/constants/colors';
-import { useCartStore } from '@/presentation/stores/cartStore';
 import { CartItemComponent } from '@/presentation/components/CartItem';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
@@ -12,30 +11,19 @@ import { ShoppingBag } from 'lucide-react-native';
 
 export default function CartScreen() {
   const router = useRouter();
-  const {
-    cart,
-    isLoading,
-    error,
-    fetchCart,
-    updateQuantity,
-    removeFromCart,
-    clearCart,
-  } = useCartStore();
 
-  useEffect(() => {
-    fetchCart();
-  }, []);
+
 
   const handleUpdateQuantity = (productId: string, quantity: number) => {
-    updateQuantity(productId, quantity);
+    // updateQuantity(productId, quantity);
   };
 
   const handleRemoveItem = (productId: string) => {
-    removeFromCart(productId);
+    // removeFromCart(productId);
   };
 
   const handleClearCart = () => {
-    clearCart();
+    // clearCart();
   };
 
   const handleCheckout = () => {
@@ -46,24 +34,24 @@ export default function CartScreen() {
     router.push('/');
   };
 
-  if (isLoading && cart.items.length === 0) {
-    return <LoadingIndicator fullScreen />;
-  }
+  // if (isLoading && cart.items.length === 0) {
+  //   return <LoadingIndicator fullScreen />;
+  // }
 
-  if (error) {
-    return <ErrorView message={error} onRetry={fetchCart} />;
-  }
+  // if (error) {
+  //   return <ErrorView message={error} onRetry={fetchCart} />;
+  // }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <View style={styles.header}>
         <Text style={styles.title}>Shopping Cart</Text>
         <Text style={styles.subtitle}>
-          {cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'}
+          {/* {cart.totalItems} {cart.totalItems === 1 ? 'item' : 'items'} */}
         </Text>
       </View>
 
-      {cart.items.length === 0 ? (
+      {/* {cart.items.length === 0 ? ( */}
         <View style={styles.emptyContainer}>
           <ShoppingBag size={64} color={colors.primaryLight} />
           <Text style={styles.emptyTitle}>Your cart is empty</Text>
@@ -79,21 +67,21 @@ export default function CartScreen() {
       ) : (
         <>
           <ScrollView style={styles.itemsContainer}>
-            {cart.items.map((item) => (
+            {/* {cart.items.map((item) => (
               <CartItemComponent
                 key={item.id}
                 item={item}
                 onUpdateQuantity={handleUpdateQuantity}
                 onRemove={handleRemoveItem}
               />
-            ))}
+            ))} */}
           </ScrollView>
 
           <View style={styles.footer}>
             <View style={styles.summaryContainer}>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Subtotal</Text>
-                <Text style={styles.summaryValue}>${cart.subtotal.toFixed(2)}</Text>
+                <Text style={styles.summaryValue}>${0.00}</Text>
               </View>
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Shipping</Text>
@@ -102,7 +90,7 @@ export default function CartScreen() {
               <View style={styles.divider} />
               <View style={styles.summaryRow}>
                 <Text style={styles.totalLabel}>Total</Text>
-                <Text style={styles.totalValue}>${cart.subtotal.toFixed(2)}</Text>
+                <Text style={styles.totalValue}>${0.00}</Text>
               </View>
             </View>
 
@@ -121,7 +109,7 @@ export default function CartScreen() {
             </View>
           </View>
         </>
-      )}
+      {/* )} */}
     </SafeAreaView>
   );
 }

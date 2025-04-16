@@ -1,5 +1,5 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useEffect, useState, ReactNode, FC, ReactElement, Context } from 'react'
 
 // ** Expo Router Import
 import { useRouter, usePathname } from 'expo-router'
@@ -13,14 +13,12 @@ import authConfig, { LIST_PUBLIC_PAGE } from '@/configs/auth'
 // ** Types
 import { AuthValuesType, ErrCallbackType, UserDataType } from './types'
 import { getLoginUser, loginAuth, logoutAuth, loginAdminAuth } from '@/services/auth'
-import { API_ENDPOINT } from '@/configs/api'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from '@/helpers/storage'
 import instance from '@/helpers/axios'
 import { updateProductToCart } from '@/stores/order'
 import { AppDispatch } from '@/stores'
 import { useDispatch } from 'react-redux'
 import { LoginParams } from '@/types/auth'
-import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -38,14 +36,14 @@ const defaultProvider: AuthValuesType = {
   logout: () => Promise.resolve()
 }
 
-const AuthContext = createContext(defaultProvider)
+const AuthContext = createContext<AuthValuesType>(defaultProvider)
 
 
 type Props = {
   children: ReactNode
 }
 
-const AuthProvider = ({ children }: Props) => {
+const AuthProvider: FC<Props> = ({ children }): ReactElement => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
@@ -102,7 +100,10 @@ const AuthProvider = ({ children }: Props) => {
         isEmployee: params.isEmployee,
       });
 
+      console.log('response', response);
+
       const accessToken = response.result?.accessToken;
+      const refreshToken = response.result?.refreshToken;
       if (!accessToken) throw new Error('No access token received');
 
       instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
@@ -111,11 +112,14 @@ const AuthProvider = ({ children }: Props) => {
       setUser({ ...userResponse.result });
 
       const userData = userResponse.result;
+      console.log('userData', userData);
+      console.log('accessToken2', accessToken);
+      console.log('refreshToken2', refreshToken);
       if (params.rememberMe) {
         await setLocalUserData(
           JSON.stringify(userData || {}),
           accessToken,
-          response.result?.refreshToken || null
+          refreshToken
         );
       } else {
         await setTemporaryToken(accessToken);

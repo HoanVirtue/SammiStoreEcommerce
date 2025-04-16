@@ -2,7 +2,6 @@ import React, { useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView, Switch, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
-import { useUserStore } from '@/presentation/stores/userStore';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ACCESS_TOKEN } from '@/configs/auth';
@@ -24,7 +23,7 @@ import {
 import { useAuth } from '@/hooks/useAuth';
 
 export default function ProfileScreen() {
-  const { user } = useUserStore();
+
   const { logout } = useAuth();
   const router = useRouter();
   const [darkMode, setDarkMode] = React.useState(false);
@@ -53,14 +52,14 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            {user?.imageUrl ? (
+            {/* {user?.imageUrl ? (
               <Image source={{ uri: user.imageUrl }} style={styles.avatar} />
             ) : (
               <User size={40} color={colors.primary} />
-            )}
+            )} */}
           </View>
-          <Text style={styles.username}>{user?.name || 'Guest User'}</Text>
-          <Text style={styles.email}>{user?.email || 'Sign in to sync your preferences'}</Text>
+          <Text style={styles.username}>{'Guest User'}</Text>
+          <Text style={styles.email}>{'Sign in to sync your preferences'}</Text>
         </View>
 
         <View style={styles.section}>

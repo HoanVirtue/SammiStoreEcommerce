@@ -19,7 +19,6 @@ import { updateProductToCart } from '@/stores/order'
 import { AppDispatch } from '@/stores'
 import { useDispatch } from 'react-redux'
 import { LoginParams } from '@/types/auth'
-import { useTranslation } from 'react-i18next'
 import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useNavigation } from '@react-navigation/native'
@@ -51,7 +50,6 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
   // ** Hooks
   const router = useRouter()
   const pathname = usePathname()
-  const { t } = useTranslation()
   const navigation = useNavigation<NavigationProp<ParamListBase>>()
 
   //redux
@@ -126,7 +124,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       }
 
       Toast.show({
-        text1: t('login_success'),
+        text1: 'Đăng nhập thành công',
         type: 'success'
       });
 
@@ -138,7 +136,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       setLoading(false);
       if (errorCallback) errorCallback(err);
       Toast.show({
-        text1: t('login_error'),
+        text1: 'Đăng nhập thất bại',
         type: 'error'
       });
     }
@@ -175,7 +173,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       }
 
       Toast.show({
-        text1: t('login_success'),
+        text1: 'Đăng nhập thành công',
         type: 'success'
       });
 
@@ -187,7 +185,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       setLoading(false);
       if (errorCallback) errorCallback(err);
       Toast.show({
-        text1: t('login_error'),
+        text1: 'Đăng nhập thất bại',
         type: 'error'
       });
     }

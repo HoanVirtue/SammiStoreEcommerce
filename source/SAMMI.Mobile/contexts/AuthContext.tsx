@@ -1,5 +1,5 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useEffect, useState, ReactNode, FC, ReactElement, Context } from 'react'
 
 // ** Expo Router Import
 import { useRouter, usePathname } from 'expo-router'
@@ -13,17 +13,16 @@ import authConfig, { LIST_PUBLIC_PAGE } from '@/configs/auth'
 // ** Types
 import { AuthValuesType, ErrCallbackType, UserDataType } from './types'
 import { getLoginUser, loginAuth, logoutAuth, loginAdminAuth } from '@/services/auth'
-import { API_ENDPOINT } from '@/configs/api'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from '@/helpers/storage'
 import instance from '@/helpers/axios'
 import { updateProductToCart } from '@/stores/order'
 import { AppDispatch } from '@/stores'
 import { useDispatch } from 'react-redux'
 import { LoginParams } from '@/types/auth'
-import { t } from 'i18next'
-import { useTranslation } from 'react-i18next'
 import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useNavigation } from '@react-navigation/native'
+import { NavigationProp, ParamListBase } from '@react-navigation/native'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -36,13 +35,14 @@ const defaultProvider: AuthValuesType = {
   logout: () => Promise.resolve()
 }
 
-const AuthContext = createContext(defaultProvider)
+const AuthContext = createContext<AuthValuesType>(defaultProvider)
+
 
 type Props = {
   children: ReactNode
 }
 
-const AuthProvider = ({ children }: Props) => {
+const AuthProvider: FC<Props> = ({ children }): ReactElement => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
@@ -50,7 +50,7 @@ const AuthProvider = ({ children }: Props) => {
   // ** Hooks
   const router = useRouter()
   const pathname = usePathname()
-  const { t } = useTranslation()
+  const navigation = useNavigation<NavigationProp<ParamListBase>>()
 
   //redux
   const dispatch: AppDispatch = useDispatch()
@@ -76,6 +76,11 @@ const AuthProvider = ({ children }: Props) => {
         }
       } else {
         setLoading(false);
+        // Redirect to login if not on a public page and not already on login page
+        const isPublicPage = LIST_PUBLIC_PAGE.some(page => pathname?.startsWith(page));
+        if (!isPublicPage && !pathname?.includes('login')) {
+          router.replace('/login' as any);
+        }
       }
     }
 
@@ -93,7 +98,10 @@ const AuthProvider = ({ children }: Props) => {
         isEmployee: params.isEmployee,
       });
 
+      console.log('response', response);
+
       const accessToken = response.result?.accessToken;
+      const refreshToken = response.result?.refreshToken;
       if (!accessToken) throw new Error('No access token received');
 
       instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
@@ -102,30 +110,33 @@ const AuthProvider = ({ children }: Props) => {
       setUser({ ...userResponse.result });
 
       const userData = userResponse.result;
+      console.log('userData', userData);
+      console.log('accessToken2', accessToken);
+      console.log('refreshToken2', refreshToken);
       if (params.rememberMe) {
         await setLocalUserData(
           JSON.stringify(userData || {}),
           accessToken,
-          response.result?.refreshToken || null
+          refreshToken
         );
       } else {
         await setTemporaryToken(accessToken);
       }
 
       Toast.show({
-        text1: t('login_success'),
+        text1: 'Đăng nhập thành công',
         type: 'success'
       });
 
-      const returnUrl = params.returnUrl || '/';
-      const redirectURL = returnUrl !== '/' ? returnUrl : '/';
+      const returnUrl = params.returnUrl || '/(tabs)';
+      const redirectURL = returnUrl !== '/(tabs)' ? returnUrl : '/(tabs)';
       router.replace(redirectURL as any);
       setLoading(false);
     } catch (err: any) {
       setLoading(false);
       if (errorCallback) errorCallback(err);
       Toast.show({
-        text1: t('login_error'),
+        text1: 'Đăng nhập thất bại',
         type: 'error'
       });
     }
@@ -162,7 +173,7 @@ const AuthProvider = ({ children }: Props) => {
       }
 
       Toast.show({
-        text1: t('login_success'),
+        text1: 'Đăng nhập thành công',
         type: 'success'
       });
 
@@ -174,7 +185,7 @@ const AuthProvider = ({ children }: Props) => {
       setLoading(false);
       if (errorCallback) errorCallback(err);
       Toast.show({
-        text1: t('login_error'),
+        text1: 'Đăng nhập thất bại',
         type: 'error'
       });
     }
@@ -189,12 +200,17 @@ const AuthProvider = ({ children }: Props) => {
       dispatch(updateProductToCart({
         orderItems: []
       }));
-
-      if (!LIST_PUBLIC_PAGE?.some((item) => pathname?.includes(item))) {
-        router.replace('/login' as any);
-      }
+      navigation.navigate('Login' as never);
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error('Error during logout:', error);
+      // Still try to clear local data even if logout API call fails
+      setUser(null);
+      await removeLocalUserData();
+      delete instance.defaults.headers.common['Authorization'];
+      dispatch(updateProductToCart({
+        orderItems: []
+      }));
+      navigation.navigate('Login' as never);
     }
   }
 

@@ -3,11 +3,16 @@ import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
-import { Platform } from "react-native";
 import { Provider } from 'react-redux';
 import { store } from '@/stores';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AxiosInterceptor } from '@/helpers/axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// Initialize AsyncStorage
+AsyncStorage.setItem('initialized', 'true').catch(error => {
+  console.error('Error initializing AsyncStorage:', error);
+});
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
@@ -52,29 +57,19 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   return (
-    <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      <Stack.Screen
-        name="product/[id]"
-        options={{
-          headerShown: false,
-          presentation: 'card',
-        }}
-      />
-      <Stack.Screen
-        name="cart"
-        options={{
-          headerTitle: "Shopping Cart",
-          headerBackTitle: "Back",
-        }}
-      />
-      <Stack.Screen
-        name="checkout"
-        options={{
-          headerTitle: "Checkout",
-          headerBackTitle: "Back",
-        }}
-      />
-    </Stack>
+    <Provider store={store}>
+      <AuthProvider>
+        <AxiosInterceptor>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />
+            <Stack.Screen name="article/[id]" options={{ presentation: 'card' }} />
+            <Stack.Screen name="checkout" options={{ presentation: 'card' }} />
+          </Stack>
+        </AxiosInterceptor>
+      </AuthProvider>
+    </Provider>
   );
 }

@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Pressable, ScrollView, Switch, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
-import { useUserStore } from '@/presentation/stores/userStore';
+import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ACCESS_TOKEN } from '@/configs/auth';
+import { ROUTE_CONFIG } from '@/configs/route';
+
 import {
   User,
   Bell,
@@ -16,28 +20,53 @@ import {
   ShoppingBag,
   Settings
 } from 'lucide-react-native';
+import { useAuth } from '@/hooks/useAuth';
+import LoginScreen from '../(auth)/login';
 
 export default function ProfileScreen() {
-  const { user } = useUserStore();
+
+  const { logout } = useAuth();
+  const router = useRouter();
   const [darkMode, setDarkMode] = React.useState(false);
   const [notifications, setNotifications] = React.useState(true);
+  const [hasToken, setHasToken] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = await AsyncStorage.getItem(ACCESS_TOKEN);
+      setHasToken(!!token);
+    };
+    checkAuth();
+  }, []);
+
+  if (hasToken === null) {
+    return null; // or a loading spinner
+  }
+
+  if (!hasToken) {
+    return <LoginScreen />;
+  }
 
   const toggleDarkMode = () => setDarkMode(prev => !prev);
   const toggleNotifications = () => setNotifications(prev => !prev);
+
+  const handleSignOut = () => {
+    logout();
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            {user?.imageUrl ? (
-              <Image source={{ uri: user.imageUrl }} style={styles.avatar} />
-            ) : (
-              <User size={40} color={colors.primary} />
-            )}
+            {/* {user?.imageUrl ? (
+            <Image source={{ uri: user.imageUrl }} style={styles.avatar} />
+          ) : (
+            <User size={40} color={colors.primary} />
+          )} */}
           </View>
-          <Text style={styles.username}>{user?.name || 'Guest User'}</Text>
-          <Text style={styles.email}>{user?.email || 'Sign in to sync your preferences'}</Text>
+          <Text style={styles.username}>{'Guest User'}</Text>
+          <Text style={styles.email}>{'Sign in to sync your preferences'}</Text>
         </View>
 
         <View style={styles.section}>
@@ -151,7 +180,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleSignOut}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>
                 <LogOut size={18} color={colors.error} />

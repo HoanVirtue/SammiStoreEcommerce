@@ -3,13 +3,13 @@ import { StyleSheet, Text, View, ScrollView, TextInput, Pressable } from 'react-
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors } from '@/constants/colors';
-import { useCartStore } from '@/presentation/stores/cartStore';
+
 import { Button } from '@/presentation/components/Button';
 import { CreditCard, MapPin, Truck, Check } from 'lucide-react-native';
 
 export default function CheckoutScreen() {
   const router = useRouter();
-  const { cart, clearCart } = useCartStore();
+
 
   const [activeStep, setActiveStep] = useState(1);
   const [shippingInfo, setShippingInfo] = useState({
@@ -40,7 +40,7 @@ export default function CheckoutScreen() {
 
   const handlePlaceOrder = () => {
     setIsOrderPlaced(true);
-    clearCart();
+    // clearCart();
 
     // In a real app, we would send the order to the server here
 
@@ -238,7 +238,7 @@ export default function CheckoutScreen() {
         <View style={styles.orderSummary}>
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>${cart.subtotal.toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>${0.00}</Text>
           </View>
 
           <View style={styles.summaryRow}>
@@ -248,7 +248,7 @@ export default function CheckoutScreen() {
 
           <View style={styles.summaryRow}>
             <Text style={styles.summaryLabel}>Tax</Text>
-            <Text style={styles.summaryValue}>${(cart.subtotal * 0.08).toFixed(2)}</Text>
+            <Text style={styles.summaryValue}>${(0.00 * 0.08).toFixed(2)}</Text>
           </View>
 
           <View style={styles.divider} />
@@ -256,7 +256,7 @@ export default function CheckoutScreen() {
           <View style={styles.summaryRow}>
             <Text style={styles.totalLabel}>Total</Text>
             <Text style={styles.totalValue}>
-              ${(cart.subtotal + (cart.subtotal * 0.08)).toFixed(2)}
+              ${(0.00 + (0.00 * 0.08)).toFixed(2)}
             </Text>
           </View>
         </View>

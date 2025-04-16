@@ -4,8 +4,6 @@ import { useRouter } from 'expo-router';
 import { TProduct } from '@/types/product';
 import { colors } from '@/constants/colors';
 import { Heart, ShoppingBag, Star } from 'lucide-react-native';
-import { useUserStore } from '../stores/userStore';
-import { useCartStore } from '../stores/cartStore';
 import { formatPrice } from '@/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { createCartAsync, getCartsAsync } from '@/stores/cart/action';
@@ -21,8 +19,6 @@ interface ProductCardProps {
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) => {
   const router = useRouter();
-  const { isInWishlist, toggleWishlist } = useUserStore();
-  const { addToCart } = useCartStore();
   const { user } = useAuth();
   const dispatch: AppDispatch = useDispatch();
   const { isSuccessCreate, isErrorCreate, errorMessageCreate } = useSelector((state: RootState) => state.cart);
@@ -31,7 +27,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
     return null;
   }
 
-  const isWishlisted = isInWishlist(product.id?.toString() || '');
+  const isWishlisted = false;
 
   const handlePress = () => {
     if (onPress) {
@@ -43,7 +39,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
 
   const handleWishlist = (e: any) => {
     e.stopPropagation();
-    toggleWishlist(product.id?.toString() || '');
   };
 
   const handleAddToCart = (e: any) => {

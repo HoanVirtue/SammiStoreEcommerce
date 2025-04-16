@@ -98,22 +98,25 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
         isEmployee: params.isEmployee,
       });
 
-      console.log('response', response);
-
       const accessToken = response.result?.accessToken;
       const refreshToken = response.result?.refreshToken;
+
+      console.log('accessToken login', accessToken);
+      console.log('refreshToken login', refreshToken);
+
       if (!accessToken) throw new Error('No access token received');
 
       instance.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+
 
       const userResponse = await getLoginUser();
       setUser({ ...userResponse.result });
 
       const userData = userResponse.result;
       console.log('userData', userData);
-      console.log('accessToken2', accessToken);
-      console.log('refreshToken2', refreshToken);
-      if (params.rememberMe) {
+
+      // if (params.rememberMe) {
+      if (true) {
         await setLocalUserData(
           JSON.stringify(userData || {}),
           accessToken,
@@ -122,7 +125,6 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       } else {
         await setTemporaryToken(accessToken);
       }
-
       Toast.show({
         text1: 'Đăng nhập thành công',
         type: 'success'

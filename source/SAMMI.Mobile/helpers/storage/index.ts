@@ -21,9 +21,6 @@ export const getLocalUserData = async () => {
             AsyncStorage.getItem(ACCESS_TOKEN),
             AsyncStorage.getItem(REFRESH_TOKEN)
         ]);
-        console.log('userData', userData);
-        console.log('accessToken', accessToken);
-        console.log('refreshToken', refreshToken);
         return {
             userData: userData || "",
             accessToken: accessToken || "",

@@ -27,6 +27,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
     return null;
   }
 
+  console.log('user', user);
+
   const isWishlisted = false;
 
   const handlePress = () => {
@@ -44,7 +46,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
   const handleAddToCart = (e: any) => {
     e.stopPropagation();
 
-    if (!user?.id) {
+    if (user?.id) {
       dispatch(
         createCartAsync({
           cartId: 0,

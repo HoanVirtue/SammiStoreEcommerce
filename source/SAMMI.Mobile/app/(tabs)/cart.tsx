@@ -49,10 +49,10 @@ export default function CartScreen() {
     }
   }, []);
 
-  
+
   const memoSelectedProduct = useMemo(() => {
     return cart?.data?.filter((item: TItemOrderProduct) => selectedItems.includes(item.productId)) || [];
-}, [selectedItems, cart]);
+  }, [selectedItems, cart]);
 
 
   useEffect(() => {
@@ -149,7 +149,7 @@ export default function CartScreen() {
     router.push('/');
   }, []);
 
-  
+
 
   const handleCheckout = useCallback(() => {
     const selectedProducts = cart.data.filter((item) => selectedItems.includes(item.productId));
@@ -214,16 +214,16 @@ export default function CartScreen() {
 
   const memoSave = useMemo(() => {
     return cart?.data?.reduce((result: number, current: TItemOrderProduct) => {
-        const price = originalPrice || 0;
-        const discount = discountValue * 100 || 0;
-        const quantity = current?.quantity || 1;
-        if (discount > 0) {
-            const savedPrice = (price * discount) / 100 * quantity;
-            return result + savedPrice;
-        }
-        return result;
+      const price = originalPrice || 0;
+      const discount = discountValue * 100 || 0;
+      const quantity = current?.quantity || 1;
+      if (discount > 0) {
+        const savedPrice = (price * discount) / 100 * quantity;
+        return result + savedPrice;
+      }
+      return result;
     }, 0);
-}, [cart?.data, discountValue, originalPrice]);
+  }, [cart?.data, discountValue, originalPrice]);
 
   const cartItems = useMemo(() => cart?.data || [], [cart?.data]);
 
@@ -277,7 +277,7 @@ export default function CartScreen() {
             </View>
             {cartItems.map((item: TItemOrderProduct) => (
               <CartItem
-                key={item.productId}
+                key={`cart-item-${item.productId}-${item.quantity}`}
                 item={item}
                 onUpdateQuantity={handleUpdateQuantity}
                 onRemove={handleRemoveItem}

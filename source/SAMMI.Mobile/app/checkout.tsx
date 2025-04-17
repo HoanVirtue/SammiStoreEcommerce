@@ -77,7 +77,7 @@ const CheckoutScreen = () => {
   const [shippingPrice, setShippingPrice] = useState<number>(0);
   const [leadTime, setLeadTime] = useState<Date | null>(null);
   const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>();
-  const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+  const [selectedVoucherId, setSelectedVoucherId] = useState<number>(0);
   const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
   const params = useLocalSearchParams();
   const [productDetails, setProductDetails] = useState<{ [key: number]: TProduct }>({});
@@ -208,7 +208,7 @@ const CheckoutScreen = () => {
         details: orderDetails,
         totalAmount: totalPrice,
         totalQuantity: memoQueryProduct.selectedProducts.reduce((acc: number, item: TItemOrderProduct) => acc + item.quantity, 0),
-        discountAmount: voucherDiscount,
+        discountAmount: memoVoucherDiscountPrice,
         isBuyNow: false,
         paymentMethodId: Number(selectedPayment),
       })
@@ -216,7 +216,7 @@ const CheckoutScreen = () => {
       if (res?.payload?.isSuccess) {
         const returnUrl = res?.payload?.result?.returnUrl;
         if (returnUrl) {
-          // Handle payment URL in React Native
+
         } else {
           navigation.navigate(ROUTE_CONFIG.PAYMENT as never);
         }
@@ -320,7 +320,7 @@ const CheckoutScreen = () => {
     }
   };
 
-  const handleSelectVoucher = (voucherId: string) => {
+  const handleSelectVoucher = (voucherId: number) => {
     setSelectedVoucherId(voucherId);
     if (voucherId) {
       getVoucherDetail(Number(voucherId)).then((res) => {
@@ -410,7 +410,7 @@ const CheckoutScreen = () => {
           {deliveryOption.map((delivery) => (
             <TouchableOpacity
               key={delivery.value}
-              style={[styles.deliveryOption, selectedDelivery === delivery.value && styles.selectedOption]}
+              style={[styles.deliveryOption, true && styles.selectedOption]}
               onPress={() => onChangeDelivery(delivery.value)}
             >
               <View style={styles.deliveryInfo}>
@@ -474,7 +474,7 @@ const CheckoutScreen = () => {
               memoQueryProduct.selectedProducts.map((item: TItemOrderProduct) => {
                 const productDetail = productDetails[item.productId];
                 return (
-                  <View key={item.productId} style={styles.productItem}>
+                  <View key={`${item.productId}-${item.quantity}`} style={styles.productItem}>
                     <View style={styles.productImageContainer}>
                       {productDetail?.images?.[0]?.imageUrl ? (
                         <Image
@@ -510,17 +510,15 @@ const CheckoutScreen = () => {
             <Text style={styles.summaryValue}>{formatPrice(memoQueryProduct.totalPrice)}</Text>
           </View>
 
-
           <View style={styles.summaryItem}>
             <Text style={styles.summaryLabel}>Phí vận chuyển</Text>
             <Text style={styles.summaryValue}>{formatPrice(shippingPrice)}</Text>
           </View>
 
-
           {voucherDiscount > 0 && (
             <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Giảm giá</Text>
-              <Text style={styles.summaryValue}>-{formatPrice(voucherDiscount)}</Text>
+              <Text style={styles.summaryLabel}>Giảm giá từ voucher</Text>
+              <Text style={[styles.summaryValue, styles.discountValue]}>-{formatPrice(voucherDiscount)}</Text>
             </View>
           )}
 
@@ -529,7 +527,7 @@ const CheckoutScreen = () => {
             <Text style={styles.totalValue}>
               {formatPrice(
                 memoQueryProduct.totalPrice +
-                (selectedDelivery ? shippingPrice : 0) -
+                shippingPrice -
                 voucherDiscount
               )}
             </Text>
@@ -773,6 +771,9 @@ const styles = StyleSheet.create({
   },
   disabledButton: {
     backgroundColor: '#ccc',
+  },
+  discountValue: {
+    color: '#4CAF50',
   },
 });
 

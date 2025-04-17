@@ -470,7 +470,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
                                                 </TouchableOpacity>
                                                 <View style={styles.addressActions}>
                                                     <TouchableOpacity
-                                                        style={styles.actionButton}
+                                                        style={[styles.actionButton, styles.updateButton]}
                                                         onPress={() => {
                                                             setActiveTab(2);
                                                             setIsEdit({ isEdit: true, index: addresses.findIndex((addr) => addr.id === address.id) });
@@ -479,8 +479,9 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
                                                         <Text style={styles.actionButtonText}>Cập nhật</Text>
                                                     </TouchableOpacity>
                                                     <TouchableOpacity
-                                                        style={[styles.actionButton, styles.deleteButton]}
+                                                        style={[styles.actionButton, styles.deleteButton, addresses.length === 1 && styles.disabledButton]}
                                                         onPress={() => handleDeleteAddress(address.id)}
+                                                        disabled={addresses.length === 1}
                                                     >
                                                         <Text style={[styles.actionButtonText, styles.deleteButtonText]}>Xóa</Text>
                                                     </TouchableOpacity>
@@ -826,6 +827,9 @@ const styles = StyleSheet.create({
     deleteButtonText: {
         color: '#fff',
     },
+    updateButton: {
+        backgroundColor: '#ffd6e7',
+    },
     noDataContainer: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -837,14 +841,15 @@ const styles = StyleSheet.create({
     },
     addButton: {
         backgroundColor: colors.primary,
-        padding: 12,
+        padding: 8,
         borderRadius: 8,
         alignItems: 'center',
+        width: 120,
         marginTop: 20,
     },
     addButtonText: {
         color: '#fff',
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 'bold',
     },
     disabledButton: {

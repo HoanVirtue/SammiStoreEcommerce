@@ -11,12 +11,14 @@ import { SearchBar } from '@/presentation/components/SearchBar';
 import { ProductCard } from '@/presentation/components/ProductCard';
 import { getAllProducts } from '@/services/product';
 import { TProduct } from '@/types/product';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [publicProducts, setPublicProducts] = useState<TProduct[]>([]);
+  const { user } = useAuth();
 
   const handleGetListProduct = async () => {
     setLoading(true);
@@ -34,6 +36,7 @@ export default function HomeScreen() {
           filters: "''"
         }
       });
+      console.log("log products",response);
       if (response?.result?.subset) {
         setPublicProducts(response.result.subset);
       } else {
@@ -82,8 +85,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello Timmy !</Text>
-          <Text style={styles.subtitle}>Find your beauty essentials cosmetics</Text>
+          <Text style={styles.greeting}>Chào {user?.fullName} !</Text>
         </View>
 
         <SearchBar

@@ -170,7 +170,7 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
   const handleDeleteProductInCart = async (id: number) => {
     if (!user) return;
     try {
-      await dispatch(deleteCartAsync(id)).unwrap();
+      await dispatch(deleteCartAsync(id));
     } catch (error) {
       toast.error('Xóa sản phẩm thất bại!');
     }

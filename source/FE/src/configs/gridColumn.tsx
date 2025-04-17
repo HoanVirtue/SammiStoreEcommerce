@@ -590,8 +590,15 @@ export const getReceiptColumns = (): GridColDef[] => {
       field: "receipt_code",
       headerName: t("receipt_code"),
       flex: 1,
-      minWidth: 200,
+      minWidth: 300,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
+    },
+    {
+      field: "employee",
+      headerName: t("employee"),
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.employeeName}</Typography>,
     },
     {
       field: "receipt_date",
@@ -603,8 +610,8 @@ export const getReceiptColumns = (): GridColDef[] => {
     {
       field: "supplier_name",
       headerName: t("supplier_name"),
-      minWidth: 200,
-      maxWidth: 200,
+      minWidth: 150,
+      maxWidth: 150,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.supplierName}</Typography>,
     },
     {

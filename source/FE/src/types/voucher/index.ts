@@ -30,25 +30,28 @@ export type TParamsVouchers = {
     startDate: Date;
     endDate: Date;
     isValid?: boolean;
+    conditions?: Array<{
+        voucherId: number;
+        conditionType: string;
+        conditionValue: string;
+    }>;
+    voucherId: number;
 }
 
 export type TParamsCreateVoucher = {
     name: string;
-    categoryId: number;
-    brandId: number;
-    productId: number;
+    code: string;
     eventId: number;
     discountTypeId: number;
     discountValue: number;
     usageLimit: number;
-    usedCount: number;
     startDate: Date;
     endDate: Date;
-    conditions:{
+    conditions: {
         voucherId: number;
         conditionType: number;
         conditionValue: string;
-    }
+    }[];
 }
 
 export type TParamsFetchListApplyVoucher = {
@@ -67,14 +70,11 @@ export interface TParamsApplyMyVoucher extends TParamsFetchListApplyVoucher {
 
 export type TParamsApplyVoucher = {
     name: string;
-    categoryId: number;
-    brandId: number;
-    productId: number;
+    code: string;
     eventId: number;
     discountTypeId: number;
     discountValue: number;
     usageLimit: number;
-    usedCount: number;
     startDate: Date;
     endDate: Date;
     conditions:{

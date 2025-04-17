@@ -10,35 +10,107 @@ import {
     Grid,
     styled,
     useTheme,
+    TableCell,
+    TableContainer,
+    Table,
+    TableHead,
+    TableBody,
+    TableRow,
+    IconButton,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useTranslation } from 'react-i18next';
 import CustomTextField from 'src/components/text-field';
+import CustomAutocomplete, { AutocompleteOption } from 'src/components/custom-autocomplete';
 import Spinner from 'src/components/spinner';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from 'src/stores';
 import { getVoucherDetail, getVoucherCode } from 'src/services/voucher';
+import { getAllEvents } from 'src/services/event';
+import { getAllProvinces } from 'src/services/province';
+import { getAllProducts } from 'src/services/product';
 import { toast } from 'react-toastify';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import { createVoucherAsync, updateVoucherAsync } from 'src/stores/voucher/action';
+
+enum DiscountTypeEnum {
+    Percentage = 0,
+    FixedAmount = 1,
+    FreeShipping = 2,
+}
+
+enum ConditionTypeEnum {
+    MinOrderValue = 0,
+    MaxDiscountAmount = 1,
+    RequiredQuantity = 2,
+    AllowedRegions = 3,
+    RequiredProducts = 4,
+}
+
+interface VoucherCondition {
+    voucherId: number;
+    conditionType: number;
+    conditionValue: string;
+    id?: number;
+    createdDate?: string;
+    updatedDate?: string;
+    createdBy?: string;
+    updatedBy?: string;
+    isActive?: boolean;
+    isDeleted?: boolean;
+    displayOrder?: number;
+}
 
 interface VoucherFormData {
     code: string;
     name: string;
+    eventId: number;
+    discountTypeId: number;
+    discountValue: number;
+    usageLimit: number;
     startDate: Date;
     endDate: Date;
-    discountType: number;
-    discountValue: number;
-    minOrderAmount: number;
-    maxDiscountAmount: number;
-    usageLimit: number;
-    description: string;
+    conditions: VoucherCondition[];
+    id?: number;
+    createdDate?: string;
+    updatedDate?: string;
+    createdBy?: string;
+    updatedBy?: string;
+    isActive?: boolean;
+    isDeleted?: boolean;
+    displayOrder?: number;
+}
+
+interface VoucherFormErrors {
+    code?: { message?: string };
+    name?: { message?: string };
+    eventId?: { message?: string };
+    discountTypeId?: { message?: string };
+    discountValue?: { message?: string };
+    usageLimit?: { message?: string };
+    startDate?: { message?: string };
+    endDate?: { message?: string };
+    conditions?: {
+        conditionType?: { message?: string };
+        conditionValue?: { message?: string };
+    };
 }
 
 interface CreateUpdateVoucherProps {
     id?: number;
     onClose: () => void;
 }
+
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    padding: theme.spacing(1),
+    '& .MuiTextField-root': {
+        margin: 0,
+        width: '100%',
+    },
+}));
 
 const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }) => {
     const { t } = useTranslation();
@@ -47,31 +119,68 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
     const [loading, setLoading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const voucherCode = useSelector((state: any) => state.voucher.voucherCode);
+    const [conditions, setConditions] = useState<VoucherCondition[]>([
+        {
+            voucherId: 0,
+            conditionType: 0,
+            conditionValue: '',
+            displayOrder: 0
+        }
+    ]);
+    const [events, setEvents] = useState<AutocompleteOption[]>([]);
+    const [loadingEvents, setLoadingEvents] = useState(false);
+    const [provinces, setProvinces] = useState<AutocompleteOption[]>([]);
+    const [products, setProducts] = useState<AutocompleteOption[]>([]);
+    const [loadingProvinces, setLoadingProvinces] = useState(false);
+    const [loadingProducts, setLoadingProducts] = useState(false);
+    const [selectedConditionTypes, setSelectedConditionTypes] = useState<number[]>([]);
+
+    const discountTypeOptions: AutocompleteOption[] = [
+        { label: t("percentage_discount"), value: DiscountTypeEnum.Percentage },
+        { label: t("fixed_amount"), value: DiscountTypeEnum.FixedAmount },
+        { label: t("free_shipping"), value: DiscountTypeEnum.FreeShipping },
+    ];
+
+    const conditionTypeOptions: AutocompleteOption[] = [
+        { label: t("min_order_value"), value: ConditionTypeEnum.MinOrderValue },
+        { label: t("max_discount_amount"), value: ConditionTypeEnum.MaxDiscountAmount },
+        { label: t("required_quantity"), value: ConditionTypeEnum.RequiredQuantity },
+        { label: t("allowed_regions"), value: ConditionTypeEnum.AllowedRegions },
+        { label: t("required_products"), value: ConditionTypeEnum.RequiredProducts },
+    ];
 
     const schema = yup.object().shape({
-        code: yup.string().required(t("voucher_code_required")),
-        name: yup.string().required(t("voucher_name_required")),
+        code: yup.string().required(t("code_required")),
+        name: yup.string().required(t("name_required")),
+        eventId: yup.number().required(t("event_required")),
+        discountTypeId: yup.number().required(t("discount_type_required")),
+        discountValue: yup.number().required(t("discount_value_required")),
+        usageLimit: yup.number().required(t("usage_limit_required")),
         startDate: yup.date().required(t("start_date_required")),
         endDate: yup.date().required(t("end_date_required")),
-        discountType: yup.number().required(t("discount_type_required")),
-        discountValue: yup.number().required(t("discount_value_required")),
-        minOrderAmount: yup.number().required(t("min_order_amount_required")),
-        maxDiscountAmount: yup.number().required(t("max_discount_amount_required")),
-        usageLimit: yup.number().required(t("usage_limit_required")),
-        description: yup.string()
+        conditions: yup.array().of(
+            yup.object().shape({
+                voucherId: yup.number().default(0),
+                conditionType: yup.number().required(t("condition_type_required")),
+                conditionValue: yup.string().required(t("condition_value_required")),
+            })
+        ).required(),
     });
 
     const defaultValues: VoucherFormData = {
-        code: voucherCode || '',
-        name: '',
+        code: "",
+        name: "",
+        eventId: 0,
+        discountTypeId: 0,
+        discountValue: 0,
+        usageLimit: 0,
         startDate: new Date(),
         endDate: new Date(),
-        discountType: 0,
-        discountValue: 0,
-        minOrderAmount: 0,
-        maxDiscountAmount: 0,
-        usageLimit: 0,
-        description: ''
+        conditions: [{
+            voucherId: 0,
+            conditionType: 0,
+            conditionValue: "",
+        }],
     };
 
     const {
@@ -83,8 +192,35 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
     } = useForm<VoucherFormData>({
         defaultValues,
         mode: 'onChange',
-        resolver: yupResolver(schema) as any,
+        resolver: yupResolver(schema),
     });
+
+    const fetchAllEvents = async () => {
+        setLoadingEvents(true);
+        try {
+            const res = await getAllEvents({
+                params: {
+                    take: -1,
+                    skip: 0,
+                    paging: false,
+                    orderBy: "name",
+                    dir: "asc",
+                    keywords: "''",
+                    filters: ""
+                }
+            });
+            if (res?.result?.subset) {
+                setEvents(res.result.subset.map((event: any) => ({
+                    label: event.name,
+                    value: event.id
+                })));
+            }
+        } catch (error) {
+            console.error('Error fetching events:', error);
+        } finally {
+            setLoadingEvents(false);
+        }
+    };
 
     const fetchVoucherDetail = async (voucherId: number) => {
         setLoading(true);
@@ -94,20 +230,79 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                 const data = res.result;
                 setValue('code', data.code);
                 setValue('name', data.name);
+                setValue('eventId', data.eventId);
+                setValue('discountTypeId', data.discountTypeId);
+                setValue('discountValue', data.discountValue);
+                setValue('usageLimit', data.usageLimit);
                 setValue('startDate', new Date(data.startDate));
                 setValue('endDate', new Date(data.endDate));
-                setValue('discountType', data.discountType);
-                setValue('discountValue', data.discountValue);
-                setValue('minOrderAmount', data.minOrderAmount);
-                setValue('maxDiscountAmount', data.maxDiscountAmount);
-                setValue('usageLimit', data.usageLimit);
-                setValue('description', data.description);
+                if (data.conditions) {
+                    setValue('conditions', data.conditions);
+                    setConditions(data.conditions);
+                }
+                setValue('isActive', data.isActive);
+                setValue('isDeleted', data.isDeleted);
+                setValue('displayOrder', data.displayOrder);
             }
         } catch (err) {
             console.error('Error fetching voucher detail:', err);
             toast.error(t('error_fetching_voucher_detail'));
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchAllProvinces = async () => {
+        setLoadingProvinces(true);
+        try {
+            const res = await getAllProvinces({
+                params: {
+                    take: -1,
+                    skip: 0,
+                    paging: false,
+                    orderBy: "name",
+                    dir: "asc",
+                    keywords: "''",
+                    filters: ""
+                }
+            });
+            if (res?.result?.subset) {
+                setProvinces(res.result.subset.map((province: any) => ({
+                    label: province.name,
+                    value: Number(province.id)
+                })));
+            }
+        } catch (error) {
+            console.error('Error fetching provinces:', error);
+        } finally {
+            setLoadingProvinces(false);
+        }
+    };
+
+    const fetchAllProducts = async () => {
+        setLoadingProducts(true);
+        try {
+            const res = await getAllProducts({
+                params: {
+                    take: -1,
+                    skip: 0,
+                    paging: false,
+                    orderBy: "name",
+                    dir: "asc",
+                    keywords: "''",
+                    filters: ""
+                }
+            });
+            if (res?.result?.subset) {
+                setProducts(res.result.subset.map((product: any) => ({
+                    label: product.name,
+                    value: Number(product.id)
+                })));
+            }
+        } catch (error) {
+            console.error('Error fetching products:', error);
+        } finally {
+            setLoadingProducts(false);
         }
     };
 
@@ -133,6 +328,10 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
             }
         };
 
+        fetchAllEvents();
+        fetchAllProvinces();
+        fetchAllProducts();
+
         if (id) {
             setIsEditMode(true);
             fetchVoucherDetail(id);
@@ -143,40 +342,200 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         }
     }, [id]);
 
-    const onSubmit: SubmitHandler<VoucherFormData> = async (data) => {
-        setLoading(true);
-        try {
-            const voucherData = {
-                code: data.code,
-                name: data.name,
-                startDate: data.startDate,
-                endDate: data.endDate,
-                discountType: data.discountType,
-                discountValue: data.discountValue,
-                minOrderAmount: data.minOrderAmount,
-                maxDiscountAmount: data.maxDiscountAmount,
-                usageLimit: data.usageLimit,
-                description: data.description
-            };
+    const handleConditionTypeChange = (index: number, value: number) => {
+        const updatedConditions = [...conditions];
+        const oldType = updatedConditions[index].conditionType;
 
-            if (isEditMode && id) {
-                // const result = await dispatch(updateVoucherAsync({ id, ...voucherData }));
-                // if (result?.payload?.result) {
-                //     toast.success(t('update_voucher_success'));
-                //     onClose();
-                // }
-            } else {
-                // const result = await dispatch(createVoucherAsync(voucherData));
-                // if (result?.payload?.result) {
-                //     toast.success(t('create_voucher_success'));
-                //     onClose();
-                // }
+        // Update selected condition types
+        const newSelectedTypes = [...selectedConditionTypes];
+        if (oldType !== value) {
+            // Remove old type if it was selected
+            const oldTypeIndex = newSelectedTypes.indexOf(oldType);
+            if (oldTypeIndex !== -1) {
+                newSelectedTypes.splice(oldTypeIndex, 1);
             }
+            // Add new type
+            if (value !== 0) {
+                newSelectedTypes.push(value);
+            }
+        }
+        setSelectedConditionTypes(newSelectedTypes);
+
+        // Reset condition value when type changes
+        updatedConditions[index] = {
+            ...updatedConditions[index],
+            conditionType: value,
+            conditionValue: ''
+        };
+        setConditions(updatedConditions);
+        setValue('conditions', updatedConditions);
+    };
+
+    const getAvailableConditionTypes = () => {
+        return conditionTypeOptions.filter(option =>
+            Number(option.value) === 0 || !selectedConditionTypes.includes(Number(option.value))
+        );
+    };
+
+    const handleConditionValueChange = (index: number, value: string | string[]) => {
+        const updatedConditions = [...conditions];
+        updatedConditions[index] = {
+            ...updatedConditions[index],
+            conditionValue: Array.isArray(value) ? value.join(',') : value
+        };
+        setConditions(updatedConditions);
+        setValue('conditions', updatedConditions);
+    };
+
+    const renderConditionValueField = (condition: VoucherCondition, index: number) => {
+        const conditionType = condition.conditionType;
+
+        if (conditionType === ConditionTypeEnum.AllowedRegions) {
+            const selectedProvince = condition.conditionValue ?
+                provinces.find(province =>
+                    province.value.toString() === condition.conditionValue
+                ) : null;
+
+            return (
+                <Box>
+                    <CustomAutocomplete
+                        options={provinces}
+                        value={selectedProvince || null}
+                        onChange={(value: AutocompleteOption | null) => {
+                            if (value) {
+                                handleConditionValueChange(index, String(value.value));
+                            } else {
+                                handleConditionValueChange(index, '');
+                            }
+                        }}
+                        loading={loadingProvinces}
+                        error={!!(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue}
+                        helperText={(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue?.message}
+                        placeholder={t("select_provinces")}
+                        size="small"
+                    />
+                </Box>
+            );
+        } else if (conditionType === ConditionTypeEnum.RequiredProducts) {
+            const selectedProduct = condition.conditionValue ?
+                products.find(product =>
+                    product.value.toString() === condition.conditionValue
+                ) : null;
+
+            return (
+                <Box>
+                    <CustomAutocomplete
+                        options={products}
+                        value={selectedProduct || null}
+                        onChange={(value: AutocompleteOption | null) => {
+                            if (value) {
+                                handleConditionValueChange(index, String(value.value));
+                            } else {
+                                handleConditionValueChange(index, '');
+                            }
+                        }}
+                        loading={loadingProducts}
+                        error={!!(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue}
+                        helperText={(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue?.message}
+                        placeholder={t("select_products")}
+                        size="small"
+                    />
+                </Box>
+            );
+        } else {
+            return (
+                <CustomTextField
+                    fullWidth
+                    required
+                    type="number"
+                    value={condition.conditionValue}
+                    onChange={(e) => handleConditionValueChange(index, e.target.value)}
+                    error={!!(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue}
+                    helperText={(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue?.message}
+                    placeholder={t("enter_condition_value")}
+                    size="small"
+                />
+            );
+        }
+    };
+
+    const handleAddCondition = () => {
+        const newCondition: VoucherCondition = {
+            voucherId: conditions.length + 1,
+            conditionType: 0,
+            conditionValue: '',
+            displayOrder: conditions.length
+        };
+
+        const updatedConditions = [...conditions, newCondition];
+        setConditions(updatedConditions);
+        setValue('conditions', updatedConditions);
+    };
+
+    const handleRemoveCondition = (index: number) => {
+        const removedCondition = conditions[index];
+        const updatedConditions = conditions.filter((_, i) => i !== index);
+
+        // Update selected condition types
+        const newSelectedTypes = selectedConditionTypes.filter(type => type !== removedCondition.conditionType);
+        setSelectedConditionTypes(newSelectedTypes);
+
+        if (updatedConditions.length === 0) {
+            const resetCondition = {
+                voucherId: 0,
+                conditionType: 0,
+                conditionValue: '',
+                displayOrder: 0
+            };
+            setConditions([resetCondition]);
+            setValue('conditions', [resetCondition]);
+        } else {
+            setConditions(updatedConditions);
+            setValue('conditions', updatedConditions);
+        }
+    };
+
+    const onSubmit = async (data: VoucherFormData) => {
+        try {
+            if (id) {
+                await dispatch(updateVoucherAsync({
+                    id,
+                    name: data.name,
+                    code: data.code,
+                    eventId: data.eventId,
+                    discountTypeId: data.discountTypeId,
+                    discountValue: data.discountValue,
+                    usageLimit: data.usageLimit,
+                    startDate: new Date(data.startDate),
+                    endDate: new Date(data.endDate),
+                    conditions: data.conditions.map(condition => ({
+                        voucherId: id,
+                        conditionType: condition.conditionType,
+                        conditionValue: condition.conditionValue,
+                    })),
+                }));
+            } else {
+                await dispatch(createVoucherAsync({
+                    name: data.name,
+                    code: data.code,
+                    eventId: data.eventId,
+                    discountTypeId: data.discountTypeId,
+                    discountValue: data.discountValue,
+                    usageLimit: data.usageLimit,
+                    startDate: new Date(data.startDate),
+                    endDate: new Date(data.endDate),
+                    conditions: data.conditions.map(condition => ({
+                        voucherId: 0,
+                        conditionType: condition.conditionType,
+                        conditionValue: condition.conditionValue,
+                    })),
+                }));
+            }
+            toast.success(t('update_voucher_success'));
+            onClose();
         } catch (error) {
-            console.error('Error saving voucher:', error);
+            console.error("Error submitting form:", error);
             toast.error(t('error_saving_voucher'));
-        } finally {
-            setLoading(false);
         }
     };
 
@@ -240,6 +599,85 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                             </Grid>
                             <Grid item xs={12} sm={6}>
                                 <Controller
+                                    name="eventId"
+                                    control={control}
+                                    render={({ field: { onChange, value } }) => (
+                                        <CustomAutocomplete
+                                            options={events}
+                                            value={events.find(option => option.value === value) || null}
+                                            onChange={(newValue) => {
+                                                onChange(newValue?.value || 0);
+                                            }}
+                                            label={t("event")}
+                                            error={!!errors.eventId}
+                                            helperText={errors.eventId?.message}
+                                            placeholder={t("select_event")}
+                                            loading={loadingEvents}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Controller
+                                    name="discountTypeId"
+                                    control={control}
+                                    render={({ field: { onChange, value } }) => (
+                                        <CustomAutocomplete
+                                            options={discountTypeOptions}
+                                            value={discountTypeOptions.find(option => option.value === value) || null}
+                                            onChange={(newValue) => {
+                                                onChange(newValue?.value || 0);
+                                            }}
+                                            label={t("discount_type")}
+                                            error={!!errors.discountTypeId}
+                                            helperText={errors.discountTypeId?.message}
+                                            placeholder={t("select_discount_type")}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Controller
+                                    name="discountValue"
+                                    control={control}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <CustomTextField
+                                            fullWidth
+                                            required
+                                            type="number"
+                                            label={t("discount_value")}
+                                            onChange={onChange}
+                                            onBlur={onBlur}
+                                            value={value}
+                                            placeholder={t("enter_discount_value")}
+                                            error={!!errors.discountValue}
+                                            helperText={errors.discountValue?.message}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Controller
+                                    name="usageLimit"
+                                    control={control}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <CustomTextField
+                                            fullWidth
+                                            required
+                                            type="number"
+                                            label={t("usage_limit")}
+                                            onChange={onChange}
+                                            onBlur={onBlur}
+                                            value={value}
+                                            placeholder={t("enter_usage_limit")}
+                                            error={!!errors.usageLimit}
+                                            helperText={errors.usageLimit?.message}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={6}>
+                                <Controller
                                     name="startDate"
                                     control={control}
                                     render={({ field: { onChange, value } }) => (
@@ -282,29 +720,84 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                                     )}
                                 />
                             </Grid>
-                            {/* <Grid item xs={12} sm={6}>
-                                <Controller
-                                    name="discountType"
-                                    control={control}
-                                    render={({ field: { onChange, value } }) => (
-                                        <CustomAutocomplete
-                                            options={[
-                                                { value: 1, label: t("percentage") },
-                                            options={Object.values(eventTypeOptions)}
-                                            value={Object.values(eventTypeOptions).find(option => option.value === value) || null}
-                                            onChange={(newValue) => {
-                                                onChange(newValue?.value || '');
-                                            }}
-                                            label={t("event_type")}
-                                            error={!!errors.eventType}
-                                            helperText={errors.eventType?.message}
-                                            placeholder={t("select_event_type")}
-                                        />
-                                    )}
-                                />
-                            </Grid> */}
                         </Grid>
 
+                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Typography variant="h6">{t("voucher_conditions")}</Typography>
+                            <Button
+                                variant="outlined"
+                                startIcon={<AddIcon />}
+                                onClick={handleAddCondition}
+                            >
+                                {t("add_condition")}
+                            </Button>
+                        </Box>
+
+                        <Box sx={{ width: '100%', overflowX: 'auto' }}>
+                            <TableContainer sx={{ mt: 2 }}>
+                                <Table size="small" sx={{ minWidth: 800 }}>
+                                    <TableHead>
+                                        <TableRow>
+                                            <StyledTableCell width="5%">#</StyledTableCell>
+                                            <StyledTableCell width="35%">{t("condition_type")}</StyledTableCell>
+                                            <StyledTableCell width="50%">{t("condition_value")}</StyledTableCell>
+                                            <StyledTableCell width="10%"></StyledTableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {conditions.map((condition, index) => (
+                                            <TableRow key={index}>
+                                                <StyledTableCell>{index + 1}</StyledTableCell>
+                                                <StyledTableCell>
+                                                    <Box>
+                                                        <CustomAutocomplete
+                                                            options={getAvailableConditionTypes()}
+                                                            value={conditionTypeOptions.find(option => option.value === condition.conditionType) || null}
+                                                            onChange={(value: AutocompleteOption | null) => {
+                                                                if (value) {
+                                                                    handleConditionTypeChange(index, Number(value.value));
+                                                                } else {
+                                                                    handleConditionTypeChange(index, 0);
+                                                                }
+                                                            }}
+                                                            error={!!(errors.conditions as VoucherFormErrors)?.conditions?.conditionType}
+                                                            helperText={(errors.conditions as VoucherFormErrors)?.conditions?.conditionType?.message}
+                                                            placeholder={t("select_condition_type")}
+                                                            size="small"
+                                                        />
+                                                    </Box>
+                                                </StyledTableCell>
+                                                <StyledTableCell>
+                                                    {renderConditionValueField(condition, index)}
+                                                </StyledTableCell>
+                                                <StyledTableCell>
+                                                    <Box sx={{ display: 'flex' }}>
+                                                        {conditions.length > 1 && (
+                                                            <IconButton
+                                                                color="error"
+                                                                onClick={() => handleRemoveCondition(index)}
+                                                                size="small"
+                                                            >
+                                                                <RemoveIcon fontSize="small" />
+                                                            </IconButton>
+                                                        )}
+                                                        {index === conditions.length - 1 && (
+                                                            <IconButton
+                                                                color="primary"
+                                                                onClick={handleAddCondition}
+                                                                size="small"
+                                                            >
+                                                                <AddIcon fontSize="small" />
+                                                            </IconButton>
+                                                        )}
+                                                    </Box>
+                                                </StyledTableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </Box>
                     </form>
                 </Paper>
             </Box>

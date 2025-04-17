@@ -18,7 +18,7 @@ import { store } from '@/stores';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AxiosInterceptor } from '@/helpers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message';
+
 
 // Initialize AsyncStorage
 AsyncStorage.setItem('initialized', 'true').catch(error => {
@@ -71,7 +71,6 @@ function RootLayoutNav() {
     <Provider store={store}>
       <AuthProvider>
         <AxiosInterceptor>
-          <Toast/>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />

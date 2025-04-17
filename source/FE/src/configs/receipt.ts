@@ -29,6 +29,19 @@ export const RECEIPT_STATUS = () => {
         },
     }
 }
+export const GOODS_RECEIPT_STATUS = () => {
+    const { t } = useTranslation()
+    return {
+        "0": {
+            label: t("draft"),
+            value: "0",
+        },
+        "1": {
+            label: t("pending_approval"),
+            value: "1",
+        },
+    }
+}
 
 export const getReceiptStatusLabel = (status: string) => {
     const statusMap: { [key: string]: string } = {

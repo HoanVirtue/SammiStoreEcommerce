@@ -30,6 +30,12 @@ export type TParamsVouchers = {
     startDate: Date;
     endDate: Date;
     isValid?: boolean;
+    conditions?: Array<{
+        voucherId: number;
+        conditionType: string;
+        conditionValue: string;
+    }>;
+    voucherId: number;
 }
 
 export type TParamsCreateVoucher = {

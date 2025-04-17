@@ -50,8 +50,9 @@ export default function ProfileScreen() {
   const toggleDarkMode = () => setDarkMode(prev => !prev);
   const toggleNotifications = () => setNotifications(prev => !prev);
 
-  const handleSignOut = () => {
-    logout();
+  const handleSignOut = async () => {
+    await logout();
+    router.replace('/(auth)/login');
   };
 
   return (

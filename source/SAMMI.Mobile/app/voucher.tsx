@@ -23,7 +23,7 @@ import { TParamsVouchers } from '@/types/voucher';
 type VoucherModalProps = {
     open: boolean;
     onClose: () => void;
-    onSelectVoucher: (voucherId: string) => void;
+    onSelectVoucher: (voucherId: number) => void;
     cartDetails?: Array<{
         productId: number;
         discount: number;
@@ -90,7 +90,7 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
 
             const response = await applyVoucher(voucherCode, formattedDetails);
             if (response?.isSuccess) {
-                onSelectVoucher(voucherCode);
+                onSelectVoucher(Number(voucherCode));
                 Toast.show({
                     type: 'success',
                     text1: 'Áp dụng mã giảm giá thành công'
@@ -165,9 +165,9 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                                                     key={voucher.id}
                                                     style={[
                                                         styles.voucherItem,
-                                                        selectedVoucher === voucher.id.toString() && styles.selectedVoucher
+                                                        selectedVoucher === voucher.voucherId.toString() && styles.selectedVoucher
                                                     ]}
-                                                    onPress={() => setSelectedVoucher(voucher.id.toString())}
+                                                    onPress={() => setSelectedVoucher(voucher.voucherId.toString())}
                                                 >
                                                     <View style={styles.voucherContent}>
                                                         <Ticket size={40} color={colors.primary} />
@@ -230,7 +230,7 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                         <Button
                             title="Xác nhận"
                             onPress={() => {
-                                onSelectVoucher(selectedVoucher);
+                                onSelectVoucher(Number(selectedVoucher));
                                 onClose();
                             }}
                             disabled={!selectedVoucher}

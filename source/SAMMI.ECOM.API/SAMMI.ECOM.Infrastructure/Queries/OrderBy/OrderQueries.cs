@@ -155,7 +155,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 {
                     sqlBuilder.Select("t2.FullName AS CustomerName, t2.Phone AS PhoneNumber");
                     sqlBuilder.Select("CONCAT(t1.CustomerAddress, ', ', t4.Name, ', ', t5.Name, ', ', t6.Name) AS CustomerAddress");
-                    sqlBuilder.Select("t8.PaymentStatus");
+                    sqlBuilder.Select("t8.PaymentStatus, t8.PaymentMethodId");
                     sqlBuilder.Select("t10.Name AS PaymentMethod");
                     sqlBuilder.Select("t7.*");
                     sqlBuilder.Select("t9.Name AS ProductName");
@@ -224,7 +224,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 {
                     sqlBuilder.Select("t2.FullName AS CustomerName, t2.Phone AS PhoneNumber");
                     sqlBuilder.Select("CONCAT(t1.CustomerAddress, ', ', t4.Name, ', ', t5.Name, ', ', t6.Name) AS CustomerAddress");
-                    sqlBuilder.Select("t8.PaymentStatus");
+                    sqlBuilder.Select("t8.PaymentStatus, t8.PaymentMethodId");
                     sqlBuilder.Select("t10.Name AS PaymentMethod");
                     sqlBuilder.Select("t7.*");
                     sqlBuilder.Select("t9.Name AS ProductName");

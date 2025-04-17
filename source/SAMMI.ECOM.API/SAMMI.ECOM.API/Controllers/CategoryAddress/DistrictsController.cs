@@ -83,7 +83,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         {
             if (!_districtRepository.IsExisted(id))
             {
-                return NotFound();
+                return BadRequest("Quận/huyện không tồn tại");
             }
             return Ok(_districtRepository.DeleteAndSave(id));
         }

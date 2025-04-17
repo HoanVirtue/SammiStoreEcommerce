@@ -240,11 +240,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         {
             RuleFor(x => x.Code)
                 .NotEmpty()
-                .WithMessage("Mã chương trình khuyến mãi không được bỏ trống");
+                .WithMessage("Mã phiếu giảm giá không được bỏ trống");
 
             RuleFor(x => x.Name)
                 .NotEmpty()
-                .WithMessage("Tên chương trình khuyến mãi không được bỏ trống");
+                .WithMessage("Tên phiếu giảm giá không được bỏ trống");
 
             RuleFor(x => x.EventId)
                 .NotNull()

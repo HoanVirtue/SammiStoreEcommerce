@@ -80,7 +80,7 @@ namespace SAMMI.ECOM.API.Controllers.Brands
         {
             if (!_brandRepository.IsExisted(id))
             {
-                return NotFound();
+                return BadRequest("Thương hiệu không tồn tại.");
             }
             return Ok(_brandRepository.DeleteAndSave(id));
         }

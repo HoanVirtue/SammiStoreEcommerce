@@ -85,7 +85,7 @@ namespace SAMMI.ECOM.API.Controllers
         {
             if (!_userRepository.IsExisted(id))
             {
-                return NotFound();
+                return BadRequest("Người dùng không tồn tại");
             }
             return Ok(_userRepository.DeleteAndSave(id));
         }

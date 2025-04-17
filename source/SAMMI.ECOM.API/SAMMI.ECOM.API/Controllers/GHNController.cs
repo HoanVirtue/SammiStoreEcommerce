@@ -59,7 +59,7 @@ namespace SAMMI.ECOM.API.Controllers
             var ward = await _wardRepository.GetById(wardId);
             if (ward == null)
             {
-                return NotFound();
+                return BadRequest("Phường/xã không tồn tại.");
             }
 
             return Ok(await _ghnService.GetServices(_config.GetValue<int>("GHN_API:DistrictId"), ward.DistrictId ?? 1));

@@ -82,7 +82,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var actResponse = new ActionResponse();
             if (!_eventRepository.IsExisted(id))
             {
-                return NotFound();
+                return BadRequest("Chương trình khuyến mãi không tồn tại.");
             }
             if(!await _eventRepository.IsExistAnother(id))
             {

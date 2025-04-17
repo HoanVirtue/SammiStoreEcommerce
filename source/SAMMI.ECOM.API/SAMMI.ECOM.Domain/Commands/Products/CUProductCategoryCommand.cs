@@ -9,7 +9,7 @@ namespace SAMMI.ECOM.Domain.Commands.Products
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
         public int? ParentId { get; set; }
-        public int Level { get; set; }
+        public int? Level { get; set; }
 
 
         public int Id { get; set; }

@@ -49,6 +49,12 @@ export default function CartScreen() {
     }
   }, []);
 
+  
+  const memoSelectedProduct = useMemo(() => {
+    return cart?.data?.filter((item: TItemOrderProduct) => selectedItems.includes(item.productId)) || [];
+}, [selectedItems, cart]);
+
+
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
@@ -143,8 +149,11 @@ export default function CartScreen() {
     router.push('/');
   }, []);
 
+  
+
   const handleCheckout = useCallback(() => {
     const selectedProducts = cart.data.filter((item) => selectedItems.includes(item.productId));
+    console.log('Selected products:', selectedProducts);
     if (selectedProducts.length === 0) {
       Toast.show({
         type: 'error',
@@ -157,12 +166,12 @@ export default function CartScreen() {
       pathname: '/checkout',
       params: {
         selectedProducts: JSON.stringify(
-          selectedProducts.map((item) => ({
+          memoSelectedProduct.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
             price: item.price || 0,
             discount: item.discount || 0,
-            name: item.name || 'Unknown Product',
+            name: item.name || 'Không có tên sản phẩm',
             images: item.images || [],
           }))
         ),

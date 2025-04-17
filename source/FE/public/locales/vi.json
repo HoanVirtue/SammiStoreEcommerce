@@ -710,6 +710,8 @@
     "manage_goods_receipt": "Quản lý nhập hàng",
     "manage_user": "Quản lý người dùng",
     "manage_category": "Quản lý danh mục",
+    "apply_voucher_success": "Áp dụng mã giảm giá thành công",
+    "apply_voucher_error": "Đã xảy ra lỗi khi áp dụng mã giảm giá, vui lòng thử lại!",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

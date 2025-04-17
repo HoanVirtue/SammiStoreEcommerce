@@ -24,6 +24,7 @@ import { getAllDistricts } from '../services/district';
 import { getAllWards } from '../services/ward';
 import { useAuth } from '../hooks/useAuth';
 import Toast from 'react-native-toast-message';
+import { colors } from '@/constants/colors';
 
 interface Address {
     id: number;
@@ -67,6 +68,9 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
         provinceName: '',
         isDefault: false,
     });
+    const [showProvinceSelect, setShowProvinceSelect] = useState(false);
+    const [showDistrictSelect, setShowDistrictSelect] = useState(false);
+    const [showWardSelect, setShowWardSelect] = useState(false);
 
     const { user } = useAuth();
     const dispatch: AppDispatch = useDispatch();
@@ -267,12 +271,14 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
 
     const refreshAddresses = async () => {
         const response = await dispatch(getAllAddressesAsync()).unwrap();
-        if (response.result) {
+        if (response?.result) {
             setAddresses(response.result);
             const defaultAddr = response.result.find((addr: Address) => addr.isDefault);
             setSelectedAddressId(defaultAddr?.id || null);
         }
     };
+
+    console.log('addresses', addresses);
 
     const resetForm = () => {
         setIsEdit({ isEdit: false, index: 0 });
@@ -412,13 +418,15 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
         }
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete]);
 
+    console.log("activeTab", activeTab)
+
     return (
         <Modal visible={open} animationType="slide" transparent>
             <View style={styles.modalContainer}>
                 <View style={styles.modalContent}>
                     {(isLoading || loading) && (
                         <View style={styles.loadingContainer}>
-                            <ActivityIndicator size="large" color="#0000ff" />
+                            <ActivityIndicator size="large" color={colors.primary} />
                         </View>
                     )}
 
@@ -468,7 +476,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
                                                             setIsEdit({ isEdit: true, index: addresses.findIndex((addr) => addr.id === address.id) });
                                                         }}
                                                     >
-                                                        <Text style={styles.actionButtonText}>Sửa</Text>
+                                                        <Text style={styles.actionButtonText}>Cập nhật</Text>
                                                     </TouchableOpacity>
                                                     <TouchableOpacity
                                                         style={[styles.actionButton, styles.deleteButton]}
@@ -500,94 +508,51 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
                             <View style={styles.formContainer}>
                                 <View style={styles.formGroup}>
                                     <Text style={styles.label}>Tỉnh/Thành phố</Text>
-                                    <View style={styles.selectContainer}>
-                                        {provinceOptions.map((option) => (
-                                            <TouchableOpacity
-                                                key={option.value}
-                                                style={[
-                                                    styles.selectOption,
-                                                    selectedProvince?.value === option.value && styles.selectOptionSelected,
-                                                ]}
-                                                onPress={() => {
-                                                    setSelectedProvince(option);
-                                                    setFormData((prev) => ({
-                                                        ...prev,
-                                                        provinceName: option.label,
-                                                    }));
-                                                }}
-                                            >
-                                                <Text
-                                                    style={[
-                                                        styles.selectOptionText,
-                                                        selectedProvince?.value === option.value && styles.selectOptionTextSelected,
-                                                    ]}
-                                                >
-                                                    {option.label}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        ))}
+                                    <View style={styles.selectWrapper}>
+                                        <TouchableOpacity
+                                            style={styles.select}
+                                            onPress={() => {
+                                                setShowProvinceSelect(true);
+                                            }}
+                                        >
+                                            <Text style={[styles.selectText, !selectedProvince && styles.placeholderText]}>
+                                                {selectedProvince ? selectedProvince.label : 'Chọn tỉnh/thành phố'}
+                                            </Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
 
                                 <View style={styles.formGroup}>
                                     <Text style={styles.label}>Quận/Huyện</Text>
-                                    <View style={styles.selectContainer}>
-                                        {districtOptions.map((option) => (
-                                            <TouchableOpacity
-                                                key={option.value}
-                                                style={[
-                                                    styles.selectOption,
-                                                    selectedDistrict?.value === option.value && styles.selectOptionSelected,
-                                                ]}
-                                                onPress={() => {
-                                                    setSelectedDistrict(option);
-                                                    setFormData((prev) => ({
-                                                        ...prev,
-                                                        districtName: option.label,
-                                                    }));
-                                                }}
-                                            >
-                                                <Text
-                                                    style={[
-                                                        styles.selectOptionText,
-                                                        selectedDistrict?.value === option.value && styles.selectOptionTextSelected,
-                                                    ]}
-                                                >
-                                                    {option.label}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        ))}
+                                    <View style={styles.selectWrapper}>
+                                        <TouchableOpacity
+                                            style={[styles.select, !selectedProvince && styles.disabledSelect]}
+                                            disabled={!selectedProvince}
+                                            onPress={() => {
+                                                setShowDistrictSelect(true);
+                                            }}
+                                        >
+                                            <Text style={[styles.selectText, !selectedDistrict && styles.placeholderText]}>
+                                                {selectedDistrict ? selectedDistrict.label : 'Chọn quận/huyện'}
+                                            </Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
 
                                 <View style={styles.formGroup}>
                                     <Text style={styles.label}>Phường/Xã</Text>
-                                    <View style={styles.selectContainer}>
-                                        {wardOptions.map((option) => (
-                                            <TouchableOpacity
-                                                key={option.value}
-                                                style={[
-                                                    styles.selectOption,
-                                                    formData.wardId === option.value && styles.selectOptionSelected,
-                                                ]}
-                                                onPress={() => {
-                                                    setFormData((prev) => ({
-                                                        ...prev,
-                                                        wardId: Number(option.value),
-                                                        wardName: option.label,
-                                                    }));
-                                                }}
-                                            >
-                                                <Text
-                                                    style={[
-                                                        styles.selectOptionText,
-                                                        formData.wardId === option.value && styles.selectOptionTextSelected,
-                                                    ]}
-                                                >
-                                                    {option.label}
-                                                </Text>
-                                            </TouchableOpacity>
-                                        ))}
+                                    <View style={styles.selectWrapper}>
+                                        <TouchableOpacity
+                                            style={[styles.select, !selectedDistrict && styles.disabledSelect]}
+                                            disabled={!selectedDistrict}
+                                            onPress={() => {
+                                                setShowWardSelect(true);
+                                            }}
+                                        >
+                                            <Text style={[styles.selectText, !formData.wardId && styles.placeholderText]}>
+                                                {formData.wardName || 'Chọn phường/xã'}
+                                            </Text>
+                                        </TouchableOpacity>
                                     </View>
                                 </View>
 
@@ -641,6 +606,99 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
                     </View>
                 </View>
             </View>
+
+            <Modal visible={showProvinceSelect} transparent animationType="slide">
+                <View style={styles.selectionModal}>
+                    <View style={styles.selectionContent}>
+                        <View style={styles.selectionHeader}>
+                            <Text style={styles.selectionTitle}>Chọn tỉnh/thành phố</Text>
+                            <TouchableOpacity onPress={() => setShowProvinceSelect(false)}>
+                                <Text style={styles.closeText}>Đóng</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView>
+                            {provinceOptions.map((option) => (
+                                <TouchableOpacity
+                                    key={option.value}
+                                    style={styles.selectionItem}
+                                    onPress={() => {
+                                        setSelectedProvince(option);
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            provinceName: option.label,
+                                        }));
+                                        setShowProvinceSelect(false);
+                                    }}
+                                >
+                                    <Text style={styles.selectionItemText}>{option.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal visible={showDistrictSelect} transparent animationType="slide">
+                <View style={styles.selectionModal}>
+                    <View style={styles.selectionContent}>
+                        <View style={styles.selectionHeader}>
+                            <Text style={styles.selectionTitle}>Chọn quận/huyện</Text>
+                            <TouchableOpacity onPress={() => setShowDistrictSelect(false)}>
+                                <Text style={styles.closeText}>Đóng</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView>
+                            {districtOptions.map((option) => (
+                                <TouchableOpacity
+                                    key={option.value}
+                                    style={styles.selectionItem}
+                                    onPress={() => {
+                                        setSelectedDistrict(option);
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            districtName: option.label,
+                                        }));
+                                        setShowDistrictSelect(false);
+                                    }}
+                                >
+                                    <Text style={styles.selectionItemText}>{option.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
+
+            <Modal visible={showWardSelect} transparent animationType="slide">
+                <View style={styles.selectionModal}>
+                    <View style={styles.selectionContent}>
+                        <View style={styles.selectionHeader}>
+                            <Text style={styles.selectionTitle}>Chọn phường/xã</Text>
+                            <TouchableOpacity onPress={() => setShowWardSelect(false)}>
+                                <Text style={styles.closeText}>Đóng</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <ScrollView>
+                            {wardOptions.map((option) => (
+                                <TouchableOpacity
+                                    key={option.value}
+                                    style={styles.selectionItem}
+                                    onPress={() => {
+                                        setFormData((prev) => ({
+                                            ...prev,
+                                            wardId: Number(option.value),
+                                            wardName: option.label,
+                                        }));
+                                        setShowWardSelect(false);
+                                    }}
+                                >
+                                    <Text style={styles.selectionItemText}>{option.label}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
+                </View>
+            </Modal>
         </Modal>
     );
 };
@@ -697,7 +755,7 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     content: {
-        flex: 1,
+        // flex: 1,
     },
     sectionTitle: {
         fontSize: 16,
@@ -708,7 +766,7 @@ const styles = StyleSheet.create({
     addressItem: {
         marginBottom: 15,
         borderWidth: 1,
-        borderColor: '#ddd',
+        borderColor: '#fff',
         borderRadius: 8,
         padding: 10,
     },
@@ -721,12 +779,12 @@ const styles = StyleSheet.create({
         height: 20,
         borderRadius: 10,
         borderWidth: 2,
-        borderColor: '#666',
+        borderColor: colors.primary,
         marginRight: 10,
     },
     radioCircleSelected: {
-        backgroundColor: '#007AFF',
-        borderColor: '#007AFF',
+        backgroundColor: colors.primary,
+        borderColor: colors.primary,
     },
     addressInfo: {
         flex: 1,
@@ -736,7 +794,7 @@ const styles = StyleSheet.create({
         color: '#333',
     },
     defaultBadge: {
-        backgroundColor: '#007AFF',
+        backgroundColor: colors.primary,
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 4,
@@ -778,7 +836,7 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     addButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: colors.primary,
         padding: 12,
         borderRadius: 8,
         alignItems: 'center',
@@ -804,33 +862,63 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         color: '#333',
     },
-    selectContainer: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 8,
-    },
-    selectOption: {
-        padding: 8,
-        borderRadius: 4,
+    selectWrapper: {
         borderWidth: 1,
         borderColor: '#ddd',
+        borderRadius: 4,
+        marginBottom: 5,
     },
-    selectOptionSelected: {
-        backgroundColor: '#007AFF',
-        borderColor: '#007AFF',
+    select: {
+        padding: 12,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
-    selectOptionText: {
+    selectText: {
+        fontSize: 14,
         color: '#333',
     },
-    selectOptionTextSelected: {
-        color: '#fff',
+    placeholderText: {
+        color: '#999',
     },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 4,
-        padding: 10,
+    disabledSelect: {
+        backgroundColor: '#f5f5f5',
+    },
+    selectionModal: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'flex-end',
+    },
+    selectionContent: {
+        backgroundColor: '#fff',
+        borderTopLeftRadius: 15,
+        borderTopRightRadius: 15,
+        maxHeight: '80%',
+    },
+    selectionHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    selectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    closeText: {
+        color: colors.primary,
+        fontSize: 16,
+    },
+    selectionItem: {
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#eee',
+    },
+    selectionItemText: {
         fontSize: 14,
+        color: '#333',
     },
     switchContainer: {
         flexDirection: 'row',
@@ -855,7 +943,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     confirmButton: {
-        backgroundColor: '#007AFF',
+        backgroundColor: colors.primary,
         padding: 12,
         borderRadius: 8,
     },
@@ -863,6 +951,13 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    input: {
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 4,
+        padding: 10,
+        fontSize: 14,
     },
 });
 

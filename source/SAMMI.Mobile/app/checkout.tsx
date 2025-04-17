@@ -29,6 +29,8 @@ import { useLocalSearchParams } from 'expo-router';
 import { ProductImage, TProduct } from '../types/product';
 import { TParamsAddresses } from '@/types/address';
 import AddressModal from './address';
+import { getProductDetail } from '@/services/product';
+import VoucherModal from './voucher';
 
 // Types và Interfaces
 type TItemOrderProduct = {
@@ -78,6 +80,7 @@ const CheckoutScreen = () => {
   const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
   const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
   const params = useLocalSearchParams();
+  const [productDetails, setProductDetails] = useState<{ [key: number]: TProduct }>({});
 
   const { user } = useAuth();
   const navigation = useNavigation();
@@ -106,24 +109,26 @@ const CheckoutScreen = () => {
 
     try {
       if (params) {
-        console.log('Received params:', params);
         result.totalPrice = Number(params.totalPrice) || 0;
 
         if (params.selectedProducts) {
           const parsedProducts = JSON.parse(params.selectedProducts as string);
           console.log('Parsed products:', parsedProducts);
 
-          result.selectedProducts = parsedProducts.map((item: any) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            product: {
-              price: item.price || 0,
-              discount: item.discount || 0,
-              name: item.name || 'Không có tên sản phẩm',
-            },
-            images: item.images || [],
-          }));
-          console.log('Formatted products:', result.selectedProducts);
+          result.selectedProducts = parsedProducts.map((item: any) => {
+            console.log('Processing item:', item);
+            return {
+              productId: item.productId,
+              quantity: item.quantity,
+              product: {
+                price: item.price || 0,
+                discount: item.discount || 0,
+                name: item.name || 'Không có tên sản phẩm',
+              },
+              images: item.images || [],
+            };
+          });
+          console.log('Final formatted products:', result.selectedProducts);
         }
       }
     } catch (error) {
@@ -159,6 +164,14 @@ const CheckoutScreen = () => {
       Toast.show({
         type: 'error',
         text1: 'Vui lòng chọn phương thức thanh toán',
+      });
+      return;
+    }
+
+    if (!selectedDelivery) {
+      Toast.show({
+        type: 'error',
+        text1: 'Vui lòng chọn phương thức vận chuyển',
       });
       return;
     }
@@ -253,7 +266,7 @@ const CheckoutScreen = () => {
         const res = await getCaculatedFee({
           params: {
             wardId: myCurrentAddress.wardId,
-            totalAmount: memoQueryProduct.totalPrice,
+            totalAmount: Math.floor(memoQueryProduct.totalPrice),
           },
         });
         if (res?.result) {
@@ -307,6 +320,21 @@ const CheckoutScreen = () => {
     }
   };
 
+  const handleSelectVoucher = (voucherId: string) => {
+    setSelectedVoucherId(voucherId);
+    if (voucherId) {
+      getVoucherDetail(Number(voucherId)).then((res) => {
+        if (res?.result?.discountValue) {
+          const discountPercent = res.result.discountValue;
+          const discountPrice = (Number(memoQueryProduct.totalPrice) * Number(discountPercent)) / 100;
+          setVoucherDiscount(discountPrice);
+        }
+      });
+    } else {
+      setVoucherDiscount(0);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       getMyCurrentAddress();
@@ -321,6 +349,27 @@ const CheckoutScreen = () => {
     getShippingFee();
   }, [myCurrentAddress, memoQueryProduct.totalPrice]);
 
+  useEffect(() => {
+    const fetchProductDetails = async () => {
+      const details: { [key: number]: TProduct } = {};
+      for (const item of memoQueryProduct.selectedProducts) {
+        try {
+          const res = await getProductDetail(item.productId);
+          if (res?.result) {
+            details[item.productId] = res.result;
+          }
+        } catch (error) {
+          console.error('Error fetching product details:', error);
+        }
+      }
+      setProductDetails(details);
+    };
+
+    if (memoQueryProduct.selectedProducts.length > 0) {
+      fetchProductDetails();
+    }
+  }, [memoQueryProduct.selectedProducts]);
+
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
@@ -328,8 +377,6 @@ const CheckoutScreen = () => {
       </View>
     );
   }
-
-  console.log('memoQueryProduct', memoQueryProduct);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -403,10 +450,14 @@ const CheckoutScreen = () => {
           <View style={styles.voucherContainer}>
             <View style={styles.voucherInfo}>
               <Ticket size={24} color={theme.colors.primary} />
-              <Text style={styles.voucherLabel}>Mã giảm giá Sammi</Text>
+              <Text style={styles.voucherLabel}>
+                {selectedVoucherId ? 'Đã chọn mã giảm giá' : 'Mã giảm giá Sammi'}
+              </Text>
             </View>
             <TouchableOpacity style={styles.button} onPress={() => setOpenVoucher(true)}>
-              <Text style={styles.buttonText}>Chọn mã giảm giá</Text>
+              <Text style={styles.buttonText}>
+                {selectedVoucherId ? 'Thay đổi' : 'Chọn mã giảm giá'}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -420,46 +471,51 @@ const CheckoutScreen = () => {
             {memoQueryProduct.selectedProducts.length === 0 ? (
               <Text style={styles.emptyText}>Không có sản phẩm nào được chọn</Text>
             ) : (
-              memoQueryProduct.selectedProducts.map((item: TItemOrderProduct) => (
-                <View key={item.productId} style={styles.productItem}>
-                  <View style={styles.productImageContainer}>
-                    {item.images[0]?.imageUrl ? (
-                      <Image
-                        source={{ uri: item.images[0].imageUrl }}
-                        style={styles.productImage}
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <View style={[styles.productImage, styles.placeholderImage]}>
-                        <Text style={styles.placeholderText}>Không có ảnh</Text>
-                      </View>
-                    )}
-                  </View>
-                  <View style={styles.productInfo}>
-                    <Text style={styles.productName}>{item.product.name}</Text>
-                    <Text style={styles.productQuantity}>Số lượng: {item.quantity}</Text>
-                    <Text style={styles.productPrice}>
-                      {formatPrice(
-                        item.product.price *
-                        (item.product.discount ? (100 - item.product.discount) / 100 : 1) *
-                        item.quantity
+              memoQueryProduct.selectedProducts.map((item: TItemOrderProduct) => {
+                const productDetail = productDetails[item.productId];
+                return (
+                  <View key={item.productId} style={styles.productItem}>
+                    <View style={styles.productImageContainer}>
+                      {productDetail?.images?.[0]?.imageUrl ? (
+                        <Image
+                          source={{ uri: productDetail.images[0].imageUrl }}
+                          style={styles.productImage}
+                          resizeMode="cover"
+                        />
+                      ) : (
+                        <View style={[styles.productImage, styles.placeholderImage]}>
+                          <Text style={styles.placeholderText}>Không có ảnh</Text>
+                        </View>
                       )}
-                    </Text>
+                    </View>
+                    <View style={styles.productInfo}>
+                      <Text style={styles.productName}>{productDetail?.name || item.product.name}</Text>
+                      <Text style={styles.productQuantity}>Số lượng: {item.quantity}</Text>
+                      <Text style={styles.productPrice}>
+                        {formatPrice(
+                          (productDetail?.price || item.product.price) *
+                          (productDetail?.discount ? (100 - productDetail.discount) / 100 : 1) *
+                          item.quantity
+                        )}
+                      </Text>
+                    </View>
                   </View>
-                </View>
-              ))
+                );
+              })
             )}
           </View>
 
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Tạm tính</Text>
+            <Text style={styles.summaryLabel}>Tổng tiền hàng</Text>
             <Text style={styles.summaryValue}>{formatPrice(memoQueryProduct.totalPrice)}</Text>
           </View>
+
 
           <View style={styles.summaryItem}>
             <Text style={styles.summaryLabel}>Phí vận chuyển</Text>
             <Text style={styles.summaryValue}>{formatPrice(shippingPrice)}</Text>
           </View>
+
 
           {voucherDiscount > 0 && (
             <View style={styles.summaryItem}>
@@ -471,11 +527,22 @@ const CheckoutScreen = () => {
           <View style={styles.summaryTotal}>
             <Text style={styles.totalLabel}>Tổng cộng</Text>
             <Text style={styles.totalValue}>
-              {formatPrice(memoQueryProduct.totalPrice + shippingPrice - voucherDiscount)}
+              {formatPrice(
+                memoQueryProduct.totalPrice +
+                (selectedDelivery ? shippingPrice : 0) -
+                voucherDiscount
+              )}
             </Text>
           </View>
 
-          <TouchableOpacity style={styles.placeOrderButton} onPress={handlePlaceOrder}>
+          <TouchableOpacity
+            style={[
+              styles.placeOrderButton,
+              (!selectedPayment || !selectedDelivery) && styles.disabledButton
+            ]}
+            onPress={handlePlaceOrder}
+            disabled={!selectedPayment || !selectedDelivery}
+          >
             <Text style={styles.placeOrderButtonText}>Đặt hàng</Text>
           </TouchableOpacity>
         </View>
@@ -484,6 +551,19 @@ const CheckoutScreen = () => {
       <AddressModal
         open={openAddress}
         onClose={() => setOpenAddress(false)}
+      />
+
+      <VoucherModal
+        open={openVoucher}
+        onClose={() => setOpenVoucher(false)}
+        onSelectVoucher={handleSelectVoucher}
+        cartDetails={memoQueryProduct.selectedProducts.map(item => ({
+          productId: item.productId,
+          discount: item.product.discount || 0,
+          quantity: item.quantity,
+          price: item.product.price,
+          productName: item.product.name
+        }))}
       />
     </SafeAreaView>
   );
@@ -690,6 +770,9 @@ const styles = StyleSheet.create({
   placeholderText: {
     fontSize: 14,
     color: '#666',
+  },
+  disabledButton: {
+    backgroundColor: '#ccc',
   },
 });
 

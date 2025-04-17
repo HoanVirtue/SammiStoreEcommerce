@@ -173,6 +173,7 @@ const CheckoutPage: NextPage<TProps> = () => {
         return result;
     }, [router.query, carts?.data]);
 
+
     const memoShippingPrice = useMemo(() => {
         const shippingPrice = deliveryOption.find((item) => item.value === selectedDelivery)?.price ?? 0;
         return shippingPrice ? Number(shippingPrice) : 0;
@@ -279,7 +280,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 const res = await getCaculatedFee({
                     params: {
                         wardId: myCurrentAddress.wardId,
-                        totalAmount: memoQueryProduct.totalPrice
+                        totalAmount: Math.floor(memoQueryProduct.totalPrice)
                     }
                 });
                 if (res?.result) {

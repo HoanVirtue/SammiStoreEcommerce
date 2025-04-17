@@ -1,23 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, ScrollView, Pressable, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { colors } from '@/constants/colors';
-import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
+import {
+    Modal,
+    View,
+    Text,
+    StyleSheet,
+    TouchableOpacity,
+    TextInput,
+    ScrollView,
+    ActivityIndicator,
+    Platform
+} from 'react-native';
+import { useDispatch } from 'react-redux';
 
-import { applyVoucher, fetchListApplyVoucher } from '@/services/voucher';
 import Toast from 'react-native-toast-message';
-import { ArrowLeft, Check, Ticket } from 'lucide-react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { X, Ticket } from 'lucide-react-native';
+import { colors } from '@/constants/colors';
+import { Button } from '@/presentation/components/Button';
+import { applyVoucher, fetchListApplyVoucher } from '@/services/voucher';
+import { TParamsVouchers } from '@/types/voucher';
 
-interface Voucher {
-    id: string;
-    name: string;
-    discountValue: number;
-    endDate: string;
-    isValid: boolean;
-}
-
-interface VoucherScreenProps {
+type VoucherModalProps = {
+    open: boolean;
+    onClose: () => void;
+    onSelectVoucher: (voucherId: string) => void;
     cartDetails?: Array<{
         productId: number;
         discount: number;
@@ -25,14 +31,16 @@ interface VoucherScreenProps {
         price: number;
         productName: string;
     }>;
-    onSelectVoucher?: (voucherId: string) => void;
-}
+};
 
-export default function VoucherScreen({ cartDetails, onSelectVoucher }: VoucherScreenProps) {
-    const router = useRouter();
+const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherModalProps) => {
+    //Redux
+    const dispatch = useDispatch();
+
+    //State
+    const [vouchers, setVouchers] = useState([]);
+    const [selectedVoucher, setSelectedVoucher] = useState('');
     const [loading, setLoading] = useState(false);
-    const [vouchers, setVouchers] = useState<Voucher[]>([]);
-    const [selectedVoucher, setSelectedVoucher] = useState<string>('');
     const [voucherCode, setVoucherCode] = useState('');
     const [applyLoading, setApplyLoading] = useState(false);
 
@@ -47,24 +55,23 @@ export default function VoucherScreen({ cartDetails, onSelectVoucher }: VoucherS
                 quantity: Number(item.quantity),
             })) || []
         };
-        try {
-            const res = await fetchListApplyVoucher(formattedDetails);
-            if (res?.result) {
-                setVouchers(res.result);
-            }
-        } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: 'Error fetching vouchers',
-            });
-        } finally {
-            setLoading(false);
-        }
+        await fetchListApplyVoucher(formattedDetails)
+            .then((res) => {
+                const data = res?.result;
+                if (data) {
+                    setVouchers(data);
+                }
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
     };
 
     useEffect(() => {
         fetchVouchers();
     }, []);
+
+    const validVouchers = vouchers.filter((voucher: TParamsVouchers) => voucher.isValid);
+    const invalidVouchers = vouchers.filter((voucher: TParamsVouchers) => !voucher.isValid);
 
     const handleApplyVoucher = async () => {
         if (!voucherCode.trim()) return;
@@ -83,260 +90,274 @@ export default function VoucherScreen({ cartDetails, onSelectVoucher }: VoucherS
 
             const response = await applyVoucher(voucherCode, formattedDetails);
             if (response?.isSuccess) {
-                onSelectVoucher?.(voucherCode);
+                onSelectVoucher(voucherCode);
                 Toast.show({
                     type: 'success',
-                    text1: 'Voucher applied successfully',
+                    text1: 'Áp dụng mã giảm giá thành công'
                 });
                 fetchVouchers();
             } else {
                 Toast.show({
                     type: 'error',
-                    text1: response?.message,
+                    text1: response?.message || 'Có lỗi xảy ra khi áp dụng mã giảm giá'
                 });
             }
         } catch (error) {
             Toast.show({
                 type: 'error',
-                text1: 'Error applying voucher',
+                text1: 'Có lỗi xảy ra khi áp dụng mã giảm giá'
             });
         } finally {
             setApplyLoading(false);
         }
     };
 
-    const validVouchers = vouchers.filter(voucher => voucher.isValid);
-    const invalidVouchers = vouchers.filter(voucher => !voucher.isValid);
-
-    if (loading) {
-        return <LoadingIndicator fullScreen />;
-    }
-
     return (
-        <SafeAreaView style={styles.container} edges={['bottom']}>
-            <ScrollView showsVerticalScrollIndicator={false}>
-                <View style={styles.content}>
+        <Modal
+            visible={open}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={onClose}
+        >
+            <SafeAreaView style={styles.modalContainer}>
+                <View style={styles.modalContent}>
                     <View style={styles.header}>
-                        <Pressable onPress={() => router.back()}>
-                            <ArrowLeft size={24} color={colors.text} />
-                        </Pressable>
-                        <Text style={styles.title}>Select Voucher</Text>
+                        <Text style={styles.title}>Chọn mã giảm giá</Text>
+                        <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                            <X size={24} color={colors.text} />
+                        </TouchableOpacity>
                     </View>
 
-                    <View style={styles.searchContainer}>
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Enter voucher code"
-                            value={voucherCode}
-                            onChangeText={setVoucherCode}
+                    <ScrollView style={styles.content}>
+                        <View style={styles.inputContainer}>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Nhập mã giảm giá"
+                                value={voucherCode}
+                                onChangeText={setVoucherCode}
+                            />
+                            <Button
+                                title={applyLoading ? 'Đang áp dụng...' : 'Áp dụng'}
+                                onPress={handleApplyVoucher}
+                                disabled={!voucherCode.trim() || applyLoading}
+                                loading={applyLoading}
+                                style={styles.applyButton}
+                            />
+                        </View>
+
+                        <View style={styles.divider} />
+
+                        <View style={styles.voucherSection}>
+                            <Text style={styles.sectionTitle}>Mã giảm giá SAMMI</Text>
+
+                            {loading ? (
+                                <ActivityIndicator size="large" color={colors.primary} />
+                            ) : (
+                                <>
+                                    {/* Valid Vouchers */}
+                                    {validVouchers.length > 0 && (
+                                        <View style={styles.voucherList}>
+                                            <Text style={[styles.voucherType, { color: colors.success }]}>
+                                                Mã giảm giá hợp lệ
+                                            </Text>
+                                            {validVouchers.map((voucher: TParamsVouchers) => (
+                                                <TouchableOpacity
+                                                    key={voucher.id}
+                                                    style={[
+                                                        styles.voucherItem,
+                                                        selectedVoucher === voucher.id.toString() && styles.selectedVoucher
+                                                    ]}
+                                                    onPress={() => setSelectedVoucher(voucher.id.toString())}
+                                                >
+                                                    <View style={styles.voucherContent}>
+                                                        <Ticket size={40} color={colors.primary} />
+                                                        <View style={styles.voucherInfo}>
+                                                            <Text style={styles.voucherName}>{voucher.name}</Text>
+                                                            <Text style={styles.voucherDetail}>
+                                                                Đơn hàng tối thiểu: {voucher.discountValue}
+                                                            </Text>
+                                                            <Text style={styles.voucherDetail}>
+                                                                Hết hạn: {new Date(voucher.endDate).toLocaleDateString()}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                </TouchableOpacity>
+                                            ))}
+                                        </View>
+                                    )}
+
+                                    {/* Invalid Vouchers */}
+                                    {invalidVouchers.length > 0 && (
+                                        <View style={styles.voucherList}>
+                                            <Text style={[styles.voucherType, { color: colors.error }]}>
+                                                Mã giảm giá không hợp lệ
+                                            </Text>
+                                            {invalidVouchers.map((voucher: TParamsVouchers) => (
+                                                <View
+                                                    key={voucher.id}
+                                                    style={[styles.voucherItem, styles.invalidVoucher]}
+                                                >
+                                                    <View style={styles.voucherContent}>
+                                                        <Ticket size={40} color={colors.textSecondary} />
+                                                        <View style={styles.voucherInfo}>
+                                                            <Text style={[styles.voucherName, styles.invalidText]}>
+                                                                {voucher.name}
+                                                            </Text>
+                                                            <Text style={[styles.voucherDetail, styles.invalidText]}>
+                                                                Đơn hàng tối thiểu: {voucher.discountValue}
+                                                            </Text>
+                                                            <Text style={[styles.voucherDetail, styles.invalidText]}>
+                                                                Hết hạn: {new Date(voucher.endDate).toLocaleDateString()}
+                                                            </Text>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                            ))}
+                                        </View>
+                                    )}
+                                </>
+                            )}
+                        </View>
+                    </ScrollView>
+
+                    <View style={styles.footer}>
+                        <Button
+                            title="Hủy"
+                            onPress={onClose}
+                            variant="outline"
+                            style={styles.footerButton}
                         />
-                        <Pressable
-                            style={styles.applyButton}
-                            onPress={handleApplyVoucher}
-                            disabled={!voucherCode.trim() || applyLoading}
-                        >
-                            <Text style={styles.applyButtonText}>
-                                {applyLoading ? 'Applying...' : 'Apply'}
-                            </Text>
-                        </Pressable>
+                        <Button
+                            title="Xác nhận"
+                            onPress={() => {
+                                onSelectVoucher(selectedVoucher);
+                                onClose();
+                            }}
+                            disabled={!selectedVoucher}
+                            style={styles.footerButton}
+                        />
                     </View>
-
-                    <View style={styles.voucherList}>
-                        <Text style={styles.sectionTitle}>Available Vouchers</Text>
-
-                        {validVouchers.length > 0 && (
-                            <View style={styles.voucherSection}>
-                                <Text style={styles.validTitle}>Valid Vouchers</Text>
-                                {validVouchers.map((voucher) => (
-                                    <Pressable
-                                        key={voucher.id}
-                                        style={[
-                                            styles.voucherItem,
-                                            selectedVoucher === voucher.id && styles.selectedVoucher
-                                        ]}
-                                        onPress={() => setSelectedVoucher(voucher.id)}
-                                    >
-                                        <View style={styles.voucherInfo}>
-                                            <Ticket size={40} color={colors.primary} />
-                                            <View style={styles.voucherDetails}>
-                                                <Text style={styles.voucherName}>{voucher.name}</Text>
-                                                <Text style={styles.voucherValue}>
-                                                    Minimum order: {voucher.discountValue}
-                                                </Text>
-                                                <Text style={styles.voucherDate}>
-                                                    End date: {new Date(voucher.endDate).toLocaleDateString()}
-                                                </Text>
-                                            </View>
-                                            <View style={styles.radioButton}>
-                                                {selectedVoucher === voucher.id && (
-                                                    <Check size={20} color={colors.primary} />
-                                                )}
-                                            </View>
-                                        </View>
-                                    </Pressable>
-                                ))}
-                            </View>
-                        )}
-
-                        {invalidVouchers.length > 0 && (
-                            <View style={styles.voucherSection}>
-                                <Text style={styles.invalidTitle}>Invalid Vouchers</Text>
-                                {invalidVouchers.map((voucher) => (
-                                    <View key={voucher.id} style={[styles.voucherItem, styles.invalidVoucher]}>
-                                        <View style={styles.voucherInfo}>
-                                            <Ticket size={40} color={colors.overlay} />
-                                            <View style={styles.voucherDetails}>
-                                                <Text style={styles.voucherName}>{voucher.name}</Text>
-                                                <Text style={styles.voucherValue}>
-                                                    Minimum order: {voucher.discountValue}
-                                                </Text>
-                                                <Text style={styles.voucherDate}>
-                                                    End date: {new Date(voucher.endDate).toLocaleDateString()}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                ))}
-                            </View>
-                        )}
-                    </View>
-
-                    <Pressable
-                        style={styles.confirmButton}
-                        disabled={!selectedVoucher}
-                        onPress={() => {
-                            onSelectVoucher?.(selectedVoucher);
-                            router.back();
-                        }}
-                    >
-                        <Text style={styles.confirmButtonText}>Confirm</Text>
-                    </Pressable>
                 </View>
-            </ScrollView>
-        </SafeAreaView>
+            </SafeAreaView>
+        </Modal>
     );
-}
+};
 
 const styles = StyleSheet.create({
-    container: {
+    modalContainer: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContent: {
         flex: 1,
         backgroundColor: colors.background,
-    },
-    content: {
-        padding: 16,
+        marginTop: Platform.OS === 'ios' ? 0 : 20,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
     },
     header: {
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 24,
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.border,
     },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.text,
-        marginLeft: 16,
-    },
-    searchContainer: {
-        flexDirection: 'row',
-        gap: 8,
-        marginBottom: 24,
-    },
-    searchInput: {
-        flex: 1,
-        borderWidth: 1,
-        borderColor: colors.border,
-        borderRadius: 8,
-        padding: 12,
-        fontSize: 16,
-        color: colors.text,
-    },
-    applyButton: {
-        backgroundColor: colors.primary,
-        padding: 12,
-        borderRadius: 8,
-        justifyContent: 'center',
-    },
-    applyButtonText: {
-        color: colors.white,
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    voucherList: {
-        gap: 24,
-    },
-    sectionTitle: {
         fontSize: 18,
         fontWeight: 'bold',
         color: colors.text,
-        marginBottom: 16,
     },
-    voucherSection: {
-        gap: 16,
+    closeButton: {
+        padding: 4,
     },
-    validTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: colors.success,
+    content: {
+        flex: 1,
     },
-    invalidTitle: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: colors.error,
+    inputContainer: {
+        flexDirection: 'row',
+        padding: 16,
+        gap: 8,
     },
-    voucherItem: {
+    input: {
+        flex: 1,
+        height: 40,
         borderWidth: 1,
         borderColor: colors.border,
         borderRadius: 8,
+        paddingHorizontal: 12,
+        color: colors.text,
+    },
+    applyButton: {
+        minWidth: 100,
+    },
+    divider: {
+        height: 1,
+        backgroundColor: colors.border,
+        marginHorizontal: 16,
+    },
+    voucherSection: {
         padding: 16,
+    },
+    sectionTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        color: colors.text,
+    },
+    voucherList: {
+        marginBottom: 16,
+    },
+    voucherType: {
+        fontSize: 14,
+        fontWeight: '600',
+        marginBottom: 8,
+    },
+    voucherItem: {
+        padding: 12,
+        borderWidth: 1,
+        borderColor: colors.border,
+        borderRadius: 8,
+        marginBottom: 8,
     },
     selectedVoucher: {
         borderColor: colors.primary,
-        backgroundColor: colors.background,
     },
     invalidVoucher: {
         opacity: 0.5,
     },
-    voucherInfo: {
+    voucherContent: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 16,
+        gap: 12,
     },
-    voucherDetails: {
+    voucherInfo: {
         flex: 1,
-        gap: 4,
     },
     voucherName: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '600',
         color: colors.text,
+        marginBottom: 4,
     },
-    voucherValue: {
-        fontSize: 14,
+    voucherDetail: {
+        fontSize: 12,
         color: colors.textSecondary,
     },
-    voucherDate: {
-        fontSize: 14,
+    invalidText: {
         color: colors.textSecondary,
     },
-    radioButton: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: colors.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    confirmButton: {
-        backgroundColor: colors.primary,
+    footer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         padding: 16,
-        borderRadius: 8,
-        alignItems: 'center',
-        marginTop: 24,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+        gap: 8,
     },
-    confirmButtonText: {
-        color: colors.white,
-        fontSize: 16,
-        fontWeight: '600',
+    footerButton: {
+        flex: 1,
     },
-}); 
+});
+
+export default VoucherModal;

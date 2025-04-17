@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { StyleSheet, View, Text, ScrollView, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { Button } from '@/presentation/components/Button';
-import { ShoppingBag } from 'lucide-react-native';
+import { ShoppingBag, Check } from 'lucide-react-native';
 import { CartItem } from '@/components/CartItem';
 import Toast from 'react-native-toast-message';
 import { getCarts, createCart, deleteCart } from '@/services/cart';
@@ -12,9 +12,10 @@ import { TItemOrderProduct } from '@/types/cart';
 import { formatPrice } from '@/utils';
 import { getProductDetail } from '@/services/product';
 import { isExpired } from '@/utils';
+import { useCart } from './_layout';
 
 export default function CartScreen() {
-  const router = useRouter();
+  const { refreshCart } = useCart();
   const [cart, setCart] = useState<{ data: TItemOrderProduct[] }>({ data: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
@@ -24,7 +25,6 @@ export default function CartScreen() {
   const fetchCart = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.log("Fetching cart data...");
       const response = await getCarts({
         params: {
           take: -1,
@@ -36,11 +36,9 @@ export default function CartScreen() {
           filters: '',
         },
       });
-      console.log("Cart API response:", response);
-      console.log("Cart data:", response?.result);
       setCart({ data: response?.result || [] });
     } catch (error) {
-      console.error("Error fetching cart:", error);
+      console.error('Error fetching cart:', error);
       Toast.show({
         type: 'error',
         text1: 'Failed to load cart',
@@ -51,20 +49,37 @@ export default function CartScreen() {
     }
   }, []);
 
+  
+  const memoSelectedProduct = useMemo(() => {
+    return cart?.data?.filter((item: TItemOrderProduct) => selectedItems.includes(item.productId)) || [];
+}, [selectedItems, cart]);
+
+
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
 
+  const subtotal = useMemo(() => {
+    if (!cart?.data) return 0;
+    return cart.data
+      .filter((item) => selectedItems.includes(item.productId))
+      .reduce((total, item) => {
+        const price = item.price || 0;
+        const discount = item.discount || 0;
+        const quantity = item.quantity || 1;
+        const currentPrice = discount > 0 ? (price * (100 - discount)) / 100 : price;
+        return total + currentPrice * quantity;
+      }, 0);
+  }, [cart?.data, selectedItems, discountValue, originalPrice]);
+
   const handleUpdateQuantity = useCallback(
     async (productId: number, quantity: number) => {
-      // Update cart state locally
       setCart((prevCart) => ({
         data: prevCart.data.map((item) =>
           item.productId === productId ? { ...item, quantity } : item
         ),
       }));
 
-      // Call API immediately without debounce
       try {
         const data = {
           cartId: 0,
@@ -73,15 +88,16 @@ export default function CartScreen() {
           operation: 2,
         };
         await createCart(data);
+        refreshCart();
       } catch (error) {
         Toast.show({
           type: 'error',
           text1: 'Failed to update quantity',
         });
-        await fetchCart(); // Only call when there's an error
+        await fetchCart();
       }
     },
-    [fetchCart]
+    [fetchCart, refreshCart]
   );
 
   const handleRemoveItem = useCallback(
@@ -131,23 +147,38 @@ export default function CartScreen() {
 
   const handleContinueShopping = useCallback(() => {
     router.push('/');
-  }, [router]);
+  }, []);
+
+  
 
   const handleCheckout = useCallback(() => {
     const selectedProducts = cart.data.filter((item) => selectedItems.includes(item.productId));
+    console.log('Selected products:', selectedProducts);
+    if (selectedProducts.length === 0) {
+      Toast.show({
+        type: 'error',
+        text1: 'Vui lòng chọn ít nhất một sản phẩm',
+      });
+      return;
+    }
+
     router.push({
       pathname: '/checkout',
       params: {
         selectedProducts: JSON.stringify(
-          selectedProducts.map((item) => ({
+          memoSelectedProduct.map((item) => ({
             productId: item.productId,
             quantity: item.quantity,
+            price: item.price || 0,
+            discount: item.discount || 0,
+            name: item.name || 'Không có tên sản phẩm',
+            images: item.images || [],
           }))
         ),
-        totalPrice: subtotal,
+        totalPrice: subtotal.toString(),
       },
     });
-  }, [router, cart.data, selectedItems]);
+  }, [cart.data, selectedItems, subtotal]);
 
   const handleCheckboxChange = useCallback((productId: number) => {
     setSelectedItems((prev) =>
@@ -163,7 +194,7 @@ export default function CartScreen() {
   }, [cart?.data, selectedItems]);
 
   useEffect(() => {
-    const fetchDiscounts = async ()=> {
+    const fetchDiscounts = async () => {
       for (const productId of selectedItems) {
         const res = await getProductDetail(productId);
         const data = res?.result;
@@ -180,34 +211,19 @@ export default function CartScreen() {
     }
   }, [selectedItems]);
 
-  const subtotal = useMemo(() => {
-    if (!cart?.data) return 0;
-    return cart.data
-      .filter((item) => selectedItems.includes(item.productId))
-      .reduce((total, item) => {
-        const price = item.price || 0;
-        const discount = item.discount || 0;
-        const quantity = item.quantity || 1;
-        const currentPrice = discount > 0 ? (price * (100 - discount)) / 100 : price;
-        return total + currentPrice * quantity;
-      }, 0);
-  }, [cart?.data, selectedItems]);
 
-  const totalSave = useMemo(() => {
-    if (!cart?.data) return 0;
-    return cart.data
-      .filter((item) => selectedItems.includes(item.productId))
-      .reduce((total, item) => {
+  const memoSave = useMemo(() => {
+    return cart?.data?.reduce((result: number, current: TItemOrderProduct) => {
         const price = originalPrice || 0;
-        const discount = discountValue || 0;
-        const quantity = item.quantity || 1;
+        const discount = discountValue * 100 || 0;
+        const quantity = current?.quantity || 1;
         if (discount > 0) {
-          const savedPrice = (price * discount) / 100 * quantity;
-          return total + savedPrice;
+            const savedPrice = (price * discount) / 100 * quantity;
+            return result + savedPrice;
         }
-        return total;
-      }, 0);
-  }, [cart?.data, selectedItems, originalPrice, discountValue]);
+        return result;
+    }, 0);
+}, [cart?.data, discountValue, originalPrice]);
 
   const cartItems = useMemo(() => cart?.data || [], [cart?.data]);
 
@@ -241,11 +257,15 @@ export default function CartScreen() {
           <ScrollView style={styles.itemsContainer}>
             <View style={styles.cartHeader}>
               <View style={styles.checkboxContainer}>
-                <Button
-                  title={selectedItems.length === cartItems.length ? 'Bỏ chọn tất cả' : 'Chọn tất cả'}
+                <TouchableOpacity
                   onPress={handleCheckAll}
-                  style={styles.checkAllButton}
-                />
+                  style={[
+                    styles.checkbox,
+                    selectedItems.length === cartItems.length && styles.checkboxChecked
+                  ]}
+                >
+                  {selectedItems.length === cartItems.length && <Check size={16} color={colors.white} />}
+                </TouchableOpacity>
               </View>
               {selectedItems.length > 0 && (
                 <Button
@@ -271,9 +291,9 @@ export default function CartScreen() {
             <View style={styles.totalContainer}>
               <Text style={styles.totalLabel}>{selectedItems.length} sản phẩm đã chọn</Text>
               <Text style={styles.totalText}>Tạm tính: {formatPrice(subtotal)}</Text>
-              {totalSave > 0 && (
-                <Text style={styles.saveText}>Tiết kiệm: {formatPrice(totalSave)}</Text>
-              )}
+              {/* {memoSave > 0 && (
+                <Text style={styles.saveText}>Tiết kiệm: {formatPrice(memoSave)}</Text>
+              )} */}
             </View>
             <Button
               title="Mua hàng"
@@ -322,11 +342,20 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.border,
   },
   checkboxContainer: {
-    flex: 1,
+    justifyContent: 'center',
+    marginRight: 8,
   },
-  checkAllButton: {
-    backgroundColor: 'transparent',
-    padding: 0,
+  checkbox: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  checkboxChecked: {
+    backgroundColor: colors.primary,
   },
   deleteSelectedButton: {
     backgroundColor: colors.error,

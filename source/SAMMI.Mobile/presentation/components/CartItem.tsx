@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Image, Pressable } from 'react-native';
 import { CartItem as CartItemType } from '@/domain/entities/CartItem';
 import { colors } from '@/constants/colors';
 import { Minus, Plus, Trash2 } from 'lucide-react-native';
+import { formatPrice } from '@/utils';
 
 interface CartItemProps {
   item: CartItemType;
@@ -50,8 +51,7 @@ export const CartItemComponent: React.FC<CartItemProps> = ({
         </View>
 
         <View style={styles.footer}>
-          <Text style={styles.price}>${(item.product.price * item.quantity).toFixed(2)}</Text>
-
+          <Text style={styles.price}>{formatPrice(item.product.price * item.quantity)}</Text>
           <View style={styles.quantityContainer}>
             <Pressable
               style={[styles.quantityButton, item.quantity <= 1 && styles.quantityButtonDisabled]}

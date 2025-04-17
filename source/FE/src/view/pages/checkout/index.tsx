@@ -89,15 +89,6 @@ interface PaymentOption {
 
 type TProps = {};
 
-// Constants
-const DELIVERY_OPTIONS = [
-    {
-        label: 'fast_delivery',
-        value: 'fast_delivery',
-        price: 0,
-        leadTime: null,
-    },
-];
 
 const CheckoutPage: NextPage<TProps> = () => {
     // ============= States =============
@@ -130,7 +121,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const PAYMENT_DATA = PAYMENT_METHOD();
 
     // Redux selectors
-    const { addresses, currentAddress } = useSelector((state: RootState) => state.address);
+    const { addresses } = useSelector((state: RootState) => state.address);
     const { carts, isLoading } = useSelector((state: RootState) => state.cart);
 
     // ============= Memoized Values =============
@@ -181,6 +172,7 @@ const CheckoutPage: NextPage<TProps> = () => {
         }
         return result;
     }, [router.query, carts?.data]);
+
 
     const memoShippingPrice = useMemo(() => {
         const shippingPrice = deliveryOption.find((item) => item.value === selectedDelivery)?.price ?? 0;
@@ -288,7 +280,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 const res = await getCaculatedFee({
                     params: {
                         wardId: myCurrentAddress.wardId,
-                        totalAmount: memoQueryProduct.totalPrice
+                        totalAmount: Math.floor(memoQueryProduct.totalPrice)
                     }
                 });
                 if (res?.result) {

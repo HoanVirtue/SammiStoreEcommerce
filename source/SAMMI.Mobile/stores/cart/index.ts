@@ -1,6 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { createCartAsync, deleteCartAsync, getCartsAsync, serviceName } from './action';
-import { TItemCartProduct } from '@/types/cart';
 
 const initialState = {
   isLoading: false,

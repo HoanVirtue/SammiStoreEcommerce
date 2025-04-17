@@ -37,10 +37,10 @@ export default function HomeScreen() {
       if (response?.result?.subset) {
         setPublicProducts(response.result.subset);
       } else {
-        setError('No products found');
+        setError('Không có dữ liệu về sản phẩm');
       }
     } catch (error) {
-      setError('Failed to fetch products');
+      setError('Lỗi khi lấy dữ liệu sản phẩm');
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);

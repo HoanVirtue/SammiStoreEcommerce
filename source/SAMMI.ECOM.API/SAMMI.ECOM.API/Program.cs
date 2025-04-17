@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
@@ -63,12 +64,13 @@ builder.Services
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
     })
-    .AddGoogle(options =>
+    .AddCookie().AddGoogle(options =>
     {
         IConfigurationSection googleSection = builder.Configuration.GetSection("Authentication:Google");
         options.ClientId = googleSection["ClientId"];
         options.ClientSecret = googleSection["ClientSecret"];
-        options.CallbackPath = "/google-login";
+        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.CallbackPath = "/api/auth/google-login";
         options.SaveTokens = true;
         options.Scope.Add("profile");
         options.Scope.Add("https://www.googleapis.com/auth/user.phonenumbers.read");

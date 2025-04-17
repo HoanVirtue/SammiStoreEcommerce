@@ -1,7 +1,10 @@
-﻿using MediatR;
+﻿using System.Security.Claims;
+using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Nest;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Utillity;
@@ -90,12 +93,42 @@ namespace SAMMI.ECOM.API.Controllers
             return BadRequest(SignInError.PasswordMismatch);
         }
 
+        [AllowAnonymous]
+        [HttpGet("external-login")]
+        public IActionResult ExternalLogin(string provider = "Google")
+        {
+            var properties = new AuthenticationProperties { RedirectUri = "" };
+            var _baseUrl = _config["ApplicationSettings:BaseUrl"];
+            var _clientId = _config["Authentication:Google:ClientId"];
+            var _scope = _config["Authentication:Google:Scope"];
+            var redirectUri = $"{_baseUrl}/api/auth/google-login";
+
+            var parameters = new Dictionary<string, string>
+                {
+                    { "client_id", _clientId },
+                    { "response_type", "code" },
+                    { "redirect_uri", redirectUri },
+                    { "scope", _scope },
+                    { "state", Guid.NewGuid().ToString() }, // Tạo state ngẫu nhiên để bảo mật
+                    { "access_type", "offline" }, // Để nhận refresh token (tùy chọn)
+                    { "prompt", "consent" } // Yêu cầu người dùng đồng ý (tùy chọn)
+                };
+
+            var queryString = string.Join("&", parameters.Select(p => $"{p.Key}={Uri.EscapeDataString(p.Value)}"));
+            var redirectUrl = $"https://accounts.google.com/o/oauth2/v2/auth?{queryString}";
+
+            return Ok(new { RedirectUrl = redirectUrl });
+        }
+
         [HttpGet("google-login")]
         public async Task<IActionResult> GoogleLoginAsync()
         {
-            if(UserIdentity?.Id == 0 || UserIdentity?.Id == null)
+            _logger.LogInformation("Processing GoogleLoginAsync for UserId: {UserId}", UserIdentity?.Id);
+            var userIdClaim = HttpContext.User.FindFirst(GlobalClaimsTypes.LocalId)?.Value;
+            var userNameClaim = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (UserIdentity?.Id == 0 || UserIdentity?.Id == null)
             {
-                return Unauthorized("Bạn chưa đăng nhập bằng google");
+                return Unauthorized("Không tìm thấy thông tin đăng nhập từ Google. Vui lòng thử lại.");
             }
 
             if(string.IsNullOrEmpty(UserIdentity.UserName))

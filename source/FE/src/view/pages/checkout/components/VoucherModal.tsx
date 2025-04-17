@@ -21,6 +21,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { applyVoucher, fetchListApplyVoucher } from 'src/services/voucher';
 import { TParamsVouchers } from 'src/types/voucher';
 import { toast } from 'react-toastify';
+import { alpha } from '@mui/material/styles';
 
 type VoucherModalProps = {
     open: boolean;
@@ -46,7 +47,7 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
 
     //State
     const [vouchers, setVouchers] = useState([]);
-    const [selectedVoucher, setSelectedVoucher] = useState('');
+    const [selectedVoucher, setSelectedVoucher] = useState(0);
     const [loading, setLoading] = useState(false);
     const [voucherCode, setVoucherCode] = useState('');
     const [applyLoading, setApplyLoading] = useState(false);
@@ -82,7 +83,6 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
 
     const handleApplyVoucher = async () => {
         if (!voucherCode.trim()) return;
-
         setApplyLoading(true);
         try {
             const formattedDetails = {
@@ -97,7 +97,6 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
 
             const response = await applyVoucher(voucherCode, formattedDetails);
             if (response?.isSuccess) {
-                onSelectVoucher(response?.result?.id);
                 toast.success(t('apply_voucher_success'));
                 fetchVouchers();
             } else {
@@ -149,7 +148,11 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
 
                         <RadioGroup
                             value={selectedVoucher}
-                            onChange={(e) => setSelectedVoucher(e.target.value)}
+                            onChange={(e) => {
+                                const selectedId = Number(e.target.value);
+                                setSelectedVoucher(selectedId);
+                                onSelectVoucher(selectedId);
+                            }}
                         >
                             {/* Valid Vouchers */}
                             {validVouchers.length > 0 && (
@@ -160,17 +163,36 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                                     {validVouchers.map((voucher: TParamsVouchers) => (
                                         <Box
                                             key={voucher.id}
-                                            onClick={() => setSelectedVoucher(selectedVoucher === String(voucher.id) ? '' : String(voucher.id))}
+                                            onClick={() => {
+                                                setSelectedVoucher(voucher.voucherId);
+                                                onSelectVoucher(voucher.voucherId);
+                                            }}
                                             sx={{
                                                 p: 2,
                                                 border: `1px solid ${theme.palette.divider}`,
                                                 borderRadius: 1,
                                                 cursor: 'pointer',
+                                                position: 'relative',
                                                 '&:hover': {
                                                     borderColor: theme.palette.primary.main,
                                                 }
                                             }}
                                         >
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 8,
+                                                    right: 8,
+                                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                                    color: 'primary.main',
+                                                    px: 1,
+                                                    py: 0.5,
+                                                    borderRadius: 1
+                                                }}
+                                            >
+                                                x{voucher.usageLimit}
+                                            </Typography>
                                             <Stack direction="row" alignItems="center" spacing={2}>
                                                 <IconifyIcon
                                                     icon="pepicons-pencil:ticket"
@@ -178,18 +200,19 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                                                     color={theme.palette.primary.main}
                                                 />
                                                 <Stack spacing={0.5} flex={1}>
-                                                    <Typography variant="subtitle2">
-                                                        {voucher.name}
+                                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                                                        {voucher.discountTypeId === 3 ? t('free_shipping') : `${t('discount')} ${voucher.discountValue}đ`}
                                                     </Typography>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        {t('minimum_order')}: {voucher.discountValue}
+                                                    <Typography variant="body2" color="text.secondary">
+                                                        {t('minimum_order')}: {voucher.conditions?.[0]?.conditionValue || 0}đ
                                                     </Typography>
-                                                    <Typography variant="caption" color="text.secondary">
-                                                        {t('end_date')}: {new Date(voucher.endDate).toLocaleDateString()}
+                                                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                                                        HSD: {new Date(voucher.endDate).toLocaleDateString()}
                                                     </Typography>
                                                 </Stack>
                                                 <Radio
-                                                    checked={selectedVoucher === String(voucher.id)}
+                                                    checked={selectedVoucher === voucher.voucherId} 
+                                                    value={voucher.voucherId}
                                                     onClick={(e) => e.stopPropagation()}
                                                 />
                                             </Stack>
@@ -212,9 +235,26 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                                                 border: `1px solid ${theme.palette.divider}`,
                                                 borderRadius: 1,
                                                 opacity: 0.5,
-                                                pointerEvents: 'none'
+                                                pointerEvents: 'none',
+                                                position: 'relative'
                                             }}
                                         >
+                                            <Typography
+                                                variant="caption"
+                                                sx={{
+                                                    position: 'absolute',
+                                                    top: 8,
+                                                    right: 8,
+                                                    bgcolor: alpha(theme.palette.primary.main, 0.1),
+                                                    color: 'primary.main',
+                                                    px: 1,
+                                                    py: 0.5,
+                                                    borderRadius: 1,
+                                                    opacity: 0.5
+                                                }}
+                                            >
+                                                x{voucher.usageLimit}
+                                            </Typography>
                                             <Stack direction="row" alignItems="center" spacing={2}>
                                                 <IconifyIcon
                                                     icon="pepicons-pencil:ticket"
@@ -222,14 +262,14 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                                                     color={theme.palette.text.disabled}
                                                 />
                                                 <Stack spacing={0.5} flex={1}>
-                                                    <Typography variant="subtitle2" color="text.disabled">
-                                                        {voucher.name}
+                                                    <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }} color="text.disabled">
+                                                        {voucher.discountTypeId === 3 ? t('free_shipping') : `${t('discount')} ${voucher.discountValue}đ`}
                                                     </Typography>
-                                                    <Typography variant="caption" color="text.disabled">
-                                                        {t('minimum_order')}: {voucher.discountValue}
+                                                    <Typography variant="body2" color="text.disabled">
+                                                        {t('minimum_order')}: {voucher.conditions?.[0]?.conditionValue || 0}đ
                                                     </Typography>
-                                                    <Typography variant="caption" color="text.disabled">
-                                                        {t('end_date')}: {new Date(voucher.endDate).toLocaleDateString()}
+                                                    <Typography variant="caption" color="text.disabled" sx={{ mt: 1 }}>
+                                                        HSD: {new Date(voucher.endDate).toLocaleDateString()}
                                                     </Typography>
                                                 </Stack>
                                             </Stack>

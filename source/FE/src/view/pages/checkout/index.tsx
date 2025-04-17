@@ -179,17 +179,42 @@ const CheckoutPage: NextPage<TProps> = () => {
         return shippingPrice ? Number(shippingPrice) : 0;
     }, [selectedDelivery, deliveryOption]);
 
-    const memoVoucherDiscountPrice = useMemo(() => {
-        let discountPrice = 0;
+    useEffect(() => {
         if (selectedVoucherId) {
-            getVoucherDetail(Number(selectedVoucherId)).then(res => {
-                const discountPercent = res?.result?.discountValue || 0;
-                discountPrice = (Number(memoQueryProduct.totalPrice) * Number(discountPercent)) / 100;
-                setVoucherDiscount(discountPrice);
-            });
+            setLoading(true);
+            getVoucherDetail(Number(selectedVoucherId))
+                .then(res => {
+                    if (res?.result) {
+                        const discountValue = res.result.discountValue || 0;
+                        const discountType = res.result.discountTypeId;
+
+                        let calculatedDiscount = 0;
+                        if (discountType === 1) { // Percentage discount
+                            calculatedDiscount = (Number(memoQueryProduct.totalPrice) * Number(discountValue)) / 100;
+                        } else if (discountType === 2) { // Fixed amount discount
+                            calculatedDiscount = Number(discountValue);
+                        } else if (discountType === 3) { // Free shipping
+                            calculatedDiscount = Number(shippingPrice);
+                        }
+
+                        setVoucherDiscount(calculatedDiscount);
+                    } else {
+                        setVoucherDiscount(0);
+                        toast.error(t('voucher_not_found'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error getting voucher details:', error);
+                    setVoucherDiscount(0);
+                    toast.error(t('error_getting_voucher'));
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        } else {
+            setVoucherDiscount(0);
         }
-        return discountPrice;
-    }, [selectedVoucherId, memoQueryProduct.totalPrice]);
+    }, [selectedVoucherId, memoQueryProduct.totalPrice, shippingPrice, t]);
 
     // ============= Handlers =============
     const handlePlaceOrder = () => {

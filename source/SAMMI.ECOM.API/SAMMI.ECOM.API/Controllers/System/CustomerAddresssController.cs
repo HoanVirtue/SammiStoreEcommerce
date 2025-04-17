@@ -80,7 +80,7 @@ namespace SAMMI.ECOM.API.Controllers.System
             var address = await _addressRepository.GetByIdAsync(id);
             if (address == null)
             {
-                return NotFound();
+                return BadRequest("Địa chỉ nhận hàng không tồn tại");
             }
             if(address.IsDefault == true)
             {

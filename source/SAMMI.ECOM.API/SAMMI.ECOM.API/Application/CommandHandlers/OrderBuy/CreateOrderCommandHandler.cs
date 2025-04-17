@@ -231,6 +231,27 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             RuleFor(x => x.PaymentMethodId)
                 .NotEmpty()
                 .WithMessage("Phương thức thanh toán không được bỏ trống");
+
+            RuleForEach(x => x.Details)
+                .NotNull()
+                .WithMessage("Đơn hàng phải mua ít nhất 1 sản phẩm")
+                .SetValidator(new OrderDetailCommandValidator());
+        }
+    }
+
+    public class OrderDetailCommandValidator : AbstractValidator<OrderDetailCommand>
+    {
+        public OrderDetailCommandValidator()
+        {
+            RuleFor(x => x.ProductId)
+                .NotNull()
+                .WithMessage("Sản phẩm mua không được bỏ trống");
+
+            RuleFor(x => x.Quantity)
+                .NotNull()
+                .WithMessage("Số lượng mua không được bỏ trống")
+                .Must(x => x > 0)
+                .WithMessage("Số lượng mua phải lớn hơn 0");
         }
     }
 }

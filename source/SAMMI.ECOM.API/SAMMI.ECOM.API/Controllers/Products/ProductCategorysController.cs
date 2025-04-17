@@ -81,7 +81,7 @@ namespace SAMMI.ECOM.API.Controllers.ProductCategorys
         {
             if (!_categoryRepository.IsExisted(id))
             {
-                return NotFound();
+                return BadRequest("Loại sản phẩm không tồn tại.");
             }
             return Ok(_categoryRepository.DeleteAndSave(id));
         }

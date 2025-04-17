@@ -176,10 +176,14 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 actResponse.AddError("Phiếu giảm giá không tồn tại");
                 return actResponse;
             }
-            if (voucher.StartDate > DateTime.Now || voucher.EndDate <= DateTime.Now)
+            if (voucher.StartDate > DateTime.Now)
             {
                 actResponse.AddError("Phiếu giảm giá chưa đến thời gian áp dụng.");
                 return actResponse;
+            }
+            if (voucher.EndDate < DateTime.Now)
+            {
+                actResponse.AddError("Phiếu giảm giá đã hết hạn. Vui lòng chọn phiếu giảm giá hợp lệ");
             }
             if (voucher.UsedCount >= voucher.UsageLimit)
             {

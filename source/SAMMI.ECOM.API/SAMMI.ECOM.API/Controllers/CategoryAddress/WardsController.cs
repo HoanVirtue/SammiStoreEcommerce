@@ -83,7 +83,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
         {
             if (!_wardRepository.IsExisted(id))
             {
-                return NotFound();
+                return BadRequest("Phường/xã không tồn tại.");
             }
             return Ok(_wardRepository.DeleteAndSave(id));
         }

@@ -118,7 +118,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                                  TotalQuantity = gr.Sum(x => x.t2.Quantity)
                              };
 
-            return await orderQuery.FirstAsync();
+            return await orderQuery.FirstOrDefaultAsync();
         }
 
         public async Task<Order> FindByCode(string code)

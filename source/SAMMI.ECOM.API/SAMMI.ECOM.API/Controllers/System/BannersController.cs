@@ -79,7 +79,7 @@ namespace SAMMI.ECOM.API.Controllers.System
         {
             if (!_bannerRepository.IsExisted(id))
             {
-                return NotFound();
+                return BadRequest("Banner không tồn tại");
             }
             return Ok(_bannerRepository.DeleteAndSave(id));
         }

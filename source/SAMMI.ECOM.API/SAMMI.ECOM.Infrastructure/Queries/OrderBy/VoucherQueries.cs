@@ -91,6 +91,13 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.LeftJoin("DiscountType t3 ON t1.DiscountTypeId = t3.Id AND t3.IsDeleted != 1");
                     sqlBuilder.LeftJoin("VoucherCondition t4 ON t1.Id = t4.VoucherId AND t4.IsDeleted != 1");
 
+                    if (filterModel.Any("eventName"))
+                    {
+                        PropertyFilterModel property = filterModel.GetProperty("eventName");
+                        property.FilterColumn = "t2.Name";
+                        sqlBuilder.Where(RequestFilterModel.GetCommandFromPropertyFilterModel(property));
+                    }
+
                     var voucherDictonary = new Dictionary<int, VoucherDTO>();
                     return conn.QueryAsync<VoucherDTO, VoucherConditionDTO, VoucherDTO>(sqlTemplate.RawSql,
                         (voucher, condition) =>

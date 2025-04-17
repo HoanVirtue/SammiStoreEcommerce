@@ -112,7 +112,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var voucher = await _voucherRepository.GetByIdAsync(id);
             if (voucher == null)
             {
-                return NotFound();
+                return BadRequest("Phiếu giảm giá không tồn tại.");
             }
             if(await _voucherRepository.IsExistAnother(id))
             {
@@ -169,7 +169,12 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         {
             var voucher = await _voucherRepository.GetByIdAsync(voucherId);
             if (voucher == null)
-                return NotFound();
+                return NotFound("Phiếu giảm giá không tồn tại");
+
+            if (voucher.EndDate < DateTime.Now)
+            {
+                return BadRequest("Phiếu giảm giá này chưa đã hết hạn");
+            }
 
             if (await _myVoucherRepository.IsExisted(voucherId, UserIdentity.Id))
             {

@@ -77,7 +77,7 @@ const CheckoutScreen = () => {
   const [shippingPrice, setShippingPrice] = useState<number>(0);
   const [leadTime, setLeadTime] = useState<Date | null>(null);
   const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>();
-  const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+  const [selectedVoucherId, setSelectedVoucherId] = useState<number>(0);
   const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
   const params = useLocalSearchParams();
   const [productDetails, setProductDetails] = useState<{ [key: number]: TProduct }>({});
@@ -208,7 +208,7 @@ const CheckoutScreen = () => {
         details: orderDetails,
         totalAmount: totalPrice,
         totalQuantity: memoQueryProduct.selectedProducts.reduce((acc: number, item: TItemOrderProduct) => acc + item.quantity, 0),
-        discountAmount: voucherDiscount,
+        discountAmount: memoVoucherDiscountPrice,
         isBuyNow: false,
         paymentMethodId: Number(selectedPayment),
       })
@@ -320,7 +320,7 @@ const CheckoutScreen = () => {
     }
   };
 
-  const handleSelectVoucher = (voucherId: string) => {
+  const handleSelectVoucher = (voucherId: number) => {
     setSelectedVoucherId(voucherId);
     if (voucherId) {
       getVoucherDetail(Number(voucherId)).then((res) => {
@@ -517,10 +517,10 @@ const CheckoutScreen = () => {
           </View>
 
 
-          {voucherDiscount > 0 && (
+          {memoVoucherDiscountPrice > 0 && (
             <View style={styles.summaryItem}>
               <Text style={styles.summaryLabel}>Giảm giá</Text>
-              <Text style={styles.summaryValue}>-{formatPrice(voucherDiscount)}</Text>
+              <Text style={styles.summaryValue}>-{formatPrice(memoVoucherDiscountPrice)}</Text>
             </View>
           )}
 
@@ -530,7 +530,7 @@ const CheckoutScreen = () => {
               {formatPrice(
                 memoQueryProduct.totalPrice +
                 (selectedDelivery ? shippingPrice : 0) -
-                voucherDiscount
+                memoVoucherDiscountPrice
               )}
             </Text>
           </View>

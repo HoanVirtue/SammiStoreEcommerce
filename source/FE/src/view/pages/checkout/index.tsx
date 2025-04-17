@@ -109,7 +109,7 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     // States cho address và voucher
     const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>();
-    const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+    const [selectedVoucherId, setSelectedVoucherId] = useState<number>(0);
     const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
 
     // ============= Hooks và Constants =============
@@ -366,7 +366,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 <VoucherModal
                     open={openVoucher}
                     onClose={() => setOpenVoucher(false)}
-                    onSelectVoucher={(voucherId: string) => {
+                    onSelectVoucher={(voucherId: number) => {
                         setSelectedVoucherId(voucherId);
                     }}
                     cartDetails={memoQueryProduct.selectedProduct}
@@ -396,15 +396,17 @@ const CheckoutPage: NextPage<TProps> = () => {
                             <Box>
                                 <StepLabel title={t('shipping_info')} step="1" />
                                 {user ? (
-                                    <Stack direction="row" spacing={2} alignItems="center">
-                                        <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
-                                            {user?.fullName} {user?.phone}
-                                        </Typography>
-                                        <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
-                                            {myCurrentAddress?.streetAddress}, {myCurrentAddress?.wardName}, {myCurrentAddress?.districtName}, {myCurrentAddress?.provinceName}
-                                        </Typography>
+                                    <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+                                        <Stack direction="column" alignItems="flex-start" spacing={1}>
+                                            <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
+                                                {user?.fullName} {user?.phone}
+                                            </Typography>
+                                            <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
+                                                {myCurrentAddress?.streetAddress}, {myCurrentAddress?.wardName}, {myCurrentAddress?.districtName}, {myCurrentAddress?.provinceName}
+                                            </Typography>
+                                        </Stack>
                                         <Button variant="outlined" size="small"
-                                            onClick={() => setOpenAddress(true)}>
+                                            onClick={() => setOpenAddress(true)} sx={{ textWrap: 'nowrap' }}>
                                             {t('change_address')}
                                         </Button>
                                     </Stack>

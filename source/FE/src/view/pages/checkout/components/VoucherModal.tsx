@@ -25,7 +25,7 @@ import { toast } from 'react-toastify';
 type VoucherModalProps = {
     open: boolean;
     onClose: () => void;
-    onSelectVoucher: (voucherId: string) => void;
+    onSelectVoucher: (voucherId: number) => void;
     cartDetails?: Array<{
         productId: number;
         discount: number;
@@ -97,7 +97,7 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
 
             const response = await applyVoucher(voucherCode, formattedDetails);
             if (response?.isSuccess) {
-                onSelectVoucher(voucherCode);
+                onSelectVoucher(response?.result?.id);
                 toast.success(t('apply_voucher_success'));
                 fetchVouchers();
             } else {
@@ -160,6 +160,7 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                                     {validVouchers.map((voucher: TParamsVouchers) => (
                                         <Box
                                             key={voucher.id}
+                                            onClick={() => setSelectedVoucher(selectedVoucher === String(voucher.id) ? '' : String(voucher.id))}
                                             sx={{
                                                 p: 2,
                                                 border: `1px solid ${theme.palette.divider}`,
@@ -187,7 +188,10 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                                                         {t('end_date')}: {new Date(voucher.endDate).toLocaleDateString()}
                                                     </Typography>
                                                 </Stack>
-                                                <Radio value={voucher.id} />
+                                                <Radio
+                                                    checked={selectedVoucher === String(voucher.id)}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                />
                                             </Stack>
                                         </Box>
                                     ))}
@@ -245,7 +249,7 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                 </Button>
                 <Button variant="contained" disabled={!selectedVoucher}
                     onClick={() => {
-                        onSelectVoucher(selectedVoucher);
+                        onSelectVoucher(Number(selectedVoucher));
                         onClose();
                     }}>
                     {t('confirm')}

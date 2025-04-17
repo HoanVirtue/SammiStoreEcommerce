@@ -7,7 +7,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { NextPage } from 'next'
 
 //MUI
-import {  Button, Divider, Stack, Typography, useTheme } from '@mui/material'
+import { Button, Divider, Stack, Typography, useTheme } from '@mui/material'
 import { Box } from '@mui/material'
 
 //Translate
@@ -34,6 +34,7 @@ import { toast } from 'react-toastify'
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
 import Spinner from 'src/components/spinner'
 import Image from 'src/components/image'
+import { createPayBackOrder } from 'src/services/order'
 
 //Components
 const ConfirmDialog = dynamic(() => import('src/components/confirm-dialog'), { ssr: false })
@@ -160,49 +161,19 @@ const OrderCard: NextPage<TProps> = (props) => {
     const handlePayment = async () => {
         setLoading(true);
         try {
-            // First create the order
-            const orderDetails = orderData.details?.map((item: TOrderDetail) => ({
-                orderId: 0,
-                productId: Number(item.productId),
-                quantity: item.quantity,
-                tax: 0,
-                id: 0,
-                amount: item.price * item.quantity,
-            }));
+            const response = await createPayBackOrder(orderData.code);
 
-            const createOrderResponse = await dispatch(
-                createOrderAsync({
-                    displayOrder: 0,
-                    customerId: user?.id || 0,
-                    code: orderData.code,
-                    paymentStatus: orderData.paymentStatus,
-                    orderStatus: orderData.orderStatus,
-                    shippingStatus: orderData.shippingStatus,
-                    voucherId: orderData.voucherId,
-                    wardId: orderData.wardId,
-                    customerAddress: orderData.customerAddress,
-                    costShip: orderData.costShip,
-                    trackingNumber: orderData.trackingNumber,
-                    estimatedDeliveryDate: orderData.estimatedDeliveryDate,
-                    actualDeliveryDate: orderData.actualDeliveryDate,
-                    shippingCompanyId: orderData.shippingCompanyId,
-                    details: orderDetails || [],
-                    totalAmount: orderData.totalPrice,
-                    totalQuantity: orderData.details?.reduce((acc, item) => acc + item.quantity, 0) || 0,
-                    discountAmount: orderData.discountAmount,
-                    isBuyNow: true,
-                    paymentMethodId: 2,
-                })
-            ).then(res => {
-                const returnUrl = res?.payload?.result?.returnUrl;
-                if (returnUrl) {
-                    window.location.href = returnUrl;
+            if (response?.isSuccess) {
+                if (response?.result?.returnUrl) {
+                    window.location.href = response.result.returnUrl;
                 } else {
-                    router.push(ROUTE_CONFIG.PAYMENT)
+                    router.push(ROUTE_CONFIG.PAYMENT);
                 }
-            });
+            } else {
+                toast.error(response?.message || 'Payment failed');
+            }
         } catch (error: any) {
-            toast.error(error?.message || errorMessageCreate);
+            toast.error(error?.message || 'Payment failed');
         } finally {
             setLoading(false);
         }
@@ -267,14 +238,14 @@ const OrderCard: NextPage<TProps> = (props) => {
                                 </Box>
                                 <Stack direction="row" justifyContent="space-between" alignItems="center" key={item.productId} sx={{ px: 4, width: "100%" }}>
                                     <Stack >
-                                        <Box>
-                                            <Typography fontSize={"18px"} fontWeight={600}  >{item?.productName}</Typography>
+                                        <Box sx={{ width: '80%' }}>
+                                            <Typography fontSize={"14px"}  >{item?.productName}</Typography>
                                         </Box>
                                         <Box>
                                             <Typography variant="h4" sx={{
                                                 color: theme.palette.primary.main,
                                                 fontWeight: "bold",
-                                                fontSize: "16px"
+                                                fontSize: "14px"
                                             }}>
 
                                                 {formatPrice(item?.price)}
@@ -307,8 +278,9 @@ const OrderCard: NextPage<TProps> = (props) => {
                     mt: 4
                 }}>
                     {(orderData.orderStatus === OrderStatus.Pending.label
-                        || orderData.orderStatus === OrderStatus.WaitingForPayment.label)
-                        && orderData.paymentStatus !== PaymentStatus.Paid.label
+        || orderData.orderStatus === OrderStatus.WaitingForPayment.label) &&
+                        orderData.paymentStatus !== PaymentStatus.Paid.label
+                        && orderData.paymentMethod === 'VNPay'
                         && (
                             <Button variant="contained"
                                 color='primary'
@@ -318,15 +290,17 @@ const OrderCard: NextPage<TProps> = (props) => {
                                 {t('go_to_payment')}
                             </Button>
                         )}
-                    {orderData.orderStatus === OrderStatus.Pending.label && (
-                        <Button variant="contained"
-                            color='error'
-                            onClick={() => setOpenCancelDialog(true)}
-                            startIcon={<IconifyIcon icon="lsicon:order-close-outline" />}
-                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                            {t('cancel_order')}
-                        </Button>
-                    )}
+                    {(orderData.orderStatus === OrderStatus.WaitingForPayment.label || orderData.orderStatus === OrderStatus.Pending.label) &&
+                        orderData.paymentMethod !== 'VNPay' &&
+                        (
+                            <Button variant="contained"
+                                color='error'
+                                onClick={() => setOpenCancelDialog(true)}
+                                startIcon={<IconifyIcon icon="lsicon:order-close-outline" />}
+                                sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                                {t('cancel_order')}
+                            </Button>
+                        )}
                     <Button variant="contained"
                         color='primary'
                         onClick={() => handleBuyAgain()}

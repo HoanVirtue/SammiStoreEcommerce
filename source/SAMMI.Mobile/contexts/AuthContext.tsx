@@ -209,7 +209,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       dispatch(updateProductToCart({
         orderItems: []
       }));
-      navigation.navigate('Login' as never);
+      navigation.navigate('login' as never);
     }
   }
 

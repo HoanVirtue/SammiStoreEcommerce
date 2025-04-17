@@ -25,15 +25,15 @@ type TInitialState = {
 
 const initialState: TInitialState = {
   isLoading: false,
-  isSuccess: true,
+  isSuccess: false,
   isError: false,
   errorMessage: '',
   // statusCode: 0
   typeError: '',
-  isSuccessUpdateMe: true,
+  isSuccessUpdateMe: false,
   isErrorUpdateMe: false,
   errorMessageUpdateMe: '',
-  isSuccessChangePassword: true,
+  isSuccessChangePassword: false,
   isErrorChangePassword: false,
   errorMessageChangePassword: '',
   userData: null

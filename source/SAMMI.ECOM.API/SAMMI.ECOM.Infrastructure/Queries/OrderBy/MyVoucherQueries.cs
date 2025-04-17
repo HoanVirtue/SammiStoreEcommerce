@@ -60,23 +60,61 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             return await WithDefaultTemplateAsync(
                 async (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.Select("t1.*");
+                    sqlBuilder.Select("t1.CustomerId, t1.VoucherId, t1.IsUsed, t1.Culture, t1.CreatedDate, t1.UpdatedDate, t1.CreatedBy, t1.UpdatedBy, t1.IsActive, t1.IsDeleted, t1.DisplayOrder");
                     sqlBuilder.Select("t2.Code, t2.Name, t2.DiscountTypeId, t2.DiscountValue, t2.UsageLimit, t2.UsedCount, t2.StartDate, t2.EndDate");
-                    sqlBuilder.Select("t3.Name AS DicountName");
+                    sqlBuilder.Select("t3.Name AS DiscountName");
 
-                    sqlBuilder.InnerJoin("Voucher t2 ON t1.VoucherId = t2.Id AND t2.IsDeleted != 1 AND t2.StartDate <= NOW() AND t2.EndDate > NOW()");
-                    sqlBuilder.InnerJoin("DiscountType t3 ON t2.DiscountTypeId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Voucher t2 ON t1.VoucherId = t2.Id AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("DiscountType t3 ON t2.DiscountTypeId = t3.Id AND t3.IsDeleted != 1");
+
 
                     sqlBuilder.Where("t1.CustomerId = @customerId", new { customerId });
-                    var vouchers = await conn.QueryAsync<MyVoucherDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+
+                    var voucherDictonary = new Dictionary<int, MyVoucherDTO>();
+                    var myVouchers = await conn.QueryAsync<MyVoucherDTO, VoucherDTO, string, MyVoucherDTO>(
+                    sqlTemplate.RawSql,
+                    (myVoucher, voucher, discountName) =>
+                    {
+                        if (!voucherDictonary.TryGetValue(myVoucher.Id, out var myVoucherEntry))
+                        {
+                            myVoucherEntry = myVoucher;
+                            myVoucherEntry.Code = voucher.Code;
+                            myVoucherEntry.Name = voucher.Name;
+                            myVoucherEntry.DiscountTypeId = voucher.DiscountTypeId;
+                            myVoucherEntry.DiscountName = discountName;
+                            myVoucherEntry.DiscountValue = voucher.DiscountValue;
+                            myVoucherEntry.UsageLimit = voucher.UsageLimit;
+                            myVoucherEntry.UsedCount = voucher.UsedCount;
+                            myVoucherEntry.StartDate = voucher.StartDate;
+                            myVoucherEntry.EndDate = voucher.EndDate;
+                            myVoucherEntry.Conditions = new List<VoucherConditionDTO>();
+                            voucherDictonary.Add(myVoucherEntry.Id, myVoucherEntry);
+                        }
+                        return myVoucherEntry;
+                    },
+                    sqlTemplate.Parameters,
+                    splitOn: "Code,DiscountName");
+
+                    var conditions = await conn.QueryAsync<VoucherConditionDTO>(
+                        "SELECT * FROM VoucherCondition WHERE VoucherId IN @VoucherIds AND IsDeleted != 1",
+                        new { VoucherIds = voucherDictonary.Values.Select(v => v.VoucherId).Distinct() });
+                    foreach (var condition in conditions)
+                    {
+                        var voucher = voucherDictonary.Values.FirstOrDefault(v => v.VoucherId == condition.VoucherId);
+                        if (voucher != null && voucher.Conditions.All(x => x.Id != condition.Id))
+                        {
+                            voucher.Conditions ??= new();
+                            voucher.Conditions.Add(condition);
+                        }
+                    }
 
                     var address = await _addressRepository.GetDefaultByUserId(customerId);
-                    foreach (var voucher in vouchers)
+                    foreach (var voucher in myVouchers)
                     {
                         voucher.IsValid = await _voucherRepository.ValidVoucher(voucher.VoucherId, customerId, address.WardId ?? 0, totalAmount, details);
                     }
 
-                    return vouchers.ToList();
+                    return myVouchers.ToList();
                 });
         }
 

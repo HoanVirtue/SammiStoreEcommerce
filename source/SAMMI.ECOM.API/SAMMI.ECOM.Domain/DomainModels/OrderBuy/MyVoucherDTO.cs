@@ -1,4 +1,6 @@
-﻿namespace SAMMI.ECOM.Domain.DomainModels.OrderBuy
+﻿using Nest;
+
+namespace SAMMI.ECOM.Domain.DomainModels.OrderBuy
 {
     public class MyVoucherDTO
     {
@@ -15,6 +17,7 @@
         public DateTime EndDate { get; set; }
         public bool IsUsed { get; set; }
         public bool IsValid { get; set; }
+        public List<VoucherConditionDTO>? Conditions { get; set; }
 
         public int Id { get; set; }
         public DateTime? CreatedDate { get; set; }

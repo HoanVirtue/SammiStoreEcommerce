@@ -81,28 +81,28 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: 'Home',
+            title: 'Trang chủ',
             tabBarIcon: ({ color, size }: { color: string; size: number }) => <Home size={size} color={color} />,
           }}
         />
         <Tabs.Screen
           name="search"
           options={{
-            title: 'Search',
+            title: 'Tìm kiếm',
             tabBarIcon: ({ color, size }: { color: string; size: number }) => <Search size={size} color={color} />,
           }}
         />
         <Tabs.Screen
           name="wishlist"
           options={{
-            title: 'Wishlist',
+            title: 'Yêu thích',
             tabBarIcon: ({ color, size }: { color: string; size: number }) => <Heart size={size} color={color} />,
           }}
         />
         <Tabs.Screen
           name="cart"
           options={{
-            title: 'Cart',
+            title: 'Giỏ hàng',
             tabBarIcon: ({ color, size }: { color: string; size: number }) => (
               <View>
                 <ShoppingBag size={size} color={color} />
@@ -120,7 +120,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            title: 'Profile',
+            title: 'Tài khoản',
             tabBarIcon: ({ color, size }: { color: string; size: number }) => <User size={size} color={color} />,
           }}
         />

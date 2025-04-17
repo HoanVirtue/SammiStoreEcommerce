@@ -158,7 +158,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
         disabled={isOutOfStock}
       >
         <ShoppingBag size={16} color={colors.white} />
-        <Text style={styles.addToCartText}>Add</Text>
+        <Text style={styles.addToCartText}>Thêm vào giỏ hàng</Text>
       </Pressable>
     </Pressable>
   );

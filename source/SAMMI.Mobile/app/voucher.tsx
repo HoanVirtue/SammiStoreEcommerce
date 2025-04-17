@@ -165,9 +165,9 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                                                     key={voucher.id}
                                                     style={[
                                                         styles.voucherItem,
-                                                        selectedVoucher === voucher.id.toString() && styles.selectedVoucher
+                                                        selectedVoucher === voucher.voucherId.toString() && styles.selectedVoucher
                                                     ]}
-                                                    onPress={() => setSelectedVoucher(voucher.id.toString())}
+                                                    onPress={() => setSelectedVoucher(voucher.voucherId.toString())}
                                                 >
                                                     <View style={styles.voucherContent}>
                                                         <Ticket size={40} color={colors.primary} />

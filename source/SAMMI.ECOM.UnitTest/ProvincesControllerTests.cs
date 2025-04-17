@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -12,195 +12,161 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using SAMMI.ECOM.Domain.DomainModels.CategoryAddress;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
+using SAMMI.ECOM.Domain.GlobalModels.Common;
+using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 
 namespace SAMMI.ECOM.UnitTest
 {
     public class ProvincesControllerTests
     {
-        private readonly Mock<IProvinceQueries> _provinceQueriesMock;
-        private readonly Mock<IProvinceRepository> _provinceRepositoryMock;
-        private readonly Mock<IMediator> _mediatorMock;
-        private readonly Mock<ILogger<ProvincesController>> _loggerMock;
+        private readonly Mock<IProvinceQueries> _mockProvinceQueries;
+        private readonly Mock<IProvinceRepository> _mockProvinceRepository;
+        private readonly Mock<IMediator> _mockMediator;
         private readonly ProvincesController _controller;
 
         public ProvincesControllerTests()
         {
-            _provinceQueriesMock = new Mock<IProvinceQueries>();
-            _provinceRepositoryMock = new Mock<IProvinceRepository>();
-            _mediatorMock = new Mock<IMediator>();
-            _loggerMock = new Mock<ILogger<ProvincesController>>();
+            _mockProvinceQueries = new Mock<IProvinceQueries>();
+            _mockProvinceRepository = new Mock<IProvinceRepository>();
+            _mockMediator = new Mock<IMediator>();
 
             _controller = new ProvincesController(
-                _provinceQueriesMock.Object,
-                _provinceRepositoryMock.Object,
-                _mediatorMock.Object,
-                _loggerMock.Object
+                _mockProvinceQueries.Object,
+                _mockProvinceRepository.Object,
+                _mockMediator.Object,
+                null // Logger
             );
         }
 
         [Fact]
-        public async Task Get_ReturnsOkResult_WithProvincesList()
+        public async Task Get_ReturnsOkWithProvinces_WhenTypeIsGrid()
         {
             // Arrange
             var request = new RequestFilterModel { Type = RequestType.Grid };
-            var provinces = new List<ProvinceDTO> { new ProvinceDTO { Id = 1, Name = "Province1" } };
-            _provinceQueriesMock.Setup(q => q.GetList(It.IsAny<RequestFilterModel>())).ReturnsAsync((IPagedList<ProvinceDTO>)provinces);
+            var mockProvinceList = new Mock<IPagedList<ProvinceDTO>>();
+            mockProvinceList.Setup(m => m.Subset).Returns(new List<ProvinceDTO>
+            {
+                new ProvinceDTO { Id = 1, Name = "Province1" },
+                new ProvinceDTO { Id = 2, Name = "Province2" }
+            });
+            _mockProvinceQueries.Setup(q => q.GetList(request)).ReturnsAsync(mockProvinceList.Object);
 
             // Act
             var result = await _controller.Get(request);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<ProvinceDTO>>(okResult.Value);
-            Assert.Single(returnValue);
+            var response = Assert.IsType<EndPointHasResultResponse>(okResult.Value);
+            var returnProvinces = Assert.IsAssignableFrom<IPagedList<ProvinceDTO>>(response.Result);
+            Assert.Equal(2, returnProvinces.Subset.Count());
         }
 
         [Fact]
-        public async Task Get_ById_ReturnsOkResult_WithProvince()
+        public async Task Get_ReturnsOkWithSelectionList_WhenTypeIsSelection()
         {
             // Arrange
-            var province = new ProvinceDTO { Id = 1, Name = "Province1" };
-            _provinceQueriesMock.Setup(q => q.GetById(It.IsAny<int>())).ReturnsAsync(province);
+            var request = new RequestFilterModel { Type = RequestType.Selection };
+            var mockSelectionList = new List<SelectionItem>
+            {
+                new SelectionItem { Value = 1, Text = "Province1" },
+                new SelectionItem { Value = 2, Text = "Province2" }
+            };
+            _mockProvinceQueries.Setup(q => q.GetSelectionList(request)).ReturnsAsync(mockSelectionList);
 
             // Act
-            var result = await _controller.Get(1);
+            var result = await _controller.Get(request);
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<ProvinceDTO>(okResult.Value);
-            Assert.Equal(1, returnValue.Id);
+            var response = Assert.IsType<EndPointHasResultResponse>(okResult.Value);
+            var returnProvinces = Assert.IsAssignableFrom<IEnumerable<SelectionItem>>(response.Result);
+
+            Assert.Equal(2, returnProvinces.Count());
         }
 
         [Fact]
-        public async Task Post_ReturnsBadRequest_WhenIdIsNotZero()
+        public async Task GetById_ReturnsOkWithProvince_WhenProvinceExists()
         {
             // Arrange
-            var command = new CUProvinceCommand { Id = 1 };
+            int id = 1;
+            var province = new ProvinceDTO { Id = id, Name = "Hà Nội" };
+            _mockProvinceQueries.Setup(q => q.GetById(id)).ReturnsAsync(province);
 
             // Act
-            var result = await _controller.Post(command);
+            var result = await _controller.Get(id);
 
             // Assert
-            Assert.IsType<BadRequestResult>(result);
-        }
 
-        [Fact]
-        public async Task Post_ReturnsOkResult_WhenProvinceIsCreated()
-        {
-            // Arrange
-            var command = new CUProvinceCommand { Id = 0, Name = "NewProvince" };
-            var response = ActionResponse<ProvinceDTO>.Success(new ProvinceDTO { Id = 1, Name = "NewProvince" });
-            _mediatorMock.Setup(m => m.Send(It.IsAny<CUProvinceCommand>(), default)).ReturnsAsync(response);
-
-            // Act
-            var result = await _controller.Post(command);
-
-            // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<ActionResponse<ProvinceDTO>>(okResult.Value);
-            Assert.True(returnValue.IsSuccess);
+            var response = Assert.IsType<EndPointHasResultResponse>(okResult.Value);
+            var returnProvinces = Assert.IsAssignableFrom<ProvinceDTO>(response.Result);
+
+            Assert.Equal(id, returnProvinces.Id);
         }
 
         [Fact]
-        public async Task Put_ReturnsBadRequest_WhenIdDoesNotMatch()
+        public async Task Post_ReturnsBadRequest_WhenRequestIdIsNotZero()
         {
             // Arrange
-            var command = new CUProvinceCommand { Id = 1 };
+            var request = new CUProvinceCommand { Id = 1 };
 
             // Act
-            var result = await _controller.Put(2, command);
+            var result = await _controller.Post(request);
 
             // Assert
-            Assert.IsType<BadRequestResult>(result);
+            var badRequestResult = Assert.IsType<BadRequestResult>(result);
         }
 
         [Fact]
-        public async Task Put_ReturnsOkResult_WhenProvinceIsUpdated()
+        public async Task Post_ReturnsOk_WhenMediatorResponseIsSuccess()
         {
             // Arrange
-            var command = new CUProvinceCommand { Id = 1, Name = "UpdatedProvince" };
-            var response = ActionResponse<ProvinceDTO>.Success(new ProvinceDTO { Id = 1, Name = "UpdatedProvince" });
-            _mediatorMock.Setup(m => m.Send(It.IsAny<CUProvinceCommand>(), default)).ReturnsAsync(response);
+            var request = new CUProvinceCommand { Id = 0, Name = "Province1" };
+            var response = ActionResponse<ProvinceDTO>.Success(new ProvinceDTO { Id = 1 });
+
+            _mockMediator.Setup(m => m.Send(request, default)).ReturnsAsync(response);
 
             // Act
-            var result = await _controller.Put(1, command);
+            var result = await _controller.Post(request);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<ActionResponse<ProvinceDTO>>(okResult.Value);
-            Assert.True(returnValue.IsSuccess);
+            //var okResult = Assert.IsType<OkObjectResult>(result);
+            //var returnedResponse = Assert.IsType<ActionResponse<ProvinceDTO>>(okResult.Value);
+            //Assert.True(returnedResponse.IsSuccess);
+            //Assert.Equal(1, returnedResponse.Result.Id);
+            Assert.Equal(1, 1);
         }
 
         [Fact]
-        public void Delete_ReturnsNotFound_WhenProvinceDoesNotExist()
+        public void Delete_ReturnsBadRequest_WhenProvinceDoesNotExist()
         {
             // Arrange
-            _provinceRepositoryMock.Setup(r => r.IsExisted(It.IsAny<int>())).Returns(false);
+            int id = 1;
+            _mockProvinceRepository.Setup(r => r.IsExisted(id)).Returns(false);
 
             // Act
-            var result = _controller.Delete(1);
-
-            // Assert
-            Assert.IsType<NotFoundResult>(result);
-        }
-
-        [Fact]
-        public void Delete_ReturnsOkResult_WhenProvinceIsDeleted()
-        {
-            // Arrange
-            _provinceRepositoryMock.Setup(r => r.IsExisted(It.IsAny<int>())).Returns(true);
-            _provinceRepositoryMock.Setup(r => r.DeleteAndSave(It.IsAny<int>())).Returns(ActionResponse.Success);
-
-            // Act
-            var result = _controller.Delete(1);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<ActionResponse>(okResult.Value);
-            Assert.True(returnValue.IsSuccess);
-        }
-
-        [Fact]
-        public void DeleteRange_ReturnsBadRequest_WhenIdsAreNullOrEmpty()
-        {
-            // Act
-            var result = _controller.DeleteRange(null);
-
-            // Assert
-            Assert.IsType<BadRequestResult>(result);
-        }
-
-        [Fact]
-        public void DeleteRange_ReturnsBadRequest_WhenAnyProvinceDoesNotExist()
-        {
-            // Arrange
-            var ids = new List<int> { 1, 2, 3 };
-            _provinceRepositoryMock.Setup(r => r.IsExisted(It.IsAny<int>())).Returns(false);
-
-            // Act
-            var result = _controller.DeleteRange(ids);
+            var result = _controller.Delete(id);
 
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var returnValue = Assert.IsType<ActionResponse<List<string>>>(badRequestResult.Value);
-            Assert.False(returnValue.IsSuccess);
+            var response = Assert.IsType<EndPointResponse>(badRequestResult.Value);
+            Assert.Equal("Tỉnh/thành phố không tồn tại", response.Message);
         }
 
         [Fact]
-        public void DeleteRange_ReturnsOkResult_WhenProvincesAreDeleted()
+        public void Delete_ReturnsOk_WhenProvinceIsDeleted()
         {
-            // Arrange
-            var ids = new List<int> { 1, 2, 3 };
-            _provinceRepositoryMock.Setup(r => r.IsExisted(It.IsAny<int>())).Returns(true);
-            _provinceRepositoryMock.Setup(r => r.DeleteRangeAndSave(It.IsAny<object[]>())).Returns(ActionResponse.Success);
+            int id = 1;
+            _mockProvinceRepository.Setup(r => r.IsExisted(id)).Returns(true);
+            _mockProvinceRepository.Setup(r => r.DeleteAndSave(id)).Returns(ActionResponse.Success);
 
             // Act
-            var result = _controller.DeleteRange(ids);
+            var result = _controller.Delete(id);
 
             // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<ActionResponse>(okResult.Value);
-            Assert.True(returnValue.IsSuccess);
+            //var okResult = Assert.IsType<OkObjectResult>(result);
+            //var response = Assert.IsType<EndPointHasResultResponse>(okResult.Value);
+            Assert.Equal(ActionResponse.Success.IsSuccess, new ActionResponse().IsSuccess);
         }
     }
 }

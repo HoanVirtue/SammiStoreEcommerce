@@ -49,7 +49,6 @@ namespace SAMMI.ECOM.Domain.Enums
     cho thanh toan(chưa thanh toan) - chưa giao(chưa thanh toan) -> da huy(khong thanh toan)
 
     Pending - NotShipped -> WaitingForPayment
-    Paid - NotShipped -> WaitingForPayment
     Paid - Processing -> Processing
     Paid - Delivered -> Completed
     Paid - Lost -> Cancelled

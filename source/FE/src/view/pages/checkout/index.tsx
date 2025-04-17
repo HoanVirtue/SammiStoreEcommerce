@@ -89,15 +89,6 @@ interface PaymentOption {
 
 type TProps = {};
 
-// Constants
-const DELIVERY_OPTIONS = [
-    {
-        label: 'fast_delivery',
-        value: 'fast_delivery',
-        price: 0,
-        leadTime: null,
-    },
-];
 
 const CheckoutPage: NextPage<TProps> = () => {
     // ============= States =============
@@ -130,7 +121,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const PAYMENT_DATA = PAYMENT_METHOD();
 
     // Redux selectors
-    const { addresses, currentAddress } = useSelector((state: RootState) => state.address);
+    const { addresses } = useSelector((state: RootState) => state.address);
     const { carts, isLoading } = useSelector((state: RootState) => state.cart);
 
     // ============= Memoized Values =============

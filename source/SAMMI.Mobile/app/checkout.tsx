@@ -1,518 +1,696 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TextInput, Pressable } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from 'expo-router';
-import { colors } from '@/constants/colors';
+import React, { useEffect, useMemo, useState } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  ActivityIndicator,
+  SafeAreaView,
+  Image,
+} from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { useTheme } from '@react-navigation/native';
+import { useAuth } from '@/hooks/useAuth';
+import { AppDispatch, RootState } from '@/stores';
+import { useDispatch, useSelector } from 'react-redux';
+import { PAYMENT_METHOD } from '@/configs/payment';
+import { getVoucherDetail } from '@/services/voucher';
+import { createOrderAsync } from '@/stores/order/action';
+import { ROUTE_CONFIG } from '@/configs/route';
+import Toast from 'react-native-toast-message';
+import { createVNPayPaymentUrl } from '@/services/payment';
+import { getCaculatedFee } from '@/services/delivery-method';
+import { getCurrentAddress } from '@/services/address';
+import { getAllPaymentMethods } from '@/services/payment-method';
+import { formatPrice } from '@/utils';
+import { Truck, Wallet, Ticket } from 'lucide-react-native';
+import { useLocalSearchParams } from 'expo-router';
+import { ProductImage, TProduct } from '../types/product';
+import { TParamsAddresses } from '@/types/address';
+import AddressModal from './address';
 
-import { Button } from '@/presentation/components/Button';
-import { CreditCard, MapPin, Truck, Check } from 'lucide-react-native';
+// Types và Interfaces
+type TItemOrderProduct = {
+  productId: number;
+  quantity: number;
+  images: ProductImage[];
+  product: TProduct;
+};
 
-export default function CheckoutScreen() {
-  const router = useRouter();
+interface PaymentOption {
+  label: string;
+  value: string;
+  type: string;
+  id: number;
+}
 
-
-  const [activeStep, setActiveStep] = useState(1);
-  const [shippingInfo, setShippingInfo] = useState({
-    fullName: '',
-    address: '',
-    city: '',
-    state: '',
-    zipCode: '',
-    phone: '',
-  });
-
-  const [paymentInfo, setPaymentInfo] = useState({
-    cardNumber: '',
-    cardHolder: '',
-    expiryDate: '',
-    cvv: '',
-  });
-
-  const [isOrderPlaced, setIsOrderPlaced] = useState(false);
-
-  const handleNextStep = () => {
-    setActiveStep(prev => prev + 1);
+interface VoucherResponse {
+  result?: {
+    discountValue?: number;
   };
+}
 
-  const handlePreviousStep = () => {
-    setActiveStep(prev => prev - 1);
-  };
+type TCheckoutResult = {
+  totalPrice: number;
+  selectedProducts: TItemOrderProduct[];
+};
+
+type TOrderDetail = {
+  id: number;
+  orderId: number;
+  productId: number;
+  quantity: number;
+  tax?: number;
+  amount: number;
+};
+
+const CheckoutScreen = () => {
+  const [loading, setLoading] = useState<boolean>(false);
+  const [openAddress, setOpenAddress] = useState(false);
+  const [openVoucher, setOpenVoucher] = useState(false);
+  const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([]);
+  const [selectedPayment, setSelectedPayment] = useState<string>('');
+  const [selectedDelivery, setSelectedDelivery] = useState<string>('');
+  const [shippingPrice, setShippingPrice] = useState<number>(0);
+  const [leadTime, setLeadTime] = useState<Date | null>(null);
+  const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>();
+  const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+  const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
+  const params = useLocalSearchParams();
+
+  const { user } = useAuth();
+  const navigation = useNavigation();
+  const theme = useTheme();
+  const dispatch: AppDispatch = useDispatch();
+  const PAYMENT_DATA = PAYMENT_METHOD();
+  const { addresses } = useSelector((state: RootState) => state.address);
+
+  const deliveryOption = useMemo(
+    () => [
+      {
+        label: 'Giao hàng nhanh',
+        value: 'fast_delivery',
+        price: shippingPrice,
+        leadTime: leadTime,
+      },
+    ],
+    [shippingPrice, leadTime]
+  );
+
+  const memoQueryProduct = useMemo((): TCheckoutResult => {
+    const result: TCheckoutResult = {
+      totalPrice: 0,
+      selectedProducts: [],
+    };
+
+    try {
+      if (params) {
+        console.log('Received params:', params);
+        result.totalPrice = Number(params.totalPrice) || 0;
+
+        if (params.selectedProducts) {
+          const parsedProducts = JSON.parse(params.selectedProducts as string);
+          console.log('Parsed products:', parsedProducts);
+
+          result.selectedProducts = parsedProducts.map((item: any) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            product: {
+              price: item.price || 0,
+              discount: item.discount || 0,
+              name: item.name || 'Không có tên sản phẩm',
+            },
+            images: item.images || [],
+          }));
+          console.log('Formatted products:', result.selectedProducts);
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing params:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi khi tải dữ liệu đơn hàng',
+      });
+    }
+
+    return result;
+  }, [params]);
+
+  const memoShippingPrice = useMemo(() => {
+    const shippingPrice = deliveryOption.find((item) => item.value === selectedDelivery)?.price ?? 0;
+    return shippingPrice ? Number(shippingPrice) : 0;
+  }, [selectedDelivery, deliveryOption]);
+
+  const memoVoucherDiscountPrice = useMemo(() => {
+    let discountPrice = 0;
+    if (selectedVoucherId) {
+      getVoucherDetail(Number(selectedVoucherId)).then((res: VoucherResponse) => {
+        const discountPercent = res?.result?.discountValue || 0;
+        discountPrice = (Number(memoQueryProduct.totalPrice) * Number(discountPercent)) / 100;
+        setVoucherDiscount(discountPrice);
+      });
+    }
+    return discountPrice;
+  }, [selectedVoucherId, memoQueryProduct.totalPrice]);
 
   const handlePlaceOrder = () => {
-    setIsOrderPlaced(true);
-    // clearCart();
+    if (!selectedPayment) {
+      Toast.show({
+        type: 'error',
+        text1: 'Vui lòng chọn phương thức thanh toán',
+      });
+      return;
+    }
 
-    // In a real app, we would send the order to the server here
+    const shipping = selectedDelivery ? shippingPrice : 0;
+    const subtotal = memoQueryProduct.totalPrice;
+    const totalPrice = Number(subtotal) + Number(shipping) - Number(voucherDiscount);
 
-    // Simulate a delay before redirecting to home
-    setTimeout(() => {
-      router.replace('/');
-    }, 3000);
+    const orderDetails: TOrderDetail[] = memoQueryProduct.selectedProducts.map((item: TItemOrderProduct) => ({
+      id: 0,
+      orderId: 0,
+      productId: Number(item.productId),
+      quantity: item.quantity,
+      tax: 0,
+      amount: item.product.price * item.quantity * (item.product.discount ? (100 - item.product.discount) / 100 : 1),
+    }));
+
+    dispatch(
+      createOrderAsync({
+        displayOrder: 0,
+        customerId: user ? user.id : 0,
+        code: '1',
+        paymentStatus: '',
+        orderStatus: '',
+        shippingStatus: '',
+        voucherId: Number(selectedVoucherId),
+        wardId: myCurrentAddress?.wardId || 0,
+        customerAddress: `${myCurrentAddress?.streetAddress}, ${myCurrentAddress?.wardName}, ${myCurrentAddress?.districtName}, ${myCurrentAddress?.provinceName}`,
+        costShip: shippingPrice,
+        trackingNumber: '',
+        estimatedDeliveryDate: new Date(deliveryOption.find((item) => item.value === selectedDelivery)?.leadTime || new Date()),
+        actualDeliveryDate: new Date(),
+        shippingCompanyId: 0,
+        details: orderDetails,
+        totalAmount: totalPrice,
+        totalQuantity: memoQueryProduct.selectedProducts.reduce((acc: number, item: TItemOrderProduct) => acc + item.quantity, 0),
+        discountAmount: voucherDiscount,
+        isBuyNow: false,
+        paymentMethodId: Number(selectedPayment),
+      })
+    ).then((res) => {
+      if (res?.payload?.isSuccess) {
+        const returnUrl = res?.payload?.result?.returnUrl;
+        if (returnUrl) {
+          // Handle payment URL in React Native
+        } else {
+          navigation.navigate(ROUTE_CONFIG.PAYMENT as never);
+        }
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: res?.payload?.message,
+        });
+      }
+    });
   };
 
-  const renderShippingStep = () => (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Shipping Information</Text>
+  const onChangeDelivery = (value: string) => setSelectedDelivery(value);
+  const onChangePayment = (value: string) => setSelectedPayment(value);
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Full Name</Text>
-        <TextInput
-          style={styles.input}
-          value={shippingInfo.fullName}
-          onChangeText={(text) => setShippingInfo({ ...shippingInfo, fullName: text })}
-          placeholder="Enter your full name"
-        />
+  const handlePaymentVNPay = async (data: { orderId: number; totalPrice: number }) => {
+    setLoading(true);
+    try {
+      const res = await createVNPayPaymentUrl({
+        totalPrice: data.totalPrice,
+        orderId: +data?.orderId,
+        language: 'vn',
+      });
+      if (res?.result) {
+        // Handle payment URL in React Native
+      }
+    } catch (error) {
+      console.error('Error creating VNPay payment URL:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePaymentTypeOrder = (id: string, data: { orderId: number; totalPrice: number }) => {
+    switch (id) {
+      case PAYMENT_DATA.VN_PAYMENT.value:
+        handlePaymentVNPay(data);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const getShippingFee = async () => {
+    if (myCurrentAddress?.wardId && memoQueryProduct.totalPrice) {
+      try {
+        const res = await getCaculatedFee({
+          params: {
+            wardId: myCurrentAddress.wardId,
+            totalAmount: memoQueryProduct.totalPrice,
+          },
+        });
+        if (res?.result) {
+          setShippingPrice(res.result.total);
+          setLeadTime(res.result.leadTime);
+        }
+      } catch (error) {
+        console.error('Error calculating shipping fee:', error);
+      }
+    }
+  };
+
+  const getMyCurrentAddress = async () => {
+    try {
+      const res = await getCurrentAddress();
+      setMyCurrentAddress(res?.result);
+    } catch (error) {
+      console.error('Error getting current address:', error);
+    }
+  };
+
+  const getListPaymentMethod = async () => {
+    setLoading(true);
+    try {
+      const res = await getAllPaymentMethods({
+        params: {
+          take: -1,
+          skip: 0,
+          paging: false,
+          orderBy: 'name',
+          dir: 'asc',
+          keywords: "''",
+          filters: '',
+        },
+      });
+      if (res?.result?.subset) {
+        setPaymentOptions(
+          res.result.subset.map((item: { name: string; id: string; type: string }) => ({
+            label: item.name,
+            value: item.id,
+            type: item.type,
+            id: item.id,
+          }))
+        );
+        setSelectedPayment(res.result.subset[0]?.id);
+      }
+    } catch (error) {
+      console.error('Error getting payment methods:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      getMyCurrentAddress();
+    }
+  }, [addresses, user]);
+
+  useEffect(() => {
+    getListPaymentMethod();
+  }, []);
+
+  useEffect(() => {
+    getShippingFee();
+  }, [myCurrentAddress, memoQueryProduct.totalPrice]);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
       </View>
+    );
+  }
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Address</Text>
-        <TextInput
-          style={styles.input}
-          value={shippingInfo.address}
-          onChangeText={(text) => setShippingInfo({ ...shippingInfo, address: text })}
-          placeholder="Enter your address"
-        />
-      </View>
-
-      <View style={styles.formRow}>
-        <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
-          <Text style={styles.label}>City</Text>
-          <TextInput
-            style={styles.input}
-            value={shippingInfo.city}
-            onChangeText={(text) => setShippingInfo({ ...shippingInfo, city: text })}
-            placeholder="City"
-          />
-        </View>
-
-        <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
-          <Text style={styles.label}>State</Text>
-          <TextInput
-            style={styles.input}
-            value={shippingInfo.state}
-            onChangeText={(text) => setShippingInfo({ ...shippingInfo, state: text })}
-            placeholder="State"
-          />
-        </View>
-      </View>
-
-      <View style={styles.formRow}>
-        <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
-          <Text style={styles.label}>Zip Code</Text>
-          <TextInput
-            style={styles.input}
-            value={shippingInfo.zipCode}
-            onChangeText={(text) => setShippingInfo({ ...shippingInfo, zipCode: text })}
-            placeholder="Zip Code"
-            keyboardType="numeric"
-          />
-        </View>
-
-        <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
-          <Text style={styles.label}>Phone</Text>
-          <TextInput
-            style={styles.input}
-            value={shippingInfo.phone}
-            onChangeText={(text) => setShippingInfo({ ...shippingInfo, phone: text })}
-            placeholder="Phone Number"
-            keyboardType="phone-pad"
-          />
-        </View>
-      </View>
-
-      <Button
-        title="Continue to Payment"
-        onPress={handleNextStep}
-        style={styles.button}
-      />
-    </View>
-  );
-
-  const renderPaymentStep = () => (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Payment Information</Text>
-
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Card Number</Text>
-        <TextInput
-          style={styles.input}
-          value={paymentInfo.cardNumber}
-          onChangeText={(text) => setPaymentInfo({ ...paymentInfo, cardNumber: text })}
-          placeholder="1234 5678 9012 3456"
-          keyboardType="numeric"
-        />
-      </View>
-
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Card Holder Name</Text>
-        <TextInput
-          style={styles.input}
-          value={paymentInfo.cardHolder}
-          onChangeText={(text) => setPaymentInfo({ ...paymentInfo, cardHolder: text })}
-          placeholder="Enter card holder name"
-        />
-      </View>
-
-      <View style={styles.formRow}>
-        <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
-          <Text style={styles.label}>Expiry Date</Text>
-          <TextInput
-            style={styles.input}
-            value={paymentInfo.expiryDate}
-            onChangeText={(text) => setPaymentInfo({ ...paymentInfo, expiryDate: text })}
-            placeholder="MM/YY"
-          />
-        </View>
-
-        <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
-          <Text style={styles.label}>CVV</Text>
-          <TextInput
-            style={styles.input}
-            value={paymentInfo.cvv}
-            onChangeText={(text) => setPaymentInfo({ ...paymentInfo, cvv: text })}
-            placeholder="123"
-            keyboardType="numeric"
-            secureTextEntry
-          />
-        </View>
-      </View>
-
-      <View style={styles.buttonGroup}>
-        <Button
-          title="Back"
-          onPress={handlePreviousStep}
-          variant="outline"
-          style={{ ...styles.button, flex: 1, marginRight: 8 }}
-        />
-
-        <Button
-          title="Continue to Review"
-          onPress={handleNextStep}
-          style={{ ...styles.button, flex: 2 }}
-        />
-      </View>
-    </View>
-  );
-
-  const renderReviewStep = () => (
-    <View style={styles.stepContainer}>
-      <Text style={styles.stepTitle}>Order Review</Text>
-
-      <View style={styles.summarySection}>
-        <View style={styles.summaryHeader}>
-          <MapPin size={18} color={colors.primary} />
-          <Text style={styles.summaryTitle}>Shipping Information</Text>
-        </View>
-
-        <View style={styles.summaryContent}>
-          <Text style={styles.summaryText}>{shippingInfo.fullName}</Text>
-          <Text style={styles.summaryText}>{shippingInfo.address}</Text>
-          <Text style={styles.summaryText}>
-            {shippingInfo.city}, {shippingInfo.state} {shippingInfo.zipCode}
-          </Text>
-          <Text style={styles.summaryText}>{shippingInfo.phone}</Text>
-        </View>
-      </View>
-
-      <View style={styles.summarySection}>
-        <View style={styles.summaryHeader}>
-          <CreditCard size={18} color={colors.primary} />
-          <Text style={styles.summaryTitle}>Payment Information</Text>
-        </View>
-
-        <View style={styles.summaryContent}>
-          <Text style={styles.summaryText}>
-            Card ending in {paymentInfo.cardNumber.slice(-4)}
-          </Text>
-          <Text style={styles.summaryText}>{paymentInfo.cardHolder}</Text>
-          <Text style={styles.summaryText}>Expires {paymentInfo.expiryDate}</Text>
-        </View>
-      </View>
-
-      <View style={styles.summarySection}>
-        <View style={styles.summaryHeader}>
-          <Truck size={18} color={colors.primary} />
-          <Text style={styles.summaryTitle}>Order Summary</Text>
-        </View>
-
-        <View style={styles.orderSummary}>
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Subtotal</Text>
-            <Text style={styles.summaryValue}>${0.00}</Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Shipping</Text>
-            <Text style={styles.summaryValue}>$0.00</Text>
-          </View>
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.summaryLabel}>Tax</Text>
-            <Text style={styles.summaryValue}>${(0.00 * 0.08).toFixed(2)}</Text>
-          </View>
-
-          <View style={styles.divider} />
-
-          <View style={styles.summaryRow}>
-            <Text style={styles.totalLabel}>Total</Text>
-            <Text style={styles.totalValue}>
-              ${(0.00 + (0.00 * 0.08)).toFixed(2)}
-            </Text>
-          </View>
-        </View>
-      </View>
-
-      <View style={styles.buttonGroup}>
-        <Button
-          title="Back"
-          onPress={handlePreviousStep}
-          variant="outline"
-          style={{ ...styles.button, flex: 1, marginRight: 8 }}
-        />
-
-        <Button
-          title="Place Order"
-          onPress={handlePlaceOrder}
-          style={{ ...styles.button, flex: 2 }}
-        />
-      </View>
-    </View>
-  );
-
-  const renderOrderPlaced = () => (
-    <View style={styles.orderPlacedContainer}>
-      <View style={styles.checkmarkContainer}>
-        <Check size={48} color={colors.white} />
-      </View>
-
-      <Text style={styles.orderPlacedTitle}>Order Placed Successfully!</Text>
-      <Text style={styles.orderPlacedText}>
-        Thank you for your purchase. Your order has been placed and will be processed soon.
-      </Text>
-
-      <Text style={styles.redirectingText}>Redirecting to home page...</Text>
-    </View>
-  );
-
-  const renderStepIndicator = () => (
-    <View style={styles.stepIndicator}>
-      <View style={[styles.step, activeStep >= 1 && styles.activeStep]}>
-        <Text style={[styles.stepNumber, activeStep >= 1 && styles.activeStepNumber]}>1</Text>
-        <Text style={styles.stepLabel}>Shipping</Text>
-      </View>
-
-      <View style={styles.stepConnector} />
-
-      <View style={[styles.step, activeStep >= 2 && styles.activeStep]}>
-        <Text style={[styles.stepNumber, activeStep >= 2 && styles.activeStepNumber]}>2</Text>
-        <Text style={styles.stepLabel}>Payment</Text>
-      </View>
-
-      <View style={styles.stepConnector} />
-
-      <View style={[styles.step, activeStep >= 3 && styles.activeStep]}>
-        <Text style={[styles.stepNumber, activeStep >= 3 && styles.activeStepNumber]}>3</Text>
-        <Text style={styles.stepLabel}>Review</Text>
-      </View>
-    </View>
-  );
+  console.log('memoQueryProduct', memoQueryProduct);
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      {!isOrderPlaced && renderStepIndicator()}
+    <SafeAreaView style={styles.container}>
+      <ScrollView style={styles.scrollView}>
+        {/* Shipping Address Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Thông tin giao hàng</Text>
+          {user ? (
+            <View style={styles.addressContainer}>
+              <Text style={styles.addressText}>
+                {user?.fullName} {user?.phone}
+              </Text>
+              <Text style={styles.addressText}>
+                {myCurrentAddress?.streetAddress}, {myCurrentAddress?.wardName}, {myCurrentAddress?.districtName},{' '}
+                {myCurrentAddress?.provinceName}
+              </Text>
+              <TouchableOpacity style={styles.button} onPress={() => setOpenAddress(true)}>
+                <Text style={styles.buttonText}>Thay đổi địa chỉ</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={() => setOpenAddress(true)}>
+              <Text style={styles.buttonText}>Thêm địa chỉ</Text>
+            </TouchableOpacity>
+          )}
+        </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        {isOrderPlaced ? (
-          renderOrderPlaced()
-        ) : (
-          <>
-            {activeStep === 1 && renderShippingStep()}
-            {activeStep === 2 && renderPaymentStep()}
-            {activeStep === 3 && renderReviewStep()}
-          </>
-        )}
+        {/* Delivery Method Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Phương thức giao hàng</Text>
+          {deliveryOption.map((delivery) => (
+            <TouchableOpacity
+              key={delivery.value}
+              style={[styles.deliveryOption, selectedDelivery === delivery.value && styles.selectedOption]}
+              onPress={() => onChangeDelivery(delivery.value)}
+            >
+              <View style={styles.deliveryInfo}>
+                <Truck size={24} color={theme.colors.text} />
+                <Text style={styles.deliveryLabel}>{delivery.label}</Text>
+                <Text style={styles.deliveryPrice}>{formatPrice(Number(delivery.price))}</Text>
+              </View>
+              {delivery.leadTime && (
+                <Text style={styles.leadTime}>
+                  Dự kiến giao hàng: {new Date(delivery.leadTime).toLocaleDateString()}
+                </Text>
+              )}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Payment Method Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Phương thức thanh toán</Text>
+          {paymentOptions.map((payment) => (
+            <TouchableOpacity
+              key={payment.value}
+              style={[styles.paymentOption, selectedPayment === payment.value && styles.selectedOption]}
+              onPress={() => onChangePayment(payment.value)}
+            >
+              <View style={styles.paymentInfo}>
+                <Wallet size={24} color={theme.colors.text} />
+                <Text style={styles.paymentLabel}>{payment.label}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Voucher Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Mã giảm giá</Text>
+          <View style={styles.voucherContainer}>
+            <View style={styles.voucherInfo}>
+              <Ticket size={24} color={theme.colors.primary} />
+              <Text style={styles.voucherLabel}>Mã giảm giá Sammi</Text>
+            </View>
+            <TouchableOpacity style={styles.button} onPress={() => setOpenVoucher(true)}>
+              <Text style={styles.buttonText}>Chọn mã giảm giá</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Order Summary */}
+        <View style={styles.summaryContainer}>
+          <Text style={styles.summaryTitle}>Tóm tắt đơn hàng</Text>
+
+          {/* Product List */}
+          <View style={styles.productList}>
+            {memoQueryProduct.selectedProducts.length === 0 ? (
+              <Text style={styles.emptyText}>Không có sản phẩm nào được chọn</Text>
+            ) : (
+              memoQueryProduct.selectedProducts.map((item: TItemOrderProduct) => (
+                <View key={item.productId} style={styles.productItem}>
+                  <View style={styles.productImageContainer}>
+                    {item.images[0]?.imageUrl ? (
+                      <Image
+                        source={{ uri: item.images[0].imageUrl }}
+                        style={styles.productImage}
+                        resizeMode="cover"
+                      />
+                    ) : (
+                      <View style={[styles.productImage, styles.placeholderImage]}>
+                        <Text style={styles.placeholderText}>Không có ảnh</Text>
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.productInfo}>
+                    <Text style={styles.productName}>{item.product.name}</Text>
+                    <Text style={styles.productQuantity}>Số lượng: {item.quantity}</Text>
+                    <Text style={styles.productPrice}>
+                      {formatPrice(
+                        item.product.price *
+                        (item.product.discount ? (100 - item.product.discount) / 100 : 1) *
+                        item.quantity
+                      )}
+                    </Text>
+                  </View>
+                </View>
+              ))
+            )}
+          </View>
+
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>Tạm tính</Text>
+            <Text style={styles.summaryValue}>{formatPrice(memoQueryProduct.totalPrice)}</Text>
+          </View>
+
+          <View style={styles.summaryItem}>
+            <Text style={styles.summaryLabel}>Phí vận chuyển</Text>
+            <Text style={styles.summaryValue}>{formatPrice(shippingPrice)}</Text>
+          </View>
+
+          {voucherDiscount > 0 && (
+            <View style={styles.summaryItem}>
+              <Text style={styles.summaryLabel}>Giảm giá</Text>
+              <Text style={styles.summaryValue}>-{formatPrice(voucherDiscount)}</Text>
+            </View>
+          )}
+
+          <View style={styles.summaryTotal}>
+            <Text style={styles.totalLabel}>Tổng cộng</Text>
+            <Text style={styles.totalValue}>
+              {formatPrice(memoQueryProduct.totalPrice + shippingPrice - voucherDiscount)}
+            </Text>
+          </View>
+
+          <TouchableOpacity style={styles.placeOrderButton} onPress={handlePlaceOrder}>
+            <Text style={styles.placeOrderButtonText}>Đặt hàng</Text>
+          </TouchableOpacity>
+        </View>
       </ScrollView>
+
+      <AddressModal
+        open={openAddress}
+        onClose={() => setOpenAddress(false)}
+      />
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.background,
+    backgroundColor: '#fff',
   },
-  scrollContent: {
-    padding: 16,
+  scrollView: {
+    flex: 1,
   },
-  stepIndicator: {
-    flexDirection: 'row',
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 16,
+  },
+  section: {
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    borderBottomColor: '#eee',
   },
-  step: {
-    alignItems: 'center',
-  },
-  activeStep: {
-
-  },
-  stepNumber: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: colors.card,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    lineHeight: 28,
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  activeStepNumber: {
-    backgroundColor: colors.primary,
-    color: colors.white,
-  },
-  stepLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-  stepConnector: {
-    width: 40,
-    height: 1,
-    backgroundColor: colors.border,
-    marginHorizontal: 8,
-  },
-  stepContainer: {
-    marginBottom: 24,
-  },
-  stepTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 24,
-  },
-  formGroup: {
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
     marginBottom: 16,
   },
-  formRow: {
-    flexDirection: 'row',
+  addressContainer: {
     marginBottom: 16,
   },
-  label: {
-    fontSize: 14,
-    color: colors.text,
-    marginBottom: 8,
-    fontWeight: '500',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+  addressText: {
     fontSize: 16,
-    color: colors.text,
+    marginBottom: 8,
   },
   button: {
-    marginTop: 8,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    alignItems: 'center',
   },
-  buttonGroup: {
-    flexDirection: 'row',
-    marginTop: 16,
+  buttonText: {
+    fontSize: 16,
+    color: '#333',
   },
-  summarySection: {
-    marginBottom: 24,
-    backgroundColor: colors.card,
-    borderRadius: 12,
-    overflow: 'hidden',
+  deliveryOption: {
+    padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 8,
   },
-  summaryHeader: {
+  selectedOption: {
+    borderColor: '#000',
+    borderWidth: 2,
+  },
+  deliveryInfo: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
-    backgroundColor: colors.primaryLight,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    marginBottom: 8,
   },
-  summaryTitle: {
+  deliveryLabel: {
+    flex: 1,
     fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
     marginLeft: 8,
   },
-  summaryContent: {
-    padding: 16,
+  deliveryPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
-  summaryText: {
+  leadTime: {
     fontSize: 14,
-    color: colors.text,
-    marginBottom: 4,
+    color: '#4CAF50',
+    marginLeft: 32,
   },
-  orderSummary: {
+  paymentOption: {
     padding: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ddd',
+    marginBottom: 8,
   },
-  summaryRow: {
+  paymentInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  paymentLabel: {
+    flex: 1,
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  voucherContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  voucherInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  voucherLabel: {
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  summaryContainer: {
+    padding: 16,
+    backgroundColor: '#f8f8f8',
+  },
+  summaryTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 16,
+  },
+  productList: {
+    marginBottom: 16,
+  },
+  productItem: {
+    flexDirection: 'row',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  productImageContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginRight: 12,
+  },
+  productImage: {
+    width: '100%',
+    height: '100%',
+  },
+  productInfo: {
+    flex: 1,
+    justifyContent: 'space-between',
+  },
+  productName: {
+    fontSize: 16,
+    fontWeight: '500',
+    marginBottom: 8,
+  },
+  productQuantity: {
+    fontSize: 14,
+    color: '#666',
+  },
+  productPrice: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#000',
+  },
+  summaryItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 8,
   },
   summaryLabel: {
-    fontSize: 14,
-    color: colors.textSecondary,
+    fontSize: 16,
+    color: '#666',
   },
   summaryValue: {
-    fontSize: 14,
-    color: colors.text,
-    fontWeight: '500',
+    fontSize: 16,
   },
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginVertical: 8,
+  summaryTotal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+    paddingTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
   },
   totalLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: colors.text,
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   totalValue: {
     fontSize: 18,
-    fontWeight: '700',
-    color: colors.text,
+    fontWeight: 'bold',
   },
-  orderPlacedContainer: {
+  placeOrderButton: {
+    backgroundColor: '#000',
+    padding: 16,
+    borderRadius: 8,
+    marginTop: 16,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-    marginTop: 40,
   },
-  checkmarkContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.success,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  orderPlacedTitle: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: colors.text,
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  orderPlacedText: {
+  placeOrderButtonText: {
+    color: '#fff',
     fontSize: 16,
-    color: colors.textSecondary,
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
+    fontWeight: 'bold',
   },
-  redirectingText: {
+  emptyText: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginVertical: 16,
+  },
+  placeholderImage: {
+    backgroundColor: '#eee',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  placeholderText: {
     fontSize: 14,
-    color: colors.primary,
-    fontStyle: 'italic',
+    color: '#666',
   },
 });
+
+export default CheckoutScreen;

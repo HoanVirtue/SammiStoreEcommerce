@@ -123,6 +123,11 @@ export const VerticalLayoutItems = () => {
                     icon: 'material-symbols:planner-banner-ad-pt-outline-rounded',
                     path: ROUTE_CONFIG.MANAGE_CATEGORY.BANNER,
                 },
+                {
+                    title: t('payment_method'),
+                    icon: 'streamline:payment-10',
+                    path: ROUTE_CONFIG.MANAGE_CATEGORY.PAYMENT_METHOD,
+                },
             ]
         },
         {
@@ -141,22 +146,6 @@ export const VerticalLayoutItems = () => {
                     path: ROUTE_CONFIG.SYSTEM.ROLE,
                     // permission: PERMISSIONS.SYSTEM.ROLE.VIEW
                 }
-            ]
-        },
-        {
-            title: t('setting'),
-            icon: 'weui:setting-outlined',
-            children: [
-                {
-                    title: t('delivery_method'),
-                    icon: 'material-symbols-light:delivery-truck-speed-outline-rounded',
-                    path: ROUTE_CONFIG.SETTING.DELIVERY_METHOD,
-                },
-                {
-                    title: t('payment_method'),
-                    icon: 'streamline:payment-10',
-                    path: ROUTE_CONFIG.SETTING.PAYMENT_METHOD,
-                },
             ]
         },
         {

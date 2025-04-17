@@ -31,15 +31,13 @@ export const ROUTE_CONFIG = {
     MANAGE_CATEGORY: {
         PRODUCT_CATEGORY: "/manage-category/product-category",
         BRAND: '/manage-category/brand',
-        BANNER: '/manage-category/banner'
+        BANNER: '/manage-category/banner',
+        PAYMENT_METHOD: '/manage-category/payment-method'
     },
     MANAGE_ORDER: {
         ORDER: "/manage-order/order",
     },
-    SETTING: {
-        PAYMENT_METHOD: "/setting/payment-method",
-        DELIVERY_METHOD: "/setting/delivery-method",
-    },
+
     DASHBOARD: "/dashboard",
     ADDRESS: {
         PROVINCE: "/address/province",

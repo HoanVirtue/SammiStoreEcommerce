@@ -161,7 +161,7 @@ const OrderCard: NextPage<TProps> = (props) => {
     const handlePayment = async () => {
         setLoading(true);
         try {
-            const response = await createPayBackOrder(orderData.code);
+            const response = await createPayBackOrder({orderCode: orderData.code});
 
             if (response?.isSuccess) {
                 if (response?.result?.returnUrl) {

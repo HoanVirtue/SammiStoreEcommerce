@@ -5,11 +5,15 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.API.Infrastructure;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
 using SAMMI.ECOM.API.Infrastructure.Configuration;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
+using SAMMI.ECOM.Domain.AggregateModels.Others;
+using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Infrastructure;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
@@ -58,31 +62,35 @@ builder.Services.Configure<RouteOptions>(options =>
 var tokenOptionSettingsSection = builder.Configuration.GetSection("TokenProvideOptions");
 var tokenOptionSettings = tokenOptionSettingsSection.Get<AccessTokenProvideOptions>();
 
+
 builder.Services
     .AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Thêm DefaultSignInScheme
     })
-    .AddCookie().AddGoogle(options =>
+    .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddGoogle(options =>
     {
         IConfigurationSection googleSection = builder.Configuration.GetSection("Authentication:Google");
         options.ClientId = googleSection["ClientId"];
         options.ClientSecret = googleSection["ClientSecret"];
-        options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.Scope.Add("profile");
+        options.Scope.Add("email");
         options.CallbackPath = "/api/auth/google-login";
         options.SaveTokens = true;
-        options.Scope.Add("profile");
-        options.Scope.Add("https://www.googleapis.com/auth/user.phonenumbers.read");
-        options.Events = new OAuthEvents
-        {
-            OnCreatingTicket = async context =>
-            {
-                var serviceProvider = context.HttpContext.RequestServices;
-                var googleHandler = serviceProvider.GetRequiredService<GoogleAuthenticationHandler>();
-                await googleHandler.HandleOnCreatingTicket(context);
-            }
-        };
+        //options.Scope.Add("profile");
+        //options.Scope.Add("https://www.googleapis.com/auth/user.phonenumbers.read");
+        //options.Events = new OAuthEvents
+        //{
+        //    OnCreatingTicket = async context =>
+        //    {
+        //        var serviceProvider = context.HttpContext.RequestServices;
+        //        var googleHandler = serviceProvider.GetRequiredService<GoogleAuthenticationHandler>();
+        //        await googleHandler.HandleOnCreatingTicket(context);
+        //    }
+        //};
 
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
@@ -119,6 +127,11 @@ builder.Services.AddDataProtection()
     .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
 
 builder.Services.AddHttpClient();
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
 
 var app = builder.Build();
 

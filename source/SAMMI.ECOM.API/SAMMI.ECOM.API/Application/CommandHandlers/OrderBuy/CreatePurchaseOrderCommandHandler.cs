@@ -60,11 +60,15 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actRes;
             }
 
-            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
+            foreach(var detail in request.Details)
             {
-                actRes.AddError("Có ít nhất 1 sản phẩm không tồn tại");
-                return actRes;
+                if (!_productRepository.IsExisted(detail.ProductId))
+                {
+                    actRes.AddError($"Mã sản phẩm không tồn tại.");
+                    return actRes;
+                }
             }
+
 
             request.Code = Guid.NewGuid().ToString();
             request.CreatedDate = DateTime.Now;

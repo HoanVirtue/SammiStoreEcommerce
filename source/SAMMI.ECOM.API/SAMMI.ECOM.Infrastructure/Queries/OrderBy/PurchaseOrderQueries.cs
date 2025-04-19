@@ -1,8 +1,10 @@
 ﻿using Dapper;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.DomainModels.Reports;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
@@ -11,11 +13,17 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
     {
         Task<IPagedList<PurchaseOrderDTO>> GetList(RequestFilterModel filterModel);
         Task<PurchaseOrderDTO> GetPurchaseOrder(int id);
+        Task<ImportStatistic> GetImportStatistic(ImportStatisticFilterModel filterModel);
     }
     public class PurchaseOrderQueries : QueryRepository<PurchaseOrder>, IPurchaseOrderQueries
     {
         public PurchaseOrderQueries(SammiEcommerceContext context) : base(context)
         {
+        }
+
+        public Task<ImportStatistic> GetImportStatistic(ImportStatisticFilterModel filterModel)
+        {
+            throw new NotImplementedException();
         }
 
         public Task<IPagedList<PurchaseOrderDTO>> GetList(RequestFilterModel filterModel)

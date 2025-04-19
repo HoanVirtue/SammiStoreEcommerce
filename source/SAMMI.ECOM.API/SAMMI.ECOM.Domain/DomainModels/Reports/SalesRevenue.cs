@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 
 namespace SAMMI.ECOM.Domain.DomainModels.Reports
@@ -11,7 +12,7 @@ namespace SAMMI.ECOM.Domain.DomainModels.Reports
     {
         public decimal? TotalAmount { get; set; }
         public decimal? TotalQuantity { get; set; }
-        public List<SalesRevenueDetail> RevenueDetails { get; set; }
+        public IPagedList<SalesRevenueDetail> RevenueDetails { get; set; }
     }
 
     public class SalesRevenueDetail

@@ -1,6 +1,8 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
+using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
@@ -10,25 +12,25 @@ namespace SAMMI.ECOM.API.Controllers
     [ApiController]
     public class ReportsController : CustomBaseController
     {
-        private readonly IOrderRepository _orderRepository;
+        private readonly IOrderQueries _orderQueries;
         private readonly IPurchaseOrderRepository _purchaseRepository;
         private readonly IProductRepository _productRepository;
         public ReportsController(
-            IOrderRepository orderRepository,
+            IOrderQueries orderQueries,
             IPurchaseOrderRepository purchaseRepository,
             IProductRepository productRepository,
             IMediator mediator,
-            ILogger logger) : base(mediator, logger)
+            ILogger<ReportsController> logger) : base(mediator, logger)
         {
-            _orderRepository = orderRepository;
+            _orderQueries = orderQueries;
             _purchaseRepository = purchaseRepository;
             _productRepository = productRepository;
         }
 
         [HttpGet("sales-revenue")]
-        public IActionResult SalesRevenue()
+        public async Task<IActionResult> SalesRevenueAsync([FromQuery]SaleRevenueFilterModel request)
         {
-            return Ok();
+            return Ok(await _orderQueries.RevenueOrder(request));
         }
     }
 }

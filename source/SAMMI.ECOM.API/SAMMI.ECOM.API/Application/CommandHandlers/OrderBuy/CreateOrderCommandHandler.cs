@@ -7,6 +7,7 @@ using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
@@ -73,10 +74,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
 
-            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
+            foreach(var p in request.Details)
             {
-                actResponse.AddError("Có ít nhất 1 sản phẩm không tồn tại");
-                return actResponse;
+                if(!_productRepository.IsExisted(p.ProductId))
+                {
+                    actResponse.AddError("Mã sản phẩm không tồn tại.");
+                    return actResponse;
+                }
             }
 
             var paymentMethod = await _methodRepository.GetByIdAsync(request.PaymentMethodId);

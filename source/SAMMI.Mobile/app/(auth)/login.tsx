@@ -37,7 +37,6 @@ export default function LoginScreen() {
 
     const validateForm = () => {
         let isValid = true;
-
         // Username validation
         if (!username.trim()) {
             setUsernameError('Username is required');
@@ -61,7 +60,9 @@ export default function LoginScreen() {
     };
 
     const handleLogin = async () => {
-        if (validateForm()) {
+        const isValid = validateForm();
+        if (isValid) {
+
             login({ username, password, rememberMe: isRemember }, (err) => {
                 console.log("err", err);
                 if (err?.response?.errors !== "") {
@@ -72,6 +73,8 @@ export default function LoginScreen() {
                 }
             })
         }
+
+
     };
 
     const handleBack = () => {

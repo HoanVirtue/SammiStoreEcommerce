@@ -138,7 +138,6 @@ export function CartItem({ item, onUpdateQuantity, onRemove, onCheckboxChange, i
             : undefined,
     ].filter(Boolean);
 
-    console.log('itemStaa', itemState);
 
     return (
         <View style={styles.container}>

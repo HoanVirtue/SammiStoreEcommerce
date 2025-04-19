@@ -33,7 +33,7 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
     const router = useRouter()
     const pathname = usePathname()
     const { setUser, user } = useAuth()
-
+    
     instance.interceptors.request.use(async (config) => {
         const { accessToken, refreshToken } = await getLocalUserData()
         const { temporaryToken } = await getTemporaryToken()
@@ -88,7 +88,6 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
     instance.interceptors.response.use((response) => {
         return response
     }, (error) => {
-        console.log('Instance Error:', {error});
         if (error.response?.status === 401) {
             handleRedirectToLogin(router, pathname, setUser)
         }

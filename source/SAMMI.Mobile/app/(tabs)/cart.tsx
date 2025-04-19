@@ -153,7 +153,6 @@ export default function CartScreen() {
 
   const handleCheckout = useCallback(() => {
     const selectedProducts = cart.data.filter((item) => selectedItems.includes(item.productId));
-    console.log('Selected products:', selectedProducts);
     if (selectedProducts.length === 0) {
       Toast.show({
         type: 'error',

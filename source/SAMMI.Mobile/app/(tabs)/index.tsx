@@ -36,7 +36,6 @@ export default function HomeScreen() {
           filters: "''"
         }
       });
-      console.log("log products",response);
       if (response?.result?.subset) {
         setPublicProducts(response.result.subset);
       } else {

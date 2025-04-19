@@ -278,7 +278,6 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
         }
     };
 
-    console.log('addresses', addresses);
 
     const resetForm = () => {
         setIsEdit({ isEdit: false, index: 0 });
@@ -418,7 +417,6 @@ const AddressModal: React.FC<AddressModalProps> = ({ open, onClose }) => {
         }
     }, [isSuccessDelete, isErrorDelete, errorMessageDelete]);
 
-    console.log("activeTab", activeTab)
 
     return (
         <Modal visible={open} animationType="slide" transparent>

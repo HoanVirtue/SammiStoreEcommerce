@@ -22,6 +22,7 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
 import LoginScreen from '../(auth)/login';
+import HomeScreen from '.';
 
 export default function ProfileScreen() {
 
@@ -30,14 +31,19 @@ export default function ProfileScreen() {
   const [darkMode, setDarkMode] = React.useState(false);
   const [notifications, setNotifications] = React.useState(true);
   const [hasToken, setHasToken] = useState<boolean | null>(null);
+  const {user} = useAuth();
+
 
   useEffect(() => {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem(ACCESS_TOKEN);
       setHasToken(!!token);
+      if(token) {
+        router.replace('/(tabs)');
+      }
     };
     checkAuth();
-  }, []);
+  }, [user]);
 
   if (hasToken === null) {
     return null; // or a loading spinner

@@ -27,8 +27,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
     return null;
   }
 
-  console.log('user', user);
-
   const isWishlisted = false;
 
   const handlePress = () => {

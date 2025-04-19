@@ -113,10 +113,8 @@ const CheckoutScreen = () => {
 
         if (params.selectedProducts) {
           const parsedProducts = JSON.parse(params.selectedProducts as string);
-          console.log('Parsed products:', parsedProducts);
 
           result.selectedProducts = parsedProducts.map((item: any) => {
-            console.log('Processing item:', item);
             return {
               productId: item.productId,
               quantity: item.quantity,
@@ -368,7 +366,7 @@ const CheckoutScreen = () => {
     if (memoQueryProduct.selectedProducts.length > 0) {
       fetchProductDetails();
     }
-  }, [memoQueryProduct.selectedProducts]);
+  }, []);
 
   if (loading) {
     return (

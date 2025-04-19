@@ -220,9 +220,17 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                     payment.UpdatedBy = type == TypeUserEnum.Customer ? "Customer" : UserIdentity.UserName;
                     actRes.Combine(await _paymentRepository.Value.UpdateAndSave(payment));
                 }
-                else if(newStatus == OrderStatusEnum.Cancelled)
+                else if (newStatus == OrderStatusEnum.Cancelled)
                 {
                     actRes.Combine(await _productRepository.Value.RollbackProduct(order.Id));
+                    if(!actRes.IsSuccess)
+                    {
+                        return actRes;
+                    }
+                    if(order.VoucherId != null)
+                    {
+                        actRes.Combine(await _voucherRepository.Value.RollbackVoucher(order.VoucherId??0, order.CustomerId));
+                    }    
                 }
             }
             else
@@ -293,6 +301,14 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             if(order.OrderStatus == OrderStatusEnum.Cancelled.ToString())
             {
                 actRes.Combine(await _productRepository.Value.RollbackProduct(order.Id));
+                if(!actRes.IsSuccess)
+                {
+                    return actRes;
+                }
+                if (order.VoucherId != null)
+                {
+                    actRes.Combine(await _voucherRepository.Value.RollbackVoucher(order.VoucherId ?? 0, order.CustomerId));
+                }
             }
             return actRes;
         }
@@ -330,6 +346,14 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             }
 
             actResponse.Combine(await _productRepository.Value.RollbackProduct(orderId));
+            if (!actResponse.IsSuccess)
+            {
+                return actResponse;
+            }
+            if (order.VoucherId != null)
+            {
+                actResponse.Combine(await _voucherRepository.Value.RollbackVoucher(order.VoucherId ?? 0, order.CustomerId));
+            }
             return actResponse;
         }
     }

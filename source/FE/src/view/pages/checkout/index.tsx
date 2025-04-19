@@ -89,15 +89,6 @@ interface PaymentOption {
 
 type TProps = {};
 
-// Constants
-const DELIVERY_OPTIONS = [
-    {
-        label: 'fast_delivery',
-        value: 'fast_delivery',
-        price: 0,
-        leadTime: null,
-    },
-];
 
 const CheckoutPage: NextPage<TProps> = () => {
     // ============= States =============
@@ -118,7 +109,7 @@ const CheckoutPage: NextPage<TProps> = () => {
 
     // States cho address và voucher
     const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>();
-    const [selectedVoucherId, setSelectedVoucherId] = useState<string>('');
+    const [selectedVoucherId, setSelectedVoucherId] = useState<number>(0);
     const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
 
     // ============= Hooks và Constants =============
@@ -130,7 +121,7 @@ const CheckoutPage: NextPage<TProps> = () => {
     const PAYMENT_DATA = PAYMENT_METHOD();
 
     // Redux selectors
-    const { addresses, currentAddress } = useSelector((state: RootState) => state.address);
+    const { addresses } = useSelector((state: RootState) => state.address);
     const { carts, isLoading } = useSelector((state: RootState) => state.cart);
 
     // ============= Memoized Values =============
@@ -182,22 +173,48 @@ const CheckoutPage: NextPage<TProps> = () => {
         return result;
     }, [router.query, carts?.data]);
 
+
     const memoShippingPrice = useMemo(() => {
         const shippingPrice = deliveryOption.find((item) => item.value === selectedDelivery)?.price ?? 0;
         return shippingPrice ? Number(shippingPrice) : 0;
     }, [selectedDelivery, deliveryOption]);
 
-    const memoVoucherDiscountPrice = useMemo(() => {
-        let discountPrice = 0;
+    useEffect(() => {
         if (selectedVoucherId) {
-            getVoucherDetail(Number(selectedVoucherId)).then(res => {
-                const discountPercent = res?.result?.discountValue || 0;
-                discountPrice = (Number(memoQueryProduct.totalPrice) * Number(discountPercent)) / 100;
-                setVoucherDiscount(discountPrice);
-            });
+            setLoading(true);
+            getVoucherDetail(Number(selectedVoucherId))
+                .then(res => {
+                    if (res?.result) {
+                        const discountValue = res.result.discountValue || 0;
+                        const discountType = res.result.discountTypeId;
+
+                        let calculatedDiscount = 0;
+                        if (discountType === 1) { // Percentage discount
+                            calculatedDiscount = (Number(memoQueryProduct.totalPrice) * Number(discountValue)) / 100;
+                        } else if (discountType === 2) { // Fixed amount discount
+                            calculatedDiscount = Number(discountValue);
+                        } else if (discountType === 3) { // Free shipping
+                            calculatedDiscount = Number(shippingPrice);
+                        }
+
+                        setVoucherDiscount(calculatedDiscount);
+                    } else {
+                        setVoucherDiscount(0);
+                        toast.error(t('voucher_not_found'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error getting voucher details:', error);
+                    setVoucherDiscount(0);
+                    toast.error(t('error_getting_voucher'));
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        } else {
+            setVoucherDiscount(0);
         }
-        return discountPrice;
-    }, [selectedVoucherId, memoQueryProduct.totalPrice]);
+    }, [selectedVoucherId, memoQueryProduct.totalPrice, shippingPrice, t]);
 
     // ============= Handlers =============
     const handlePlaceOrder = () => {
@@ -288,7 +305,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 const res = await getCaculatedFee({
                     params: {
                         wardId: myCurrentAddress.wardId,
-                        totalAmount: memoQueryProduct.totalPrice
+                        totalAmount: Math.floor(memoQueryProduct.totalPrice)
                     }
                 });
                 if (res?.result) {
@@ -374,7 +391,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 <VoucherModal
                     open={openVoucher}
                     onClose={() => setOpenVoucher(false)}
-                    onSelectVoucher={(voucherId: string) => {
+                    onSelectVoucher={(voucherId: number) => {
                         setSelectedVoucherId(voucherId);
                     }}
                     cartDetails={memoQueryProduct.selectedProduct}
@@ -404,15 +421,17 @@ const CheckoutPage: NextPage<TProps> = () => {
                             <Box>
                                 <StepLabel title={t('shipping_info')} step="1" />
                                 {user ? (
-                                    <Stack direction="row" spacing={2} alignItems="center">
-                                        <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
-                                            {user?.fullName} {user?.phone}
-                                        </Typography>
-                                        <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
-                                            {myCurrentAddress?.streetAddress}, {myCurrentAddress?.wardName}, {myCurrentAddress?.districtName}, {myCurrentAddress?.provinceName}
-                                        </Typography>
+                                    <Stack direction="row" spacing={2} alignItems="center" justifyContent="space-between">
+                                        <Stack direction="column" alignItems="flex-start" spacing={1}>
+                                            <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
+                                                {user?.fullName} {user?.phone}
+                                            </Typography>
+                                            <Typography sx={{ fontWeight: 'bold', fontSize: { xs: '16px', md: '18px' } }}>
+                                                {myCurrentAddress?.streetAddress}, {myCurrentAddress?.wardName}, {myCurrentAddress?.districtName}, {myCurrentAddress?.provinceName}
+                                            </Typography>
+                                        </Stack>
                                         <Button variant="outlined" size="small"
-                                            onClick={() => setOpenAddress(true)}>
+                                            onClick={() => setOpenAddress(true)} sx={{ textWrap: 'nowrap' }}>
                                             {t('change_address')}
                                         </Button>
                                     </Stack>

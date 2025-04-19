@@ -33,10 +33,10 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
     const router = useRouter()
     const pathname = usePathname()
     const { setUser, user } = useAuth()
-
+    
     instance.interceptors.request.use(async (config) => {
-        const { accessToken, refreshToken } = getLocalUserData()
-        const { temporaryToken } = getTemporaryToken()
+        const { accessToken, refreshToken } = await getLocalUserData()
+        const { temporaryToken } = await getTemporaryToken()
         const isPublicApi = config?.params?.isPublic
 
         if (accessToken || temporaryToken) {

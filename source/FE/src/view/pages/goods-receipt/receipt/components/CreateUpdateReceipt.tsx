@@ -37,7 +37,7 @@ import { useRouter } from 'next/router';
 import { AppDispatch } from 'src/stores';
 import { getReceiptDetail } from 'src/services/receipt';
 import { toast } from 'react-toastify';
-import { RECEIPT_STATUS } from 'src/configs/receipt';
+import { GOODS_RECEIPT_STATUS } from 'src/configs/receipt';
 
 interface ReceiptItem {
     id: number;
@@ -80,7 +80,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
     const [employeeOptions, setEmployeeOptions] = useState<{ label: string, value: string }[]>([]);
     const [productOptions, setProductOptions] = useState<{ label: string, value: number, price: number, id: number }[]>([]);
     const [isEditMode, setIsEditMode] = useState(false);
-    const statusOptions = RECEIPT_STATUS();
+    const statusOptions = GOODS_RECEIPT_STATUS();
 
     const schema = yup.object().shape({
         receiptCode: yup.string().required(t("receipt_code_required")),

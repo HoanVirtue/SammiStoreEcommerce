@@ -59,6 +59,8 @@ const LoginPage: NextPage<TProps> = () => {
     //translation
     const { t } = useTranslation()
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const schema = yup.object().shape({
         username: yup
             .string()
@@ -80,11 +82,12 @@ const LoginPage: NextPage<TProps> = () => {
 
     const onSubmit = (data: { username: string, password: string }) => {
         if (!Object.keys(errors)?.length) {
+            setIsLoading(true);
             login({ ...data, rememberMe: isRemember }, (err) => {
-                console.log(err, "err");
                 if (err?.response?.errors !== "") {
                     toast.error(err?.response?.message)
                 }
+                setIsLoading(false);
             })
         }
     }
@@ -213,7 +216,7 @@ const LoginPage: NextPage<TProps> = () => {
                                 label={t("remember_me")} />
                             <Link href="#">{t("forgot_password")}</Link>
                         </Box>
-                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
+                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }} >
                             {t("login")}
                         </Button>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: "4px" }}>

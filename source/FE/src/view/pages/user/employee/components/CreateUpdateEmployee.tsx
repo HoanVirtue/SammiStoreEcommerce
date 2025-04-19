@@ -124,8 +124,8 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     });
 
     const roleOptions = useMemo(() => [
-        { label: "Admin", value: 1 },
-        { label: "User", value: 2 },
+        { label: "Quản lý", value: 2 },
+        { label: "Nhân viên", value: 3 },
     ], []);
 
     const genderOptions = useMemo(() => [

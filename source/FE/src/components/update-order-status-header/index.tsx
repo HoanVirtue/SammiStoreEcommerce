@@ -64,14 +64,11 @@ const UpdateOrderStatusHeader = (props: TProp) => {
                 shippingStatus: parseInt(selectedShippingStatus.value as string)
             })
             if (res?.data?.isSuccess === true) {
+                onRefresh && onRefresh()
                 toast.success(t("order_status_updated_successfully"))
                 onClear()
                 setSelectedPaymentStatus(null)
                 setSelectedShippingStatus(null)
-                // Call refresh callback if provided
-                if (onRefresh) {
-                    onRefresh()
-                }
             } else {
                 toast.error(res?.message)
             }

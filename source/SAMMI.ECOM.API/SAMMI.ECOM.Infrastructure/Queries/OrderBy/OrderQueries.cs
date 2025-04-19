@@ -1,10 +1,12 @@
 ﻿using Dapper;
 using Nest;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.Products;
+using SAMMI.ECOM.Domain.DomainModels.Reports;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.GlobalModels.Common;
 using SAMMI.ECOM.Repository.GenericRepositories;
@@ -19,6 +21,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<OrderDTO> GetById(int id);
         Task<IEnumerable<OrderDTO>> GetOrdersByCustomerId(int customerId, RequestFilterModel request);
         Task<IPagedList<OrderDTO>> GetListOrdersByCustomerId(int customerId, RequestFilterModel request);
+        //Task<IPagedList<SalesRevenue>> RevenueOrder(SaleRevenueFilterModel filterModel);
     }
     public class OrderQueries : QueryRepository<Order>, IOrderQueries
     {
@@ -297,5 +300,15 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 }, request
             );
         }
+
+        //public async Task<IPagedList<SalesRevenue>> RevenueOrder(SaleRevenueFilterModel filterModel)
+        //{
+        //    return WithPagingTemplateAsync(
+        //        (conn, sqlBuilder, sqlTemplate) =>
+        //        {
+        //            return default;
+
+        //        }, filterModel);
+        //}
     }
 }

@@ -3,7 +3,6 @@ import { StyleSheet, Text, View, ScrollView, Pressable, Image, Linking, Platform
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
-import { useArticleStore } from '@/presentation/stores/articleStore';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
 
@@ -13,34 +12,33 @@ import { formatDate } from '@/utils';
 export default function ArticleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { selectedArticle, isLoading, error, getArticleById } = useArticleStore();
 
   useEffect(() => {
-    if (id && (!selectedArticle || selectedArticle.id !== id)) {
-      getArticleById(id);
-    }
+    // if (id && (!selectedArticle || selectedArticle.id !== id)) {
+    //   getArticleById(id);
+    // }
   }, [id]);
 
   const handleOpenArticle = async () => {
-    if (selectedArticle?.url) {
-      const canOpen = await Linking.canOpenURL(selectedArticle.url);
-      if (canOpen) {
-        await Linking.openURL(selectedArticle.url);
-      }
-    }
+    // if (selectedArticle?.url) {
+    //   const canOpen = await Linking.canOpenURL(selectedArticle.url);
+    //   if (canOpen) {
+    //     await Linking.openURL(selectedArticle.url);
+    //   }
+    // }
   };
 
   const handleGoBack = () => {
     router.back();
   };
 
-  if (isLoading) {
-    return <LoadingIndicator fullScreen />;
-  }
+  // if (isLoading) {
+  //   return <LoadingIndicator fullScreen />;
+  // }
 
-  if (error || !selectedArticle) {
-    return <ErrorView message={error || 'Article not found'} onRetry={() => id && getArticleById(id)} />;
-  }
+  // if (error || !selectedArticle) {
+  //   return <ErrorView message={error || 'Article not found'} onRetry={() => id && getArticleById(id)} />;
+  // }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -58,38 +56,38 @@ export default function ArticleDetailScreen() {
       />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.source}>{selectedArticle.source.name}</Text>
-        <Text style={styles.title}>{selectedArticle.title}</Text>
+        {/* <Text style={styles.source}>{selectedArticle.source.name }</Text> */}
+        {/* <Text style={styles.title}>{selectedArticle.title}</Text> */}
 
         <View style={styles.metaInfo}>
-          {selectedArticle.author && (
+          {/* {selectedArticle.author && (
             <View style={styles.metaItem}>
               <User size={16} color={colors.textSecondary} />
               <Text style={styles.metaText}>{selectedArticle.author}</Text>
             </View>
-          )}
+          )} */}
 
           <View style={styles.metaItem}>
             <Clock size={16} color={colors.textSecondary} />
-            <Text style={styles.metaText}>{formatDate(selectedArticle.publishedAt)}</Text>
+            <Text style={styles.metaText}>{'publishedAt'}</Text>
           </View>
         </View>
 
-        {selectedArticle.urlToImage && (
+        {/* {selectedArticle.urlToImage && (
           <Image
-            source={{ uri: selectedArticle.urlToImage }}
+            source={{ uri: 'urlToImage' }}
             style={styles.image}
             resizeMode="cover"
           />
-        )}
+        )} */}
 
-        <Text style={styles.description}>{selectedArticle.description}</Text>
+        <Text style={styles.description}>{'description'}</Text>
 
-        {selectedArticle.content && (
+        {/* {selectedArticle.content && (
           <Text style={styles.content}>
             {selectedArticle.content.replace(/\[\+\d+ chars\]$/, '')}
           </Text>
-        )}
+        )} */}
 
         <Pressable style={styles.readMoreButton} onPress={handleOpenArticle}>
           <Text style={styles.readMoreText}>Read Full Article</Text>

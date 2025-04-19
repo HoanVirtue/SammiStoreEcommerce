@@ -123,42 +123,31 @@ export const VerticalLayoutItems = () => {
                     icon: 'material-symbols:planner-banner-ad-pt-outline-rounded',
                     path: ROUTE_CONFIG.MANAGE_CATEGORY.BANNER,
                 },
-            ]
-        },
-        {
-            title: t('system'),
-            icon: 'icon-park-outline:system',
-            children: [
-                {
-                    title: t('user'),
-                    icon: 'iconoir:user',
-                    path: ROUTE_CONFIG.SYSTEM.USER,
-                    // permission: PERMISSIONS.SYSTEM.USER.VIEW
-                },
-                {
-                    title: t('role'),
-                    icon: 'oui:app-users-roles',
-                    path: ROUTE_CONFIG.SYSTEM.ROLE,
-                    // permission: PERMISSIONS.SYSTEM.ROLE.VIEW
-                }
-            ]
-        },
-        {
-            title: t('setting'),
-            icon: 'weui:setting-outlined',
-            children: [
-                {
-                    title: t('delivery_method'),
-                    icon: 'material-symbols-light:delivery-truck-speed-outline-rounded',
-                    path: ROUTE_CONFIG.SETTING.DELIVERY_METHOD,
-                },
                 {
                     title: t('payment_method'),
                     icon: 'streamline:payment-10',
-                    path: ROUTE_CONFIG.SETTING.PAYMENT_METHOD,
+                    path: ROUTE_CONFIG.MANAGE_CATEGORY.PAYMENT_METHOD,
                 },
             ]
         },
+        // {
+        //     title: t('system'),
+        //     icon: 'icon-park-outline:system',
+        //     children: [
+        //         {
+        //             title: t('user'),
+        //             icon: 'iconoir:user',
+        //             path: ROUTE_CONFIG.SYSTEM.USER,
+        //             // permission: PERMISSIONS.SYSTEM.USER.VIEW
+        //         },
+        //         {
+        //             title: t('role'),
+        //             icon: 'oui:app-users-roles',
+        //             path: ROUTE_CONFIG.SYSTEM.ROLE,
+        //             // permission: PERMISSIONS.SYSTEM.ROLE.VIEW
+        //         }
+        //     ]
+        // },
         {
             title: t('address'),
             icon: 'fluent:location-settings-20-regular',

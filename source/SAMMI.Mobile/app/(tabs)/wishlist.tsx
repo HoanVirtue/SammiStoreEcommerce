@@ -3,8 +3,6 @@ import { StyleSheet, View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors } from '@/constants/colors';
-import { useUserStore } from '@/presentation/stores/userStore';
-import { useProductStore } from '@/presentation/stores/productStore';
 import { ProductCard } from '@/presentation/components/ProductCard';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
@@ -14,26 +12,21 @@ import { Heart } from 'lucide-react-native';
 
 export default function WishlistScreen() {
   const router = useRouter();
-  const { user, isLoading: userLoading, error: userError, fetchUser } = useUserStore();
-  const {
-    products,
-    isLoading: productsLoading,
-    error: productsError,
-    fetchProducts,
-    fetchProductById,
-  } = useProductStore();
+
 
   useEffect(() => {
-    fetchUser();
-    fetchProducts();
+    // fetchUser();
+    // fetchProducts();
   }, []);
 
-  const wishlistProducts = products.filter(
-    product => user?.wishlist.includes(product.id)
-  );
+  // const wishlistProducts = products.filter(
+  //   product => user?.wishlist.includes(product.id)
+  // );
+  const wishlistProducts: any[] = [];
+
 
   const handleProductPress = (product: Product) => {
-    fetchProductById(product.id);
+    // fetchProductById(product.id);
     router.push(`/product/${product.id}`);
   };
 
@@ -41,16 +34,13 @@ export default function WishlistScreen() {
     router.back();
   };
 
-  const isLoading = userLoading || productsLoading;
-  const error = userError || productsError;
+  // if (isLoading && wishlistProducts.length === 0) {
+  //   return <LoadingIndicator fullScreen />;
+  // }
 
-  if (isLoading && wishlistProducts.length === 0) {
-    return <LoadingIndicator fullScreen />;
-  }
-
-  if (error) {
-    return <ErrorView message={error} onRetry={fetchUser} />;
-  }
+  // if (error) {
+  //   return <ErrorView message={error} onRetry={fetchUser} />;
+  // }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -79,7 +69,7 @@ export default function WishlistScreen() {
           data={wishlistProducts}
           renderItem={({ item }) => (
             <View style={styles.productItem}>
-              <ProductCard product={item} onPress={handleProductPress} />
+              {/* <ProductCard product={item} onPress={handleProductPress} /> */}
             </View>
           )}
           keyExtractor={(item) => item.id}

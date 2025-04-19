@@ -1,6 +1,5 @@
-import axios from "axios"
-import { API_ENDPOINT } from "@/configs/api"
 import instance from "@/helpers/axios"
+import { API_ENDPOINT } from "@/configs/api"
 import { TParamsCreateCart, TParamsGetAllCarts } from "@/types/cart"
 
 export const getCarts = async (data: {params: TParamsGetAllCarts}) => {

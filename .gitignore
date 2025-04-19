@@ -412,3 +412,5 @@ yarn.lock
 /source/SammiMobile/.expo/packager-info.json
 /source/SammiMobile/.expo/README.md
 /source/SammiMobile/.expo/settings.json
+
+.early.coverage

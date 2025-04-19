@@ -21,6 +21,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<decimal> CalculateDiscount(int voucherId, decimal costShip, decimal totalPrice);
         Task<IEnumerable<Voucher>> GetByEventId(int eventId);
         Task<bool> IsExistAnother(int voucherId);
+        Task<ActionResponse> RollbackVoucher(int voucherId, int customerId);
     }
     public class VoucherRepository : CrudRepository<Voucher>, IVoucherRepository, IDisposable
     {
@@ -474,6 +475,32 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                             v.Id
                         };
             return query.AnyAsync();
+        }
+
+        public async Task<ActionResponse> RollbackVoucher(int voucherId, int customerId)
+        {
+            var actResponse = new ActionResponse();
+            var voucher = await FindById(voucherId);
+            if(voucher == null)
+            {
+                actResponse.AddError("Phiếu giảm giá không tồn tại.");
+                return actResponse;
+            }
+            var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(voucherId, customerId);
+            if(myVoucher == null)
+            {
+                actResponse.AddError("Phiếu giảm giá không tồn tại trong kho.");
+                return actResponse;
+            }
+            myVoucher.IsUsed = false;
+            actResponse.Combine(await _myVoucherRepository.UpdateAndSave(myVoucher));
+            if(!actResponse.IsSuccess)
+            {
+                return actResponse;
+            }  
+            voucher.UsedCount -= 1;
+            actResponse.Combine(await UpdateAndSave(voucher));
+            return actResponse;
         }
     }
 }

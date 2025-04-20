@@ -60,7 +60,7 @@ const ChangePasswordPage: NextPage<TProps> = () => {
 
     //Redux
     const dispatch: AppDispatch = useDispatch();
-    const { isLoading, isErrorChangePassword, isSuccessChangePassword, messageChangePassword } = useSelector((state: RootState) => state.auth)
+    const { isLoading, isErrorChangePassword, isSuccessChangePassword, errorMessageChangePassword } = useSelector((state: RootState) => state.auth)
 
     //Theme
     const theme = useTheme();
@@ -101,19 +101,19 @@ const ChangePasswordPage: NextPage<TProps> = () => {
     }
 
     useEffect(() => {
-        if (messageChangePassword) {
+        if (errorMessageChangePassword) {
             if (isErrorChangePassword) {
-                toast.error(messageChangePassword)
+                toast.error(errorMessageChangePassword)
             }
             else if (isSuccessChangePassword) {
-                toast.success(messageChangePassword)
+                toast.success(t("update_success"))
                 setTimeout(() => {
                     logout()
                 }, 500)
             }
         }
         dispatch(resetInitialState())
-    }, [isErrorChangePassword, isSuccessChangePassword, messageChangePassword])
+    }, [isErrorChangePassword, isSuccessChangePassword, errorMessageChangePassword])
 
     return (
         <>

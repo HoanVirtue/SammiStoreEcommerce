@@ -742,6 +742,11 @@
     "no_data_voucher": "Không có dữ liệu về mã giảm giá",
     "no_data_event": "Không có dữ liệu về sự kiện",
     "select_role_ids_name": "Chọn vai trò",
+    "save_amount": "Tiết kiệm",
+
+    "place_order_error": "Đã xảy ra lỗi trong quá trình đặt hàng. Vui lòng thử lại!",
+    "reviews": "Đánh giá",
+    
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

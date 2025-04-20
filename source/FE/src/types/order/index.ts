@@ -12,6 +12,10 @@ export type TParamsGetAllOrders = {
     keywords?: string;
 }
 
+export type TParamsPayback = {
+    orderCode: string;
+}
+
 export type TItemOrderProduct = {
     productId: number;
     name: string;

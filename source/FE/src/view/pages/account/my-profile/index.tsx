@@ -81,7 +81,7 @@ const MyProfilePage: NextPage<TProps> = () => {
 
     //Dispatch
     const dispatch: AppDispatch = useDispatch();
-    const { isLoading, isErrorUpdateMe, messageUpdateMe, isSuccessUpdateMe } = useSelector((state: RootState) => state.auth)
+    const { isLoading, isErrorUpdateMe, errorMessageUpdateMe, isSuccessUpdateMe } = useSelector((state: RootState) => state.auth)
 
     const schema = yup.object().shape({
         email: yup
@@ -159,17 +159,17 @@ const MyProfilePage: NextPage<TProps> = () => {
 
 
     useEffect(() => {
-        if (messageUpdateMe) {
+        if (errorMessageUpdateMe) {
             if (isErrorUpdateMe) {
-                toast.error(messageUpdateMe)
+                toast.error(errorMessageUpdateMe)
             }
             else if (isSuccessUpdateMe) {
-                toast.success(messageUpdateMe)
+                toast.success(t("update_success"))
                 fetchGetAuthMe()
             }
         }
         dispatch(resetInitialState())
-    }, [isErrorUpdateMe, isSuccessUpdateMe, messageUpdateMe])
+    }, [isErrorUpdateMe, isSuccessUpdateMe, errorMessageUpdateMe])
 
 
     useEffect(() => {

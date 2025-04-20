@@ -264,7 +264,7 @@ const ProductDetailPage: NextPage = () => {
                     backgroundColor: theme.palette.background.paper,
                     borderRadius: "15px",
                     py: 5, px: 4
-                }} >
+                }} >    
                     <Box sx={{
                         width: "100%",
                         height: "100%",
@@ -307,7 +307,6 @@ const ProductDetailPage: NextPage = () => {
                                         <Box sx={{
                                             display: { xs: 'none', md: 'block' },
                                             position: 'absolute',
-
                                             width: '400px',
                                             height: '400px',
                                             borderRadius: '15px',
@@ -318,7 +317,6 @@ const ProductDetailPage: NextPage = () => {
                                             transform: 'translateY(-50%)',
                                             zIndex: 2,
                                             border: `1px solid ${theme.palette.divider}`,
-
                                         }}>
                                             <Box sx={{
                                                 position: 'absolute',
@@ -589,7 +587,7 @@ const ProductDetailPage: NextPage = () => {
                             </Grid>
                         </Grid>
                     </Box>
-                </Grid>
+                </Grid> 
 
                 <Grid xs={12} sx={{ mt: 4 }}>
                     <Box sx={{

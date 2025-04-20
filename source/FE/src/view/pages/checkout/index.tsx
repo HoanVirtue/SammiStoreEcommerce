@@ -52,7 +52,6 @@ import { useAuth } from 'src/hooks/useAuth';
 import { formatPrice } from 'src/utils';
 import IconifyIcon from 'src/components/Icon';
 import Spinner from 'src/components/spinner';
-import Swal from 'sweetalert2';
 import { getAllPaymentMethods } from 'src/services/payment-method';
 import { getAllDeliveryMethods, getCaculatedFee } from 'src/services/delivery-method';
 import { createOrderAsync } from 'src/stores/order/action';

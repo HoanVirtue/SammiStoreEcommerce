@@ -22,6 +22,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<IEnumerable<OrderDTO>> GetOrdersByCustomerId(int customerId, RequestFilterModel request);
         Task<IPagedList<OrderDTO>> GetListOrdersByCustomerId(int customerId, RequestFilterModel request);
         Task<SalesRevenue> RevenueOrder(SaleRevenueFilterModel filterModel);
+        Task<decimal?> GetTotalRevenueInDay();
     }
     public class OrderQueries : QueryRepository<Order>, IOrderQueries
     {
@@ -64,7 +65,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                         FROM ProductImage pi
                                         INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
                                         WHERE pi.IsDeleted != 1
-                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
                                         ) t11 ON t9.Id = t11.ProductId");
 
                     sqlBuilder.Where("t1.Id = @id", new { id });
@@ -177,7 +178,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                         FROM ProductImage pi
                                         INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
                                         WHERE pi.IsDeleted != 1
-                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
                                         ) t11 ON t9.Id = t11.ProductId"
                     );
 
@@ -246,7 +247,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                         FROM ProductImage pi
                                         INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
                                         WHERE pi.IsDeleted != 1
-                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
                                         ) t11 ON t9.Id = t11.ProductId"
                     );
 
@@ -298,6 +299,20 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
 
                     return conn.QueryAsync<SelectionItem>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, request
+            );
+        }
+
+        public Task<decimal?> GetTotalRevenueInDay()
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("SUM(t2.Quantity * t2.Price) AS TotalRevenue");
+                    sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
+                    sqlBuilder.Where($"t1.OrderStatus = @orderStatus", new { orderStatus = OrderStatusEnum.Completed.ToString() });
+                    sqlBuilder.Where($"t1.CreatedDate BETWEEN @startDate AND @endDate", new { startDate = DateTime.Now.Date.ToString("yyyy/MM/dd"), endDate = DateTime.Now.AddDays(1).ToString("yyyy/MM/dd") });
+                    return conn.QuerySingleAsync<decimal?>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
             );
         }
 

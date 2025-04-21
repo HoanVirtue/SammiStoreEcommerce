@@ -6,6 +6,7 @@ using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.DomainModels.Reports;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Repositories.Permission;
@@ -23,6 +24,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<ActionResponse> UpdateOrderStatus(UpdateOrderStatusCommand orderStatus);
         Task<ActionResponse> CancelldOrder(int orderId);
         Task<Order> FindByCode(string code);
+        Task<NumberOfOrders> GetNumberOrder();
     }
     public class OrderRepository : CrudRepository<Order>, IOrderRepository, IDisposable
     {
@@ -355,6 +357,26 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 actResponse.Combine(await _voucherRepository.Value.RollbackVoucher(order.VoucherId ?? 0, order.CustomerId));
             }
             return actResponse;
+        }
+
+        public async Task<NumberOfOrders> GetNumberOrder()
+        {
+            var totalPending = await DbSet.Where(x => (x.OrderStatus == OrderStatusEnum.Pending.ToString() ||
+                                                x.OrderStatus == OrderStatusEnum.WaitingForPayment.ToString() ||
+                                                x.OrderStatus == OrderStatusEnum.Processing.ToString())
+                                                )
+                                .CountAsync();
+            var totalCompleted = await DbSet.Where(x => x.OrderStatus == OrderStatusEnum.Completed.ToString())
+                                .CountAsync();
+            var totalCancelled = await DbSet.Where(x => x.OrderStatus == OrderStatusEnum.Cancelled.ToString())
+                                .CountAsync();
+            return new NumberOfOrders
+            {
+                TotalPending = totalPending,
+                TotalCompleted = totalCompleted,
+                TotalCancelled = totalCancelled,
+                TotalOrder = totalPending + totalCompleted + totalCancelled
+            };
         }
     }
 }

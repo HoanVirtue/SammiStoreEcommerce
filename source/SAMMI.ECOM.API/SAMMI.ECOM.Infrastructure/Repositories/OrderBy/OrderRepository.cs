@@ -363,12 +363,14 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         {
             var totalPending = await DbSet.Where(x => (x.OrderStatus == OrderStatusEnum.Pending.ToString() ||
                                                 x.OrderStatus == OrderStatusEnum.WaitingForPayment.ToString() ||
-                                                x.OrderStatus == OrderStatusEnum.Processing.ToString())
-                                                )
+                                                x.OrderStatus == OrderStatusEnum.Processing.ToString()) &&
+                                                (x.CreatedDate >= DateTime.Now.Date && x.CreatedDate <= DateTime.Now.AddDays(1).Date))
                                 .CountAsync();
-            var totalCompleted = await DbSet.Where(x => x.OrderStatus == OrderStatusEnum.Completed.ToString())
+            var totalCompleted = await DbSet.Where(x => x.OrderStatus == OrderStatusEnum.Completed.ToString() &&
+                                    (x.CreatedDate >= DateTime.Now.Date && x.CreatedDate <= DateTime.Now.AddDays(1).Date))
                                 .CountAsync();
-            var totalCancelled = await DbSet.Where(x => x.OrderStatus == OrderStatusEnum.Cancelled.ToString())
+            var totalCancelled = await DbSet.Where(x => x.OrderStatus == OrderStatusEnum.Cancelled.ToString() &&
+                                    (x.CreatedDate >= DateTime.Now.Date && x.CreatedDate <= DateTime.Now.AddDays(1).Date))
                                 .CountAsync();
             return new NumberOfOrders
             {

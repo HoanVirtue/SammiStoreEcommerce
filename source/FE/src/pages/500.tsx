@@ -1,5 +1,10 @@
 import BlankLayout from 'src/view/layout/BlankLayout'
-import InternalServerError from 'src/view/pages/500'
+import dynamic from 'next/dynamic'
+
+const InternalServerError = dynamic(() => import('src/view/pages/500'), {
+  loading: () => null,
+  ssr: false
+})
 
 const Error500 = () => {
   return <InternalServerError />

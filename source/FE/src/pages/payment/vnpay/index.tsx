@@ -1,16 +1,20 @@
 import { NextPage } from 'next'
-import React from 'react'
-import BlankLayout from 'src/view/layout/BlankLayout'
+import { lazy, Suspense } from 'react'
+import Spinner from 'src/components/spinner'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
 
 //views
-import PaymentPage from 'src/view/pages/payment/vnpay'
+const PaymentPage = lazy(() => import('src/view/pages/payment/vnpay'))
 
 
 type TProps = {}
 
 const Payment: NextPage<TProps> = () => {
-    return <PaymentPage />
+        return (
+        <Suspense fallback={<Spinner />}>
+            <PaymentPage />
+        </Suspense>
+    )
 }
 
 export default Payment

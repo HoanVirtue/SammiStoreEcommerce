@@ -1,14 +1,19 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListOrderPage from 'src/view/pages/manage-order/order/ListOrder'
-
+import Spinner from 'src/components/spinner'
 //views
+// Dynamically import the ListOrder component
+const ListOrderPage = lazy(() => import('src/view/pages/manage-order/order/ListOrder'))
 
 type TProps = {}
 
 const Order: NextPage<TProps> = () => {
-    return <ListOrderPage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <ListOrderPage />
+        </Suspense>
+    )
 }
 
 Order.permission = [PERMISSIONS.MANAGE_ORDER.ORDER.VIEW]

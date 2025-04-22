@@ -1,24 +1,23 @@
 // ** React
-import React, { useState } from 'react'
+import React, { useState, useEffect, lazy, Suspense } from 'react'
 
 // ** Next
 import { useTranslation } from 'react-i18next'
 
 // ** Mui Imports
-
 import IconButton from '@mui/material/IconButton'
 
 // ** Components
 import Icon from 'src/components/Icon'
 
 // ** Hooks
-import { Box, Menu, MenuItem } from '@mui/material'
-
-// ** Third party
-import ReactCountryFlag from 'react-country-flag'
+import { Box, Menu, MenuItem, CircularProgress } from '@mui/material'
 
 // ** config
 import { LANGUAGE_OPTIONS } from 'src/configs/i18n'
+
+// Dynamic import
+const ReactCountryFlag = lazy(() => import('react-country-flag'))
 
 type TProps = {}
 
@@ -27,13 +26,21 @@ const countryCode = {
   vi: 'VN'
 }
 
+const FlagFallback = () => <CircularProgress size={20} />
+
 const LanguageDropdown = (props: TProps) => {
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [isMounted, setIsMounted] = useState(false)
 
   // ** Hooks
   const { i18n } = useTranslation()
   const open = Boolean(anchorEl)
+
+  useEffect(() => {
+    setIsMounted(true)
+    return () => setIsMounted(false)
+  }, [])
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -47,6 +54,10 @@ const LanguageDropdown = (props: TProps) => {
     i18n.changeLanguage(lang)
   }
 
+  if (!isMounted) {
+    return null
+  }
+
   return (
     <Box>
       <IconButton
@@ -58,12 +69,14 @@ const LanguageDropdown = (props: TProps) => {
           borderRadius: '50%'
         }}
       >
-        <ReactCountryFlag
-          style={{ height: '26px', width: '26px', borderRadius: '50%', objectFit: 'cover' }}
-          className='country-flag flag-icon'
-          countryCode={(countryCode as any)[i18n.language]}
-          svg
-        />
+        <Suspense fallback={<FlagFallback />}>
+          <ReactCountryFlag
+            style={{ height: '26px', width: '26px', borderRadius: '50%', objectFit: 'cover' }}
+            className='country-flag flag-icon'
+            countryCode={(countryCode as any)[i18n.language]}
+            svg
+          />
+        </Suspense>
       </IconButton>
       <Menu
         anchorEl={anchorEl}
@@ -85,12 +98,14 @@ const LanguageDropdown = (props: TProps) => {
               }}
               sx={{ display: 'flex', alignItems: 'center', gap: '4px' }}
             >
-              <ReactCountryFlag
-                className='country-flag flag-icon'
-                countryCode={(countryCode as any)[lang.value]}
-                svg
-                style={{ position: 'relative', top: '0px' }}
-              />
+              <Suspense fallback={<FlagFallback />}>
+                <ReactCountryFlag
+                  className='country-flag flag-icon'
+                  countryCode={(countryCode as any)[lang.value]}
+                  svg
+                  style={{ position: 'relative', top: '0px' }}
+                />
+              </Suspense>
               {lang.language}
             </MenuItem>
           )

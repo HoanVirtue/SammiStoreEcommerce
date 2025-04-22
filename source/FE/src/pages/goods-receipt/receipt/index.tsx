@@ -1,14 +1,18 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-
+import Spinner from 'src/components/spinner'
 //views
-import ListReceiptPage from 'src/view/pages/goods-receipt/receipt/ListReceipt'
+const ListReceiptPage = lazy(() => import('src/view/pages/goods-receipt/receipt/ListReceipt'))
 
 type TProps = {}
 
 const Receipt: NextPage<TProps> = () => {
-    return <ListReceiptPage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <ListReceiptPage />
+        </Suspense>
+    )
 }
 
 export default Receipt

@@ -1,39 +1,33 @@
 "use client";
 
-import React, { useEffect, useState, Suspense, useMemo, useCallback } from "react";
+import React, { useEffect, useMemo } from "react";
 import { NextPage } from "next";
-import dynamic from 'next/dynamic';
-import { Box, Grid, useTheme, Tabs, Tab, IconButton, Stack } from "@mui/material";
-import { GridColDef, GridRowSelectionModel, GridSortModel, GridRenderCellParams } from "@mui/x-data-grid";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "src/stores";
+import { Box, Grid, useTheme } from "@mui/material";
+import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+
+import { RootState } from "src/stores";
 import { useTranslation } from "react-i18next";
-import { toast } from 'react-toastify'
+import { useRouter } from "next/router";
 import { hexToRGBA } from "src/utils/hex-to-rgba";
-import { useDebounce } from "src/hooks/useDebounce";
-import { PAGE_SIZE_OPTIONS } from "src/configs/gridConfig";
-import { TFilter } from "src/configs/filter";
 import { usePermission } from "src/hooks/usePermission";
+import dynamic from 'next/dynamic';
 
-
-// Dynamic imports for heavy components
-const CustomDataGrid = dynamic(() => import("src/components/custom-data-grid"), { ssr: false });
+// Dynamic imports for Suspense
 const CustomPagination = dynamic(() => import("src/components/custom-pagination"), { ssr: false });
-const Spinner = dynamic(() => import("src/components/spinner"), { ssr: false });
-const ConfirmDialog = dynamic(() => import("src/components/confirm-dialog"), { ssr: false });
-const TableHeader = dynamic(() => import("src/components/table-header"), { ssr: false });
-const GridCreate = dynamic(() => import("src/components/grid-create"), { ssr: false });
+const GridDetail = dynamic(() => import("../grid-detail"), { ssr: false });
 const GridUpdate = dynamic(() => import("src/components/grid-update"), { ssr: false });
 const GridDelete = dynamic(() => import("src/components/grid-delete"), { ssr: false });
-const AdminFilter = dynamic(() => import("src/components/admin-filter"), { ssr: false });
-const GridDetail = dynamic(() => import("../grid-detail"), { ssr: false });
-const UpdateReceiptStatusHeader = dynamic(() => import("../update-receipt-status-header"), { ssr: false });
-const UpdateOrderStatusHeader = dynamic(() => import("../update-order-status-header"), { ssr: false });
 
-import CloseIcon from '@mui/icons-material/Close';
-import { useRouter } from "next/router";
-import OrderFilter from "src/view/pages/manage-order/order/components/OrderFilter";
+// Custom hooks
+import useAdminData from './hooks/useAdminData';
+import useAdminActions from './hooks/useAdminActions';
 
+// Modular components
+const AdminTabs = dynamic(() => import('./components/AdminTabs'), { ssr: false });
+const AdminHeader = dynamic(() => import('./components/AdminHeader'), { ssr: false });
+const AdminDataGrid = dynamic(() => import('./components/AdminDataGrid'), { ssr: false });
+const AdminDialogs = dynamic(() => import('./components/AdminDialogs'), { ssr: false });
+const TabContents = dynamic(() => import('./components/TabContents'), { ssr: false });
 
 type AdminPageProps = {
   entityName: string;
@@ -125,51 +119,59 @@ const AdminPage: NextPage<AdminPageProps> = ({
   showUpdateOrderStatusHeader = false,
 
   showOrderFilter = false,
-
 }) => {
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
-  const [openCreateUpdate, setOpenCreateUpdate] = useState<{ open: boolean; id: number }>({ open: false, id: 0 });
-  const [openDelete, setOpenDelete] = useState<{ open: boolean; id: number }>({ open: false, id: 0 });
-  const [openDeleteMultiple, setOpenDeleteMultiple] = useState<{ open: boolean; ids: number[] }>({ open: false, ids: [] });
-  const [sortBy, setSortBy] = useState<string>("createdDate asc");
-  const [filters, setFilters] = useState<TFilter[]>([]);
-  const [selectedRow, setSelectedRow] = useState<number[]>([]);
-  const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [selectedDetailId, setSelectedDetailId] = useState<number>(0);
-  const [newEntityName, setNewEntityName] = useState<string>("");
-
-
-  const debouncedFilters = useDebounce(filters, 500);
+  // Hooks
   const { t } = useTranslation();
   const theme = useTheme();
   const router = useRouter();
-  const dispatch = useDispatch<AppDispatch>();
-
+  const [newEntityName, setNewEntityName] = React.useState<string>("");
+  
+  // Set new entity name based on pathname
   useEffect(() => {
     if (router.pathname.includes("receipt")) {
       setNewEntityName("product");
     }
   }, [router.pathname]);
 
-
+  // Permissions
   const { VIEW, CREATE, UPDATE, DELETE } = usePermission(permissionKey, ["CREATE", "UPDATE", "DELETE", "VIEW"]);
+  
+  // Setup hooks for data and actions
   const {
+    page,
+    pageSize,
+    sortBy,
+    filters,
     data,
     total,
-    isSuccessCreateUpdate,
-    isErrorCreateUpdate,
     isLoading,
-    errorMessageCreateUpdate,
-    isSuccessDelete,
-    isErrorDelete,
-    errorMessageDelete,
-    isSuccessDeleteMultiple,
-    isErrorDeleteMultiple,
-    errorMessageDeleteMultiple,
-  } = useSelector(reduxSelector);
+    handleFetchData,
+    handleOnChangePagination,
+    handleSort,
+    handleFilterChange,
+  } = useAdminData(fetchAction, reduxSelector, fieldMapping);
 
-  // Memoize columns to prevent unnecessary re-renders
+  const {
+    openCreateUpdate,
+    openDelete,
+    openDeleteMultiple,
+    selectedRow,
+    isDeleting,
+    selectedDetailId,
+    setOpenCreateUpdate,
+    setOpenDelete,
+    setOpenDeleteMultiple,
+    setSelectedRow,
+    setSelectedDetailId,
+    handleCloseCreateUpdate,
+    handleCloseDeleteDialog,
+    handleCloseDeleteMultipleDialog,
+    handleDelete,
+    handleDeleteMultiple,
+    handleAction,
+  } = useAdminActions(entityName, reduxSelector, deleteAction, deleteMultipleAction, resetAction, handleFetchData);
+
+  // Memoize columns with actions
   const actionColumn = useMemo(() => ({
     field: "action",
     headerName: t("action"),
@@ -195,76 +197,17 @@ const AdminPage: NextPage<AdminPageProps> = ({
           disabled={disableDeleteButton}
           onClick={() => setOpenDelete({ open: true, id: params.row.id })}
         />
-
       </>
     ),
-  }), [showDetailButton, disableUpdateButton, disableDeleteButton, t, onDetailClick]);
+  }), [showDetailButton, disableUpdateButton, disableDeleteButton, t, onDetailClick, setOpenCreateUpdate, setOpenDelete, setSelectedDetailId]);
 
   const allColumns = useMemo(() => [actionColumn, ...columns], [actionColumn, columns]);
-
-  // Memoize handlers
-  const handleFetchData = () => {
-    const [orderByField, orderByDir] = sortBy.split(" ");
-    const validFilters = debouncedFilters.filter(
-      (f) => f.field && f.operator && (f.value || ["isnull", "isnotnull", "isempty", "isnotempty"].includes(f.operator))
-    );
-    const filterString =
-      validFilters.length > 0
-        ? validFilters.map((f) => `${f.field}::${f.value}::${f.operator}`).join("|")
-        : "";
-    const query = {
-      params: {
-        filters: filterString,
-        take: pageSize,
-        skip: (page - 1) * pageSize,
-        orderBy: orderByField || "createdDate",
-        dir: orderByDir || "asc",
-        paging: true,
-        keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value || "''" : "''",
-      },
-    };
-    dispatch(fetchAction(query));
-  };
-
-  const handleOnChangePagination = useCallback((newPage: number, newPageSize: number) => {
-    setPage(newPage);
-    setPageSize(newPageSize);
-  }, []);
-
-  const handleSort = useCallback((sort: GridSortModel) => {
-    const sortOption = sort[0];
-    if (sortOption) {
-      const gridField = sortOption.field;
-      const sortField = fieldMapping[gridField] || gridField;
-      setSortBy(`${sortField} ${sortOption.sort}`);
-    } else {
-      setSortBy("createdDate asc");
-    }
-  }, [fieldMapping]);
-
-  const handleCloseCreateUpdate = useCallback(() => setOpenCreateUpdate({ open: false, id: 0 }), []);
-  const handleCloseDeleteDialog = useCallback(() => setOpenDelete({ open: false, id: 0 }), []);
-  const handleCloseDeleteMultipleDialog = useCallback(() => setOpenDeleteMultiple({ open: false, ids: [] }), []);
-
-  const handleDelete = useCallback(() => {
-    setIsDeleting(true);
-    dispatch(deleteAction(openDelete.id));
-  }, [dispatch, deleteAction, openDelete.id]);
-
-  const handleDeleteMultiple = useCallback(() => {
-    setIsDeleting(true);
-    dispatch(deleteMultipleAction({ [openDelete.id]: selectedRow }));
-  }, [dispatch, deleteMultipleAction, selectedRow, openDelete.id]);
-
-  const handleAction = useCallback((action: string) => action === "delete" && setOpenDeleteMultiple({ open: true, ids: selectedRow }), [selectedRow]);
-
-  const handleFilterChange = useCallback((newFilters: TFilter[]) => setFilters(newFilters), []);
 
   // Memoize PaginationComponent
   const PaginationComponent = useMemo(() => (
     <CustomPagination
       pageSize={pageSize}
-      pageSizeOptions={PAGE_SIZE_OPTIONS}
+      pageSizeOptions={[10, 25, 50, 100]}
       onChangePagination={handleOnChangePagination}
       page={page}
       rowLength={total}
@@ -293,278 +236,98 @@ const AdminPage: NextPage<AdminPageProps> = ({
     "& .MuiDataGrid-cell": { borderBottom: `1px solid ${theme.palette.divider}` },
   }), [theme]);
 
-  useEffect(() => {
-    handleFetchData();
-  }, [sortBy, page, pageSize, debouncedFilters]);
-
-  useEffect(() => {
-    if (isSuccessCreateUpdate) {
-      toast.success(openCreateUpdate.id ? t(`update_${entityName}_success`) : t(`create_${entityName}_success`));
-      handleFetchData();
-      handleCloseCreateUpdate();
-      dispatch(resetAction());
-    } else if (isErrorCreateUpdate && errorMessageCreateUpdate) {
-      toast.error(errorMessageCreateUpdate);
-      dispatch(resetAction());
-    }
-  }, [isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate]);
-
-  useEffect(() => {
-    if (isSuccessDeleteMultiple) {
-      toast.success(t(`delete_multiple_${entityName}s_success`));
-      handleFetchData();
-      dispatch(resetAction());
-      handleCloseDeleteMultipleDialog();
-      setSelectedRow([]);
-      setIsDeleting(false);
-    } else if (isErrorDeleteMultiple && errorMessageDeleteMultiple) {
-      toast.error(t(`delete_multiple_${entityName}s_error`));
-      dispatch(resetAction());
-      setIsDeleting(false);
-    }
-  }, [isSuccessDeleteMultiple, isErrorDeleteMultiple, errorMessageDeleteMultiple]);
-
-  useEffect(() => {
-    if (isSuccessDelete) {
-      toast.success(t(`delete_${entityName}_success`));
-      handleFetchData();
-      dispatch(resetAction());
-      handleCloseDeleteDialog();
-      setIsDeleting(false);
-    } else if (isErrorDelete && errorMessageDelete) {
-      toast.error(errorMessageDelete);
-      dispatch(resetAction());
-      setIsDeleting(false);
-    }
-  }, [isSuccessDelete, isErrorDelete, errorMessageDelete]);
-
   return (
     <>
-      {(isLoading || isDeleting) && (
-        <Suspense fallback={<Spinner />}>
-          <Spinner />
-        </Suspense>
-      )}
-      <Suspense fallback={<Spinner />}>
-        <ConfirmDialog
-          open={openDelete.open}
-          onClose={handleCloseDeleteDialog}
-          handleCancel={handleCloseDeleteDialog}
-          handleConfirm={handleDelete}
-          title={t(`confirm_delete_${entityName}`)}
-          description={t(`are_you_sure_delete_${entityName}`)}
-        />
-      </Suspense>
-      <Suspense fallback={<Spinner />}>
-        <ConfirmDialog
-          open={openDeleteMultiple.open}
-          onClose={handleCloseDeleteMultipleDialog}
-          handleCancel={handleCloseDeleteMultipleDialog}
-          handleConfirm={handleDeleteMultiple}
-          title={t(`confirm_delete_multiple_${entityName}s`)}
-          description={t(`are_you_sure_delete_multiple_${entityName}s`)}
-        />
-      </Suspense>
-
-      {CreateUpdateComponent && (
-        <Suspense fallback={<Spinner />}>
-          <CreateUpdateComponent
-            id={openCreateUpdate.id}
-            open={openCreateUpdate.open}
-            onClose={handleCloseCreateUpdate}
-          />
-        </Suspense>
-      )}
+      {/* Dialogs */}
+      <AdminDialogs
+        entityName={entityName}
+        openDelete={openDelete}
+        openDeleteMultiple={openDeleteMultiple}
+        handleCloseDeleteDialog={handleCloseDeleteDialog}
+        handleCloseDeleteMultipleDialog={handleCloseDeleteMultipleDialog}
+        handleDelete={handleDelete}
+        handleDeleteMultiple={handleDeleteMultiple}
+        isLoading={isLoading}
+        isDeleting={isDeleting}
+        CreateUpdateComponent={CreateUpdateComponent}
+        openCreateUpdate={openCreateUpdate}
+        handleCloseCreateUpdate={handleCloseCreateUpdate}
+        t={t}
+      />
 
       <Box sx={{ backgroundColor: theme.palette.background.paper, padding: "20px", height: '82vh', overflow: "auto", borderRadius: "15px" }}>
+        {/* Tabs */}
         {showTab && (
-          <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-            <Tabs value={currentTab} onChange={(_, newValue) => onTabChange?.(newValue)}>
-              <Tab value={0} label={t(`list_${entityName}`)} />
-              {showCreateTab && <Tab value={1} label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {t(`create_${entityName}`)}
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onTabChange?.(0);
-                      onCloseCreateTab?.();
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              } />}
-              {showUpdateTab && <Tab value={2} label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {t(`update_${entityName}`)}
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onTabChange?.(0);
-                      onCloseUpdateTab?.();
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              } />}
-              {showDetailTab && <Tab value={3} label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {t(`${entityName}_detail`)}
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onTabChange?.(0);
-                      onCloseDetailTab?.();
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              } />}
-              {showCreateNewTab && <Tab value={4} label={
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  {t(`create_new_${newEntityName}`)}
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onTabChange?.(0);
-                      onCloseCreateNewTab?.();
-                    }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Box>
-              } />}
-            </Tabs>
-          </Box>
+          <AdminTabs
+            currentTab={currentTab}
+            onTabChange={onTabChange}
+            entityName={entityName}
+            newEntityName={newEntityName}
+            showCreateTab={showCreateTab}
+            showUpdateTab={showUpdateTab}
+            showDetailTab={showDetailTab}
+            showCreateNewTab={showCreateNewTab}
+            onCloseCreateTab={onCloseCreateTab}
+            onCloseUpdateTab={onCloseUpdateTab}
+            onCloseDetailTab={onCloseDetailTab}
+            onCloseCreateNewTab={onCloseCreateNewTab}
+            t={t}
+          />
         )}
 
         <Grid container>
-          {currentTab === 0 && (
+          {currentTab === 0 ? (
             <>
-              <Stack justifyContent="space-between" alignItems="center" direction="row" mb={2} width="100%">
-                {showOrderFilter && (
-                  <OrderFilter onFilterChange={handleFilterChange} />
-                )}
-                {!selectedRow.length && !hideAddButton && (
-                  <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 4, width: "100%" }}>
-                    <Suspense fallback={<Spinner />}>
-                      <GridCreate
-                        addText={t(`create_${entityName}`)}
-                        onClick={() => onAddClick ? onAddClick() : setOpenCreateUpdate({ open: true, id: 0 })}
-                      />
-                    </Suspense>
-                  </Box>
-                )}
-              </Stack>
-              {selectedRow.length > 0 && (
-                <Suspense fallback={<Spinner />}>
-                  {!hideTableHeader && (
-                    <TableHeader
-                      selectedRowNumber={selectedRow.length}
-                      onClear={() => setSelectedRow([])}
-                      actions={[{ label: t("delete"), value: "delete" }]}
-                      handleAction={handleAction}
-                      selectedRows={selectedRow}
-                    />
-                  )}
+              {/* Header & Action Buttons */}
+              <AdminHeader
+                entityName={entityName}
+                selectedRow={selectedRow}
+                setSelectedRow={setSelectedRow}
+                handleAction={handleAction}
+                onAddClick={onAddClick}
+                setOpenCreateUpdate={setOpenCreateUpdate}
+                hideAddButton={hideAddButton}
+                hideTableHeader={hideTableHeader}
+                showOrderFilter={showOrderFilter}
+                showUpdateReceiptStatusHeader={showUpdateReceiptStatusHeader}
+                showUpdateOrderStatusHeader={showUpdateOrderStatusHeader}
+                handleFilterChange={handleFilterChange}
+                handleFetchData={handleFetchData}
+                t={t}
+              />
 
-                  {showUpdateReceiptStatusHeader && (
-                    <UpdateReceiptStatusHeader
-                      selectedRowNumber={selectedRow.length}
-                      onClear={() => setSelectedRow([])}
-                      actions={[{ label: t("delete"), value: "delete" }]}
-                      handleAction={handleAction}
-                      selectedRows={selectedRow}
-                    />
-                  )}
-
-                  {showUpdateOrderStatusHeader && (
-                    <UpdateOrderStatusHeader
-                      selectedRowNumber={selectedRow.length}
-                      onClear={() => setSelectedRow([])}
-                      actions={[{ label: t("delete"), value: "delete" }]}
-                      handleAction={handleAction}
-                      selectedRows={selectedRow}
-                      onRefresh={handleFetchData}
-                    />
-                  )}
-                </Suspense>
-              )}
-
-              <Suspense fallback={<Spinner />}>
-                <CustomDataGrid
-                  rows={data}
+              {/* Data Grid */}
+              <Box width="100%">
+                <AdminDataGrid
+                  data={data}
                   columns={allColumns as GridColDef[]}
-                  checkboxSelection
-                  getRowId={(row) => row.id}
-                  disableRowSelectionOnClick
-                  autoHeight
-                  sortingOrder={["desc", "asc"]}
-                  sortingMode="server"
-                  onSortModelChange={handleSort}
-                  slots={{
-                    pagination: () => PaginationComponent,
-                    toolbar: AdminFilter,
-                    noRowsOverlay: () => <Box sx={{ p: 2, textAlign: "center" }}>{t(`${noDataText}`)}</Box>,
-                  }}
-                  slotProps={{ toolbar: { fields, onFilterChange: handleFilterChange } }}
-                  disableColumnFilter
-                  disableColumnMenu
-                  sx={dataGridStyles}
-                  onRowSelectionModelChange={(row: GridRowSelectionModel) => setSelectedRow(row as number[])}
-                  rowSelectionModel={selectedRow}
+                  PaginationComponent={PaginationComponent}
+                  handleSort={handleSort}
+                  selectedRow={selectedRow}
+                  setSelectedRow={setSelectedRow}
+                  fields={fields}
+                  handleFilterChange={handleFilterChange}
+                  noDataText={noDataText || `no_data_${entityName}`}
+                  dataGridStyles={dataGridStyles}
+                  t={t}
                 />
-              </Suspense>
+              </Box>
             </>
-          )}
-          {currentTab === 1 && CreateUpdateTabComponent && (
-            <CreateUpdateTabComponent
-              id={0}
-              open={true}
-              onClose={() => {
-                onTabChange?.(0);
-                onCloseCreateTab?.();
-              }}
-              onCreateNew={() => {
-                onTabChange?.(4);
-                onCreateNewClick?.();
-              }}
-            />
-          )}
-          {currentTab === 2 && CreateUpdateTabComponent && (
-            <CreateUpdateTabComponent
-              id={openCreateUpdate.id}
-              open={true}
-              onClose={() => {
-                onTabChange?.(0);
-                onCloseUpdateTab?.();
-              }}
-            />
-          )}
-          {currentTab === 3 && showDetailTab && DetailComponent && (
-            <DetailComponent
-              id={selectedDetailId}
-              onClose={() => {
-                onTabChange?.(0);
-                onCloseDetailTab?.();
-              }}
-              onRefresh={handleFetchData}
-            />
-          )}
-          {currentTab === 4 && CreateNewTabComponent && (
-            <CreateNewTabComponent
-              id={0}
-              onClose={() => {
-                onTabChange?.(1);
-                onCloseCreateNewTab?.();
-              }}
+          ) : (
+            <TabContents
+              currentTab={currentTab}
+              CreateUpdateTabComponent={CreateUpdateTabComponent}
+              DetailComponent={DetailComponent}
+              CreateNewTabComponent={CreateNewTabComponent}
+              onTabChange={onTabChange}
+              onCloseCreateTab={onCloseCreateTab}
+              onCloseUpdateTab={onCloseUpdateTab}
+              onCloseDetailTab={onCloseDetailTab}
+              onCloseCreateNewTab={onCloseCreateNewTab}
+              onCreateNewClick={onCreateNewClick}
+              openCreateUpdate={openCreateUpdate}
+              selectedDetailId={selectedDetailId}
+              handleFetchData={handleFetchData}
             />
           )}
         </Grid>
@@ -573,4 +336,4 @@ const AdminPage: NextPage<AdminPageProps> = ({
   );
 };
 
-export default AdminPage;
+export default React.memo(AdminPage);

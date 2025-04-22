@@ -1,14 +1,19 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListProduct from 'src/view/pages/manage-product/product/ListProduct'
-
+import Spinner from 'src/components/spinner'
 //views
+// Dynamically import the ListProduct component
+const ListProduct = lazy(() => import('src/view/pages/manage-product/product/ListProduct'))
 
 type TProps = {}
 
 const Product: NextPage<TProps> = () => {
-    return <ListProduct />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <ListProduct />
+        </Suspense>
+    )
 }
 
 Product.permission = [PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW]

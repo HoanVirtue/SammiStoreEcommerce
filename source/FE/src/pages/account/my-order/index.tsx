@@ -1,15 +1,20 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
+import Spinner from 'src/components/spinner'
 import AccountLayout from 'src/view/layout/AccountLayout'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-import MyOrderPage from 'src/view/pages/account/my-order'
 
 //views
+const MyOrderPage = lazy(() => import('src/view/pages/account/my-order'))
 
 type TProps = {}
 
 const MyOrder: NextPage<TProps> = () => {
-    return <MyOrderPage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <MyOrderPage />
+        </Suspense>
+    )
 }
 
 export default MyOrder

@@ -1,18 +1,21 @@
 import { NextPage } from 'next'
-import React from 'react'
-
+import { lazy, Suspense } from 'react'
+import Spinner from 'src/components/spinner'
 //views
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-import ChangePasswordPage from 'src/view/pages/change-password'
+// Dynamically import the ChangePassword component
+const ChangePasswordPage = lazy(() => import('src/view/pages/change-password'))
 
 type TProps = {}
 
 const ChangePassword: NextPage<TProps> = () => {
     return (
-        <ChangePasswordPage />
+        <Suspense fallback={<Spinner />}>
+            <ChangePasswordPage />
+        </Suspense>
     )
 }
 
 export default ChangePassword
 
-ChangePassword.getLayout = (page: React.ReactNode) =><NoNavLayout>{page}</NoNavLayout>
+ChangePassword.getLayout = (page: React.ReactNode) => <NoNavLayout>{page}</NoNavLayout>

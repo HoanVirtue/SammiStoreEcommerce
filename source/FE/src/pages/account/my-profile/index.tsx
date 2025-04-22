@@ -1,15 +1,20 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
+import Spinner from 'src/components/spinner'
 import AccountLayout from 'src/view/layout/AccountLayout'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
 
 //views
-import MyProfilePage from 'src/view/pages/account/my-profile'
+const MyProfilePage = lazy(() => import('src/view/pages/account/my-profile'))
 
 type TProps = {}
 
 const MyProfile: NextPage<TProps> = () => {
-    return <MyProfilePage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <MyProfilePage />
+        </Suspense>
+    )
 }
 
 export default MyProfile

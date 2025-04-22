@@ -1,5 +1,10 @@
 import BlankLayout from 'src/view/layout/BlankLayout'
-import Unauthorized from 'src/view/pages/401'
+import dynamic from 'next/dynamic'
+
+const Unauthorized = dynamic(() => import('src/view/pages/401'), {
+  loading: () => null,
+  ssr: false
+})
 
 const Error401 = () => {
   return <Unauthorized />

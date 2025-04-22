@@ -1,15 +1,19 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-import CollectionPage from 'src/view/pages/collection/all'
-
-
+import Spinner from 'src/components/spinner'
 //views
+// Dynamically import the Collection component
+const CollectionPage = lazy(() => import('src/view/pages/collection/all'))
 
 type TProps = {}
 
 const Collection: NextPage<TProps> = () => {
-    return <CollectionPage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <CollectionPage />
+        </Suspense>
+    )
 }
 
 export default Collection

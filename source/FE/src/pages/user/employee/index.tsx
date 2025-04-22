@@ -1,16 +1,21 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 
 //configs
 import { PERMISSIONS } from 'src/configs/permission'
-import ListEmployeePage from 'src/view/pages/user/employee/ListEmployee'
+import Spinner from 'src/components/spinner'
 
 //Pages
+const ListEmployeePage = lazy(() => import('src/view/pages/user/employee/ListEmployee'))
 
 type TProps = {}
 
 const Employee: NextPage<TProps> = () => {
-    return <ListEmployeePage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <ListEmployeePage />
+        </Suspense>
+    )
 }
 
 Employee.permission = [PERMISSIONS.USER.EMPLOYEE.VIEW]

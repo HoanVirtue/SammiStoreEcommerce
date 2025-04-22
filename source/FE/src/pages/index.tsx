@@ -1,10 +1,12 @@
 'use client'
 import Head from 'next/head'
+import { lazy, Suspense } from 'react'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-import HomePage from 'src/view/pages/home'
+
+// Dynamically import the Home component
+const HomePage = lazy(() => import('src/view/pages/home'))
 
 export default function Home() {
-
   return (
     <>
       <Head>
@@ -14,11 +16,13 @@ export default function Home() {
         {/* <meta httpEquiv='Content-Security-Policy' content="default-src 'self'; script-src 'self'" /> */}
         <link rel='icon' href='/favicon.icon' />
       </Head>
-      <HomePage />
+      <Suspense fallback={<div>Đang tải...</div>}>
+        <HomePage />
+      </Suspense>
     </>
   )
 }
 
-Home.getLayout = (page: React.ReactNode) =><NoNavLayout>{page}</NoNavLayout>
+Home.getLayout = (page: React.ReactNode) => <NoNavLayout>{page}</NoNavLayout>
 Home.guestGuard = false
 Home.authGuard = false

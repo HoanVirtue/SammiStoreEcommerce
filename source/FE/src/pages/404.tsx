@@ -1,7 +1,11 @@
 // ** React Imports
-
 import BlankLayout from 'src/view/layout/BlankLayout'
-import NotFound from 'src/view/pages/404'
+import dynamic from 'next/dynamic'
+
+const NotFound = dynamic(() => import('src/view/pages/404'), {
+  loading: () => null,
+  ssr: false
+})
 
 const Error404 = () => {
   return <NotFound />

@@ -1,14 +1,19 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-import MyCartPage from 'src/view/pages/my-cart'
-
+import Spinner from 'src/components/spinner'
 //views
+// Dynamically import the MyCart component
+const MyCartPage = lazy(() => import('src/view/pages/my-cart'))
 
 type TProps = {}
 
 const MyCart: NextPage<TProps> = () => {
-    return <MyCartPage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <MyCartPage />
+        </Suspense>
+    )
 }
 
 export default MyCart

@@ -1,31 +1,44 @@
-//React
-import React, { useEffect } from "react"
+// React
+import React, { useEffect, lazy, Suspense } from "react"
 
-//Next
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+// Next
+import Link from "next/link";
 
-// MUI Imports
-import { Avatar, Badge, Box, Divider, IconButton, ListItemIcon, Menu, MenuItem, Tooltip, Typography } from "@mui/material"
-import { styled } from "@mui/material";
+// MUI Core Components - grouped by component type
+import { 
+  Box, 
+  Button,
+  Divider, 
+  Menu, 
+  MenuItem, 
+  Tooltip, 
+  Typography 
+} from "@mui/material/";
 
-//components
-import IconifyIcon from "../../../../components/Icon";
+// MUI - Import components from their direct paths for better tree-shaking
+import Avatar from "@mui/material/Avatar";
+import Badge from "@mui/material/Badge";
+import IconButton from "@mui/material/IconButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
 
-//hooks
+// MUI Styles
+import { styled } from "@mui/material/styles";
+
+// Components - Dynamically import non-critical components
+const IconifyIcon = lazy(() => import("../../../../components/Icon"));
+
+// Hooks
 import { useAuth } from "src/hooks/useAuth";
 
-//Translate
+// Translate
 import { useTranslation } from "react-i18next";
 
-//Config
+// Config
 import { ROUTE_CONFIG } from "src/configs/route";
 
-//Utils
-
+// Redux
 import { useSelector } from "react-redux";
 import { RootState } from "src/stores";
-import { Button } from "@mui/material";
 
 type TProps = {}
 
@@ -60,54 +73,28 @@ const StyledBadge = styled(Badge)(({ theme }) => ({
 
 const UserMenu = (props: TProps) => {
     const { user, logout, setUser } = useAuth()
-
     const { userData } = useSelector((state: RootState) => state.auth)
-
     const userPermission = user?.role?.permissions ?? []
-    //Translation
-    const { t, i18n } = useTranslation()
+    
+    // Translation
+    const { t } = useTranslation()
 
-    const router = useRouter()
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
+    
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(event.currentTarget);
     };
+    
     const handleClose = () => {
         setAnchorEl(null);
     };
-
-    const handleNavigateMyAccount = () => {
-        router.push(ROUTE_CONFIG.ACCOUNT.MY_PROFILE)
-        handleClose()
-    }
-
-    const handleNavigateMyProduct = () => {
-        router.push(ROUTE_CONFIG.ACCOUNT.MY_PRODUCT)
-        handleClose()
-    }
-
-    const handleNavigateMyOrder = () => {
-        router.push(ROUTE_CONFIG.ACCOUNT.MY_ORDER)
-        handleClose()
-    }
-
-    const handleNavigateChangePassword = () => {
-        router.push(ROUTE_CONFIG.CHANGE_PASSWORD)
-        handleClose()
-    }
-
-    const handleNavigateManageSystem = () => {
-        router.push(ROUTE_CONFIG.DASHBOARD)
-        handleClose()
-    }
 
     useEffect(() => {
         if (userData) {
             setUser({ ...userData })
         }
-    }, [userData])
-
+    }, [userData, setUser])
 
     return (
         <React.Fragment>
@@ -127,20 +114,9 @@ const UserMenu = (props: TProps) => {
                             variant="dot"
                         >
                             <Avatar sx={{ width: 32, height: 32 }}>
-                                {/* {
-                                    user?.avatar ? (
-                                        <Image src={user?.avatar || ""}
-                                            alt={user?.fullName || ""}
-                                            className="w-8 h-8 object-cover"
-                                            objectFit="cover"
-                                            width={0}
-                                            height={0} />
-                                    )
-                                        :
-                                        ( */}
-                                            <IconifyIcon icon="ph:user-thin" />
-                                        {/* )
-                                } */}
+                                <Suspense fallback={<div>...</div>}>
+                                    <IconifyIcon icon="ph:user-thin" />
+                                </Suspense>
                             </Avatar>
                         </StyledBadge>
                     </IconButton>
@@ -189,21 +165,10 @@ const UserMenu = (props: TProps) => {
                         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
                         variant="dot"
                     >
-
                         <Avatar sx={{ width: 32, height: 32 }}>
-                            {/* {
-                                user?.avatar ? (
-                                    <Image src={user?.avatar || ""}
-                                        alt={user?.fullName || ""}
-                                        className="w-8 h-8 object-cover"
-                                        width={0}
-                                        height={0} />
-                                )
-                                    :
-                                    ( */}
-                                        <IconifyIcon icon="ph:user-thin" />
-                                    {/* )
-                            } */}
+                            <Suspense fallback={<div>...</div>}>
+                                <IconifyIcon icon="ph:user-thin" />
+                            </Suspense>
                         </Avatar>
                     </StyledBadge>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -216,38 +181,48 @@ const UserMenu = (props: TProps) => {
                     </Box>
                 </Box>
                 <Divider />
-                {/* {!userPermission.length && (
-                    <MenuItem onClick={handleNavigateManageSystem}
-                        sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                        <IconifyIcon icon="tdesign:system-setting" />
-                        {t("manage_system")}
+                <Link href={ROUTE_CONFIG.ACCOUNT.MY_PROFILE} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <Suspense fallback={<div>...</div>}>
+                            <IconifyIcon icon="streamline:user-profile-focus" />
+                        </Suspense>
+                        {t("my_account")}
                     </MenuItem>
-                )} */}
-                <MenuItem onClick={handleNavigateMyAccount}
-                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <IconifyIcon icon="streamline:user-profile-focus" />
-                    {t("my_account")}
-                </MenuItem>
-                <MenuItem onClick={handleNavigateMyOrder}
-                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <IconifyIcon icon="carbon:document" />
-                    {t("my_order")}
-                </MenuItem>
-                <MenuItem onClick={handleNavigateMyProduct}
-                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <IconifyIcon icon="iconoir:favourite-book" />
-                    {t("wishlist")}
-                </MenuItem>
-                <MenuItem onClick={handleNavigateChangePassword}
-                    sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <IconifyIcon icon="tabler:lock-password" />
-                    {t("Đổi mật khẩu")}
-                </MenuItem>
+                </Link>
+                <Link href={ROUTE_CONFIG.ACCOUNT.MY_ORDER} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <Suspense fallback={<div>...</div>}>
+                            <IconifyIcon icon="carbon:document" />
+                        </Suspense>
+                        {t("my_order")}
+                    </MenuItem>
+                </Link>
+                <Link href={ROUTE_CONFIG.ACCOUNT.MY_PRODUCT} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <Suspense fallback={<div>...</div>}>
+                            <IconifyIcon icon="iconoir:favourite-book" />
+                        </Suspense>
+                        {t("wishlist")}
+                    </MenuItem>
+                </Link>
+                <Link href={ROUTE_CONFIG.CHANGE_PASSWORD} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+                        <Suspense fallback={<div>...</div>}>
+                            <IconifyIcon icon="tabler:lock-password" />
+                        </Suspense>
+                        {t("Đổi mật khẩu")}
+                    </MenuItem>
+                </Link>
                 <MenuItem onClick={logout}
                     sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                    <Button fullWidth variant="contained" startIcon={
-                        <IconifyIcon icon="humbleicons:logout" />
-                    }
+                    <Button 
+                        fullWidth 
+                        variant="contained" 
+                        startIcon={
+                            <Suspense fallback={<div>...</div>}>
+                                <IconifyIcon icon="humbleicons:logout" />
+                            </Suspense>
+                        }
                         color="error"
                         sx={{ borderRadius: "6px" }}
                     >

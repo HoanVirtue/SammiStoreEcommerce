@@ -1,14 +1,19 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
+import Spinner from 'src/components/spinner'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-import CheckoutPage from 'src/view/pages/checkout'
 
 //views
+const CheckoutPage = lazy(() => import('src/view/pages/checkout'))
 
 type TProps = {}
 
 const Checkout: NextPage<TProps> = () => {
-    return <CheckoutPage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <CheckoutPage />
+        </Suspense>
+    )
 }
 
 export default Checkout

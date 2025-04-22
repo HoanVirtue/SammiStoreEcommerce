@@ -123,7 +123,7 @@ export default function App(props: ExtendedAppProps) {
                       </Guard>
                       <CustomToastContainer />
                     </ThemeComponent>
-                  )
+                  ) 
                 }}
               </SettingsConsumer>
             </SettingsProvider>

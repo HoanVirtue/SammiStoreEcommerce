@@ -1,14 +1,19 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
+import Spinner from 'src/components/spinner'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-import ErrorVerificationPage from 'src/view/pages/error-verification'
 
 //views
+const ErrorVerificationPage = lazy(() => import('src/view/pages/error-verification'))
 
 type TProps = {}
 
 const ErrorVerification: NextPage<TProps> = () => {
-    return <ErrorVerificationPage />
+    return (
+        <Suspense fallback={<Spinner />}>
+            <ErrorVerificationPage />
+        </Suspense>
+    )
 }
 
 export default ErrorVerification

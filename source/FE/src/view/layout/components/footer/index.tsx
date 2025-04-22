@@ -1,26 +1,23 @@
-import React from 'react';
-import {
-    Box,
-    Container,
-    Grid,
-    Typography,
-    Link,
-    TextField,
-    Button,
-    Stack,
-    useTheme,
-    useMediaQuery,
-    styled
-} from '@mui/material';
-import {
-    Facebook,
-    Twitter,
-    Instagram,
-    YouTube,
-    Apple,
-    Android,
-    Payment
-} from '@mui/icons-material';
+import React, { lazy, Suspense } from 'react';
+// Import core MUI components
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Link from '@mui/material/Link';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Stack from '@mui/material/Stack';
+import { styled, useTheme, useMediaQuery } from '@mui/material';
+
+// Dynamically import icons to reduce initial bundle size
+const Facebook = lazy(() => import('@mui/icons-material/Facebook'));
+const Twitter = lazy(() => import('@mui/icons-material/Twitter'));
+const Instagram = lazy(() => import('@mui/icons-material/Instagram'));
+const YouTube = lazy(() => import('@mui/icons-material/YouTube'));
+const Apple = lazy(() => import('@mui/icons-material/Apple'));
+const Android = lazy(() => import('@mui/icons-material/Android'));
+const Payment = lazy(() => import('@mui/icons-material/Payment'));
 
 // Styled components
 const StyledFooter = styled(Box)(({ theme }) => ({
@@ -40,6 +37,9 @@ const SocialIcon = styled(Link)(({ theme }) => ({
 const Footer: React.FC = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+
+    // Fallback for Suspense
+    const IconFallback = () => <Box sx={{ width: 24, height: 24 }} />;
 
     return (
         <StyledFooter>
@@ -75,10 +75,26 @@ const Footer: React.FC = () => {
                             Email: cskh@sammistores.com
                         </Typography>
                         <Stack direction="row" spacing={2} mt={2}>
-                            <SocialIcon href="#"><Facebook /></SocialIcon>
-                            <SocialIcon href="#"><Twitter /></SocialIcon>
-                            <SocialIcon href="#"><Instagram /></SocialIcon>
-                            <SocialIcon href="#"><YouTube /></SocialIcon>
+                            <SocialIcon href="#">
+                                <Suspense fallback={<IconFallback />}>
+                                    <Facebook />
+                                </Suspense>
+                            </SocialIcon>
+                            <SocialIcon href="#">
+                                <Suspense fallback={<IconFallback />}>
+                                    <Twitter />
+                                </Suspense>
+                            </SocialIcon>
+                            <SocialIcon href="#">
+                                <Suspense fallback={<IconFallback />}>
+                                    <Instagram />
+                                </Suspense>
+                            </SocialIcon>
+                            <SocialIcon href="#">
+                                <Suspense fallback={<IconFallback />}>
+                                    <YouTube />
+                                </Suspense>
+                            </SocialIcon>
                         </Stack>
                     </Grid>
 
@@ -134,7 +150,9 @@ const Footer: React.FC = () => {
                             Phương thức thanh toán
                         </Typography>
                         <Box mb={2}>
-                            <Payment sx={{ fontSize: 40 }} />
+                            <Suspense fallback={<IconFallback />}>
+                                <Payment sx={{ fontSize: 40 }} />
+                            </Suspense>
                         </Box>
 
                         <Typography variant="h6" color="text.primary" gutterBottom>
@@ -143,14 +161,22 @@ const Footer: React.FC = () => {
                         <Stack direction={isMobile ? "row" : "column"} spacing={1}>
                             <Button
                                 variant="outlined"
-                                startIcon={<Apple />}
+                                startIcon={
+                                    <Suspense fallback={<IconFallback />}>
+                                        <Apple />
+                                    </Suspense>
+                                }
                                 fullWidth
                             >
                                 App Store
                             </Button>
                             <Button
                                 variant="outlined"
-                                startIcon={<Android />}
+                                startIcon={
+                                    <Suspense fallback={<IconFallback />}>
+                                        <Android />
+                                    </Suspense>
+                                }
                                 fullWidth
                             >
                                 Google Play

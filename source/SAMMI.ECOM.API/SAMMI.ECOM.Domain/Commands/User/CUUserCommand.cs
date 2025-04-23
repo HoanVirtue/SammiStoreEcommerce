@@ -45,6 +45,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public int RoleId { get; set; }
         public string? VerifyToken { get; set; }
         public DateTime? VerifiedAt { get; set; }
+        public DateTime? Birthday { get; set; }
     }
 
     public class UpdateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
@@ -54,6 +55,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public bool? IsAdmin { get; set; } = false!;
         public int RoleId { get; set; }
         public int? Gender { get; set; }
+        public DateTime? Birthday { get; set; }
     }
 
     public class CUCustomerCommand : CUUserCommand, IRequest<ActionResponse<CustomerDTO>>
@@ -65,6 +67,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public int? RoleId { get; set; }
         public string? VerifyToken { get; set; }
         public DateTime? VerifiedAt { get; set; }
+        public DateTime? Birthday { get; set; }
     }
 
     public class CUSupplierCommand : CUUserCommand, IRequest<ActionResponse<SupplierDTO>>

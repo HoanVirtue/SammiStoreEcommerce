@@ -27,6 +27,8 @@ public partial class Order : Entity
 
     [ForeignKey("Voucher")]
     public int? VoucherId { get; set; }
+    [Column("DiscountValue")]
+    public decimal? DiscountValue { get; set; }
 
     [ForeignKey("Ward")]
     public int? WardId { get; set; }

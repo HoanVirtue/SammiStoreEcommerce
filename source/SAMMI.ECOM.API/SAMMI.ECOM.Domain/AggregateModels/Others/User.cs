@@ -93,6 +93,8 @@ public partial class User : Entity
     public string? VerifyToken { get; set; }
     [Column("VerifiedAt")]
     public DateTime? VerifiedAt { get; set; }
+    [Column("Birthday")]
+    public DateTime? Birthday { get; set; }
 
     public virtual ICollection<CustomerAddress> CustomerAddresses { get; set; } = new List<CustomerAddress>();
 

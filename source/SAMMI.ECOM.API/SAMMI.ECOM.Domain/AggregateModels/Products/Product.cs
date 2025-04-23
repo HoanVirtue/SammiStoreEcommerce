@@ -29,6 +29,9 @@ public partial class Product : Entity
     [Required]
     public decimal Price { get; set; }
 
+    [Column("ImportPrice")]
+    public decimal? ImportPrice { get; set; }
+
     [Column("Discount")]
     [Required]
     public decimal? Discount { get; set; }

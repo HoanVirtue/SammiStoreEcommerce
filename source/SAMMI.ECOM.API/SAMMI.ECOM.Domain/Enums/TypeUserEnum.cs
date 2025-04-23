@@ -34,6 +34,8 @@ namespace SAMMI.ECOM.Domain.Enums
         [Description("EVE")]
         Event,
         [Description("SAMMI")]
-        Voucher
+        Voucher,
+        [Description("PNH")]
+        PurchaseOrder
     }
 }

@@ -6,6 +6,7 @@ using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.API.Services.MediaResource;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
+using SAMMI.ECOM.Core.Utillity;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Repositories;
@@ -66,6 +67,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
 
             builder.RegisterType<ElasticClient>().As<IElasticClient>().SingleInstance();
             builder.RegisterType<ProductElasticService>().As<IProductElasticService>().SingleInstance();
+
+            builder.RegisterType<EmailHelper>().As<EmailHelper>().SingleInstance();
 
 
             // Register all the Repository classes (they implement CrudRepository) in assembly holding the Repositories

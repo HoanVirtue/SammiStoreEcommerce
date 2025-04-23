@@ -21,7 +21,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<OrderDTO> GetById(int id);
         Task<IEnumerable<OrderDTO>> GetOrdersByCustomerId(int customerId, RequestFilterModel request);
         Task<IPagedList<OrderDTO>> GetListOrdersByCustomerId(int customerId, RequestFilterModel request);
-        //Task<IPagedList<SalesRevenue>> RevenueOrder(SaleRevenueFilterModel filterModel);
+        Task<SalesRevenue> RevenueOrder(SaleRevenueFilterModel filterModel);
+        Task<decimal?> GetTotalRevenueInDay();
     }
     public class OrderQueries : QueryRepository<Order>, IOrderQueries
     {
@@ -64,7 +65,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                         FROM ProductImage pi
                                         INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
                                         WHERE pi.IsDeleted != 1
-                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
                                         ) t11 ON t9.Id = t11.ProductId");
 
                     sqlBuilder.Where("t1.Id = @id", new { id });
@@ -177,7 +178,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                         FROM ProductImage pi
                                         INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
                                         WHERE pi.IsDeleted != 1
-                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
                                         ) t11 ON t9.Id = t11.ProductId"
                     );
 
@@ -246,7 +247,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                         FROM ProductImage pi
                                         INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
                                         WHERE pi.IsDeleted != 1
-                                        AND i.DisplayOrder = (SELECT MIN(DisplayOrder) FROM Image WHERE Id = i.Id AND IsDeleted != 1)
+                                        AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
                                         ) t11 ON t9.Id = t11.ProductId"
                     );
 
@@ -301,14 +302,163 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             );
         }
 
-        //public async Task<IPagedList<SalesRevenue>> RevenueOrder(SaleRevenueFilterModel filterModel)
-        //{
-        //    return WithPagingTemplateAsync(
-        //        (conn, sqlBuilder, sqlTemplate) =>
-        //        {
-        //            return default;
+        public Task<decimal?> GetTotalRevenueInDay()
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("SUM(t2.Quantity * t2.Price) AS TotalRevenue");
+                    sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
+                    sqlBuilder.Where($"t1.OrderStatus = @orderStatus", new { orderStatus = OrderStatusEnum.Completed.ToString() });
+                    sqlBuilder.Where($"t1.CreatedDate BETWEEN @startDate AND @endDate", new { startDate = DateTime.Now.Date.ToString("yyyy/MM/dd"), endDate = DateTime.Now.AddDays(1).ToString("yyyy/MM/dd") });
+                    return conn.QuerySingleAsync<decimal?>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
+            );
+        }
 
-        //        }, filterModel);
-        //}
+        public async Task<SalesRevenue> RevenueOrder(SaleRevenueFilterModel filterModel)
+        {
+            var detailPageList = await WithPagingTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    //sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) AS 'TotalPrice'");
+                    //sqlBuilder.Select("t3.FullName AS 'CustomerName', t3.Phone AS 'PhoneNumber'");
+                    //sqlBuilder.Select("t4.PaymentMethodId");
+                    //sqlBuilder.Select("t5.Name AS 'PaymentMethod'");
+
+                    //sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
+                    //sqlBuilder.InnerJoin("Users t3 ON t1.CustomerId = t3.Id AND t3.IsDeleted != 1");
+                    //sqlBuilder.InnerJoin("Payment t4 ON t1.Id = t4.OrderId AND t4.IsDeleted != 1");
+                    //sqlBuilder.LeftJoin("PaymentMethod t5 ON t4.PaymentMethodId = t5.Id AND t5.IsDeleted != 1");
+
+                    //sqlBuilder.Where($"t1.OrderStatus = @orderStatus", new { OrderStatusEnum.Completed });
+
+                    //sqlBuilder.GroupBy(@"t1.Id,
+                    //    t1.Code,
+                    //    t1.CustomerId,
+                    //    t1.OrderStatus,
+                    //    t1.CreatedDate,
+                    //    t1.UpdatedDate,
+                    //    t1.CreatedBy,
+                    //    t1.UpdatedBy,
+                    //    t1.IsActive,
+                    //    t1.IsDeleted,
+                    //    t1.DisplayOrder,
+                    //    t3.FullName, t3.Phone,
+                    //    t4.PaymentMethodId, t5.Name");
+
+                    //sqlBuilder.OrderBy("t1.CreatedDate DESC");
+                    //sqlBuilder.OrderBy("t1.CustomerId ASC");
+
+                    string query = $@"
+                        SELECT
+                        DISTINCT t1.Id,
+                        t1.Code AS Code,
+                        t1.CustomerId AS CustomerId,
+                        t1.OrderStatus AS OrderStatus,
+                        t1.CreatedDate AS CreatedDate,
+                        t1.UpdatedDate AS UpdatedDate,
+                        t1.CreatedBy AS CreatedBy,
+                        t1.UpdatedBy AS UpdatedBy,
+                        t1.IsActive AS IsActive,
+                        t1.IsDeleted AS IsDeleted,
+                        t1.DisplayOrder AS DisplayOrder,
+                        SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) AS 'TotalPrice',
+                        t3.FullName AS 'CustomerName', t3.Phone AS 'PhoneNumber',
+                        t4.PaymentMethodId,
+                        t5.Name AS 'PaymentMethod'
+                        FROM (
+		                    SELECT DISTINCT
+		                    DISTINCT t1.Id
+		                    FROM Orders t1
+                            INNER JOIN OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1
+                            INNER JOIN Users t3 ON t1.CustomerId = t3.Id AND t3.IsDeleted != 1
+                            INNER JOIN Payment t4 ON t1.Id = t4.OrderId AND t4.IsDeleted != 1
+                            LEFT JOIN PaymentMethod t5 ON t4.PaymentMethodId = t5.Id AND t5.IsDeleted != 1
+                            WHERE t1.ISDELETED = 0 AND t1.OrderStatus = '{OrderStatusEnum.Completed.ToString()}'
+                            AND t1.CreatedDate >= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom)}' AND t1.CreatedDate <= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)}'
+                            {((filterModel.PaymentMethodId != null && filterModel.PaymentMethodId != 0)
+                                ? $"AND t4.PaymentMethodId = {filterModel.PaymentMethodId}"
+                                : "")}
+                            GROUP BY t1.Id,
+                                t1.Code,
+                                t1.CustomerId,
+                                t1.OrderStatus,
+                                t1.CreatedDate,
+                                t1.UpdatedDate,
+                                t1.CreatedBy,
+                                t1.UpdatedBy,
+                                t1.IsActive,
+                                t1.IsDeleted,
+                                t1.DisplayOrder,
+                                t3.FullName, t3.Phone,
+                                t4.PaymentMethodId, t5.Name
+
+                        LIMIT @numberOfTakingRecords
+
+                        OFFSET @numberOfSkipingRecords
+                        ) s
+                        INNER JOIN Orders t1 ON t1.Id = s.Id
+
+                        INNER JOIN OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1
+                        INNER JOIN Users t3 ON t1.CustomerId = t3.Id AND t3.IsDeleted != 1
+                        INNER JOIN Payment t4 ON t1.Id = t4.OrderId AND t4.IsDeleted != 1
+                        LEFT JOIN PaymentMethod t5 ON t4.PaymentMethodId = t5.Id AND t5.IsDeleted != 1
+                        GROUP BY t1.Id,
+                                t1.Code,
+                                t1.CustomerId,
+                                t1.OrderStatus,
+                                t1.CreatedDate,
+                                t1.UpdatedDate,
+                                t1.CreatedBy,
+                                t1.UpdatedBy,
+                                t1.IsActive,
+                                t1.IsDeleted,
+                                t1.DisplayOrder,
+                                t3.FullName, t3.Phone,
+                                t4.PaymentMethodId, t5.Name
+                        ORDER BY t1.Id DESC , t1.CreatedDate DESC , t1.CustomerId ASC";
+
+                    return await conn.QueryAsync<SalesRevenueDetail>(query, sqlTemplate.Parameters);
+                }, filterModel);
+
+            var totalRevenue = await WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) AS 'TotalPrice'");
+
+                    sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("Payment t3 ON t1.Id = t3.OrderId AND t3.IsDeleted != 1");
+
+                    sqlBuilder.Where($"t1.OrderStatus = @orderStatus", new { orderStatus = OrderStatusEnum.Completed.ToString()});
+                    sqlBuilder.Where($"t1.CreatedDate >= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom)}' AND t1.CreatedDate <= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)}'");
+                    if(filterModel.PaymentMethodId != null && filterModel.PaymentMethodId != 0)
+                    {
+                        sqlBuilder.Where($"t3.PaymentMethodId = {filterModel.PaymentMethodId}");
+                    }
+                    sqlBuilder.GroupBy(@"t1.Id,
+                        t1.Code,
+                        t1.CustomerId,
+                        t1.OrderStatus,
+                        t1.CreatedDate,
+                        t1.UpdatedDate,
+                        t1.CreatedBy,
+                        t1.UpdatedBy,
+                        t1.IsActive,
+                        t1.IsDeleted,
+                        t1.DisplayOrder");
+
+                    return conn.QueryAsync<SalesRevenueDetail>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }, filterModel);
+
+            var salesRevenue = new SalesRevenue
+            {
+                TotalAmount = totalRevenue.Sum(x => x.TotalPrice),
+                TotalQuantity = totalRevenue.Sum(x => x.TotalQuantity),
+                RevenueDetails = detailPageList,
+            };
+
+            return salesRevenue;
+        }
     }
 }

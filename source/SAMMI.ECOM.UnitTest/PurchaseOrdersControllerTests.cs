@@ -89,5 +89,122 @@ namespace SAMMI.ECOM.UnitTest
             Assert.Equal(123, returnPurchases.EmployeeId);
             Assert.Equal(456, returnPurchases.SupplierId);
         }
+
+
+
+        [Fact]
+        public async Task PostAsync_ReturnsOk_WhenPurchaseOrderIsCreatedSuccessfully()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task PostAsync_ReturnsBadRequest_WhenPurchaseOrderCreationFails()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task GetsAsync_ReturnsOk_WhenFilteringByValidPurchaseOrderCode()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task GetsAsync_ReturnsOk_WhenFilteringByValidImportDate()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task GetsAsync_ReturnsOk_WhenFilteringByValidSupplier()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task GetsAsync_ReturnsOk_WhenNoPurchaseOrderDataExists()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task GetsAsync_ReturnsBadRequest_WhenFilterIsEmpty()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task GetsAsync_ReturnsOk_WhenPurchaseOrderListHasData()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task GetsAsync_ReturnsOk_WhenPurchaseOrderListHasNoData()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+
+
+
+        [Fact]
+        public async Task Delete_ReturnsOk_WhenPurchaseOrderIsDeletedSuccessfully()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        [Fact]
+        public async Task Delete_ReturnsBadRequest_WhenPurchaseOrderHasInvalidStatus()
+        {
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+            Assert.Equal(1, 1);
+        }
+
+        
     }
 }

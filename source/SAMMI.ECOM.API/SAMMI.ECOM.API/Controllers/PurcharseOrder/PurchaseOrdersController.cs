@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 
@@ -45,6 +46,30 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             if (request.Id != 0)
             {
                 return BadRequest();
+            }
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            return BadRequest(response);
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Put(int id, [FromBody] UpdatePurchaseOrderCommand request)
+        {
+            if (id != request.Id)
+            {
+                return BadRequest();
+            }
+            var purchase = await _purchaseRepository.GetByIdAsync(id);
+            if (purchase == null)
+            {
+                return BadRequest("Phiếu nhập hàng không tồn tại.");
+            }
+            if(purchase.Status != PurchaseOrderStatus.Draft.ToString())
+            {
+                return BadRequest("Không thể sửa thông tin đơn nhập! Chỉ được sửa khi trạng thái đang ở bản nháp");
             }
             var response = await _mediator.Send(request);
             if (response.IsSuccess)

@@ -1,8 +1,11 @@
 ﻿using Dapper;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.DomainModels.Reports;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
@@ -11,11 +14,173 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
     {
         Task<IPagedList<PurchaseOrderDTO>> GetList(RequestFilterModel filterModel);
         Task<PurchaseOrderDTO> GetPurchaseOrder(int id);
+        Task<ImportStatistic> GetImportStatistic(ImportStatisticFilterModel filterModel);
     }
     public class PurchaseOrderQueries : QueryRepository<PurchaseOrder>, IPurchaseOrderQueries
     {
         public PurchaseOrderQueries(SammiEcommerceContext context) : base(context)
         {
+        }
+
+        public async Task<ImportStatistic> GetImportStatistic(ImportStatisticFilterModel filterModel)
+        {
+            var detailPageList = await WithPagingTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    //sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.UnitPrice) AS 'TotalPrice'");
+                    //sqlBuilder.Select("t3.FullName AS EmployeeName");
+                    //sqlBuilder.Select("t4.FullName AS SupplierName");
+
+                    //sqlBuilder.InnerJoin("PurchaseOrderDetail t2 ON t1.Id = t2.PurchaseOrderId AND t2.IsDeleted != 1");
+                    //sqlBuilder.InnerJoin("Users t3 ON t1.EmployeeId = t3.Id AND t3.IsDeleted != 1");
+                    //sqlBuilder.InnerJoin("Users t4 ON t1.SupplierId = t4.Id AND t4.IsDeleted != 1");
+
+                    //sqlBuilder.Where("t1.Status = @status", new { status = PurchaseOrderStatus.Completed.ToString() });
+                    //sqlBuilder.Where(string.Format("t1.CreatedDate >= '{0}' AND t1.CreatedDate <= '{1}'", string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom), string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)));
+                    //if(filterModel.EmployeeId != null && filterModel.EmployeeId != 0)
+                    //{
+                    //    sqlBuilder.Where("t1.EmployeeId = @employeeId", new { employeeId = filterModel.EmployeeId });
+                    //}
+                    //if(filterModel.SupplierId != null && filterModel.SupplierId != 0)
+                    //{
+                    //    sqlBuilder.Where("t1.SupplierId = @supplierId", new { supplierId = filterModel.SupplierId });
+                    //}
+
+                    //sqlBuilder.GroupBy(@"t1.Id,
+                    //    t1.Code,
+                    //    t1.EmployeeId,
+                    //    t1.SupplierId,
+                    //    t1.Status,
+                    //    t1.Note,
+                    //    t1.CreatedDate,
+                    //    t1.UpdatedDate,
+                    //    t1.CreatedBy,
+                    //    t1.UpdatedBy,
+                    //    t1.IsActive,
+                    //    t1.IsDeleted,
+                    //    t3.FullName,
+                    //    t4.FullName");
+
+                    //sqlBuilder.OrderBy("t1.CreatedDate DESC, t1.EmployeeId, t1.SupplierId");
+
+                    string query = $@"
+                        SELECT
+                        DISTINCT t1.Id,
+                        t1.Code AS Code,
+                        t1.EmployeeId AS EmployeeId,
+                        t1.SupplierId AS SupplierId,
+                        t1.Status AS Status,
+                        t1.Note AS Note,
+                        t1.CreatedDate AS CreatedDate,
+                        t1.UpdatedDate AS UpdatedDate,
+                        t1.CreatedBy AS CreatedBy,
+                        t1.UpdatedBy AS UpdatedBy,
+                        t1.IsActive AS IsActive,
+                        t1.IsDeleted AS IsDeleted,
+                        SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.UnitPrice) AS 'TotalPrice',
+                        t3.FullName AS EmployeeName,
+                        t4.FullName AS SupplierName
+                        FROM (
+		                        SELECT DISTINCT
+		                        DISTINCT t1.Id
+		                        FROM PurchaseOrder t1
+                        INNER JOIN PurchaseOrderDetail t2 ON t1.Id = t2.PurchaseOrderId AND t2.IsDeleted != 1
+                        INNER JOIN Users t3 ON t1.EmployeeId = t3.Id AND t3.IsDeleted != 1
+                        INNER JOIN Users t4 ON t1.SupplierId = t4.Id AND t4.IsDeleted != 1
+                        WHERE t1.ISDELETED = 0 AND t1.Status = '{PurchaseOrderStatus.Completed.ToString()}'
+                        AND t1.CreatedDate >= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom)}' AND t1.CreatedDate <= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)}'
+                        {((filterModel.EmployeeId != null && filterModel.EmployeeId != 0)
+                                ? $"AND t1.EmployeeId = {filterModel.EmployeeId}"
+                                : "")}
+                        {((filterModel.SupplierId != null && filterModel.SupplierId != 0)
+                                ? $"AND t1.SupplierId = {filterModel.SupplierId}"
+                                : "")}
+                        GROUP BY t1.Id,
+                                t1.Code,
+                                t1.EmployeeId,
+                                t1.SupplierId,
+                                t1.Status,
+                                t1.Note,
+                                t1.CreatedDate,
+                                t1.UpdatedDate,
+                                t1.CreatedBy,
+                                t1.UpdatedBy,
+                                t1.IsActive,
+                                t1.IsDeleted,
+                                t3.FullName,
+                                t4.FullName
+
+                        ORDER BY t1.Id DESC
+
+                        LIMIT @numberOfTakingRecords
+
+                        OFFSET @numberOfSkipingRecords
+                        ) s
+                        INNER JOIN PurchaseOrder t1 ON t1.Id = s.Id
+
+                        INNER JOIN PurchaseOrderDetail t2 ON t1.Id = t2.PurchaseOrderId AND t2.IsDeleted != 1
+                        INNER JOIN Users t3 ON t1.EmployeeId = t3.Id AND t3.IsDeleted != 1
+                        INNER JOIN Users t4 ON t1.SupplierId = t4.Id AND t4.IsDeleted != 1
+                        GROUP BY t1.Id,
+                                t1.Code,
+                                t1.EmployeeId,
+                                t1.SupplierId,
+                                t1.Status,
+                                t1.Note,
+                                t1.CreatedDate,
+                                t1.UpdatedDate,
+                                t1.CreatedBy,
+                                t1.UpdatedBy,
+                                t1.IsActive,
+                                t1.IsDeleted,
+                                t3.FullName,
+                                t4.FullName
+
+                        ORDER BY t1.Id DESC , t1.CreatedDate DESC, t1.EmployeeId, t1.SupplierId";
+                    return conn.QueryAsync<ImportStatisticDetail>(query, sqlTemplate.Parameters);
+                }, filterModel);
+
+            var totalImport = await WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.UnitPrice) AS 'TotalPrice'");
+
+                    sqlBuilder.InnerJoin("PurchaseOrderDetail t2 ON t1.Id = t2.PurchaseOrderId AND t2.IsDeleted != 1");
+
+                    sqlBuilder.Where("t1.Status = @status", new { status = PurchaseOrderStatus.Completed.ToString() });
+                    sqlBuilder.Where(string.Format("t1.CreatedDate >= '{0}' AND t1.CreatedDate <= '{1}'", string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom), string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)));
+                    if (filterModel.EmployeeId != null && filterModel.EmployeeId != 0)
+                    {
+                        sqlBuilder.Where("t1.EmployeeId = @employeeId", new { employeeId = filterModel.EmployeeId });
+                    }
+                    if (filterModel.SupplierId != null && filterModel.SupplierId != 0)
+                    {
+                        sqlBuilder.Where("t1.SupplierId = @supplierId", new { supplierId = filterModel.SupplierId });
+                    }
+
+                    sqlBuilder.GroupBy(@"t1.Id,
+                        t1.Code,
+                        t1.EmployeeId,
+                        t1.SupplierId,
+                        t1.Status,
+                        t1.Note,
+                        t1.CreatedDate,
+                        t1.UpdatedDate,
+                        t1.CreatedBy,
+                        t1.UpdatedBy,
+                        t1.IsActive,
+                        t1.IsDeleted");
+
+                    return conn.QueryAsync<ImportStatisticDetail>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }, filterModel);
+
+            var importStatistic = new ImportStatistic
+            {
+                Imports = detailPageList,
+                TotalQuantity = totalImport.Sum(x => x.TotalQuantity ?? 0),
+                TotalAmount = totalImport.Sum(x => (x.TotalPrice * x.TotalQuantity) ?? 0)
+            };
+            return importStatistic;
         }
 
         public Task<IPagedList<PurchaseOrderDTO>> GetList(RequestFilterModel filterModel)

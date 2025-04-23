@@ -5,12 +5,11 @@ using SAMMI.ECOM.Domain.Enums;
 
 namespace SAMMI.ECOM.Domain.Commands.OrderBuy
 {
-    public class PurchaseOrderCommand
+    public class UpdatePurchaseOrderCommand : IRequest<ActionResponse<PurchaseOrderDTO>>
     {
         public string? Code { get; set; }
         public int EmployeeId { get; set; }
         public int SupplierId { get; set; }
-        public PurchaseOrderStatus Status { get; set; }
         public string? Note { get; set; }
         public List<PurchaseOrderDetailCommand> Details { get; set; }
 
@@ -23,9 +22,9 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public bool IsDeleted { get; set; }
     }
 
-    public class CreatePurchaseOrderCommand : PurchaseOrderCommand, IRequest<ActionResponse<PurchaseOrderDTO>>
+    public class CreatePurchaseOrderCommand : UpdatePurchaseOrderCommand
     {
-
+        public PurchaseOrderStatus Status { get; set; }
     }
 
     public class UpdatePurchaseStatusCommand

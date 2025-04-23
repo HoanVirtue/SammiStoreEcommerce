@@ -207,15 +207,16 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         public async Task<IActionResult> GetMyVoucherApplyAsync([FromBody] RequestVoucherDTO request)
         {
             var actRes = new ActionResponse();
-            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
-            {
-                actRes.AddError("Có ít nhất 1 sản phẩm không tồn tại");
-                return BadRequest(actRes);
-            }
             foreach (var item in request.Details)
             {
+                if(!_productRepository.IsExisted(item.ProductId))
+                {
+                    actRes.AddError("Mã sản phẩm không tồn tại");
+                    return BadRequest(actRes);
+                }
                 item.Price = await _productRepository.GetPrice(item.ProductId);
             }
+
             decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) ?? 0;
 
             var address = await _addressRepository.GetDefaultByUserId(UserIdentity.Id);
@@ -237,13 +238,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 actRes.AddError("Phiếu giảm giá không tồn tại.");
                 return BadRequest(actRes);
             }
-            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
-            {
-                actRes.AddError("Có ít nhất 1 sản phẩm không tồn tại");
-                return BadRequest(actRes);
-            }
             foreach (var item in request.Details)
             {
+                if (!_productRepository.IsExisted(item.ProductId))
+                {
+                    actRes.AddError("Mã sản phẩm không tồn tại");
+                    return BadRequest(actRes);
+                }
                 item.Price = await _productRepository.GetPrice(item.ProductId);
             }
             decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) ?? 0;

@@ -60,11 +60,15 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actRes;
             }
 
-            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
+            foreach(var de in request.Details)
             {
-                actRes.AddError("Có ít nhất 1 sản phẩm không tồn tại");
-                return actRes;
+                if(!_productRepository.IsExisted(de.ProductId))
+                {
+                    actRes.AddError("Sản phẩm không tồn tại");
+                    return actRes;
+                }
             }
+
 
             request.Code = Guid.NewGuid().ToString();
             request.CreatedDate = DateTime.Now;
@@ -108,7 +112,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .NotNull()
                 .WithMessage("Danh sách sản phẩm không được bỏ trống")
                 .Must(x => x.Count > 0)
-                .WithMessage("Danh sách sản phẩm phải có ít nhất 1 sản phẩm");
+                .WithMessage("Danh sách sản phẩm phải có ít nhất 1 sản phẩm")
+                .Must(HaveUniqueProductId)
+                .WithMessage("Danh sách sản phẩm chứa mã sản phẩm trùng lặp");
 
             RuleFor(x => x.Status)
                 .NotNull()
@@ -118,6 +124,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             RuleForEach(x => x.Details)
                 .SetValidator(new PurchaseOrderDetailCommandValidator());
+        }
+
+        private bool HaveUniqueProductId(List<PurchaseOrderDetailCommand> details)
+        {
+            var productIds = details.Select(x => x.ProductId).ToList();
+            return productIds.Distinct().Count() == productIds.Count;
         }
     }
 
@@ -140,6 +152,109 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .WithMessage("Giá nhập không được bỏ trống")
                 .GreaterThan(0)
                 .WithMessage("Giá nhập phải lớn hơn 0");
+        }
+    }
+
+    public class UpdatePurchaseOrderCommandHandler : CustombaseCommandHandler<UpdatePurchaseOrderCommand, PurchaseOrderDTO>
+    {
+        private readonly IUsersRepository _userRepository;
+        private readonly IPurchaseOrderRepository _purchaseRepository;
+        private readonly IProductRepository _productRepository;
+        private readonly IPurchaseOrderDetailRepository _purchaseDetailRepository;
+        private readonly IRoleRepository _roleRepository;
+        public UpdatePurchaseOrderCommandHandler(
+            IUsersRepository usersRepository,
+            IPurchaseOrderRepository purchaseOrderRepository,
+            IProductRepository productRepository,
+            IPurchaseOrderDetailRepository purchaseDetailRepository,
+            IRoleRepository roleRepository,
+            UserIdentity currentUser,
+            IMapper mapper) : base(currentUser, mapper)
+        {
+            _userRepository = usersRepository;
+            _purchaseRepository = purchaseOrderRepository;
+            _productRepository = productRepository;
+            _purchaseDetailRepository = purchaseDetailRepository;
+            _roleRepository = roleRepository;
+        }
+
+        public override async Task<ActionResponse<PurchaseOrderDTO>> Handle(UpdatePurchaseOrderCommand request, CancellationToken cancellationToken)
+        {
+            var actRes = new ActionResponse<PurchaseOrderDTO>();
+
+            if (!await _userRepository.IsExistedType(request.EmployeeId))
+            {
+                actRes.AddError("Mã nhân viên không tồn tại.");
+                return actRes;
+            }
+
+            if (!await _userRepository.IsExistedType(request.SupplierId, TypeUserEnum.Supplier))
+            {
+                actRes.AddError("Mã nhà cung cấp không tồn tại.");
+                return actRes;
+            }
+
+            foreach (var de in request.Details)
+            {
+                if (!_productRepository.IsExisted(de.ProductId))
+                {
+                    actRes.AddError("Sản phẩm không tồn tại");
+                    return actRes;
+                }
+            }
+            
+            var existingDetails = await _purchaseDetailRepository.GetByPurchaseOrderId(request.Id);
+            if(request.Details.Any(d => existingDetails.Any(p => p.ProductId == d.ProductId)))
+            {
+                actRes.AddError("Danh sách sản phẩm không được trùng lặp");
+                return actRes;
+            }
+            if(request.Details.Count < existingDetails.Count())
+            {
+                actRes.AddError($"Danh sách sản phẩm phải lớn hơn hoặc bằng {existingDetails.Count()}");
+                return actRes;
+            }
+
+            request.UpdatedDate = DateTime.Now;
+            request.UpdatedBy = _currentUser.UserName;
+            var updatePurchaseRes = await _purchaseRepository.UpdateAndSave(request);
+            actRes.Combine(updatePurchaseRes);
+            if (!actRes.IsSuccess)
+            {
+                return actRes;
+            }
+            var purchaseUpdated = updatePurchaseRes.Result;
+            var existingDetailDict = existingDetails.ToDictionary(d => d.ProductId);
+            foreach (var detail in request.Details)
+            {
+                if (existingDetailDict.TryGetValue(detail.ProductId, out var existingDetail))
+                {
+                    existingDetail.Quantity = detail.Quantity;
+                    existingDetail.UnitPrice = detail.UnitPrice;
+                    existingDetail.UpdatedDate = DateTime.Now;
+                    existingDetail.UpdatedBy = _currentUser?.UserName;
+                    var updateDetailRes = _purchaseDetailRepository.Update(existingDetail);
+                    actRes.Combine(updateDetailRes);
+                }
+                else
+                {
+                    detail.PurchaseOrderId = purchaseUpdated.Id;
+                    detail.CreatedDate = DateTime.Now;
+                    detail.CreatedBy = _currentUser?.UserName;
+                    var createDetailRes = _purchaseDetailRepository.Create(detail);
+                    actRes.Combine(createDetailRes);
+                }
+
+                if (!actRes.IsSuccess)
+                {
+                    return actRes;
+                }
+            }
+
+            await _purchaseDetailRepository.SaveChangeAsync();
+
+            actRes.SetResult(_mapper.Map<PurchaseOrderDTO>(purchaseUpdated));
+            return actRes;
         }
     }
 }

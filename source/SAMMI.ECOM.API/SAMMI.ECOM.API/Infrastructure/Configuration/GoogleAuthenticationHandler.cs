@@ -42,8 +42,6 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
         }
         public async Task HandleOnCreatingTicket(OAuthCreatingTicketContext context)
         {
-            Console.WriteLine("Starting HandleOnCreatingTicket for email: {Email}", context.Principal.FindFirst(ClaimTypes.Email)?.Value);
-            // Lấy thông tin từ Google
             var googleId = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var email = context.Principal.FindFirst(ClaimTypes.Email)?.Value;
             var name = context.Principal.FindFirst(ClaimTypes.Name)?.Value;

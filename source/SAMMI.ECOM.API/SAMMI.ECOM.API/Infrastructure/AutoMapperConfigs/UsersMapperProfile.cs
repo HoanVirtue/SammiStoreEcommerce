@@ -23,6 +23,9 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 
             CreateMap<RegisterCommand, User>().ReverseMap();
             CreateMap<RegisterCommand, CUCustomerCommand>();
+
+            CreateMap<UpdateCustomerInfoRequest, CustomerDTO>();
+            CreateMap<UpdateEmployeeInfoRequest, EmployeeDTO>();
         }
     }
 }

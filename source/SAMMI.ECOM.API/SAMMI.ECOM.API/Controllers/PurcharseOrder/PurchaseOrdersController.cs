@@ -118,5 +118,11 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             
             return Ok(ActionResponse.Success);
         }
+
+        [HttpGet("get-code-by-last-id")]
+        public async Task<IActionResult> GetCodeByLastIdAsync()
+        {
+            return Ok(await _purchaseQueries.GetCodeByLastId());
+        }
     }
 }

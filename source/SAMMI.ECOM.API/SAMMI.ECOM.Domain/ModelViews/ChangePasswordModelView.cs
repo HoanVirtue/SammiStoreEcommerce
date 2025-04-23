@@ -10,6 +10,6 @@
     public class ChangePasswordUserModelView : ChangePasswordModelView
     {
         public string Username { get; set; } = null!;
-        public string? Permission { get; set; }
+        //public string? Permission { get; set; }
     }
 }

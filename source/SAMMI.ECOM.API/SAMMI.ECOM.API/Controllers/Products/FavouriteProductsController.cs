@@ -51,19 +51,15 @@ namespace SAMMI.ECOM.API.Controllers.Products
             {
                 return Ok(await _favouriteQueries.GetList(request));
             }
-            else if (request.Type == RequestType.SimpleAll)
+            if (_redisService != null && _redisService.IsConnected())
             {
-                if (_redisService != null && _redisService.IsConnected())
+                var cachedList = _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
+                if (cachedList != null)
                 {
-                    var cachedList = _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
-                    if (cachedList != null)
-                    {
-                        return Ok(cachedList);
-                    }
+                    return Ok(cachedList);
                 }
-                return Ok(await _favouriteQueries.GetAll(request));
             }
-            return Ok();
+            return Ok(await _favouriteQueries.GetAll(request));
         }
 
         [HttpPost("{productId}")]

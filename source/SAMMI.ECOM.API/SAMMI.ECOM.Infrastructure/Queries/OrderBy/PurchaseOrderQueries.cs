@@ -7,6 +7,7 @@ using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.Reports;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
+using SAMMI.ECOM.Utility;
 
 namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
 {
@@ -15,6 +16,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<IPagedList<PurchaseOrderDTO>> GetList(RequestFilterModel filterModel);
         Task<PurchaseOrderDTO> GetPurchaseOrder(int id);
         Task<ImportStatistic> GetImportStatistic(ImportStatisticFilterModel filterModel);
+        Task<string?> GetCodeByLastId();
     }
     public class PurchaseOrderQueries : QueryRepository<PurchaseOrder>, IPurchaseOrderQueries
     {
@@ -262,6 +264,24 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     purchaseDTO.TotalPrice = purchaseDTO.Details.Sum(x => x.Quantity * x.UnitPrice);
                     return purchaseDTO;
                 });
+        }
+
+
+        public async Task<string?> GetCodeByLastId()
+        {
+            int idLast = 0;
+            string code = CodeEnum.PurchaseOrder.GetDescription();
+            idLast = await WithDefaultNoSelectTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("CASE WHEN MAX(t1.Id) IS NOT NULL THEN  MAX(t1.Id) ELSE 0 END");
+                    sqlBuilder.OrderDescBy("t1.Id");
+
+                    return await conn.QueryFirstOrDefaultAsync<int>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
+                );
+
+            return $"{code}{(idLast + 1).ToString("D6")}";
         }
 
     }

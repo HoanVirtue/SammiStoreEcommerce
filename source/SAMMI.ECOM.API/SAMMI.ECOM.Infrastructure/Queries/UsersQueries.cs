@@ -31,6 +31,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         Task<SupplierDTO> GetSupplierById(int id);
 
         Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Employee);
+
+        Task<UserDTO> GetDataByIdV2(int id);
     }
     public class UsersQueries : QueryRepository<User>, IUsersQueries
     {
@@ -262,6 +264,28 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         public CustomerDTO FindCustomerById(int id)
         {
             return FindCustomer(id: id);
+        }
+
+        public Task<UserDTO> GetDataByIdV2(int id)
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("t2.Name AS WardName");
+                    sqlBuilder.Select("t3.Id AS DistrictId");
+                    sqlBuilder.Select("t3.Name AS DistrictName");
+                    sqlBuilder.Select("t4.Id AS ProvinceId");
+                    sqlBuilder.Select("t4.Name AS ProvinceName");
+                    sqlBuilder.Select("t5.ImageUrl AS Avatar");
+
+                    sqlBuilder.LeftJoin("Ward t2 ON t1.WardId = t2.Id AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("District t3 ON t2.DistrictId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Province t4 ON t3.ProvinceId = t4.Id AND t4.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("Image t5 ON t1.AvatarId = t5.Id AND t5.IsDeleted != 1");
+
+                    sqlBuilder.Where("t1.Id = @id", new {id});
+                    return conn.QueryFirstOrDefaultAsync<UserDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                });
         }
     }
 }

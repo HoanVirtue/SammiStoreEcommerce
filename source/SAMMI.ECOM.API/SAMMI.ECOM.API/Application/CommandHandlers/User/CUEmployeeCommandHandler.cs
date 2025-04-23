@@ -229,6 +229,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
                 .WithMessage("Email không đúng định dạng")
                 .When(x => !string.IsNullOrEmpty(x.Email));
 
+            RuleFor(x => x.Birthday)
+                .NotNull()
+                .WithMessage("Ngày sinh không được bỏ trống");
 
             RuleFor(x => x.IdCardNumber)
                 .NotEmpty()

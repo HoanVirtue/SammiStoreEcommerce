@@ -220,6 +220,12 @@ namespace SAMMI.ECOM.API.Controllers
                 return BadRequest(actionRes);
             }
 
+            if(user.VerifiedAt.Value.AddMinutes(1) > DateTime.Now)
+            {
+                actionRes.AddError("Vui lòng quay lại xác thực sau 1 phút.");
+                return BadRequest(actionRes);
+            }    
+
             user.VerifyToken = _authService.CreateVerifyToken();
             user.VerifiedAt = DateTime.Now;
             actionRes.Combine(await _userRepository.UpdateAndSave(user));
@@ -278,7 +284,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(actionResponse);
         }
 
-        [HttpPost("change-password-user")]
+        [HttpPost("change-password-for-user")]
         public async Task<IActionResult> ChangePasswordForUser([FromBody] ChangePasswordUserModelView request)
         {
             if (string.IsNullOrEmpty(request.NewPassword))

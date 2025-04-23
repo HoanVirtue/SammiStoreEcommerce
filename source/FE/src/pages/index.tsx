@@ -9,7 +9,7 @@ export default function Home() {
     <>
       <Head>
         <title>Sammi Stores</title>
-        <meta name='description' content='Online Cosmetic Shop' />
+        <meta name='description' content='Cửa hàng mỹ phẩm' />
         <meta name='viewport' content='width=device-width, initial-scale=1' />
         {/* <meta httpEquiv='Content-Security-Policy' content="default-src 'self'; script-src 'self'" /> */}
         <link rel='icon' href='/favicon.icon' />

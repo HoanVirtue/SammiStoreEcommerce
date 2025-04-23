@@ -138,7 +138,8 @@ const AuthProvider = ({ children }: Props) => {
       setUser({ ...userResponse.result });
 
       const userData = userResponse.result;
-      if (params.rememberMe) {
+      // if (params.rememberMe) {
+      if (true) {
         setLocalUserData(
           JSON.stringify(userData || {}),
           accessToken,

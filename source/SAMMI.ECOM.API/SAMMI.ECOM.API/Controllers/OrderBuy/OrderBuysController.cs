@@ -107,7 +107,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpPost("customer/update-status-order/{code}")]
         public async Task<IActionResult> UpdateStatusOrderCustomerAsync(string code, [FromBody]OrderStatusEnum status = OrderStatusEnum.Cancelled)
         {
-            if (status != OrderStatusEnum.Cancelled && status != OrderStatusEnum.Completed)
+            if (status != OrderStatusEnum.Cancelled)
             {
                 return BadRequest("Trạng thái đơn hàng không hợp lệ");
             }

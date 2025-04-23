@@ -207,17 +207,24 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         public async Task<IActionResult> GetMyVoucherApplyAsync([FromBody] RequestVoucherDTO request)
         {
             var actRes = new ActionResponse();
-            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
-            {
-                actRes.AddError("Có ít nhất 1 sản phẩm không tồn tại");
-                return BadRequest(actRes);
-            }
             foreach (var item in request.Details)
             {
+                if(!_productRepository.IsExisted(item.ProductId))
+                {
+                    actRes.AddError("Mã sản phẩm không tồn tại");
+                    return BadRequest(actRes);
+                }
                 item.Price = await _productRepository.GetPrice(item.ProductId);
             }
+
             decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) ?? 0;
 
+            var address = await _addressRepository.GetDefaultByUserId(UserIdentity.Id);
+            if (address == null)
+            {
+                actRes.AddError("Bạn vui lòng thêm địa chỉ nhận hàng. Để áp dụng các phiếu giảm giá");
+                return BadRequest(actRes);
+            }
             return Ok(await _myVoucherQueries.GetDataInCheckout(UserIdentity.Id, totalAmount, request.Details));
         }
 
@@ -231,13 +238,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 actRes.AddError("Phiếu giảm giá không tồn tại.");
                 return BadRequest(actRes);
             }
-            if (!request.Details.All(x => _productRepository.IsExisted(x.ProductId)))
-            {
-                actRes.AddError("Có ít nhất 1 sản phẩm không tồn tại");
-                return BadRequest(actRes);
-            }
             foreach (var item in request.Details)
             {
+                if (!_productRepository.IsExisted(item.ProductId))
+                {
+                    actRes.AddError("Mã sản phẩm không tồn tại");
+                    return BadRequest(actRes);
+                }
                 item.Price = await _productRepository.GetPrice(item.ProductId);
             }
             decimal totalAmount = request.Details.Sum(x => x.Quantity * x.Price) ?? 0;
@@ -263,6 +270,11 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             }
             var myVoucherResult = _mapper.Map<MyVoucherDTO>(createRes.Result);
             var address = await _addressRepository.GetDefaultByUserId(UserIdentity.Id);
+            if(address == null)
+            {
+                actRes.AddError("Bạn vui lòng thêm địa chỉ nhận hàng. Để xem được các phiếu giảm giá được áp dụng phù hợp với đơn hàng");
+                return BadRequest(actRes);
+            }
             myVoucherResult.IsValid = await _voucherRepository.ValidVoucher(myVoucherResult.VoucherId, UserIdentity.Id, address.WardId ?? 0, totalAmount, request.Details);
             actRes.SetResult(myVoucherResult);
             return Ok(actRes);

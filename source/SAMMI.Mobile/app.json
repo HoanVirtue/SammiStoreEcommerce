@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "SAMMI.Mobile",
-    "slug": "SAMMI.Mobile",
+    "slug": "sammi-mobile",
     "version": "1.0.0",
     "scheme": "sammi",
     "orientation": "portrait",

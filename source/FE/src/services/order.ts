@@ -1,7 +1,7 @@
 import axios from "axios"
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateOrder, TParamsGetAllOrders, TParamsUpdateOrder, TParamsUpdateOrderStatus } from "src/types/order"
+import { TParamsCreateOrder, TParamsGetAllOrders, TParamsPayback, TParamsUpdateOrder, TParamsUpdateOrderStatus } from "src/types/order"
 
 
 export const getAllOrders = async (data: {params: TParamsGetAllOrders  }) => {
@@ -32,6 +32,7 @@ export const getOrderDetail = async (id: number) => {
 }
 
 
+
 export const createOrder = async (data: TParamsCreateOrder) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/create-order`, data)
@@ -42,6 +43,15 @@ export const createOrder = async (data: TParamsCreateOrder) => {
     }
 }
 
+export const createPayBackOrder = async (data: TParamsPayback) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/pay-back`, data)
+        return res.data
+    }
+    catch (error: any) {
+        return error?.response?.data
+    }
+}
 
 export const cancelOrder = async (code: string) => {
     try {

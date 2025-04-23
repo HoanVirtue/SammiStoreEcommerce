@@ -73,7 +73,7 @@ export const orderSlice = createSlice({
     })
     builder.addCase(getMyOrdersAsync.fulfilled, (state, action) => {
       state.isLoading = false
-      state.myOrders.data = Array.isArray(action?.payload?.result) ? action?.payload?.result : [];
+      state.myOrders.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
       state.myOrders.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getMyOrdersAsync.rejected, (state, action) => {

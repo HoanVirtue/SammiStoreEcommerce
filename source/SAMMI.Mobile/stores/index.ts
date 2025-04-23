@@ -1,5 +1,6 @@
 // ** Toolkit imports
 import { configureStore } from '@reduxjs/toolkit'
+import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
 
 // ** Reducers
 import user from '@/stores/user'
@@ -25,8 +26,6 @@ import banner from '@/stores/banner'
 import event from '@/stores/event'
 import cart from '@/stores/cart'
 
-
-
 export const store = configureStore({
   reducer: { user, auth, role, deliveryMethod, paymentMethod, province, district, productCategory, product, order, review, ward, brand, employee, customer, supplier, address, voucher, receipt, banner, event, cart },
   middleware: getDefaultMiddleware =>
@@ -37,3 +36,6 @@ export const store = configureStore({
 
 export type AppDispatch = typeof store.dispatch
 export type RootState = ReturnType<typeof store.getState>
+
+export const useAppDispatch = () => useDispatch<AppDispatch>()
+export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector

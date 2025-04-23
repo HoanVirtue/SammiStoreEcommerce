@@ -27,6 +27,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         Task<bool> IsExistedType(int id, TypeUserEnum? type = TypeUserEnum.Employee);
         Task<User> GetByEmail(string email);
         Task<ActionResponse> VerifyToken(string token);
+        Task<int> GetCustomerCount();
     }
     public class UsersRepository : CrudRepository<User>, IUsersRepository, IDisposable
     {
@@ -186,6 +187,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
             user.IsVerify = true;
             actionResponse.Combine(await UpdateAndSave(user));
             return actionResponse;
+        }
+
+        public Task<int> GetCustomerCount()
+        {
+            return DbSet.Where(x => x.Type == TypeUserEnum.Customer.ToString() && x.IsDeleted != true).CountAsync();
         }
     }
 }

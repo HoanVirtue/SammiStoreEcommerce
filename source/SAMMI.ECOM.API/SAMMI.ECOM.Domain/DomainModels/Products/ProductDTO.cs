@@ -23,6 +23,7 @@ namespace SAMMI.ECOM.Domain.DomainModels.Products
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public List<ImageDTO>? Images { get; set; }
+        public int? TotalSold { get; set; }
 
 
         public int Id { get; set; }

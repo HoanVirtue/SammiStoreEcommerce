@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Cart } from '@/domain/entities/Cart';
 import { Product } from '@/domain/entities/Product';
 import { serviceLocator } from '@/data/di/serviceLocator';
@@ -8,8 +8,6 @@ import { GetCartUseCase } from '@/domain/usecases/cart/GetCartUseCase';
 import { AddToCartUseCase } from '@/domain/usecases/cart/AddToCartUseCase';
 import { UpdateCartItemUseCase } from '@/domain/usecases/cart/UpdateCartItemUseCase';
 import { RemoveFromCartUseCase } from '@/domain/usecases/cart/RemoveFromCartUseCase';
-import { CartRepository } from '@/domain/repositories/CartRepository';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface CartState {
   cart: Cart;
@@ -99,7 +97,7 @@ export const useCartStore = create<CartState>()(
         try {
           set({ isLoading: true, error: null });
           
-          const cartRepository = serviceLocator.get<CartRepository>('cartRepository');
+          const cartRepository = serviceLocator.get('cartRepository');
           const cart = await cartRepository.clearCart();
           
           set({ cart, isLoading: false });

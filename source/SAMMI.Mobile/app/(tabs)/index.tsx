@@ -3,24 +3,22 @@ import { StyleSheet, View, Text, ScrollView, FlatList, Pressable } from 'react-n
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Category } from '@/domain/entities/Category';
-import { Product } from '@/domain/entities/Product';
 import { ChevronRight } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
 import { SearchBar } from '@/presentation/components/SearchBar';
-import { CategoryCard } from '@/presentation/components/CategoryCard';
 import { ProductCard } from '@/presentation/components/ProductCard';
-import { useProductStore } from '@/presentation/stores/productStore';
-import { useUserStore } from '@/presentation/stores/userStore';
 import { getAllProducts } from '@/services/product';
 import { TProduct } from '@/types/product';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function HomeScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [publicProducts, setPublicProducts] = useState<TProduct[]>([]);
+  const { user } = useAuth();
 
   const handleGetListProduct = async () => {
     setLoading(true);
@@ -38,14 +36,13 @@ export default function HomeScreen() {
           filters: "''"
         }
       });
-
       if (response?.result?.subset) {
         setPublicProducts(response.result.subset);
       } else {
-        setError('No products found');
+        setError('Không có dữ liệu về sản phẩm');
       }
     } catch (error) {
-      setError('Failed to fetch products');
+      setError('Lỗi khi lấy dữ liệu sản phẩm');
       console.error('Error fetching products:', error);
     } finally {
       setLoading(false);
@@ -57,7 +54,7 @@ export default function HomeScreen() {
   }, []);
 
   const handleCategoryPress = (category: Category) => {
-    router.push(`/search?category=${category.id}`);
+    // router.push(`/search?category=${category.id}`);
   };
 
   const handleProductPress = (product: TProduct) => {
@@ -83,13 +80,11 @@ export default function HomeScreen() {
   }
 
  
-
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello Beautiful !</Text>
-          <Text style={styles.subtitle}>Find your beauty essentials cosmetics</Text>
+          <Text style={styles.greeting}>Chào {user?.fullName} !</Text>
         </View>
 
         <SearchBar

@@ -191,8 +191,8 @@ const CreateNewProduct = (props: TCreateUpdateProduct) => {
             brandId: Number(data.brandId),
             categoryId: Number(data.categoryId),
             status: data.status,
-            startDate: data.startDate ? data.startDate.toISOString() : new Date().toISOString(),
-            endDate: data.endDate ? data.endDate.toISOString() : new Date().toISOString(),
+            startDate: data.startDate ? data.startDate.toISOString() : '',
+            endDate: data.endDate ? data.endDate.toISOString() : '',
             images: productImages,
         };
         if (id) {
@@ -439,8 +439,8 @@ const CreateNewProduct = (props: TCreateUpdateProduct) => {
                                                     label={t("product_code")}
                                                     onChange={onChange}
                                                     onBlur={onBlur}
-                                                    value={value || productCode}
-                                                    placeholder={t("enter_product_code")}
+                                                    value={value}
+                                                    placeholder={productCode}
                                                     error={!!errors.code}
                                                     helperText={errors.code?.message}
                                                     disabled={isEditMode}

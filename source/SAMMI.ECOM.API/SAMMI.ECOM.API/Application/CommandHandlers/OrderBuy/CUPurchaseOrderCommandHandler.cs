@@ -69,6 +69,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 }
             }
 
+
             request.Code = Guid.NewGuid().ToString();
             request.CreatedDate = DateTime.Now;
             request.CreatedBy = _currentUser.UserName;

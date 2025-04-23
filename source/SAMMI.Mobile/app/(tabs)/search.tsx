@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { colors } from '@/constants/colors';
-import { useProductStore } from '@/presentation/stores/productStore';
+
 import { ProductCard } from '@/presentation/components/ProductCard';
 import { SearchBar } from '@/presentation/components/SearchBar';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
@@ -13,67 +13,53 @@ import { Product } from '@/domain/entities/Product';
 export default function SearchScreen() {
   const { category } = useLocalSearchParams<{ category?: string }>();
 
-  const {
-    products,
-    isLoading,
-    error,
-    searchQuery,
-    selectedCategory,
-    fetchProducts,
-    setSearchQuery,
-    fetchProductById,
-  } = useProductStore();
+  const products: any[] = [];
 
-  useEffect(() => {
-    if (category) {
-      fetchProducts(category, searchQuery);
-    } else if (selectedCategory || searchQuery) {
-      fetchProducts(selectedCategory, searchQuery);
-    } else {
-      fetchProducts();
-    }
-  }, [category]);
+  // useEffect(() => {
+  //   if (category) {
+  //     fetchProducts(category, searchQuery);
+  //   } else if (selectedCategory || searchQuery) {
+  //     fetchProducts(selectedCategory, searchQuery);
+  //   } else {
+  //     fetchProducts();
+  //   }
+  // }, [category]);
 
   const handleSearch = (query: string) => {
-    setSearchQuery(query);
+    // setSearchQuery(query);
   };
 
   const handleClear = () => {
-    setSearchQuery('');
+    // setSearchQuery('');
   };
 
   const handleProductPress = (product: Product) => {
-    fetchProductById(Number(product.id));
+    // fetchProductById(Number(product.id));
   };
 
   const renderItem = ({ item }: { item: Product }) => (
     <View style={styles.productItem}>
-      <ProductCard product={item} onPress={handleProductPress} />
+      {/* <ProductCard product={item} onPress={handleProductPress} /> */}
     </View>
   );
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
       <SearchBar
-        value={searchQuery}
+        value={''}
         onSearch={handleSearch}
         onClear={handleClear}
       />
 
-      {isLoading && products.length === 0 ? (
+      {products.length === 0 ? (
         <LoadingIndicator fullScreen />
-      ) : error ? (
-        <ErrorView
-          message={error}
-          onRetry={() => fetchProducts(selectedCategory, searchQuery)}
-        />
       ) : (
         <>
           <View style={styles.resultsHeader}>
             <Text style={styles.resultsText}>
               {products.length} {products.length === 1 ? 'result' : 'results'}
-              {selectedCategory ? ` in ${selectedCategory}` : ''}
-              {searchQuery ? ` for "${searchQuery}"` : ''}
+              {/* {selectedCategory ? ` in ${selectedCategory}` : ''} */}
+              {/* {searchQuery ? ` for "${searchQuery}"` : ''} */}
             </Text>
           </View>
 

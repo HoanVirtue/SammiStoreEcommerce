@@ -140,7 +140,6 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const [newEntityName, setNewEntityName] = useState<string>("");
 
 
-
   const debouncedFilters = useDebounce(filters, 500);
   const { t } = useTranslation();
   const theme = useTheme();
@@ -204,7 +203,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const allColumns = useMemo(() => [actionColumn, ...columns], [actionColumn, columns]);
 
   // Memoize handlers
-  const handleFetchData = useCallback(() => {
+  const handleFetchData = () => {
     const [orderByField, orderByDir] = sortBy.split(" ");
     const validFilters = debouncedFilters.filter(
       (f) => f.field && f.operator && (f.value || ["isnull", "isnotnull", "isempty", "isnotempty"].includes(f.operator))
@@ -225,7 +224,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
       },
     };
     dispatch(fetchAction(query));
-  }, [sortBy, page, pageSize, debouncedFilters, dispatch, fetchAction]);
+  };
 
   const handleOnChangePagination = useCallback((newPage: number, newPageSize: number) => {
     setPage(newPage);
@@ -512,7 +511,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
                   onSortModelChange={handleSort}
                   slots={{
                     pagination: () => PaginationComponent,
-                    toolbar: () => <AdminFilter fields={fields} onFilterChange={handleFilterChange} />,
+                    toolbar: AdminFilter,
                     noRowsOverlay: () => <Box sx={{ p: 2, textAlign: "center" }}>{t(`${noDataText}`)}</Box>,
                   }}
                   slotProps={{ toolbar: { fields, onFilterChange: handleFilterChange } }}

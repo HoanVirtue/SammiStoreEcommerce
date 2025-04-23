@@ -1,8 +1,10 @@
 ﻿using Dapper;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
+using SAMMI.ECOM.Domain.DomainModels.Reports;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.GlobalModels.Common;
 using SAMMI.ECOM.Repository.GenericRepositories;
@@ -17,6 +19,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
         Task<ProductDTO> GetById(int id);
         Task<IEnumerable<ProductDTO>> GetAll(RequestFilterModel? filterModel = null);
         Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Product);
+        Task<InventoryStatistic> GetListInventory(InventoryFilterModel filterModel);
+        Task<IEnumerable<ProductDTO>> GetListBetSellingProduct(int numberTop);
     }
     public class ProductQueries : QueryRepository<Product>, IProductQueries
     {
@@ -198,6 +202,304 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 );
 
             return $"{code}{(idLast + 1).ToString("D6")}";
+        }
+
+        public async Task<InventoryStatistic> GetListInventory(InventoryFilterModel filterModel)
+        {
+            var inventoryList = await WithPagingTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    //sqlBuilder.Select("MAX(t3.CreatedDate) AS LastReceiptDate");
+                    //sqlBuilder.Select("DATEDIFF(NOW(), MAX(t3.CreatedDate)) AS DaysSinceLastReceipt");
+
+                    //sqlBuilder.LeftJoin("PurchaseOrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
+                    //sqlBuilder.LeftJoin("PurchaseOrder t3 ON t2.PurchaseOrderId = t3.Id AND t3.IsDeleted != 1");
+
+                    //if (filterModel.MinimumStockQuantity != null)
+                    //{
+                    //    sqlBuilder.Where("t1.StockQuantity < @minimumStockQuantity", new { minimumStockQuantity = filterModel.MinimumStockQuantity });
+                    //}
+
+                    //sqlBuilder.GroupBy(@"t1.Id,
+                    //    t1.Code,
+                    //    t1.Name,
+                    //    t1.StockQuantity,
+                    //    t1.Price,
+                    //    t1.Status,
+                    //    t1.CategoryId,
+                    //    t1.CreatedDate,
+                    //    t1.UpdatedDate,
+                    //    t1.CreatedBy,
+                    //    t1.UpdatedBy,
+                    //    t1.IsActive,
+                    //    t1.IsDeleted,
+                    //    t1.DisplayOrder");
+
+                    //sqlBuilder.Having("DATEDIFF(NOW(), MAX(t3.CreatedDate)) > @daysOfExistence OR MAX(t3.CreatedDate) IS NULL", new { daysOfExistence = filterModel.DaysOfExistence });
+
+                    //sqlBuilder.OrderBy("t1.StockQuantity DESC");
+
+                    string query = @$"
+                        SELECT
+                        DISTINCT t1.Id,
+                        t1.Code AS Code,
+                        t1.Name AS Name,
+                        t1.StockQuantity AS StockQuantity,
+                        t1.Price AS Price,
+                        t1.Status AS Status,
+                        t1.CategoryId AS CategoryId,
+                        t1.CreatedDate AS CreatedDate,
+                        t1.UpdatedDate AS UpdatedDate,
+                        t1.CreatedBy AS CreatedBy,
+                        t1.UpdatedBy AS UpdatedBy,
+                        t1.IsActive AS IsActive,
+                        t1.IsDeleted AS IsDeleted,
+                        t1.DisplayOrder AS DisplayOrder,
+                        MAX(t3.CreatedDate) AS LastReceiptDate,
+                        DATEDIFF(NOW(), MAX(t3.CreatedDate)) AS DaysSinceLastReceipt
+                        FROM (
+		                    SELECT DISTINCT
+		                    DISTINCT t1.Id
+		                    FROM Product t1
+                            LEFT JOIN PurchaseOrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1
+                            LEFT JOIN PurchaseOrder t3 ON t2.PurchaseOrderId = t3.Id AND t3.IsDeleted != 1
+                            WHERE t1.ISDELETED = 0 {((filterModel.MinimumStockQuantity != null) ? string.Format("AND t1.StockQuantity < {0}", filterModel.MinimumStockQuantity) : "")}
+
+                            {((filterModel.DaysOfExistence != null) ? string.Format("HAVING DATEDIFF(NOW(), MAX(t3.CreatedDate)) > {0} OR MAX(t3.CreatedDate) IS NULL", filterModel.DaysOfExistence) : "")}
+
+                            ORDER BY t1.Id DESC
+
+                            LIMIT @numberOfTakingRecords
+
+                            OFFSET @numberOfSkipingRecords
+                        ) s
+                        INNER JOIN Product t1 ON t1.Id = s.Id
+
+                        LEFT JOIN PurchaseOrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1
+                        LEFT JOIN PurchaseOrder t3 ON t2.PurchaseOrderId = t3.Id AND t3.IsDeleted != 1
+                        GROUP BY t1.Id,
+                                t1.Code,
+                                t1.Name,
+                                t1.StockQuantity,
+                                t1.Price,
+                                t1.Status,
+                                t1.CategoryId,
+                                t1.CreatedDate,
+                                t1.UpdatedDate,
+                                t1.CreatedBy,
+                                t1.UpdatedBy,
+                                t1.IsActive,
+                                t1.IsDeleted,
+                                t1.DisplayOrder
+                        {((filterModel.DaysOfExistence != null) ? string.Format("HAVING DATEDIFF(NOW(), MAX(t3.CreatedDate)) > {0} OR MAX(t3.CreatedDate) IS NULL", filterModel.DaysOfExistence) : "")}
+
+                        ORDER BY t1.Id DESC , t1.StockQuantity DESC
+                        ";
+                    return conn.QueryAsync<InventoryStatisticDetail>(query, sqlTemplate.Parameters);
+                }, filterModel);
+
+            var totalInventory = await WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    //sqlBuilder.Select("MAX(t3.CreatedDate) AS LastReceiptDate");
+                    //sqlBuilder.Select("DATEDIFF(NOW(), MAX(t3.CreatedDate)) AS DaysSinceLastReceipt");
+
+                    sqlBuilder.LeftJoin("PurchaseOrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("PurchaseOrder t3 ON t2.PurchaseOrderId = t3.Id AND t3.IsDeleted != 1");
+
+                    if (filterModel.MinimumStockQuantity != null)
+                    {
+                        sqlBuilder.Where("t1.StockQuantity < @minimumStockQuantity", new { minimumStockQuantity = filterModel.MinimumStockQuantity });
+                    }
+
+                    sqlBuilder.GroupBy(@"t1.Id,
+                        t1.Code,
+                        t1.Name,
+                        t1.StockQuantity,
+                        t1.Price,
+                        t1.Status,
+                        t1.CategoryId,
+                        t1.CreatedDate,
+                        t1.UpdatedDate,
+                        t1.CreatedBy,
+                        t1.UpdatedBy,
+                        t1.IsActive,
+                        t1.IsDeleted,
+                        t1.DisplayOrder");
+
+                    if(filterModel.DaysOfExistence != null)
+                    {
+                        sqlBuilder.Having("DATEDIFF(NOW(), MAX(t3.CreatedDate)) > @daysOfExistence OR MAX(t3.CreatedDate) IS NULL", new { daysOfExistence = filterModel.DaysOfExistence });
+                    }
+
+                    return conn.QueryAsync<InventoryStatisticDetail>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }, filterModel);
+
+            var inventoryStatistic = new InventoryStatistic
+            {
+                TotalStockQuantity = totalInventory.Sum(x => x.StockQuantity),
+                TotalAmount = totalInventory.Sum(x => x.Price * x.StockQuantity ?? 0),
+                InventoryDetails = inventoryList
+            };
+            return inventoryStatistic;
+        }
+
+        public Task<IEnumerable<ProductDTO>> GetListBetSellingProduct(int numberTop)
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    //sqlBuilder.Select("t4.*");
+                    //sqlBuilder.Select("SUM(t2.Quantity) AS TotalSold");
+
+                    //sqlBuilder.LeftJoin("OrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
+                    //sqlBuilder.LeftJoin("Orders t3 ON t2.OrderId = t3.Id AND t3.OrderStatus = @orderStatus", new {orderStatus = OrderStatusEnum.Completed.ToString()});
+                    //sqlBuilder.LeftJoin(@"(SELECT pi.ProductId,
+                    //                          pi.DisplayOrder,
+                    //                          i.Id,
+                    //                          i.ImageUrl,
+                    //                          i.PublicId,
+                    //                          i.TypeImage
+                    //                    FROM ProductImage pi
+                    //                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                    //                    WHERE pi.IsDeleted != 1
+                    //                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                    //                    ) t4 ON t1.Id = t4.ProductId"
+                    //);
+
+                    //sqlBuilder.GroupBy(@"
+                    //    t1.Id,
+                    //    t1.Code,
+                    //    t1.Name,
+                    //    t1.StockQuantity,
+                    //    t1.Price,
+                    //    t1.Discount,
+                    //    t1.Ingredient,
+                    //    t1.Uses,
+                    //    t1.UsageGuide,
+                    //    t1.BrandId,
+                    //    t1.Status,
+                    //    t1.CategoryId,
+                    //    t1.StartDate,
+                    //    t1.EndDate,
+                    //    t1.CreatedDate,
+                    //    t1.UpdatedDate,
+                    //    t1.CreatedBy,
+                    //    t1.UpdatedBy,
+                    //    t1.IsActive,
+                    //    t1.IsDeleted,
+                    //    t1.DisplayOrder,
+                    //    t4.ProductId,
+                    //    t4.DisplayOrder,
+                    //    t4.Id,
+                    //    t4.ImageUrl,
+                    //    t4.PublicId,
+                    //    t4.TypeImage
+                    //    ");
+
+                    //sqlBuilder.OrderDescBy("TotalSold");
+
+                    //sqlBuilder.Take(numberTop);
+
+                    string query = @$"
+                        SELECT
+                        DISTINCT t1.Id,
+                        t1.Code AS Code,
+                        t1.Name AS Name,
+                        t1.StockQuantity AS StockQuantity,
+                        t1.Price AS Price,
+                        t1.Discount AS Discount,
+                        t1.Ingredient AS Ingredient,
+                        t1.Uses AS Uses,
+                        t1.UsageGuide AS UsageGuide,
+                        t1.BrandId AS BrandId,
+                        t1.Status AS Status,
+                        t1.CategoryId AS CategoryId,
+                        t1.StartDate AS StartDate,
+                        t1.EndDate AS EndDate,
+                        t1.CreatedDate AS CreatedDate,
+                        t1.UpdatedDate AS UpdatedDate,
+                        t1.CreatedBy AS CreatedBy,
+                        t1.UpdatedBy AS UpdatedBy,
+                        t1.IsActive AS IsActive,
+                        t1.IsDeleted AS IsDeleted,
+                        t1.DisplayOrder AS DisplayOrder,
+                        t4.*,
+                        SUM(t2.Quantity) AS TotalSold FROM Product t1 
+                        LEFT JOIN OrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1
+                        LEFT JOIN Orders t3 ON t2.OrderId = t3.Id AND t3.OrderStatus = 'Complete'
+                        LEFT JOIN (SELECT pi.ProductId,
+                                          pi.DisplayOrder,
+                                          i.Id,
+                                          i.ImageUrl,
+                                          i.PublicId,
+                                          i.TypeImage
+                                    FROM ProductImage pi
+                                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                    WHERE pi.IsDeleted != 1
+                                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                                    ) t4 ON t1.Id = t4.ProductId
+                        WHERE t1.ISDELETED = 0
+
+                        GROUP BY t1.Id,
+                                t1.Code,
+                                t1.Name,
+                                t1.StockQuantity,
+                                t1.Price,
+                                t1.Discount,
+                                t1.Ingredient,
+                                t1.Uses,
+                                t1.UsageGuide,
+                                t1.BrandId,
+                                t1.Status,
+                                t1.CategoryId,
+                                t1.StartDate,
+                                t1.EndDate,
+                                t1.CreatedDate,
+                                t1.UpdatedDate,
+                                t1.CreatedBy,
+                                t1.UpdatedBy,
+                                t1.IsActive,
+                                t1.IsDeleted,
+                                t1.DisplayOrder,
+                                t4.ProductId,
+                                t4.DisplayOrder,
+                                t4.Id,
+                                t4.ImageUrl,
+                                t4.PublicId,
+                                t4.TypeImage
+
+                        ORDER BY TotalSold DESC
+
+                        LIMIT {numberTop}";
+
+                    var productDirectory = new Dictionary<int, ProductDTO>();
+                    return conn.QueryAsync<ProductDTO, ImageDTO, ProductDTO>(
+                        query,
+                        (product, image) =>
+                        {
+                            if(!productDirectory.TryGetValue(product.Id, out var productEntry))
+                            {
+                                productEntry = product;
+                                productEntry.Images = new List<ImageDTO>();
+                                if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
+                                    productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
+                                else
+                                    productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
+                                productDirectory.Add(product.Id, productEntry);
+                            }
+
+                            if (image != null && productEntry.Images.All(i => i.Id != image.Id))
+                            {
+                                productEntry.Images ??= new();
+                                productEntry.Images.Add(image);
+                            }
+                            return productEntry;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "ProductId"
+                        );
+                });
         }
     }
 }

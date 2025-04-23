@@ -7,6 +7,7 @@
         public string? CustomerName { get; set; }
         public string? PhoneNumber { get; set; }
         public string? PaymentStatus { get; set; }
+        public int? PaymentMethodId { get; set; }
         public string? PaymentMethod { get; set; }
         public string? OrderStatus { get; set; }
         public string? ShippingStatus { get; set; }

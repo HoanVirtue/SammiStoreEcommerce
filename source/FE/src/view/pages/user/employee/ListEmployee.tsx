@@ -2,7 +2,7 @@
 
 // React & Next.js imports
 import { NextPage } from "next";
-import { memo, useMemo, Suspense } from "react";
+import { memo, useMemo, Suspense, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +23,7 @@ import Spinner from 'src/components/spinner';
 
 // Redux imports
 import { RootState } from "src/stores";
+import { createSelector } from "@reduxjs/toolkit";
 import {
   deleteMultipleEmployeesAsync,
   deleteEmployeeAsync,
@@ -36,6 +37,18 @@ const CreateUpdateEmployee = dynamic(() => import("./components/CreateUpdateEmpl
   ssr: false
 });
 
+// Create a memoized selector for employee data
+const createEmployeeSelector = createSelector(
+  (state: RootState) => state.employee.employees.data,
+  (state: RootState) => state.employee.employees.total,
+  (state: RootState) => state.employee,
+  (data, total, employeeState) => ({
+    data,
+    total,
+    ...employeeState,
+  })
+);
+
 /**
  * Trang danh sách nhân viên
  * Sử dụng dynamic import để tối ưu performance
@@ -46,6 +59,9 @@ const ListEmployeePage: NextPage = () => {
 
   // Sử dụng useMemo để cache columns, tránh tính toán lại mỗi lần render
   const columns = getEmployeeColumns();
+  
+  // Use the memoized selector
+  const employeeSelector = useCallback((state: RootState) => createEmployeeSelector(state), []);
 
   return (
     <Suspense fallback={<Spinner />}>
@@ -53,11 +69,7 @@ const ListEmployeePage: NextPage = () => {
         entityName="employee"
         columns={columns}
         fields={getEmployeeFields()}
-        reduxSelector={(state: RootState) => ({
-          data: state.employee.employees.data,
-          total: state.employee.employees.total,
-          ...state.employee,
-        })}
+        reduxSelector={employeeSelector}
         fetchAction={getAllEmployeesAsync}
         deleteAction={deleteEmployeeAsync}
         deleteMultipleAction={deleteMultipleEmployeesAsync as unknown as (ids: { [key: number]: number[] }) => any}

@@ -1,7 +1,7 @@
 //React
 import React, { lazy, Suspense } from "react"
 import { styled } from "@mui/material/styles"
-import Switch, { SwitchProps } from "@mui/material/Switch"
+import Switch from "@mui/material/Switch"
 
 //Next
 

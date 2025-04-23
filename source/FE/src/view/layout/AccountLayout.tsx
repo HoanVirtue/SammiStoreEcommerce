@@ -7,7 +7,7 @@ import { useResponsive } from 'src/hooks/use-responsive';
 import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { usePathname } from 'next/navigation';
-
+import Spinner from 'src/components/spinner';
 // Dynamic imports
 const Nav = dynamic(() => import('./nav'), {
   ssr: false,
@@ -54,7 +54,7 @@ export default function AccountLayout({ children }: Props) {
                 mb: '1rem',
                 backgroundColor: theme.palette.grey[100],
             }}>
-                <Suspense fallback={<Box sx={{ height: 40 }} />}>
+                <Suspense fallback={<Spinner />}>
                     <CustomBreadcrumbs items={breadcrumbItems} />
                 </Suspense>
             </Box>

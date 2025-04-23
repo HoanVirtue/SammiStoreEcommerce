@@ -24,7 +24,6 @@ const CustomSelect = dynamic(() => import('src/components/custom-select'))
 const CustomModal = dynamic(() => import('src/components/custom-modal'))
 const CustomBreadcrumbs = dynamic(() => import('src/components/custom-breadcrum'))
 const Spinner = dynamic(() => import('src/components/spinner'))
-const FallbackSpinner = dynamic(() => import('src/components/fall-back'))
 
 //Configs
 import { EMAIL_REG } from 'src/configs/regex'

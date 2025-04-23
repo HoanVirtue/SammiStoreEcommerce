@@ -9,7 +9,7 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { styled, useTheme, useMediaQuery } from '@mui/material';
-
+import Spinner from 'src/components/spinner';
 // Dynamically import icons to reduce initial bundle size
 const Facebook = lazy(() => import('@mui/icons-material/Facebook'));
 const Twitter = lazy(() => import('@mui/icons-material/Twitter'));
@@ -39,7 +39,7 @@ const Footer: React.FC = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     // Fallback for Suspense
-    const IconFallback = () => <Box sx={{ width: 24, height: 24 }} />;
+    const IconFallback = () => <Spinner />;
 
     return (
         <StyledFooter>

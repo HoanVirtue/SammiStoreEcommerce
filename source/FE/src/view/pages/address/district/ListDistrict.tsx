@@ -1,7 +1,7 @@
 "use client";
 
 import { NextPage } from "next";
-
+import { useCallback } from "react";
 import { getDistrictFields } from "src/configs/gridConfig";
 import CreateUpdateDistrict from "./components/CreateUpdateDistrict";
 import {
@@ -11,23 +11,40 @@ import {
 } from "src/stores/district/action";
 import { resetInitialState } from "src/stores/district";
 import { RootState } from "src/stores";
-import AdminPage from "src/components/admin-page";
+import { createSelector } from "@reduxjs/toolkit";
+import dynamic from "next/dynamic";
 import { getDistrictColumns } from "src/configs/gridColumn";
+import Spinner from "src/components/spinner";
+// Dynamic import for AdminPage
+const AdminPage = dynamic(() => import("src/components/admin-page"), {
+    loading: () => <Spinner />,
+    ssr: false
+});
+
+// Create a memoized selector for district data
+const createDistrictSelector = createSelector(
+    (state: RootState) => state.district.districts.data,
+    (state: RootState) => state.district.districts.total,
+    (state: RootState) => state.district,
+    (data, total, districtState) => ({
+        data,
+        total,
+        ...districtState,
+    })
+);
 
 const ListDistrictPage: NextPage = () => {
-
     const columns = getDistrictColumns();
+    
+    // Use the memoized selector
+    const districtSelector = useCallback((state: RootState) => createDistrictSelector(state), []);
 
     return (
         <AdminPage
             entityName="district"
             columns={columns}
             fields={getDistrictFields()}
-            reduxSelector={(state: RootState) => ({
-                data: state.district.districts.data,
-                total: state.district.districts.total,
-                ...state.district,
-            })}
+            reduxSelector={districtSelector}
             fetchAction={getAllDistrictsAsync}
             deleteAction={deleteDistrictAsync}
             deleteMultipleAction={deleteMultipleDistrictsAsync as unknown as (ids: { [key: number]: number[] }) => any}

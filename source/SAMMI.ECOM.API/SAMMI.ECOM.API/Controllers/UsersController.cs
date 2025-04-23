@@ -299,5 +299,37 @@ namespace SAMMI.ECOM.API.Controllers
             actionRes.SetResult(imageRes.Result);
             return Ok(actionRes);
         }
+
+        [HttpPost("update-avatar-byid")]
+        public async Task<IActionResult> UpdateAvatarAsync([FromBody] int imageId)
+        {
+            var actionRes = new ActionResponse<ImageDTO>();
+            if (imageId == null)
+            {
+                actionRes.AddError("Hình ảnh không được bỏ trống");
+                return BadRequest(actionRes);
+            }
+            var image = await _imageRepository.GetDataByUserIdAndImageId(UserIdentity.Id, imageId);
+            if (image == null)
+            {
+                actionRes.AddError("Hình ảnh không tồn tại");
+                return BadRequest(actionRes);
+            }
+
+            var user = await _userRepository.GetByIdAsync(UserIdentity.Id);
+            if (user == null)
+            {
+                actionRes.AddError("Người dùng không tồn tại");
+                return BadRequest(actionRes);
+            }
+            
+            user.AvatarId = image.Id;
+            actionRes.Combine(await _userRepository.UpdateAndSave(user));
+            if (!actionRes.IsSuccess)
+            { return BadRequest(actionRes); }
+
+            actionRes.SetResult(Mapper.Map<ImageDTO>(image));
+            return Ok(actionRes);
+        }
     }
 }

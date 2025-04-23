@@ -370,7 +370,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Box sx={{ p: 3 }}>
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense fallback={<Spinner />}>
                     {loading && <Spinner />}
                     <Paper
                         sx={{

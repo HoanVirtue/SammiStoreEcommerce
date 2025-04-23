@@ -743,9 +743,14 @@
     "no_data_event": "Không có dữ liệu về sự kiện",
     "select_role_ids_name": "Chọn vai trò",
     "save_amount": "Tiết kiệm",
-
     "place_order_error": "Đã xảy ra lỗi trong quá trình đặt hàng. Vui lòng thử lại!",
     "reviews": "Đánh giá",
+    "no_data_payment_method": "Không có dữ liệu về phương thức thanh toán",
+    "no_data_brand": "Không có dữ liệu về thương hiệu",
+    "no_data_product_usage_guide": "Không có dữ liệu về hướng dẫn sử dụng sản phẩm",
+    "no_data_product_ingredient": "Không có dữ liệu về thành phần sản phẩm",
+    "no_data_product_uses": "Không có dữ liệu về công dụng sản phẩm",
+
     
 
     "province_id": "Mã Tỉnh/Thành phố",

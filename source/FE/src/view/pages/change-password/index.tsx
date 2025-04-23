@@ -28,16 +28,15 @@ import RegisterDark from '/public/images/register-dark.png'
 import RegisterLight from '/public/images/register-light.png'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
-import { changePasswordAsync, registerAuthAsync } from 'src/stores/auth/action'
+import { changePasswordAsync } from 'src/stores/auth/action'
 
 import { toast } from 'react-toastify'
 
-import FallbackSpinner from 'src/components/fall-back'
 import { resetInitialState } from 'src/stores/auth'
 import { useRouter } from 'next/navigation'
 import { useAuth } from 'src/hooks/useAuth'
 import { useTranslation } from '../../../../node_modules/react-i18next'
-
+import Spinner from 'src/components/spinner'
 type TProps = {}
 
 interface IDefaultValues {
@@ -117,7 +116,7 @@ const ChangePasswordPage: NextPage<TProps> = () => {
 
     return (
         <>
-            {isLoading && <FallbackSpinner />}
+            {isLoading && <Spinner />}
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 display: 'flex',

@@ -21,7 +21,6 @@ import * as yup from "yup";
 //components
 const CustomTextField = dynamic(() => import('src/components/text-field'))
 const IconifyIcon = dynamic(() => import('src/components/Icon'))
-const FallbackSpinner = dynamic(() => import('src/components/fall-back'))
 
 //Configs
 import { EMAIL_REG, PASSWORD_REG } from 'src/configs/regex'
@@ -43,7 +42,6 @@ import { resetInitialState } from 'src/stores/auth'
 import { toast } from 'react-toastify'
 import { useRouter } from 'next/navigation'
 import { useTranslation } from 'react-i18next'
-import Spinner from 'src/components/spinner'
 
 type TProps = {}
 

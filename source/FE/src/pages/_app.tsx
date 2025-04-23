@@ -36,7 +36,6 @@ NProgress.configure({
 import { store } from 'src/stores'
 import GuestGuard from 'src/components/auth/GuestGuard'
 import AuthGuard from 'src/components/auth/AuthGuard'
-import FallbackSpinner from 'src/components/fall-back'
 import { SettingsConsumer, SettingsProvider } from 'src/contexts/SettingsContext'
 import AclGuard from 'src/components/auth/AclGuard'
 
@@ -50,6 +49,7 @@ import NoGuard from 'src/components/auth/NoGuard'
 // ** React Query
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import Spinner from 'src/components/spinner'
 
 type ExtendedAppProps = AppProps & {
   Component: NextPage
@@ -76,11 +76,11 @@ if (themeConfig.routingLoader) {
 
 const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
   if (guestGuard) {
-    return <GuestGuard fallback={<FallbackSpinner />}>{children}</GuestGuard>
+    return <GuestGuard fallback={<Spinner />}>{children}</GuestGuard>
   } else if (!guestGuard && !authGuard) {
-    return <NoGuard fallback={<FallbackSpinner />}>{children}</NoGuard>
+    return <NoGuard fallback={<Spinner />}>{children}</NoGuard>
   } else {
-    return <AuthGuard fallback={<FallbackSpinner />}>{children}</AuthGuard>
+    return <AuthGuard fallback={<Spinner />}>{children}</AuthGuard>
   }
 }
 

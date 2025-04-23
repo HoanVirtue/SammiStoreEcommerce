@@ -1,7 +1,7 @@
 "use client"
 
 //React
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 //Next
 import { NextPage } from 'next'
@@ -12,6 +12,7 @@ import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid'
 
 //redux
 import { RootState } from 'src/stores'
+import { createSelector } from '@reduxjs/toolkit'
 
 //translation
 import { useTranslation } from 'react-i18next'
@@ -20,11 +21,11 @@ import { resetInitialState } from 'src/stores/user'
 import { styled } from '@mui/material'
 import { deleteOrderAsync, getAllManageOrderAsync } from 'src/stores/order/action'
 import OrderDetail from './components/OrderDetail'
-import AdminPage from 'src/components/admin-page'
+import dynamic from 'next/dynamic'
 import { getOrderFields } from 'src/configs/gridConfig'
 import { formatDate } from 'src/utils'
 import { getOrderColumns } from 'src/configs/gridColumn'
-
+import Spinner from 'src/components/spinner'
 type TProps = {}
 
 interface TStatusChip extends ChipProps {
@@ -39,6 +40,24 @@ const StyledOrderStatus = styled(Chip)<TStatusChip>(({ theme, background }) => (
     fontWeight: 600
 }))
 
+// Create a memoized selector for order data
+const createOrderSelector = createSelector(
+    (state: RootState) => state.order.orderProducts.data,
+    (state: RootState) => state.order.orderProducts.total,
+    (state: RootState) => state.order,
+    (data, total, orderState) => ({
+        data,
+        total,
+        ...orderState,
+    })
+);
+
+// Dynamic import for AdminPage
+const AdminPage = dynamic(() => import("src/components/admin-page"), {
+    loading: () => <Spinner />,
+    ssr: false
+});
+
 const ListOrderPage: NextPage<TProps> = () => {
     const { t } = useTranslation()
     const theme = useTheme()
@@ -50,6 +69,9 @@ const ListOrderPage: NextPage<TProps> = () => {
 
 
     const columns = getOrderColumns()
+    
+    // Use the memoized selector
+    const orderSelector = useCallback((state: RootState) => createOrderSelector(state), []);
 
     const handleTabChange = (newTab: number) => {
         setCurrentTab(newTab);
@@ -75,11 +97,7 @@ const ListOrderPage: NextPage<TProps> = () => {
             <AdminPage
                 entityName="order"
                 columns={columns}
-                reduxSelector={(state: RootState) => ({
-                    data: state.order.orderProducts.data,
-                    total: state.order.orderProducts.total,
-                    ...state.order,
-                })}
+                reduxSelector={orderSelector}
                 fields={getOrderFields()}
                 fetchAction={getAllManageOrderAsync}
                 deleteAction={deleteOrderAsync}

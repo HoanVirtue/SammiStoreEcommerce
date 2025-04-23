@@ -1,10 +1,12 @@
 "use client";
 
 import { NextPage } from "next";
-import { useState, Suspense, lazy } from "react";
+import { useState, Suspense, lazy, useCallback } from "react";
+import dynamic from "next/dynamic";
 
 // Redux imports
 import { RootState } from "src/stores";
+import { createSelector } from "@reduxjs/toolkit";
 import {
     deleteMultipleEventsAsync,
     deleteEventAsync,
@@ -13,12 +15,17 @@ import {
 import { resetInitialState } from "src/stores/event";
 
 // Components imports
-import AdminPage from "src/components/admin-page";
 import { getEventColumns } from "src/configs/gridColumn";
 import { getEventFields } from "src/configs/gridConfig";
 import Spinner from "src/components/spinner";
 // Lazy load CreateUpdateEvent component
 const CreateUpdateEvent = lazy(() => import("./components/CreateUpdateEvent"));
+
+// Dynamic import for AdminPage
+const AdminPage = dynamic(() => import("src/components/admin-page"), {
+    loading: () => <Spinner />,
+    ssr: false
+});
 
 // Constants
 const EVENT_PERMISSION_KEY = "MANAGE_PROMOTION.EVENT";
@@ -30,7 +37,22 @@ const EVENT_FIELD_MAPPING = {
     "status": "status",
 };
 
+// Create a memoized selector for event data
+const createEventSelector = createSelector(
+    (state: RootState) => state.event.events.data,
+    (state: RootState) => state.event.events.total,
+    (state: RootState) => state.event,
+    (data, total, eventState) => ({
+        data,
+        total,
+        ...eventState,
+    })
+);
+
 const ListEventPage: NextPage = () => {
+    // Use the memoized selector
+    const eventSelector = useCallback((state: RootState) => createEventSelector(state), []);
+    
     // State management
     const [currentTab, setCurrentTab] = useState(0);
     const [selectedEventId, setSelectedEventId] = useState<number>(0);
@@ -63,11 +85,7 @@ const ListEventPage: NextPage = () => {
                 entityName="event"
                 columns={getEventColumns()}
                 fields={getEventFields()}
-                reduxSelector={(state: RootState) => ({
-                    data: state.event.events.data,
-                    total: state.event.events.total,
-                    ...state.event,
-                })}
+                reduxSelector={eventSelector}
                 fetchAction={getAllEventsAsync}
                 deleteAction={deleteEventAsync}
                 deleteMultipleAction={deleteMultipleEventsAsync as unknown as (ids: { [key: number]: number[] }) => any}

@@ -428,7 +428,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
     return (
         <>
             {loading && <Spinner />}
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<Spinner />}>
                 <CustomModal open={open} onClose={onClose}>
                     <Box
                         sx={{

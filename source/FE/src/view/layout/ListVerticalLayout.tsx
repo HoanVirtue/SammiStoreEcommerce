@@ -21,7 +21,7 @@ import { TVerticalLayoutItem, VerticalLayoutItems } from "src/configs/layout";
 import { hexToRGBA } from "src/utils/hex-to-rgba";
 import { PERMISSIONS } from "src/configs/permission";
 import { useAuth } from "src/hooks/useAuth";
-
+import Spinner from "src/components/spinner";
 type TProps = {
     open: boolean
 }
@@ -145,7 +145,7 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                                     ? `${theme.palette.primary.main} !important`
                                                     : theme.palette.background.paper,
                                         }}>
-                                            <Suspense fallback={<div style={{ width: 24, height: 24 }}></div>}>
+                                            <Suspense fallback={<Spinner />}>
                                                 <IconifyIcon icon={item.icon}
                                                     style={{
                                                         color: item.children
@@ -173,7 +173,7 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                     {item?.children && item?.children.length > 0 && (
                                         <>
                                             {openItem[item.title] ? (
-                                                <Suspense fallback={<div style={{ width: 24, height: 24 }}></div>}>
+                                                <Suspense fallback={<Spinner />}>
                                                     <IconifyIcon icon='weui:arrow-outlined'
                                                         style={{
                                                             color:
@@ -186,7 +186,7 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                                 </Suspense>
                                             )
                                                 : (
-                                                    <Suspense fallback={<div style={{ width: 24, height: 24 }}></div>}>
+                                                    <Suspense fallback={<Spinner />}>
                                                         <IconifyIcon icon='weui:arrow-outlined'
                                                             style={{
                                                                 color:
@@ -236,7 +236,7 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                                 ? `${theme.palette.primary.main} !important`
                                                 : theme.palette.background.paper,
                                     }}>
-                                        <Suspense fallback={<div style={{ width: 24, height: 24 }}></div>}>
+                                        <Suspense fallback={<Spinner />}>
                                             <IconifyIcon icon={item.icon}
                                                 style={{
                                                     color: item.children
@@ -264,7 +264,7 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                 {item?.children && item?.children.length > 0 && (
                                     <>
                                         {openItem[item.title] ? (
-                                            <Suspense fallback={<div style={{ width: 24, height: 24 }}></div>}>
+                                                <Suspense fallback={<Spinner />}>
                                                 <IconifyIcon icon='weui:arrow-outlined'
                                                     style={{
                                                         color:
@@ -277,7 +277,7 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
                                             </Suspense>
                                         )
                                             : (
-                                                <Suspense fallback={<div style={{ width: 24, height: 24 }}></div>}>
+                                                <Suspense fallback={<Spinner />}>
                                                     <IconifyIcon icon='weui:arrow-outlined'
                                                         style={{
                                                             color:

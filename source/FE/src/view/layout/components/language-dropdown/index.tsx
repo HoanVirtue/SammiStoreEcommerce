@@ -7,15 +7,12 @@ import { useTranslation } from 'react-i18next'
 // ** Mui Imports
 import IconButton from '@mui/material/IconButton'
 
-// ** Components
-import Icon from 'src/components/Icon'
-
 // ** Hooks
-import { Box, Menu, MenuItem, CircularProgress } from '@mui/material'
+import { Box, Menu, MenuItem } from '@mui/material'
 
 // ** config
 import { LANGUAGE_OPTIONS } from 'src/configs/i18n'
-
+import Spinner from 'src/components/spinner'
 // Dynamic import
 const ReactCountryFlag = lazy(() => import('react-country-flag'))
 
@@ -26,7 +23,7 @@ const countryCode = {
   vi: 'VN'
 }
 
-const FlagFallback = () => <CircularProgress size={20} />
+const FlagFallback = () => <Spinner />
 
 const LanguageDropdown = (props: TProps) => {
   // ** State

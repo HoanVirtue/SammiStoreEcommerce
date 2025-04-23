@@ -2,7 +2,7 @@
 import Head from 'next/head'
 import { lazy, Suspense } from 'react'
 import NoNavLayout from 'src/view/layout/NoNavLayout'
-
+import Spinner from 'src/components/spinner'
 // Dynamically import the Home component
 const HomePage = lazy(() => import('src/view/pages/home'))
 
@@ -16,7 +16,7 @@ export default function Home() {
         {/* <meta httpEquiv='Content-Security-Policy' content="default-src 'self'; script-src 'self'" /> */}
         <link rel='icon' href='/favicon.icon' />
       </Head>
-      <Suspense fallback={<div>Đang tải...</div>}>
+      <Suspense fallback={<Spinner />}>
         <HomePage />
       </Suspense>
     </>

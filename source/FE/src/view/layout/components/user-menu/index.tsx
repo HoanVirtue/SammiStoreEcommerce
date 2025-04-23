@@ -39,7 +39,7 @@ import { ROUTE_CONFIG } from "src/configs/route";
 // Redux
 import { useSelector } from "react-redux";
 import { RootState } from "src/stores";
-
+import Spinner from "src/components/spinner";
 type TProps = {}
 
 const StyledBadge = styled(Badge)(({ theme }) => ({
@@ -114,7 +114,7 @@ const UserMenu = (props: TProps) => {
                             variant="dot"
                         >
                             <Avatar sx={{ width: 32, height: 32 }}>
-                                <Suspense fallback={<div>...</div>}>
+                                <Suspense fallback={<Spinner />}>
                                     <IconifyIcon icon="ph:user-thin" />
                                 </Suspense>
                             </Avatar>
@@ -166,7 +166,7 @@ const UserMenu = (props: TProps) => {
                         variant="dot"
                     >
                         <Avatar sx={{ width: 32, height: 32 }}>
-                            <Suspense fallback={<div>...</div>}>
+                            <Suspense fallback={<Spinner />}>
                                 <IconifyIcon icon="ph:user-thin" />
                             </Suspense>
                         </Avatar>
@@ -183,7 +183,7 @@ const UserMenu = (props: TProps) => {
                 <Divider />
                 <Link href={ROUTE_CONFIG.ACCOUNT.MY_PROFILE} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                        <Suspense fallback={<div>...</div>}>
+                        <Suspense fallback={<Spinner />}>
                             <IconifyIcon icon="streamline:user-profile-focus" />
                         </Suspense>
                         {t("my_account")}
@@ -191,7 +191,7 @@ const UserMenu = (props: TProps) => {
                 </Link>
                 <Link href={ROUTE_CONFIG.ACCOUNT.MY_ORDER} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                        <Suspense fallback={<div>...</div>}>
+                        <Suspense fallback={<Spinner />}>
                             <IconifyIcon icon="carbon:document" />
                         </Suspense>
                         {t("my_order")}
@@ -199,7 +199,7 @@ const UserMenu = (props: TProps) => {
                 </Link>
                 <Link href={ROUTE_CONFIG.ACCOUNT.MY_PRODUCT} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                        <Suspense fallback={<div>...</div>}>
+                        <Suspense fallback={<Spinner />}>
                             <IconifyIcon icon="iconoir:favourite-book" />
                         </Suspense>
                         {t("wishlist")}
@@ -207,7 +207,7 @@ const UserMenu = (props: TProps) => {
                 </Link>
                 <Link href={ROUTE_CONFIG.CHANGE_PASSWORD} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
-                        <Suspense fallback={<div>...</div>}>
+                        <Suspense fallback={<Spinner />}>
                             <IconifyIcon icon="tabler:lock-password" />
                         </Suspense>
                         {t("Đổi mật khẩu")}
@@ -219,7 +219,7 @@ const UserMenu = (props: TProps) => {
                         fullWidth 
                         variant="contained" 
                         startIcon={
-                            <Suspense fallback={<div>...</div>}>
+                            <Suspense fallback={<Spinner />}>
                                 <IconifyIcon icon="humbleicons:logout" />
                             </Suspense>
                         }

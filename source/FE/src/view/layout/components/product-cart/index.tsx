@@ -22,7 +22,7 @@ import { useTheme } from "@mui/material/styles"
 // Dynamic imports
 const IconifyIcon = dynamic(() => import("../../../../components/Icon"), {
   ssr: false,
-  loading: () => <span>...</span>
+  loading: () => <Spinner />
 })
 
 const NoData = dynamic(() => import("src/components/no-data"), {
@@ -38,16 +38,12 @@ import { useTranslation } from "react-i18next";
 // Utils
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
-import { TItemCart } from "src/types/order";
-import { getLocalProductFromCart } from "src/helpers/storage";
-import { updateProductToCart } from "src/stores/order";
-import { hexToRGBA } from "src/utils/hex-to-rgba";
 import { formatPrice } from "src/utils";
 import { ROUTE_CONFIG } from "src/configs/route";
 import { getProductDetail } from "src/services/product";
 import { getCartsAsync } from "src/stores/cart/action";
 import Link from "next/link";
-
+import Spinner from "src/components/spinner";
 type TProps = {}
 
 const StyledMenuItem = styled(MenuItem)<MenuItemProps>(({ theme }) => ({
@@ -152,7 +148,7 @@ const ProductCart = (props: TProps) => {
                     padding: "20px",
                     width: "fit-content",
                 }}>
-                    <Suspense fallback={<Box sx={{ p: 2 }}>Loading...</Box>}>
+                    <Suspense fallback={<Spinner />}>
                         <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
                     </Suspense>
                 </Box>
@@ -226,7 +222,7 @@ const ProductCart = (props: TProps) => {
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}
                     >
-                        <Suspense fallback={<span>...</span>}>
+                        <Suspense fallback={<Spinner />}>
                             {!!carts?.data?.length ? (
                                 <Badge color="primary" badgeContent={totalItemsCart}>
                                     <IconifyIcon icon="flowbite:cart-outline" />

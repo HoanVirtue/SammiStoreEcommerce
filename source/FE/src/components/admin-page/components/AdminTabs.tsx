@@ -10,8 +10,7 @@ const TabLabel: React.FC<{
   tabValue: number;
 }> = React.memo(({ label, onClose, onTabChange, tabValue }) => (
   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-    {label}
-    {onClose && (
+    {label} 
       <IconButton
         size="small"
         onClick={(e) => {
@@ -22,7 +21,6 @@ const TabLabel: React.FC<{
       >
         <CloseIcon fontSize="small" />
       </IconButton>
-    )}
   </Box>
 ));
 

@@ -55,6 +55,7 @@ type AdminPageProps = {
   currentTab?: number;
   onTabChange?: (newTab: number) => void;
   onAddClick?: () => void;
+  onUpdateClick?: () => void;
   onDetailClick?: (id: number) => void;
   onCreateNewClick?: () => void;
 
@@ -101,6 +102,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   currentTab = 0,
   onTabChange,
   onAddClick,
+  onUpdateClick,
   onDetailClick,
   onCreateNewClick,
 
@@ -126,7 +128,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const router = useRouter();
   const [newEntityName, setNewEntityName] = React.useState<string>("");
 
-  // Set new entity name based on pathname
+
   useEffect(() => {
     if (router.pathname.includes("receipt")) {
       setNewEntityName("product");
@@ -170,6 +172,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
     handleDeleteMultiple,
     handleAction,
   } = useAdminActions(entityName, reduxSelector, deleteAction, deleteMultipleAction, resetAction, handleFetchData);
+  
 
   // Memoize columns with actions
   const actionColumn = useMemo(() => ({
@@ -179,6 +182,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
     sortable: false,
     align: "left",
     renderCell: (params: GridRenderCellParams) => (
+
       <>
         {showDetailButton && (
           <GridDetail
@@ -191,7 +195,14 @@ const AdminPage: NextPage<AdminPageProps> = ({
 
         {!hideUpdateButton && (
           <GridUpdate
-            onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
+            onClick={() =>{
+              if (onUpdateClick) {
+                onUpdateClick();
+                setOpenCreateUpdate({ open: true, id: params.row.id });
+              } else {
+                setOpenCreateUpdate({ open: true, id: params.row.id });
+              }
+            }}
           />
         )
         }

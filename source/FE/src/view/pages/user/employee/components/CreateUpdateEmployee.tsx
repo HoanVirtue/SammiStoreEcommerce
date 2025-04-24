@@ -12,7 +12,6 @@ import {
     Typography,
     InputAdornment,
     FormControl,
-    CircularProgress,
 } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -776,7 +775,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? (
-                                        <CircularProgress size={24} color="inherit" />
+                                        <Spinner />
                                     ) : id ? t("update") : t("create")}
                                 </Button>
                             </Box>

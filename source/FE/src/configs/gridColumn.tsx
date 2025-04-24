@@ -453,7 +453,7 @@ export const getProductColumns = (): GridColDef[] => {
       field: 'product_name',
       headerName: t('product_name'),
       flex: 1,
-      minWidth: 200,
+      minWidth: 300,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (

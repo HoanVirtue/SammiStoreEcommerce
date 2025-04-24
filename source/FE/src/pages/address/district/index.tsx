@@ -1,6 +1,5 @@
 import { NextPage } from 'next'
 import { lazy, Suspense } from 'react'
-import Spinner from 'src/components/spinner'
 import { PERMISSIONS } from 'src/configs/permission'
 
 //views
@@ -10,7 +9,7 @@ type TProps = {}
 
 const District: NextPage<TProps> = () => {
     return (
-        <Suspense fallback={<Spinner />}>
+        <Suspense fallback={<></>}>
             <ListDistrictPage />
         </Suspense>
     )

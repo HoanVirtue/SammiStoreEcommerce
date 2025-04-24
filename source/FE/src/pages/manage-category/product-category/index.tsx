@@ -1,7 +1,6 @@
 import { NextPage } from 'next'
 import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import Spinner from 'src/components/spinner'
 //views
 const ListProductCategory = lazy(() => import('src/view/pages/manage-category/product-category/ListProductCategory'))
 
@@ -9,7 +8,7 @@ type TProps = {}
 
 const ProductCategory: NextPage<TProps> = () => {
     return (
-        <Suspense fallback={<Spinner />}>
+        <Suspense fallback={<></>}>
             <ListProductCategory />
         </Suspense>
     )

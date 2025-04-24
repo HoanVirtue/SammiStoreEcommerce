@@ -72,6 +72,11 @@ const ListReceiptPage: NextPage = () => {
     setShowCreateTab(true);
   };
 
+  const handleUpdateClick = () => {
+    setCurrentTab(2);
+    setShowUpdateTab(true);
+  };
+
   const handleCreateNewClick = () => {
     setCurrentTab(4);
     setShowCreateNewTab(true);
@@ -80,6 +85,11 @@ const ListReceiptPage: NextPage = () => {
   const handleCloseCreateNewTab = () => {
     setCurrentTab(1);
     setShowCreateNewTab(false);
+  };
+
+  const handleCloseUpdateTab = () => {
+    setCurrentTab(0);
+    setShowUpdateTab(false);
   };
 
   return (
@@ -113,17 +123,18 @@ const ListReceiptPage: NextPage = () => {
         onTabChange={handleTabChange}
 
         onAddClick={handleAddClick}
+        onUpdateClick={handleUpdateClick}
         onDetailClick={handleDetailClick}
         onCreateNewClick={handleCreateNewClick}
 
         hideAddButton={false}
-        hideUpdateButton={true}
-        hideDeleteButton={true}  
+
         showDetailButton={true}
 
         onCloseCreateTab={() => setShowCreateTab(false)}
         onCloseDetailTab={() => setShowDetailTab(false)}
         onCloseCreateNewTab={handleCloseCreateNewTab}
+        onCloseUpdateTab={handleCloseUpdateTab}
 
         hideTableHeader={true}
         showUpdateReceiptStatusHeader={true}

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDebounce } from 'src/hooks/useDebounce';
 import { GridSortModel } from '@mui/x-data-grid';
@@ -20,13 +20,14 @@ export const useAdminData = (
   // Hooks
   const debouncedFilters = useDebounce(filters, 500);
   const dispatch = useDispatch<AppDispatch>();
+  const isInitialMount = useRef(true);
   
-  // Get data from Redux
+  // Get data from Redux with safe default values
   const { 
-    data, 
-    total, 
-    isLoading 
-  } = useSelector(reduxSelector);
+    data = [], 
+    total = 0, 
+    isLoading = false 
+  } = useSelector(reduxSelector) || {};
 
   // Fetch data handler
   const handleFetchData = useCallback(() => {
@@ -52,7 +53,7 @@ export const useAdminData = (
     };
     
     dispatch(fetchAction(query));
-  }, [dispatch, fetchAction, sortBy, page, pageSize, debouncedFilters]);
+  }, [sortBy, page, pageSize, debouncedFilters, fetchAction, dispatch]);
 
   // Pagination handler
   const handleOnChangePagination = useCallback((newPage: number, newPageSize: number) => {
@@ -78,10 +79,11 @@ export const useAdminData = (
     setPage(1); // Reset page when filter changes
   }, []);
 
-  // Initial data fetch
+
+  // Fetch data when pagination or sorting changes
   useEffect(() => {
     handleFetchData();
-  }, [handleFetchData]);
+  }, [page, pageSize, sortBy]);
 
   return {
     // State

@@ -12,7 +12,6 @@ import {
     Typography,
     InputAdornment,
     FormControl,
-    CircularProgress,
 } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -32,7 +31,6 @@ const IconifyIcon = lazy(() => import("src/components/Icon"));
 const Spinner = lazy(() => import("src/components/spinner"));
 const CustomTextField = lazy(() => import("src/components/text-field"));
 const FileUploadWrapper = lazy(() => import("src/components/file-upload-wrapper"));
-const CustomSelect = lazy(() => import("src/components/custom-select"));
 const CustomAutocomplete = lazy(() => import("src/components/custom-autocomplete"));
 
 /**
@@ -816,7 +814,7 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? (
-                                        <CircularProgress size={24} color="inherit" />
+                                        <Spinner />
                                     ) : id ? t("update") : t("create")}
                                 </Button>
                             </Box>

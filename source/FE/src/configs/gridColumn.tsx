@@ -1052,8 +1052,8 @@ export const getVoucherColumns = (): GridColDef[] => {
       renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.endDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
     },
     {
-      field: "discount_name",
-      headerName: t("discount_name"),
+      field: "discount_type_name",
+      headerName: t("discount_type_name"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.discountName}</Typography>,

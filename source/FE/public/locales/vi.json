@@ -587,7 +587,7 @@
     "event_detail": "Chi tiết sự kiện",
     "list_event": "Danh sách sự kiện",
     "voucher_name": "Tên mã giảm giá",
-    "discount_name": "Tên giảm giá",
+    "discount_type_name": "Tên loại giảm giá",
     "discount_value": "Giá trị giảm giá",
     "usage_limit": "Giới hạn sử dụng",
     "used_count": "Số lần sử dụng",

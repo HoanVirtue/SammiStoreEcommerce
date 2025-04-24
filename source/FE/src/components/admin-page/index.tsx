@@ -55,12 +55,13 @@ type AdminPageProps = {
   currentTab?: number;
   onTabChange?: (newTab: number) => void;
   onAddClick?: () => void;
+  onUpdateClick?: () => void;
   onDetailClick?: (id: number) => void;
   onCreateNewClick?: () => void;
 
   hideAddButton?: boolean;
-  disableUpdateButton?: boolean;
-  disableDeleteButton?: boolean;
+  hideUpdateButton?: boolean;
+  hideDeleteButton?: boolean;
 
   showDetailButton?: boolean;
   onCloseCreateTab?: () => void;
@@ -101,12 +102,13 @@ const AdminPage: NextPage<AdminPageProps> = ({
   currentTab = 0,
   onTabChange,
   onAddClick,
+  onUpdateClick,
   onDetailClick,
   onCreateNewClick,
 
   hideAddButton = false,
-  disableUpdateButton = false,
-  disableDeleteButton = false,
+  hideUpdateButton = false,
+  hideDeleteButton = false,
   showDetailButton = false,
 
   onCloseCreateTab,
@@ -125,8 +127,8 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const theme = useTheme();
   const router = useRouter();
   const [newEntityName, setNewEntityName] = React.useState<string>("");
-  
-  // Set new entity name based on pathname
+
+
   useEffect(() => {
     if (router.pathname.includes("receipt")) {
       setNewEntityName("product");
@@ -135,7 +137,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
 
   // Permissions
   const { VIEW, CREATE, UPDATE, DELETE } = usePermission(permissionKey, ["CREATE", "UPDATE", "DELETE", "VIEW"]);
-  
+
   // Setup hooks for data and actions
   const {
     page,
@@ -170,6 +172,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
     handleDeleteMultiple,
     handleAction,
   } = useAdminActions(entityName, reduxSelector, deleteAction, deleteMultipleAction, resetAction, handleFetchData);
+  
 
   // Memoize columns with actions
   const actionColumn = useMemo(() => ({
@@ -179,6 +182,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
     sortable: false,
     align: "left",
     renderCell: (params: GridRenderCellParams) => (
+
       <>
         {showDetailButton && (
           <GridDetail
@@ -189,17 +193,28 @@ const AdminPage: NextPage<AdminPageProps> = ({
           />
         )}
 
-        <GridUpdate
-          disabled={disableUpdateButton}
-          onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
-        />
-        <GridDelete
-          disabled={disableDeleteButton}
-          onClick={() => setOpenDelete({ open: true, id: params.row.id })}
-        />
+        {!hideUpdateButton && (
+          <GridUpdate
+            onClick={() =>{
+              if (onUpdateClick) {
+                onUpdateClick();
+                setOpenCreateUpdate({ open: true, id: params.row.id });
+              } else {
+                setOpenCreateUpdate({ open: true, id: params.row.id });
+              }
+            }}
+          />
+        )
+        }
+        {!hideDeleteButton && (
+          <GridDelete
+            onClick={() => setOpenDelete({ open: true, id: params.row.id })}
+          />
+        )
+        }
       </>
     ),
-  }), [showDetailButton, disableUpdateButton, disableDeleteButton, t, onDetailClick, setOpenCreateUpdate, setOpenDelete, setSelectedDetailId]);
+  }), [showDetailButton, hideUpdateButton, hideDeleteButton, t, onDetailClick, setOpenCreateUpdate, setOpenDelete, setSelectedDetailId]);
 
   const allColumns = useMemo(() => [actionColumn, ...columns], [actionColumn, columns]);
 

@@ -119,8 +119,8 @@ const ListOrderPage: NextPage<TProps> = () => {
                 onCloseDetailTab={() => setShowDetailTab(false)}
 
                 hideAddButton={true}
-                disableUpdateButton={true}
-                disableDeleteButton={true}
+                hideUpdateButton={true}
+                hideDeleteButton={true}
 
                 showDetailButton={true}
                 showOrderFilter={true}

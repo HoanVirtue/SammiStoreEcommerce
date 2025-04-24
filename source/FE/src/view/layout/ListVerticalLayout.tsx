@@ -47,7 +47,9 @@ interface TListItemText extends ListItemTextProps {
     isParent?: boolean
 }
 
-const StyledListItemText = styled(ListItemText)<TListItemText>(({ theme, active, hasActiveChild, isOpen, isParent }) => ({
+const StyledListItemText = styled(ListItemText, {
+    shouldForwardProp: (prop) => prop !== 'active' && prop !== 'hasActiveChild' && prop !== 'isOpen' && prop !== 'isParent',
+})<TListItemText>(({ theme, active, hasActiveChild, isOpen, isParent }) => ({
     ".MuiTypography-root.MuiTypography-body1.MuiListItemText-primary": {
         textOverflow: "ellipsis",
         overflow: "hidden",

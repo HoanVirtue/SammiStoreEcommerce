@@ -52,6 +52,7 @@ const ListProvincePage: NextPage = () => {
       deleteMultipleAction={deleteMultipleProvincesAsync as unknown as (ids: { [key: number]: number[] }) => any}
       resetAction={resetInitialState}
       CreateUpdateComponent={CreateUpdateProvince}
+      hideDeleteButton={true}
       permissionKey="ADDRESS.PROVINCE"
       fieldMapping={{
         "province_name": "name",

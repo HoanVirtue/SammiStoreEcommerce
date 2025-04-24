@@ -211,6 +211,38 @@ export const getOrderColumns = (): GridColDef[] => {
         return <StyledOrderStatus background={background} label={label} />
       }
     },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
   ]
 }
 
@@ -346,6 +378,70 @@ export const getBrandColumns = (): GridColDef[] => {
         <Typography>{params.row.code}</Typography>
       ),
     },
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.createdBy}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
   ];
 }
 
@@ -357,7 +453,7 @@ export const getProductColumns = (): GridColDef[] => {
       field: 'product_name',
       headerName: t('product_name'),
       flex: 1,
-      minWidth: 200,
+      minWidth: 300,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
@@ -443,13 +539,77 @@ export const getProductColumns = (): GridColDef[] => {
         const { row } = params
         return (
           <>
-            {row?.status ? (
+            {row?.status === 1 ? (
               <StyledPublicProduct label={t('public')} />
             ) : (
               <StyledPrivateProduct label={t('private')} />
             )
             }
           </>
+        )
+      }
+    },
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.createdBy}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
         )
       }
     },
@@ -508,6 +668,70 @@ export const getProductCategoryColumns = (): GridColDef[] => {
         )
       }
     },
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.createdBy}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
   ];
 }
 
@@ -553,7 +777,71 @@ export const getBannerColumns = (): GridColDef[] => {
       renderCell: (params: GridRenderCellParams) => (
         <Typography>{formatDate(params.row.createdDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
       )
-    }
+    }, 
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.createdBy}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
   ]
 }
 
@@ -656,6 +944,70 @@ export const getReceiptColumns = (): GridColDef[] => {
         return <StyledOrderStatus background={background} label={label} />
       }
     },
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.createdBy}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
   ];
 }
 
@@ -727,6 +1079,90 @@ export const getVoucherColumns = (): GridColDef[] => {
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.usedCount}</Typography>,
     },
+    {
+      field: 'status',
+      headerName: t('status'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <>
+            {row?.isActive === true ? (
+              <StyledPublicProduct label={t('active')} />
+            ) : (
+              <StyledPrivateProduct label={t('inactive')} />
+            )
+            }
+          </>
+        )
+      }
+    },
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.createdBy}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
   ];
 }
 
@@ -776,6 +1212,90 @@ export const getEventColumns = (): GridColDef[] => {
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.eventType}</Typography>,
     },
+    {
+      field: 'status',
+      headerName: t('status'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <>
+            {row?.isActive === true ? (
+              <StyledPublicProduct label={t('active')} />
+            ) : (
+              <StyledPrivateProduct label={t('inactive')} />
+            )
+            }
+          </>
+        )
+      }
+    },
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.createdBy}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
   ];
 }
 
@@ -822,6 +1342,70 @@ export const getCustomerColumns = (): GridColDef[] => {
         </Typography>
       ),
     },
+    {
+      field: 'createdBy',
+      headerName: t('created_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.createdBy}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
+    {
+      field: 'updatedBy',
+      headerName: t('updated_by'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.updatedBy}</Typography>
+      }
+    },
+    {
+      field: 'updatedDate',
+      headerName: t('updated_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    },
   ]
 }
 
@@ -867,6 +1451,70 @@ export const getEmployeeColumns = (): GridColDef[] => {
       </Typography>
     ),
   },
+  {
+    field: 'createdBy',
+    headerName: t('created_by'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return <Typography sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 1,
+        WebkitBoxOrient: 'vertical',
+      }}>{row?.createdBy}</Typography>
+    }
+  },
+  {
+    field: 'createdDate',
+    headerName: t('created_date'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return (
+        <Typography>
+          {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
+  },
+  {
+    field: 'updatedBy',
+    headerName: t('updated_by'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return <Typography sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 1,
+        WebkitBoxOrient: 'vertical',
+      }}>{row?.updatedBy}</Typography>
+    }
+  },
+  {
+    field: 'updatedDate',
+    headerName: t('updated_date'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return (
+        <Typography>
+          {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
+  },
   ]
 }
 
@@ -911,6 +1559,70 @@ export const getSupplierColumns = (): GridColDef[] => {
         {params.row.gender === 1 ? t("male") : params.row.gender === 0 ? t("female") : t("unknown")}
       </Typography>
     ),
+  },
+  {
+    field: 'createdBy',
+    headerName: t('created_by'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return <Typography sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 1,
+        WebkitBoxOrient: 'vertical',
+      }}>{row?.createdBy}</Typography>
+    }
+  },
+  {
+    field: 'createdDate',
+    headerName: t('created_date'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return (
+        <Typography>
+          {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
+  },
+  {
+    field: 'updatedBy',
+    headerName: t('updated_by'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return <Typography sx={{
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 1,
+        WebkitBoxOrient: 'vertical',
+      }}>{row?.updatedBy}</Typography>
+    }
+  },
+  {
+    field: 'updatedDate',
+    headerName: t('updated_date'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return (
+        <Typography>
+          {formatDate(row?.updatedDate, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
   },
   ]
 }

@@ -152,11 +152,12 @@ const CreateUpdateProvince = (props: TCreateUpdateProvince) => {
                             position: 'absolute',
                             right: "-10px",
                             top: "-6px",
-                        }}>
+                        }}
+                        onClick={onClose}
+                        >
                             <IconifyIcon
                                 icon="material-symbols-light:close-rounded"
                                 fontSize={"30px"}
-                                onClick={onClose}
                             />
                         </IconButton>
                     </Box>

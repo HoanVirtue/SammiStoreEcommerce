@@ -59,6 +59,7 @@ const ListEventPage: NextPage = () => {
     const [showCreateTab, setShowCreateTab] = useState(false);
     const [showUpdateTab, setShowUpdateTab] = useState(false);
     const [showDetailTab, setShowDetailTab] = useState(false);
+    const [showCreateNewTab, setShowCreateNewTab] = useState(false);
 
     // Event handlers
     const handleTabChange = (newTab: number) => {
@@ -79,6 +80,11 @@ const ListEventPage: NextPage = () => {
         setShowCreateTab(true);
     };
 
+    const handleCloseCreateTab = () => {
+        setCurrentTab(0);
+        setShowCreateTab(false);
+      };
+
     return (
         <Suspense fallback={<Spinner />}>
             <AdminPage
@@ -98,6 +104,8 @@ const ListEventPage: NextPage = () => {
                 onTabChange={handleTabChange}
                 onAddClick={handleAddClick}
                 onDetailClick={handleDetailClick}
+
+                onCloseCreateTab={handleCloseCreateTab}
                 CreateUpdateTabComponent={CreateUpdateEvent}
                 permissionKey={EVENT_PERMISSION_KEY}
                 fieldMapping={EVENT_FIELD_MAPPING}

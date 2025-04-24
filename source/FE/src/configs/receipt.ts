@@ -35,10 +35,12 @@ export const GOODS_RECEIPT_STATUS = () => {
         "0": {
             label: t("draft"),
             value: "0",
+            originalValue: "Draft",
         },
         "1": {
             label: t("pending_approval"),
             value: "1",
+            originalValue: "PendingApproval",
         },
     }
 }

@@ -55,6 +55,8 @@ const ListPaymentMethod: NextPage<TProps> = () => {
             reduxSelector={paymentMethodSelector}
             fetchAction={getAllPaymentMethodsAsync}
             deleteAction={deletePaymentMethodAsync}
+            hideUpdateButton={true}
+            hideDeleteButton={true}
             deleteMultipleAction={deleteMultiplePaymentMethodsAsync as unknown as (ids: { [key: number]: number[] }) => any}
             resetAction={resetInitialState}
             CreateUpdateComponent={CreateUpdatePaymentMethod}

@@ -55,15 +55,10 @@ const createBrandSelector = createSelector(
   })
 );
 
-/**
- * Trang quản lý thương hiệu
- * Sử dụng AdminPage component để hiển thị danh sách thương hiệu
- * với các chức năng CRUD cơ bản
- */
+
 const ListBrandPage: NextPage = () => {
   const columns = getBrandColumns();
   
-  // Use the memoized selector
   const brandSelector = useCallback((state: RootState) => createBrandSelector(state), []);
 
   return (

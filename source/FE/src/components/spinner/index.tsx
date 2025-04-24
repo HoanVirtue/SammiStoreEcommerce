@@ -2,7 +2,7 @@
 import { styled, useTheme } from '@mui/material/styles'
 import Box, { BoxProps } from '@mui/material/Box'
 import { Modal, ModalProps } from '@mui/material'
-import CircularWithValueLabel from '../custom-circular-progress'
+import CircularProgress from '@mui/material/CircularProgress'
 
 const CustomModal = styled(Modal)<ModalProps>(({ theme }) => ({
   "&.MuiModal-root": {
@@ -31,7 +31,7 @@ const Spinner = ({ sx }: { sx?: BoxProps['sx'] }) => {
           ...sx
         }}
       >
-        <CircularWithValueLabel />
+        <CircularProgress disableShrink sx={{ mt: 6 }} />
       </Box>
     </CustomModal>
   )

@@ -69,7 +69,7 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             }
             if(purchase.Status != PurchaseOrderStatus.Draft.ToString())
             {
-                return BadRequest("Không thể sửa thông tin đơn nhập! Chỉ được sửa khi trạng thái đang ở bản nháp");
+                return BadRequest("Không thể sửa thông tin đơn nhập! Chỉ được sửa đơn nhập khi trạng thái đang ở bản nháp");
             }
             var response = await _mediator.Send(request);
             if (response.IsSuccess)

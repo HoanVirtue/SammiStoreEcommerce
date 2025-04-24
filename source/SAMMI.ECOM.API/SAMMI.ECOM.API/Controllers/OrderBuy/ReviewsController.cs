@@ -22,7 +22,26 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _reviewRepository = reviewRepository;
         }
 
+        [HttpGet]
         public IActionResult Get()
+        {
+            return default;
+        }
+
+        [HttpPost]
+        public IActionResult Post()
+        {
+            return default;
+        }
+
+        [HttpPut]
+        public IActionResult Put()
+        {
+            return default;
+        }
+
+        [HttpDelete]
+        public IActionResult Delete()
         {
             return default;
         }

@@ -24,8 +24,10 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 
             CreateMap<CreatePurchaseOrderCommand, PurchaseOrder>();
             CreateMap<PurchaseOrder, PurchaseOrderDTO>();
+            CreateMap<UpdatePurchaseOrderCommand, PurchaseOrder>();
 
             CreateMap<PurchaseOrderDetail, PurchaseOrderDetailDTO>();
+            CreateMap<PurchaseOrderDetail, PurchaseOrderDetailCommand>().ReverseMap();
 
 
             // event

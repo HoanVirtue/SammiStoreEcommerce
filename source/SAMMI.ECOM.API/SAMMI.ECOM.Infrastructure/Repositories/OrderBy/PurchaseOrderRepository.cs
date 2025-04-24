@@ -1,4 +1,5 @@
-﻿using SAMMI.ECOM.Core.Authorizations;
+﻿using Microsoft.EntityFrameworkCore;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.PurcharseOrder;
 using SAMMI.ECOM.Domain.Enums;
@@ -9,6 +10,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface IPurchaseOrderRepository : ICrudRepository<PurchaseOrder>
     {
         Task<ActionResponse> UpdateStatus(int id, PurchaseOrderStatus status);
+        Task<bool> IsExistedCode(string code, int? id = 0);
     }
     public class PurchaseOrderRepository : CrudRepository<PurchaseOrder>, IPurchaseOrderRepository, IDisposable
     {
@@ -65,6 +67,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 actRes.AddError("Trạng thái cập nhật không hợp lệ.");
             }
             return actRes;
+        }
+
+        public Task<bool> IsExistedCode(string code, int? id = 0)
+        {
+            return DbSet.AnyAsync(x => x.Code == code && x.Id != id && x.IsDeleted != true);
         }
     }
 }

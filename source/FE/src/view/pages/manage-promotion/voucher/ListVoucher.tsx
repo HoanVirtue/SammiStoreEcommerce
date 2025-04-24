@@ -68,6 +68,21 @@ const ListVoucherPage: NextPage = () => {
         setShowCreateTab(true);
     };
 
+    const handleUpdateClick = () => {
+        setCurrentTab(2);
+        setShowUpdateTab(true);
+    };
+
+    const handleCloseCreateTab = () => {
+        setCurrentTab(0);
+        setShowCreateTab(false);
+    };
+
+    const handleCloseUpdateTab = () => {
+        setCurrentTab(0);
+        setShowUpdateTab(false);
+    };
+
     return (
         <AdminPage
             entityName="voucher"
@@ -85,7 +100,10 @@ const ListVoucherPage: NextPage = () => {
             currentTab={currentTab}
             onTabChange={handleTabChange}
             onAddClick={handleAddClick}
+            onUpdateClick={handleUpdateClick}
             onDetailClick={handleDetailClick}
+            onCloseCreateTab={handleCloseCreateTab}
+            onCloseUpdateTab={handleCloseUpdateTab}
             CreateUpdateTabComponent={CreateUpdateVoucher}
             permissionKey="MANAGE_PROMOTION.VOUCHER"
             fieldMapping={{

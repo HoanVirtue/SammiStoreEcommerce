@@ -587,7 +587,7 @@
     "event_detail": "Chi tiết sự kiện",
     "list_event": "Danh sách sự kiện",
     "voucher_name": "Tên mã giảm giá",
-    "discount_name": "Tên giảm giá",
+    "discount_type_name": "Tên loại giảm giá",
     "discount_value": "Giá trị giảm giá",
     "usage_limit": "Giới hạn sử dụng",
     "used_count": "Số lần sử dụng",
@@ -777,7 +777,7 @@
     "confirm_delete_multiple_orders": "Bạn có chắc muốn xóa nhiều đơn hàng này?",
     "are_you_sure_delete_order": "Bạn có chắc muốn xóa đơn hàng này?",
     "are_you_sure_delete_multiple_orders": "Bạn có chắc muốn xóa nhiều đơn hàng này?",
-    
+    "update_event_error": "Đã xảy ra lỗi khi cập nhật sự kiện, vui lòng thử lại!",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

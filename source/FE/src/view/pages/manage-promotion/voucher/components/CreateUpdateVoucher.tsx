@@ -34,12 +34,14 @@ import { getAllProducts } from 'src/services/product';
 import { toast } from 'react-toastify';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-import { createVoucherAsync, updateVoucherAsync } from 'src/stores/voucher/action';
+import { createVoucherAsync, updateVoucherAsync, getAllVouchersAsync } from 'src/stores/voucher/action';
+import { vi } from 'date-fns/locale';
+import { addHours } from 'date-fns';
 
 enum DiscountTypeEnum {
-    Percentage = 0,
-    FixedAmount = 1,
-    FreeShipping = 2,
+    Percentage = 1,
+    FixedAmount = 2,
+    FreeShipping = 3,
 }
 
 enum ConditionTypeEnum {
@@ -59,8 +61,8 @@ interface VoucherCondition {
     updatedDate?: string;
     createdBy?: string;
     updatedBy?: string;
-    isActive?: boolean;
-    isDeleted?: boolean;
+    isActive?: boolean | true;
+    isDeleted?: boolean | false;
     displayOrder?: number;
 }
 
@@ -79,8 +81,8 @@ interface VoucherFormData {
     updatedDate?: string;
     createdBy?: string;
     updatedBy?: string;
-    isActive?: boolean;
-    isDeleted?: boolean;
+    isActive?: boolean | true;
+    isDeleted?: boolean | false;
     displayOrder?: number;
 }
 
@@ -222,6 +224,25 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         }
     };
 
+    const getConditionTypeFromString = (type: string | number): number => {
+        if (typeof type === 'number') return type;
+        
+        switch (type) {
+            case 'MinOrderValue':
+                return ConditionTypeEnum.MinOrderValue;
+            case 'MaxDiscountAmount':
+                return ConditionTypeEnum.MaxDiscountAmount;
+            case 'RequiredQuantity':
+                return ConditionTypeEnum.RequiredQuantity;
+            case 'AllowedRegions':
+                return ConditionTypeEnum.AllowedRegions;
+            case 'RequiredProducts':
+                return ConditionTypeEnum.RequiredProducts;
+            default:
+                return 0;
+        }
+    };
+
     const fetchVoucherDetail = async (voucherId: number) => {
         setLoading(true);
         try {
@@ -234,11 +255,19 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                 setValue('discountTypeId', data.discountTypeId);
                 setValue('discountValue', data.discountValue);
                 setValue('usageLimit', data.usageLimit);
-                setValue('startDate', new Date(data.startDate));
-                setValue('endDate', new Date(data.endDate));
-                if (data.conditions) {
-                    setValue('conditions', data.conditions);
-                    setConditions(data.conditions);
+                setValue('startDate', addHours(new Date(data.startDate), 0));
+                setValue('endDate', addHours(new Date(data.endDate), 0));
+                if (data.conditions && data.conditions.length > 0) {
+                    const conditions = data.conditions.map((condition: VoucherCondition) => ({
+                        voucherId: condition.voucherId,
+                        conditionType: getConditionTypeFromString(condition.conditionType),
+                        conditionValue: condition.conditionValue,
+                        displayOrder: condition.displayOrder || 0
+                    }));
+                    setValue('conditions', conditions);
+                    setConditions(conditions);
+                    const conditionTypes = conditions.map((condition: VoucherCondition) => condition.conditionType);
+                    setSelectedConditionTypes(conditionTypes);
                 }
                 setValue('isActive', data.isActive);
                 setValue('isDeleted', data.isDeleted);
@@ -372,9 +401,10 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
     };
 
     const getAvailableConditionTypes = () => {
-        return conditionTypeOptions.filter(option =>
-            Number(option.value) === 0 || !selectedConditionTypes.includes(Number(option.value))
-        );
+        return conditionTypeOptions.filter(option => {
+            const optionValue = Number(option.value);
+            return optionValue === 0 || !selectedConditionTypes.includes(optionValue);
+        });
     };
 
     const handleConditionValueChange = (index: number, value: string | string[]) => {
@@ -388,7 +418,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
     };
 
     const renderConditionValueField = (condition: VoucherCondition, index: number) => {
-        const conditionType = condition.conditionType;
+        const conditionType = Number(condition.conditionType);
 
         if (conditionType === ConditionTypeEnum.AllowedRegions) {
             const selectedProvince = condition.conditionValue ?
@@ -497,8 +527,11 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
 
     const onSubmit = async (data: VoucherFormData) => {
         try {
+            const adjustedStartDate = addHours(data.startDate, 7);
+            const adjustedEndDate = addHours(data.endDate, 7);
+
             if (id) {
-                await dispatch(updateVoucherAsync({
+                const result = await dispatch(updateVoucherAsync({
                     id,
                     name: data.name,
                     code: data.code,
@@ -506,41 +539,79 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                     discountTypeId: data.discountTypeId,
                     discountValue: data.discountValue,
                     usageLimit: data.usageLimit,
-                    startDate: new Date(data.startDate),
-                    endDate: new Date(data.endDate),
+                    startDate: adjustedStartDate,
+                    endDate: adjustedEndDate,
+                    isActive: true,
+                    isDeleted: false,
                     conditions: data.conditions.map(condition => ({
                         voucherId: id,
                         conditionType: condition.conditionType,
                         conditionValue: condition.conditionValue,
                     })),
-                }));
+                })).unwrap();
+                
+                if (result?.isSuccess) {
+                    toast.success(t('update_voucher_success'));
+                    await dispatch(getAllVouchersAsync({
+                        params: {
+                            take: -1,
+                            skip: 0,
+                            paging: false,
+                            orderBy: "name",
+                            dir: "asc",
+                            keywords: "''",
+                            filters: ""
+                        }
+                    }));
+                    onClose();
+                } else {
+                    toast.error(result?.message || t('error_saving_voucher'));
+                }
             } else {
-                await dispatch(createVoucherAsync({
+                const result = await dispatch(createVoucherAsync({
                     name: data.name,
                     code: data.code,
                     eventId: data.eventId,
                     discountTypeId: data.discountTypeId,
                     discountValue: data.discountValue,
                     usageLimit: data.usageLimit,
-                    startDate: new Date(data.startDate),
-                    endDate: new Date(data.endDate),
+                    startDate: adjustedStartDate,
+                    endDate: adjustedEndDate,
+                    isActive: true,
+                    isDeleted: false,
                     conditions: data.conditions.map(condition => ({
                         voucherId: 0,
                         conditionType: condition.conditionType,
                         conditionValue: condition.conditionValue,
                     })),
-                }));
+                })).unwrap();
+
+                if (result?.isSuccess) {
+                    toast.success(t('create_voucher_success'));
+                    await dispatch(getAllVouchersAsync({
+                        params: {
+                            take: -1,
+                            skip: 0,
+                            paging: false,
+                            orderBy: "name",
+                            dir: "asc",
+                            keywords: "''",
+                            filters: ""
+                        }
+                    }));
+                    onClose();
+                } else {
+                    toast.error(result?.message || t('error_saving_voucher'));
+                }
             }
-            toast.success(t('update_voucher_success'));
-            onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error("Error submitting form:", error);
-            toast.error(t('error_saving_voucher'));
+            toast.error(error?.message || t('error_saving_voucher'));
         }
     };
 
     return (
-        <LocalizationProvider dateAdapter={AdapterDateFns}>
+        <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={vi}>
             <Box sx={{ p: 3 }}>
                 {loading && <Spinner />}
                 <Paper sx={{ p: 2 }}>
@@ -752,7 +823,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                                                     <Box>
                                                         <CustomAutocomplete
                                                             options={getAvailableConditionTypes()}
-                                                            value={conditionTypeOptions.find(option => option.value === condition.conditionType) || null}
+                                                            value={conditionTypeOptions.find(option => Number(option.value) === Number(condition.conditionType)) || null}
                                                             onChange={(value: AutocompleteOption | null) => {
                                                                 if (value) {
                                                                     handleConditionTypeChange(index, Number(value.value));

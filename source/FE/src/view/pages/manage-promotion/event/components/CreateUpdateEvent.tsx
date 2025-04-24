@@ -44,6 +44,7 @@ import { TParamsCreateEvent, TParamsUpdateEvent } from 'src/types/event';
 import CustomEditor from 'src/components/custom-editor';
 import { convertToRaw, EditorState } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
+import { format, addHours } from 'date-fns';
 
 enum PromotionEventType {
     DirectDiscount = 0,
@@ -311,8 +312,8 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 const data = res.result;
                 setValue('code', data.code);
                 setValue('name', data.name);
-                setValue('startDate', new Date(data.startDate));
-                setValue('endDate', new Date(data.endDate));
+                setValue('startDate', addHours(new Date(data.startDate), -7));
+                setValue('endDate', addHours(new Date(data.endDate), -7));
                 setValue('eventType', data.eventType);
 
                 if (data.imageCommand) {
@@ -336,8 +337,13 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 setValue('description', data.description ? convertHTMLToDraft(data.description) : EditorState.createEmpty());
 
                 if (data.voucherCommands && data.voucherCommands.length > 0) {
-                    setValue('voucherCommands', data.voucherCommands);
-                    setVoucherCommands(data.voucherCommands);
+                    const adjustedVouchers = data.voucherCommands.map((voucher: VoucherCommand) => ({
+                        ...voucher,
+                        startDate: addHours(new Date(voucher.startDate), -7),
+                        endDate: addHours(new Date(voucher.endDate), -7),
+                    }));
+                    setValue('voucherCommands', adjustedVouchers);
+                    setVoucherCommands(adjustedVouchers);
                 }
             }
         } catch (err) {
@@ -424,30 +430,42 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
 
     const onSubmit = async (data: EventFormData) => {
         try {
-            const apiData = {
-                ...data,
+            const { voucherCommands, ...eventDataWithoutVouchers } = data;
+            
+            const adjustedStartDate = addHours(data.startDate, 7);
+            const adjustedEndDate = addHours(data.endDate, 7);
+
+            const baseData = {
+                ...eventDataWithoutVouchers,
+                startDate: adjustedStartDate,
+                endDate: adjustedEndDate,
                 description: data.description ? draftToHtml(convertToRaw(data.description.getCurrentContent())) : '',
+                imageId: data.imageId || null,
             };
 
-            const eventData = {
-                ...apiData,
-                imageId: data.imageId || 0,
-                voucherCommands: data.voucherCommands.map(voucher => ({
-                    code: voucher.code,
-                    name: voucher.name,
-                    eventId: isEditMode && id ? id : 0,
-                    discountTypeId: voucher.discountTypeId,
-                    discountValue: voucher.discountValue,
-                    usageLimit: voucher.usageLimit,
-                    startDate: voucher.startDate,
-                    endDate: voucher.endDate,
-                    conditions: voucher.conditions.map(condition => ({
-                        voucherId: isEditMode && id ? id : 0,
-                        conditionType: condition.conditionType,
-                        conditionValue: condition.conditionValue
+            let eventData;
+            if (isEditMode && id) {
+                eventData = baseData;
+            } else {
+                eventData = {
+                    ...baseData,
+                    voucherCommands: data.voucherCommands.map(voucher => ({
+                        code: voucher.code,
+                        name: voucher.name,
+                        eventId: 0,
+                        discountTypeId: voucher.discountTypeId,
+                        discountValue: voucher.discountValue,
+                        usageLimit: voucher.usageLimit,
+                        startDate: addHours(voucher.startDate, 7),
+                        endDate: addHours(voucher.endDate, 7),
+                        conditions: voucher.conditions.map(condition => ({
+                            voucherId: 0,
+                            conditionType: condition.conditionType,
+                            conditionValue: condition.conditionValue
+                        }))
                     }))
-                }))
-            };
+                };
+            }
 
             if (isEditMode && id) {
                 await handleUpdateEvent(eventData);
@@ -455,9 +473,9 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 await handleCreateEvent(eventData);
             }
             onClose();
-        } catch (error) {
+        } catch (error: any) {
             console.error('Error submitting event:', error);
-            toast.error(t("error_submitting_event"));
+            toast.error(error.message);
         }
     };
 
@@ -842,224 +860,228 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                             </Grid>
                         </Grid>
 
-                        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="h6">{t("list_voucher")}</Typography>
-                            <Button
-                                variant="outlined"
-                                startIcon={<AddIcon />}
-                                onClick={handleAddVoucher}
-                            >
-                                {t("add_voucher")}
-                            </Button>
-                        </Box>
-
-                        <Box sx={{ width: '100%', overflowX: 'auto' }}>
-                            <TableContainer sx={{ mt: 2 }}>
-                                <Table size="small" sx={{ minWidth: 1000 }}>
-                                    <TableHead>
-                                        <TableRow>
-                                            <StyledTableCell width="5%">#</StyledTableCell>
-                                            <StyledTableCell width="13%">{t("voucher_code")}</StyledTableCell>
-                                            <StyledTableCell width="15%">{t("voucher_name")}</StyledTableCell>
-                                            <StyledTableCell width="17%">{t("discount_type")}</StyledTableCell>
-                                            <StyledTableCell width="7%">{t("discount_value")}</StyledTableCell>
-                                            <StyledTableCell width="7%">{t("usage_limit")}</StyledTableCell>
-                                            <StyledTableCell width="12%">{t("start_date")}</StyledTableCell>
-                                            <StyledTableCell width="12%">{t("end_date")}</StyledTableCell>
-                                            <StyledTableCell width="5%">
-                                                <IconButton color="primary" onClick={handleAddVoucher} size="small">
-                                                    <AddIcon fontSize="small" />
-                                                </IconButton>
-                                            </StyledTableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {voucherCommands.map((voucher, voucherIndex) => (
-                                            <TableRow key={voucher.id}>
-                                                <StyledTableCell>{voucherIndex + 1}</StyledTableCell>
-                                                <StyledTableCell>
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        required
-                                                        value={voucher.code}
-                                                        onChange={(e) => handleVoucherChange(voucherIndex, 'code', e.target.value)}
-                                                        error={!!(errors.voucherCommands as VoucherFormErrors)?.code}
-                                                        helperText={(errors.voucherCommands as VoucherFormErrors)?.code?.message}
-                                                        placeholder={t("enter_voucher_code")}
-                                                        size="small"
-                                                    />
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        required
-                                                        value={voucher.name}
-                                                        onChange={(e) => handleVoucherChange(voucherIndex, 'name', e.target.value)}
-                                                        error={!!(errors.voucherCommands as VoucherFormErrors)?.name}
-                                                        helperText={(errors.voucherCommands as VoucherFormErrors)?.name?.message}
-                                                        placeholder={t("enter_voucher_name")}
-                                                        size="small"
-                                                    />
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    <Box>
-                                                        <CustomAutocomplete
-                                                            options={discountTypeOptions}
-                                                            value={discountTypeOptions.find(option => option.value === voucher.discountTypeId) || null}
-                                                            onChange={(newValue) => {
-                                                                handleVoucherChange(voucherIndex, 'discountTypeId', newValue?.value || 0);
-                                                            }}
-                                                            error={!!(errors.voucherCommands as VoucherFormErrors)?.discountTypeId}
-                                                            helperText={(errors.voucherCommands as VoucherFormErrors)?.discountTypeId?.message}
-                                                            placeholder={t("select_discount_type")}
-                                                            size="small"
-                                                        />
-                                                    </Box>
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        required
-                                                        type="number"
-                                                        value={voucher.discountValue}
-                                                        onChange={(e) => handleVoucherChange(voucherIndex, 'discountValue', parseFloat(e.target.value) || 0)}
-                                                        error={!!(errors.voucherCommands as VoucherFormErrors)?.discountValue}
-                                                        helperText={(errors.voucherCommands as VoucherFormErrors)?.discountValue?.message}
-                                                        placeholder={t("enter_discount_value")}
-                                                        size="small"
-                                                    />
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        required
-                                                        type="number"
-                                                        value={voucher.usageLimit}
-                                                        onChange={(e) => handleVoucherChange(voucherIndex, 'usageLimit', parseInt(e.target.value) || 0)}
-                                                        error={!!(errors.voucherCommands as VoucherFormErrors)?.usageLimit}
-                                                        helperText={(errors.voucherCommands as VoucherFormErrors)?.usageLimit?.message}
-                                                        placeholder={t("enter_usage_limit")}
-                                                        size="small"
-                                                    />
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    <DateTimePicker
-                                                        value={voucher.startDate}
-                                                        onChange={(newValue) => handleVoucherChange(voucherIndex, 'startDate', newValue)}
-                                                        slotProps={{
-                                                            textField: {
-                                                                fullWidth: true,
-                                                                size: "small",
-                                                                error: !!(errors.voucherCommands as VoucherFormErrors)?.startDate,
-                                                                helperText: (errors.voucherCommands as VoucherFormErrors)?.startDate?.message,
-                                                            }
-                                                        }}
-                                                    />
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    <DateTimePicker
-                                                        value={voucher.endDate}
-                                                        onChange={(newValue) => handleVoucherChange(voucherIndex, 'endDate', newValue)}
-                                                        slotProps={{
-                                                            textField: {
-                                                                fullWidth: true,
-                                                                size: "small",
-                                                                error: !!(errors.voucherCommands as VoucherFormErrors)?.endDate,
-                                                                helperText: (errors.voucherCommands as VoucherFormErrors)?.endDate?.message,
-                                                            }
-                                                        }}
-                                                    />
-                                                </StyledTableCell>
-                                                <StyledTableCell>
-                                                    <IconButton
-                                                        color="error"
-                                                        onClick={() => handleRemoveVoucher(voucherIndex)}
-                                                        size="small"
-                                                    >
-                                                        <RemoveIcon fontSize="small" />
-                                                    </IconButton>
-                                                </StyledTableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer>
-                        </Box>
-
-                        {voucherCommands.length > 0 && (
+                        {!isEditMode && (
                             <>
-                                <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>{t("voucher_conditions")}</Typography>
+                                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <Typography variant="h6">{t("list_voucher")}</Typography>
+                                    <Button
+                                        variant="outlined"
+                                        startIcon={<AddIcon />}
+                                        onClick={handleAddVoucher}
+                                    >
+                                        {t("add_voucher")}
+                                    </Button>
+                                </Box>
+
                                 <Box sx={{ width: '100%', overflowX: 'auto' }}>
-                                    <TableContainer>
-                                        <Table size="small" sx={{ minWidth: 800 }}>
+                                    <TableContainer sx={{ mt: 2 }}>
+                                        <Table size="small" sx={{ minWidth: 1000 }}>
                                             <TableHead>
                                                 <TableRow>
                                                     <StyledTableCell width="5%">#</StyledTableCell>
-                                                    <StyledTableCell width="35%">{t("voucher_name")}</StyledTableCell>
-                                                    <StyledTableCell width="20%">{t("condition_type")}</StyledTableCell>
-                                                    <StyledTableCell width="30%">{t("condition_value")}</StyledTableCell>
-                                                    <StyledTableCell width="10%"></StyledTableCell>
+                                                    <StyledTableCell width="13%">{t("voucher_code")}</StyledTableCell>
+                                                    <StyledTableCell width="15%">{t("voucher_name")}</StyledTableCell>
+                                                    <StyledTableCell width="17%">{t("discount_type")}</StyledTableCell>
+                                                    <StyledTableCell width="7%">{t("discount_value")}</StyledTableCell>
+                                                    <StyledTableCell width="7%">{t("usage_limit")}</StyledTableCell>
+                                                    <StyledTableCell width="12%">{t("start_date")}</StyledTableCell>
+                                                    <StyledTableCell width="12%">{t("end_date")}</StyledTableCell>
+                                                    <StyledTableCell width="5%">
+                                                        <IconButton color="primary" onClick={handleAddVoucher} size="small">
+                                                            <AddIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </StyledTableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
                                                 {voucherCommands.map((voucher, voucherIndex) => (
-                                                    voucher.conditions.map((condition, conditionIndex) => (
-                                                        <TableRow key={`condition-${voucher.id}-${condition.voucherId}`}>
-                                                            {conditionIndex === 0 && (
-                                                                <StyledTableCell rowSpan={voucher.conditions.length}>{voucherIndex + 1}</StyledTableCell>
-                                                            )}
-                                                            {conditionIndex === 0 && (
-                                                                <StyledTableCell rowSpan={voucher.conditions.length}>{voucher.name}</StyledTableCell>
-                                                            )}
-                                                            {conditionIndex !== 0 && <StyledTableCell style={{ display: 'none' }} />}
-                                                            {conditionIndex !== 0 && <StyledTableCell style={{ display: 'none' }} />}
-                                                            <StyledTableCell>
-                                                                <Box>
-                                                                    <CustomAutocomplete
-                                                                        options={conditionTypeOptions}
-                                                                        value={conditionTypeOptions.find(option => option.value === condition.conditionType) || null}
-                                                                        onChange={(newValue) => {
-                                                                            handleConditionChange(voucherIndex, conditionIndex, 'conditionType', newValue?.value || 0);
-                                                                        }}
-                                                                        error={!!(errors.voucherCommands as VoucherFormErrors)?.conditions?.conditionType}
-                                                                        helperText={(errors.voucherCommands as VoucherFormErrors)?.conditions?.conditionType?.message}
-                                                                        placeholder={t("enter_condition_type")}
-                                                                        size="small"
-                                                                    />
-                                                                </Box>
-                                                            </StyledTableCell>
-                                                            <StyledTableCell>
-                                                                {renderConditionValueField(voucher, condition, voucherIndex, conditionIndex)}
-                                                            </StyledTableCell>
-                                                            <StyledTableCell>
-                                                                <Box sx={{ display: 'flex' }}>
-                                                                    {voucher.conditions.length > 1 && (
-                                                                        <IconButton
-                                                                            color="error"
-                                                                            onClick={() => handleRemoveCondition(voucherIndex, conditionIndex)}
-                                                                            size="small"
-                                                                        >
-                                                                            <RemoveIcon fontSize="small" />
-                                                                        </IconButton>
-                                                                    )}
-                                                                    {conditionIndex === voucher.conditions.length - 1 && (
-                                                                        <IconButton
-                                                                            color="primary"
-                                                                            onClick={() => handleAddCondition(voucherIndex)}
-                                                                            size="small"
-                                                                        >
-                                                                            <AddIcon fontSize="small" />
-                                                                        </IconButton>
-                                                                    )}
-                                                                </Box>
-                                                            </StyledTableCell>
-                                                        </TableRow>
-                                                    ))
+                                                    <TableRow key={voucher.id}>
+                                                        <StyledTableCell>{voucherIndex + 1}</StyledTableCell>
+                                                        <StyledTableCell>
+                                                            <CustomTextField
+                                                                fullWidth
+                                                                required
+                                                                value={voucher.code}
+                                                                onChange={(e) => handleVoucherChange(voucherIndex, 'code', e.target.value)}
+                                                                error={!!(errors.voucherCommands as VoucherFormErrors)?.code}
+                                                                helperText={(errors.voucherCommands as VoucherFormErrors)?.code?.message}
+                                                                placeholder={t("enter_voucher_code")}
+                                                                size="small"
+                                                            />
+                                                        </StyledTableCell>
+                                                        <StyledTableCell>
+                                                            <CustomTextField
+                                                                fullWidth
+                                                                required
+                                                                value={voucher.name}
+                                                                onChange={(e) => handleVoucherChange(voucherIndex, 'name', e.target.value)}
+                                                                error={!!(errors.voucherCommands as VoucherFormErrors)?.name}
+                                                                helperText={(errors.voucherCommands as VoucherFormErrors)?.name?.message}
+                                                                placeholder={t("enter_voucher_name")}
+                                                                size="small"
+                                                            />
+                                                        </StyledTableCell>
+                                                        <StyledTableCell>
+                                                            <Box>
+                                                                <CustomAutocomplete
+                                                                    options={discountTypeOptions}
+                                                                    value={discountTypeOptions.find(option => option.value === voucher.discountTypeId) || null}
+                                                                    onChange={(newValue) => {
+                                                                        handleVoucherChange(voucherIndex, 'discountTypeId', newValue?.value || 0);
+                                                                    }}
+                                                                    error={!!(errors.voucherCommands as VoucherFormErrors)?.discountTypeId}
+                                                                    helperText={(errors.voucherCommands as VoucherFormErrors)?.discountTypeId?.message}
+                                                                    placeholder={t("select_discount_type")}
+                                                                    size="small"
+                                                                />
+                                                            </Box>
+                                                        </StyledTableCell>
+                                                        <StyledTableCell>
+                                                            <CustomTextField
+                                                                fullWidth
+                                                                required
+                                                                type="number"
+                                                                value={voucher.discountValue}
+                                                                onChange={(e) => handleVoucherChange(voucherIndex, 'discountValue', parseFloat(e.target.value) || 0)}
+                                                                error={!!(errors.voucherCommands as VoucherFormErrors)?.discountValue}
+                                                                helperText={(errors.voucherCommands as VoucherFormErrors)?.discountValue?.message}
+                                                                placeholder={t("enter_discount_value")}
+                                                                size="small"
+                                                            />
+                                                        </StyledTableCell>
+                                                        <StyledTableCell>
+                                                            <CustomTextField
+                                                                fullWidth
+                                                                required
+                                                                type="number"
+                                                                value={voucher.usageLimit}
+                                                                onChange={(e) => handleVoucherChange(voucherIndex, 'usageLimit', parseInt(e.target.value) || 0)}
+                                                                error={!!(errors.voucherCommands as VoucherFormErrors)?.usageLimit}
+                                                                helperText={(errors.voucherCommands as VoucherFormErrors)?.usageLimit?.message}
+                                                                placeholder={t("enter_usage_limit")}
+                                                                size="small"
+                                                            />
+                                                        </StyledTableCell>
+                                                        <StyledTableCell>
+                                                            <DateTimePicker
+                                                                value={voucher.startDate}
+                                                                onChange={(newValue) => handleVoucherChange(voucherIndex, 'startDate', newValue)}
+                                                                slotProps={{
+                                                                    textField: {
+                                                                        fullWidth: true,
+                                                                        size: "small",
+                                                                        error: !!(errors.voucherCommands as VoucherFormErrors)?.startDate,
+                                                                        helperText: (errors.voucherCommands as VoucherFormErrors)?.startDate?.message,
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </StyledTableCell>
+                                                        <StyledTableCell>
+                                                            <DateTimePicker
+                                                                value={voucher.endDate}
+                                                                onChange={(newValue) => handleVoucherChange(voucherIndex, 'endDate', newValue)}
+                                                                slotProps={{
+                                                                    textField: {
+                                                                        fullWidth: true,
+                                                                        size: "small",
+                                                                        error: !!(errors.voucherCommands as VoucherFormErrors)?.endDate,
+                                                                        helperText: (errors.voucherCommands as VoucherFormErrors)?.endDate?.message,
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </StyledTableCell>
+                                                        <StyledTableCell>
+                                                            <IconButton
+                                                                color="error"
+                                                                onClick={() => handleRemoveVoucher(voucherIndex)}
+                                                                size="small"
+                                                            >
+                                                                <RemoveIcon fontSize="small" />
+                                                            </IconButton>
+                                                        </StyledTableCell>
+                                                    </TableRow>
                                                 ))}
                                             </TableBody>
                                         </Table>
                                     </TableContainer>
                                 </Box>
+
+                                {voucherCommands.length > 0 && (
+                                    <>
+                                        <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>{t("voucher_conditions")}</Typography>
+                                        <Box sx={{ width: '100%', overflowX: 'auto' }}>
+                                            <TableContainer>
+                                                <Table size="small" sx={{ minWidth: 800 }}>
+                                                    <TableHead>
+                                                        <TableRow>
+                                                            <StyledTableCell width="5%">#</StyledTableCell>
+                                                            <StyledTableCell width="35%">{t("voucher_name")}</StyledTableCell>
+                                                            <StyledTableCell width="20%">{t("condition_type")}</StyledTableCell>
+                                                            <StyledTableCell width="30%">{t("condition_value")}</StyledTableCell>
+                                                            <StyledTableCell width="10%"></StyledTableCell>
+                                                        </TableRow>
+                                                    </TableHead>
+                                                    <TableBody>
+                                                        {voucherCommands.map((voucher, voucherIndex) => (
+                                                            voucher.conditions.map((condition, conditionIndex) => (
+                                                                <TableRow key={`condition-${voucher.id}-${condition.voucherId}`}>
+                                                                    {conditionIndex === 0 && (
+                                                                        <StyledTableCell rowSpan={voucher.conditions.length}>{voucherIndex + 1}</StyledTableCell>
+                                                                    )}
+                                                                    {conditionIndex === 0 && (
+                                                                        <StyledTableCell rowSpan={voucher.conditions.length}>{voucher.name}</StyledTableCell>
+                                                                    )}
+                                                                    {conditionIndex !== 0 && <StyledTableCell style={{ display: 'none' }} />}
+                                                                    {conditionIndex !== 0 && <StyledTableCell style={{ display: 'none' }} />}
+                                                                    <StyledTableCell>
+                                                                        <Box>
+                                                                            <CustomAutocomplete
+                                                                                options={conditionTypeOptions}
+                                                                                value={conditionTypeOptions.find(option => option.value === condition.conditionType) || null}
+                                                                                onChange={(newValue) => {
+                                                                                    handleConditionChange(voucherIndex, conditionIndex, 'conditionType', newValue?.value || 0);
+                                                                                }}
+                                                                                error={!!(errors.voucherCommands as VoucherFormErrors)?.conditions?.conditionType}
+                                                                                helperText={(errors.voucherCommands as VoucherFormErrors)?.conditions?.conditionType?.message}
+                                                                                placeholder={t("enter_condition_type")}
+                                                                                size="small"
+                                                                            />
+                                                                        </Box>
+                                                                    </StyledTableCell>
+                                                                    <StyledTableCell>
+                                                                        {renderConditionValueField(voucher, condition, voucherIndex, conditionIndex)}
+                                                                    </StyledTableCell>
+                                                                    <StyledTableCell>
+                                                                        <Box sx={{ display: 'flex' }}>
+                                                                            {voucher.conditions.length > 1 && (
+                                                                                <IconButton
+                                                                                    color="error"
+                                                                                    onClick={() => handleRemoveCondition(voucherIndex, conditionIndex)}
+                                                                                    size="small"
+                                                                                >
+                                                                                    <RemoveIcon fontSize="small" />
+                                                                                </IconButton>
+                                                                            )}
+                                                                            {conditionIndex === voucher.conditions.length - 1 && (
+                                                                                <IconButton
+                                                                                    color="primary"
+                                                                                    onClick={() => handleAddCondition(voucherIndex)}
+                                                                                    size="small"
+                                                                                >
+                                                                                    <AddIcon fontSize="small" />
+                                                                                </IconButton>
+                                                                            )}
+                                                                        </Box>
+                                                                    </StyledTableCell>
+                                                                </TableRow>
+                                                            ))
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </TableContainer>
+                                        </Box>
+                                    </>
+                                )}
                             </>
                         )}
                     </form>

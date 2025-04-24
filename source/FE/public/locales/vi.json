@@ -751,7 +751,10 @@
     "no_data_product_ingredient": "Không có dữ liệu về thành phần sản phẩm",
     "no_data_product_uses": "Không có dữ liệu về công dụng sản phẩm",
 
-    
+    "updated_by": "Người cập nhật",
+    "updated_date": "Ngày cập nhật",
+    "created_by": "Người tạo",
+    "created_date": "Ngày tạo",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

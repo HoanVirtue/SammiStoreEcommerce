@@ -59,8 +59,8 @@ type AdminPageProps = {
   onCreateNewClick?: () => void;
 
   hideAddButton?: boolean;
-  disableUpdateButton?: boolean;
-  disableDeleteButton?: boolean;
+  hideUpdateButton?: boolean;
+  hideDeleteButton?: boolean;
 
   showDetailButton?: boolean;
   onCloseCreateTab?: () => void;
@@ -105,8 +105,8 @@ const AdminPage: NextPage<AdminPageProps> = ({
   onCreateNewClick,
 
   hideAddButton = false,
-  disableUpdateButton = false,
-  disableDeleteButton = false,
+  hideUpdateButton = false,
+  hideDeleteButton = false,
   showDetailButton = false,
 
   onCloseCreateTab,
@@ -125,7 +125,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const theme = useTheme();
   const router = useRouter();
   const [newEntityName, setNewEntityName] = React.useState<string>("");
-  
+
   // Set new entity name based on pathname
   useEffect(() => {
     if (router.pathname.includes("receipt")) {
@@ -135,7 +135,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
 
   // Permissions
   const { VIEW, CREATE, UPDATE, DELETE } = usePermission(permissionKey, ["CREATE", "UPDATE", "DELETE", "VIEW"]);
-  
+
   // Setup hooks for data and actions
   const {
     page,
@@ -189,17 +189,21 @@ const AdminPage: NextPage<AdminPageProps> = ({
           />
         )}
 
-        <GridUpdate
-          disabled={disableUpdateButton}
-          onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
-        />
-        <GridDelete
-          disabled={disableDeleteButton}
-          onClick={() => setOpenDelete({ open: true, id: params.row.id })}
-        />
+        {!hideUpdateButton && (
+          <GridUpdate
+            onClick={() => setOpenCreateUpdate({ open: true, id: params.row.id })}
+          />
+        )
+        }
+        {!hideDeleteButton && (
+          <GridDelete
+            onClick={() => setOpenDelete({ open: true, id: params.row.id })}
+          />
+        )
+        }
       </>
     ),
-  }), [showDetailButton, disableUpdateButton, disableDeleteButton, t, onDetailClick, setOpenCreateUpdate, setOpenDelete, setSelectedDetailId]);
+  }), [showDetailButton, hideUpdateButton, hideDeleteButton, t, onDetailClick, setOpenCreateUpdate, setOpenDelete, setSelectedDetailId]);
 
   const allColumns = useMemo(() => [actionColumn, ...columns], [actionColumn, columns]);
 

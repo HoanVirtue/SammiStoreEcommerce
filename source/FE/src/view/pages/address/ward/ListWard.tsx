@@ -52,6 +52,7 @@ const ListWardPage: NextPage = () => {
             resetAction={resetInitialState}
             CreateUpdateComponent={CreateUpdateWard}
             permissionKey="ADDRESS.WARD"
+            hideUpdateButton={true}
             fieldMapping={{
                 "ward_name": "name",
                 "ward_code": "code",

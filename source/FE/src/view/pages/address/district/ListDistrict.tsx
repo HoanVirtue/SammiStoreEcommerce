@@ -50,6 +50,7 @@ const ListDistrictPage: NextPage = () => {
             deleteMultipleAction={deleteMultipleDistrictsAsync as unknown as (ids: { [key: number]: number[] }) => any}
             resetAction={resetInitialState}
             CreateUpdateComponent={CreateUpdateDistrict}
+            hideUpdateButton={true}
             permissionKey="ADDRESS.DISTRICT"
             fieldMapping={{
                 "district_name": "name",

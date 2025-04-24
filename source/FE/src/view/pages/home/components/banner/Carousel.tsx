@@ -23,7 +23,8 @@ interface Banner {
     description?: string;
 }
 
-const banners: Banner[] = [
+// Default banners to use when no initialData is provided
+const defaultBanners: Banner[] = [
     {
         id: 1,
         image: Banner1,
@@ -40,6 +41,10 @@ const banners: Banner[] = [
 
 interface ArrowProps {
     onClick?: () => void;
+}
+
+interface CarouselProps {
+    initialData?: any[];
 }
 
 const PrevArrow: FC<ArrowProps> = memo(({ onClick }) => (
@@ -90,9 +95,23 @@ const NextArrow: FC<ArrowProps> = memo(({ onClick }) => (
     </IconButton>
 ));
 
-const Carousel: FC = () => {
+const Carousel: FC<CarouselProps> = ({ initialData }) => {
     const theme = useTheme();
     const { t } = useTranslation();
+
+    // Use initialData if available, otherwise use default banners
+    const banners = useMemo(() => {
+        if (initialData && initialData.length > 0) {
+            // Map the API data to the banner format
+            return initialData.map((item, index) => ({
+                id: item.id || index + 1,
+                image: item.imageUrl || defaultBanners[index % defaultBanners.length].image,
+                title: item.name || '',
+                description: item.description || '',
+            }));
+        }
+        return defaultBanners;
+    }, [initialData]);
 
     const settings = useMemo(() => ({
         dots: true,
@@ -253,10 +272,10 @@ const Carousel: FC = () => {
                 </motion.div>
             </Box>
         </Box>
-    ), [theme, t]);
+    ), [t, theme.palette.common.white]);
 
     return (
-        <Box sx={{ maxWidth: 'unset', margin: '0 auto', height: { xs: 'auto', md: '516px' }, padding: '0 2rem', backgroundColor: theme.palette.background.paper }}>
+        <Box sx={{ width: '100%', height: '100%', position: 'relative' }}>
             <Slider {...settings}>
                 {banners.map(renderBanner)}
             </Slider>
@@ -264,4 +283,4 @@ const Carousel: FC = () => {
     );
 };
 
-export default memo(Carousel);
+export default Carousel;

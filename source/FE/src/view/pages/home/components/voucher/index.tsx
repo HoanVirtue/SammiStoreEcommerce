@@ -109,7 +109,11 @@ function NextArrow(props: any) {
     );
 }
 
-const ListVoucher: React.FC = () => {
+interface ListVoucherProps {
+    initialData?: any[];
+}
+
+const ListVoucher: React.FC<ListVoucherProps> = ({ initialData }) => {
     const theme = useTheme();
     const { t } = useTranslation();
 

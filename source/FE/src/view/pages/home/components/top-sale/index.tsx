@@ -16,7 +16,7 @@ const listProduct = [
         sold: 40,
         price: 1556000,
         discount: 20,
-        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức “nguyên tắc phối hợp thảo dược với đông trùng hạ thảo” giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
         uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
         usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
         brandId: 6,
@@ -48,7 +48,7 @@ const listProduct = [
         sold: 20,
         price: 356000,
         discount: 34,
-        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức “nguyên tắc phối hợp thảo dược với đông trùng hạ thảo” giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
         uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
         usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
         brandId: 6,
@@ -80,7 +80,7 @@ const listProduct = [
         sold: 35,
         price: 456000,
         discount: 38,
-        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức “nguyên tắc phối hợp thảo dược với đông trùng hạ thảo” giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
         uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
         usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
         brandId: 6,
@@ -112,7 +112,7 @@ const listProduct = [
         sold: 22,
         price: 1556000,
         discount: 28,
-        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức “nguyên tắc phối hợp thảo dược với đông trùng hạ thảo” giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
+        ingredient: 'Chứa các thành phần quý giá với sức sống mạnh mẽ và hiệu quả cao như Nấm linh chi sừng hươu, nhân sâm hoang dã tự nhiên, xuyên tâm liên, hà thủ ô trường sinh và 70 thành phần thảo dược quý nhóm Quân, Thần, Tá, Sứ được bào chế theo công thức "nguyên tắc phối hợp thảo dược với đông trùng hạ thảo" giúp tối đa hóa hiệu quả của các thành phầnSansam JeonchohwanTM – có chứa các tphan hoạt tính của nhân sâm núi hoang dã quý hiếm từ rễ tới lá mang lại hiệu ứng tươi trẻ và sống động cho làn da.',
         uses: 'Giải phóng lớp da thô ráp và khô cứng để tạo nền da tối ưu, cho phép da tiếp nhận dinh dưỡng ở các sản phẩm sau 1 cách tốt nhất.',
         usageGuide: ' Tinh chất khởi nguồn > Tinh dầu dưỡng da > Kem dưỡng mắt > Kem dưỡng da',
         brandId: 6,
@@ -138,7 +138,11 @@ const listProduct = [
     },
 ]
 
-const TopSale = () => {
+interface TopSaleProps {
+    initialData?: any[];
+}
+
+const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
 
     const theme = useTheme();
     const { t } = useTranslation();

@@ -171,7 +171,11 @@ const listProduct = [
     },
 ]
 
-const HotSale = () => {
+interface HotSaleProps {
+    initialData?: any[];
+}
+
+const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
 
     const theme = useTheme();
     const { t } = useTranslation();

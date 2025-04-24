@@ -75,7 +75,12 @@ const INITIAL_PRODUCT_STATE: TProduct = {
     }]
 }
 
-const ProductDetailPage: NextPage = () => {
+// Define or update the props interface
+interface ProductDetailPageProps {
+    initialData?: any;
+}
+
+const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) => {
     // State Management
     const [loading, setLoading] = useState<boolean>(false)
     const [productData, setProductData] = useState<TProduct>(INITIAL_PRODUCT_STATE)

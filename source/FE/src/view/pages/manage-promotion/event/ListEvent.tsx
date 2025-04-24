@@ -52,7 +52,7 @@ const createEventSelector = createSelector(
 const ListEventPage: NextPage = () => {
     // Use the memoized selector
     const eventSelector = useCallback((state: RootState) => createEventSelector(state), []);
-    
+
     // State management
     const [currentTab, setCurrentTab] = useState(0);
     const [selectedEventId, setSelectedEventId] = useState<number>(0);
@@ -80,10 +80,22 @@ const ListEventPage: NextPage = () => {
         setShowCreateTab(true);
     };
 
+    const handleUpdateClick = () => {
+        setCurrentTab(2);
+        setShowUpdateTab(true);
+    };
+
+
     const handleCloseCreateTab = () => {
         setCurrentTab(0);
         setShowCreateTab(false);
-      };
+    };
+
+    const handleCloseUpdateTab = () => {
+        setCurrentTab(0);
+        setShowUpdateTab(false);
+    };
+
 
     return (
         <Suspense fallback={<Spinner />}>
@@ -103,9 +115,11 @@ const ListEventPage: NextPage = () => {
                 currentTab={currentTab}
                 onTabChange={handleTabChange}
                 onAddClick={handleAddClick}
+                onUpdateClick={handleUpdateClick}
                 onDetailClick={handleDetailClick}
 
                 onCloseCreateTab={handleCloseCreateTab}
+                onCloseUpdateTab={handleCloseUpdateTab}
                 CreateUpdateTabComponent={CreateUpdateEvent}
                 permissionKey={EVENT_PERMISSION_KEY}
                 fieldMapping={EVENT_FIELD_MAPPING}

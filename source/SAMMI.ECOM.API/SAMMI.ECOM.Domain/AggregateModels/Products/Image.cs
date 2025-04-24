@@ -1,4 +1,5 @@
 ﻿using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
+using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Seeds;
@@ -27,4 +28,5 @@ public partial class Image : Entity
     public virtual ICollection<Event> EventImages { get; set; } = new List<Event>();
     public virtual ICollection<Brand> BrandImages { get; set; } = new List<Brand>();
     public virtual ICollection<Banner> BannerImages { get; set; } = new List<Banner>();
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

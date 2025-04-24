@@ -21,7 +21,11 @@ public partial class Review : Entity
     [Column("Comment")]
     public string? Comment { get; set; }
 
+    [ForeignKey("Image")]
+    public int? ImageId { get; set; }
+
     public virtual Product Product { get; set; } = null!;
 
     public virtual User User { get; set; } = null!;
+    public virtual Image? Image { get; set; }
 }

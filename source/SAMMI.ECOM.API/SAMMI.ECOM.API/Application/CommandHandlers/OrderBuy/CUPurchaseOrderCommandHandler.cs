@@ -48,6 +48,12 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actRes;
             }
 
+            if (await _purchaseRepository.IsExistedCode(request.Code))
+            {
+                actRes.AddError("Mã đơn nhập hàng đã tồn tại.");
+                return actRes;
+            }
+
             if (!await _userRepository.IsExistedType(request.EmployeeId))
             {
                 actRes.AddError("Mã nhân viên không tồn tại.");
@@ -70,7 +76,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             }
 
 
-            request.Code = Guid.NewGuid().ToString();
+            //request.Code = Guid.NewGuid().ToString();
             request.CreatedDate = DateTime.Now;
             request.CreatedBy = _currentUser.UserName;
             var createPurchaseRes = await _purchaseRepository.CreateAndSave(request);
@@ -100,6 +106,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
     {
         public CreatePurchaseOrderCommandValidator()
         {
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithMessage("Mã phiếu nhập không được bỏ trống");
+
             RuleFor(x => x.EmployeeId)
                 .NotNull()
                 .WithMessage("Nhân viên lập phiếu bắt buộc chọn");
@@ -181,7 +191,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         public override async Task<ActionResponse<PurchaseOrderDTO>> Handle(UpdatePurchaseOrderCommand request, CancellationToken cancellationToken)
         {
             var actRes = new ActionResponse<PurchaseOrderDTO>();
-
             if (!await _userRepository.IsExistedType(request.EmployeeId))
             {
                 actRes.AddError("Mã nhân viên không tồn tại.");
@@ -202,9 +211,21 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     return actRes;
                 }
             }
-            
+
             var existingDetails = await _purchaseDetailRepository.GetByPurchaseOrderId(request.Id);
-            if(request.Details.Any(d => existingDetails.Any(p => p.ProductId == d.ProductId)))
+            var existingDetailIds = existingDetails.Select(p => p.Id).ToHashSet();
+            var invalidDetailIds = request.Details
+                .Where(d => d.Id != 0 && !existingDetailIds.Contains(d.Id))
+                .Select(d => d.Id)
+                .ToList();
+
+            if (invalidDetailIds.Any())
+            {
+                actRes.AddError($"Mã đơn chi tiết không tồn tại.");
+                return actRes;
+            }
+
+            if (request.Details.Any(d => existingDetails.Any(p => p.ProductId == d.ProductId && p.Id != d.Id)))
             {
                 actRes.AddError("Danh sách sản phẩm không được trùng lặp");
                 return actRes;
@@ -227,8 +248,14 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             var existingDetailDict = existingDetails.ToDictionary(d => d.ProductId);
             foreach (var detail in request.Details)
             {
-                if (existingDetailDict.TryGetValue(detail.ProductId, out var existingDetail))
+                if (detail.Id != 0 && existingDetailDict.TryGetValue(detail.ProductId, out var existingDetail))
                 {
+                    if(existingDetail.ProductId != detail.ProductId)
+                    {
+                        actRes.AddError($"Mã chi tiết và mã sản phẩm không khớp");
+                        return actRes;
+                    }
+
                     existingDetail.Quantity = detail.Quantity;
                     existingDetail.UnitPrice = detail.UnitPrice;
                     existingDetail.UpdatedDate = DateTime.Now;
@@ -236,13 +263,18 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     var updateDetailRes = _purchaseDetailRepository.Update(existingDetail);
                     actRes.Combine(updateDetailRes);
                 }
-                else
+                else if(detail.Id == 0)
                 {
                     detail.PurchaseOrderId = purchaseUpdated.Id;
                     detail.CreatedDate = DateTime.Now;
                     detail.CreatedBy = _currentUser?.UserName;
                     var createDetailRes = _purchaseDetailRepository.Create(detail);
                     actRes.Combine(createDetailRes);
+                }
+                else
+                {
+                    actRes.AddError("Mã chi tiết đơn không tồn tại");
+                    return actRes;
                 }
 
                 if (!actRes.IsSuccess)
@@ -255,6 +287,49 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             actRes.SetResult(_mapper.Map<PurchaseOrderDTO>(purchaseUpdated));
             return actRes;
+        }
+    }
+
+    public class UpdatePurchaseOrderCommandValidator : AbstractValidator<UpdatePurchaseOrderCommand>
+    {
+        public UpdatePurchaseOrderCommandValidator()
+        {
+            RuleFor(x => x.Code)
+                .NotEmpty()
+                .WithMessage("Mã phiếu nhập không được bỏ trống");
+
+            RuleFor(x => x.EmployeeId)
+                .NotNull()
+                .WithMessage("Nhân viên lập phiếu bắt buộc chọn");
+
+            RuleFor(x => x.SupplierId)
+                .NotNull()
+                .WithMessage("Nhà cung cấp bắt buộc chọn");
+
+            RuleFor(x => x.Details)
+                .NotNull()
+                .WithMessage("Danh sách sản phẩm không được bỏ trống")
+                .Must(x => x.Count > 0)
+                .WithMessage("Danh sách sản phẩm phải có ít nhất 1 sản phẩm")
+                .Must(HaveUniqueProductId)
+                .WithMessage("Danh sách sản phẩm chứa mã sản phẩm trùng lặp")
+                .Must(HaveUnitqueDetailId)
+                .WithMessage("Danh sách chi tiết đơn hàng chứa mã chi tiết trùng lặp");
+
+            RuleForEach(x => x.Details)
+                .SetValidator(new PurchaseOrderDetailCommandValidator());
+        }
+
+        private bool HaveUniqueProductId(List<PurchaseOrderDetailCommand> details)
+        {
+            var productIds = details.Select(x => x.ProductId).ToList();
+            return productIds.Distinct().Count() == productIds.Count;
+        }
+
+        private bool HaveUnitqueDetailId(List<PurchaseOrderDetailCommand> details)
+        {
+            var detailIds = details.Select(x => x.Id).ToList();
+            return detailIds.Distinct().Count() == detailIds.Count;
         }
     }
 }

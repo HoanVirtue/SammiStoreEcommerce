@@ -53,7 +53,15 @@ const TopSale = dynamic(() => import('./components/top-sale'), {
 })
 
 // ========== Types ==========
-type TProps = {}
+interface HomePageProps {
+    initialData?: {
+        products?: any[];
+        categories?: any[];
+        featuredProducts?: any[];
+        vouchers?: any[];
+        // Add any other data that might be pre-fetched
+    }
+}
 
 // ========== Styled Components ==========
 const StyledTabs = styled(Tabs)(({ theme }) => ({
@@ -63,7 +71,7 @@ const StyledTabs = styled(Tabs)(({ theme }) => ({
 }))
 
 // ========== Main Component ==========
-const HomePage: NextPage<TProps> = () => {
+const HomePage: NextPage<HomePageProps> = ({ initialData }) => {
     // ========== State Management ==========
     // Pagination states
     const [page, setPage] = useState(1)
@@ -78,15 +86,20 @@ const HomePage: NextPage<TProps> = () => {
     const [selectedProductCategory, setSelectedProductCategory] = useState('')
 
     // Data states
-    const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>([])
+    const [categoryOptions, setCategoryOptions] = useState<{ label: string, value: string }[]>(
+        initialData?.categories?.map((item: { name: string, _id: string }) => ({
+            label: item.name,
+            value: item._id
+        })) || []
+    )
     const [filterBy, setFilterBy] = useState<Record<string, string | string[]>>({})
     const [publicProducts, setPublicProducts] = useState({
-        data: [],
-        total: 0
+        data: initialData?.products || [],
+        total: initialData?.products?.length || 0
     })
 
     // Refs
-    const firstRender = useRef<boolean>(false)
+    const firstRender = useRef<boolean>(initialData ? true : false)
 
     // ========== Hooks ==========
     const { t } = useTranslation()
@@ -105,6 +118,11 @@ const HomePage: NextPage<TProps> = () => {
 
     // ========== API Calls ==========
     const handleGetListProduct = async () => {
+        // Skip fetching if we already have data from SSG/ISR
+        if (initialData?.products && publicProducts.data.length > 0 && !filterBy.productType) {
+            return;
+        }
+        
         setLoading(true)
         try {
             const query = {
@@ -133,6 +151,12 @@ const HomePage: NextPage<TProps> = () => {
     }
 
     const fetchAllCategories = async () => {
+        // Skip fetching if we already have categories from SSG/ISR
+        if (initialData?.categories && categoryOptions.length > 0) {
+            setSelectedProductCategory(initialData?.categories?.[0]?._id || '')
+            return;
+        }
+        
         setLoading(true)
         try {
             const res = await getAllProductCategories({
@@ -234,11 +258,11 @@ const HomePage: NextPage<TProps> = () => {
             height: 'fit-content',
             backgroundColor: theme.palette.background.paper
         }}>
-            <Banner />
-            <OutstandingCategory />
-            <ListVoucher />
-            <HotSale />
-            <TopSale />
+            <Banner initialData={initialData?.featuredProducts} />
+            <OutstandingCategory initialData={initialData?.categories} />
+            <ListVoucher initialData={initialData?.vouchers} />
+            <HotSale initialData={initialData?.featuredProducts} />
+            <TopSale initialData={initialData?.products} />
         </Box>
     )
 }

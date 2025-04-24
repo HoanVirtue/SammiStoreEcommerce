@@ -15,14 +15,14 @@ import { RootState } from "src/stores";
 import { getVoucherColumns } from "src/configs/gridColumn";
 import { getVoucherFields } from "src/configs/gridConfig";
 import { useState } from "react";
-
+import Spinner from "src/components/spinner";
 const CreateUpdateVoucher = dynamic(() => import("./components/CreateUpdateVoucher"), {
     ssr: false
 }) as FC<any>;
 
 // Dynamic import for AdminPage
 const AdminPage = dynamic(() => import("src/components/admin-page"), {
-    loading: () => <div>Loading...</div>,
+    loading: () => <Spinner />,
     ssr: false
 });
 

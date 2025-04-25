@@ -21,6 +21,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
         Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Product);
         Task<InventoryStatistic> GetListInventory(InventoryFilterModel filterModel);
         Task<IEnumerable<ProductDTO>> GetListBetSellingProduct(int numberTop);
+        Task<IEnumerable<ProductDTO>> GetRelated(int productId, int numberTop);
     }
     public class ProductQueries : QueryRepository<Product>, IProductQueries
     {
@@ -427,7 +428,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                         t4.*,
                         SUM(t2.Quantity) AS TotalSold FROM Product t1 
                         LEFT JOIN OrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1
-                        LEFT JOIN Orders t3 ON t2.OrderId = t3.Id AND t3.OrderStatus = 'Complete'
+                        LEFT JOIN Orders t3 ON t2.OrderId = t3.Id AND t3.OrderStatus = '{OrderStatusEnum.Completed.ToString()}'
                         LEFT JOIN (SELECT pi.ProductId,
                                           pi.DisplayOrder,
                                           i.Id,
@@ -479,6 +480,123 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                         (product, image) =>
                         {
                             if(!productDirectory.TryGetValue(product.Id, out var productEntry))
+                            {
+                                productEntry = product;
+                                productEntry.Images = new List<ImageDTO>();
+                                if ((productEntry.StartDate != null && productEntry.EndDate != null) && (productEntry.StartDate <= DateTime.Now && productEntry.EndDate >= DateTime.Now))
+                                    productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
+                                else
+                                    productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
+                                productDirectory.Add(product.Id, productEntry);
+                            }
+
+                            if (image != null && productEntry.Images.All(i => i.Id != image.Id))
+                            {
+                                productEntry.Images ??= new();
+                                productEntry.Images.Add(image);
+                            }
+                            return productEntry;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "ProductId"
+                        );
+                });
+        }
+
+        public Task<IEnumerable<ProductDTO>> GetRelated(int productId, int numberTop)
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    string query = @$"
+                        SELECT
+                        DISTINCT t1.Id,
+                        t1.Code AS Code,
+                        t1.Name AS Name,
+                        t1.StockQuantity AS StockQuantity,
+                        t1.Price AS Price,
+                        t1.Discount AS Discount,
+                        t1.Ingredient AS Ingredient,
+                        t1.Uses AS Uses,
+                        t1.UsageGuide AS UsageGuide,
+                        t1.BrandId AS BrandId,
+                        t1.Status AS Status,
+                        t1.CategoryId AS CategoryId,
+                        t1.StartDate AS StartDate,
+                        t1.EndDate AS EndDate,
+                        t1.CreatedDate AS CreatedDate,
+                        t1.UpdatedDate AS UpdatedDate,
+                        t1.CreatedBy AS CreatedBy,
+                        t1.UpdatedBy AS UpdatedBy,
+                        t1.IsActive AS IsActive,
+                        t1.IsDeleted AS IsDeleted,
+                        t1.DisplayOrder AS DisplayOrder,
+                        t4.*,
+                        SUM(t2.Quantity) AS TotalSold FROM Product t1 
+                        LEFT JOIN OrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1
+                        LEFT JOIN Orders t3 ON t2.OrderId = t3.Id AND t3.OrderStatus = '{OrderStatusEnum.Completed.ToString()}'
+                        LEFT JOIN (SELECT pi.ProductId,
+                                          pi.DisplayOrder,
+                                          i.Id,
+                                          i.ImageUrl,
+                                          i.PublicId,
+                                          i.TypeImage
+                                    FROM ProductImage pi
+                                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                    WHERE pi.IsDeleted != 1
+                                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                                    ) t4 ON t1.Id = t4.ProductId
+                        WHERE t1.ISDELETED = 0 AND t1.Id != {productId}
+                          AND (t1.CategoryId = (
+                                  SELECT categoryId
+                                  FROM product
+                                  WHERE Id = {productId}
+                                )
+                                OR t1.BrandId = (
+                                  SELECT BrandId
+                                  FROM product
+                                  WHERE Id = {productId}
+                                )
+                              )
+
+                        GROUP BY t1.Id,
+                                t1.Code,
+                                t1.Name,
+                                t1.StockQuantity,
+                                t1.Price,
+                                t1.Discount,
+                                t1.Ingredient,
+                                t1.Uses,
+                                t1.UsageGuide,
+                                t1.BrandId,
+                                t1.Status,
+                                t1.CategoryId,
+                                t1.StartDate,
+                                t1.EndDate,
+                                t1.CreatedDate,
+                                t1.UpdatedDate,
+                                t1.CreatedBy,
+                                t1.UpdatedBy,
+                                t1.IsActive,
+                                t1.IsDeleted,
+                                t1.DisplayOrder,
+                                t4.ProductId,
+                                t4.DisplayOrder,
+                                t4.Id,
+                                t4.ImageUrl,
+                                t4.PublicId,
+                                t4.TypeImage
+
+                        ORDER BY TotalSold DESC
+
+                        LIMIT {numberTop}";
+
+                    var productDirectory = new Dictionary<int, ProductDTO>();
+                    return conn.QueryAsync<ProductDTO, ImageDTO, ProductDTO>(
+                        query,
+                        (product, image) =>
+                        {
+                            if (!productDirectory.TryGetValue(product.Id, out var productEntry))
                             {
                                 productEntry = product;
                                 productEntry.Images = new List<ImageDTO>();

@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.System;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Repositories.Permission

@@ -28,6 +28,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         Task<User> GetByEmail(string email);
         Task<ActionResponse> VerifyToken(string token);
         Task<int> GetCustomerCount();
+
+        Task<ActionResponse> IsExistAnotherTable(int id, TypeUserEnum type = TypeUserEnum.Customer);
     }
     public class UsersRepository : CrudRepository<User>, IUsersRepository, IDisposable
     {
@@ -192,6 +194,59 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         public Task<int> GetCustomerCount()
         {
             return DbSet.Where(x => x.Type == TypeUserEnum.Customer.ToString() && x.IsDeleted != true).CountAsync();
+        }
+
+        public async Task<ActionResponse> IsExistAnotherTable(int id, TypeUserEnum type = TypeUserEnum.Customer)
+        {
+            var actionRes = new ActionResponse();
+            bool result = false;
+            string errorMessage = "Không thể xóa người dùng! ";
+            if (type == TypeUserEnum.Customer)
+            {
+                result = await _context.CustomerAddresses.Where(x => x.CustomerId == id).CountAsync() > 1 ? true : false;
+                if (result)
+                {
+                    actionRes.AddError($"{errorMessage}Người dùng đã có địa chỉ liên quan");
+                    return actionRes;
+                }
+
+                result = await _context.FavouriteProducts.AnyAsync(x => x.CustomerId == id);
+                if (result)
+                {
+                    actionRes.AddError($"{errorMessage}Người dùng đã có sản phẩm yêu thích");
+                    return actionRes;
+                }
+
+                result = await _context.MyVouchers.AnyAsync(x => x.CustomerId == id);
+                if (result)
+                {
+                    actionRes.AddError($"{errorMessage}Người dùng đã có voucher liên quan");
+                    return actionRes;
+                }
+
+                result = await _context.Orders.AnyAsync(x => x.CustomerId == id);
+                if (result)
+                {
+                    actionRes.AddError($"{errorMessage}Người dùng đã có đơn hàng liên quan");
+                    return actionRes;
+                }
+
+                result = await _context.Reviews.AnyAsync(x => x.UserId == id);
+                if (result)
+                {
+                    actionRes.AddError($"{errorMessage}Người dùng đã có đánh giá liên quan");
+                    return actionRes;
+                }
+            }
+
+            result = await _context.PurchaseOrders.AnyAsync(x => x.SupplierId == id || x.EmployeeId == id);
+            if (result)
+            {
+                actionRes.AddError($"{errorMessage}Người dùng đã có đơn nhập hàng liên quan");
+                return actionRes;
+            }
+
+            return actionRes;
         }
     }
 }

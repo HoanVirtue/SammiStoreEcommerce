@@ -35,7 +35,7 @@ import Spinner from 'src/components/spinner';
 import { useDispatch } from 'react-redux';
 import { createReceiptAsync, updateReceiptAsync } from 'src/stores/receipt/action';
 import { AppDispatch } from 'src/stores';
-import { getReceiptDetail } from 'src/services/receipt';
+import { getReceiptCode, getReceiptDetail } from 'src/services/receipt';
 import { toast } from 'react-toastify';
 import { GOODS_RECEIPT_STATUS } from 'src/configs/receipt';
 
@@ -82,6 +82,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
     { label: string; value: number; price: number; id: number }[]
   >([]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [receiptCode, setReceiptCode] = useState('');
   const statusOptions = GOODS_RECEIPT_STATUS();
 
   const schema = yup.object().shape({
@@ -127,6 +128,12 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
   });
 
   const items = watch('items');
+
+  const getReceiptDefaultCode = async () => {
+    const res = await getReceiptCode();
+    setReceiptCode(res?.result);
+};
+
 
   const fetchAllSupplier = async () => {
     setLoading(true);
@@ -240,7 +247,6 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
           parsedDate = new Date();
         }
 
-        // Kiểm tra supplierId
         const supplierExists = supplierOptions.find(
           (option) => option.value === data.supplierId.toString()
         );
@@ -251,7 +257,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
           ]);
         }
 
-        // Kiểm tra employeeId
+
         const employeeExists = employeeOptions.find(
           (option) => option.value === data.employeeId.toString()
         );
@@ -262,7 +268,6 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
           ]);
         }
 
-        // Kiểm tra status
         const statusExists = Object.values(statusOptions).find(
           (option) => option.originalValue === data.status.toString()
         );
@@ -270,7 +275,6 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
           console.warn('Status not found:', data.status);
         }
 
-        // Kiểm tra productId trong items
         const itemsWithValidProducts = data.details.map((detail: any) => {
           const productExists = productOptions.find((option) => option.id === detail.productId);
           if (!productExists) {
@@ -293,7 +297,6 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
           };
         });
 
-        // Set giá trị
         setValue('receiptCode', data.code);
         setValue('receiptDate', parsedDate);
         setValue('supplierId', data.supplierId.toString());
@@ -333,7 +336,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
         supplierId: parseInt(data.supplierId),
         status: parseInt(data.status),
         note: '',
-        receiptDate: data.receiptDate?.toISOString(), // Chuyển đổi sang ISO string
+        receiptDate: data.receiptDate?.toISOString(),
         details: data.items.map((item) => ({
           purchaseOrderId: 0,
           productId: item.productId,
@@ -438,7 +441,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
                       onChange={onChange}
                       onBlur={onBlur}
                       value={value}
-                      placeholder={t('enter_receipt_code')}
+                      placeholder={receiptCode}
                       error={!!errors.receiptCode}
                       helperText={errors.receiptCode?.message}
                       disabled={isEditMode}

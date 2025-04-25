@@ -10,6 +10,7 @@ using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Repositories;
+using SAMMI.ECOM.Infrastructure.Repositories.Permission;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
 namespace SAMMI.ECOM.API.Controllers
@@ -21,6 +22,7 @@ namespace SAMMI.ECOM.API.Controllers
         private readonly IUsersQueries _usersQueries;
         private readonly IUsersRepository _userRepository;
         private readonly IImageRepository _imageRepository;
+        private readonly IRoleRepository _roleRepository;
         public UsersController(
             IUsersQueries usersQueries,
             IUsersRepository usersRepository,
@@ -87,15 +89,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult DeleteUser(int id)
-        {
-            if (!_userRepository.IsExisted(id))
-            {
-                return BadRequest("Người dùng không tồn tại");
-            }
-            return Ok(_userRepository.DeleteAndSave(id));
-        }
+        
 
 
         [HttpGet("customer")]
@@ -146,7 +140,6 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
-
         // supplier
         [HttpGet("supplier")]
         public async Task<IActionResult> GetSupplier([FromQuery] RequestFilterModel request)
@@ -196,27 +189,54 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
-        [HttpDelete]
-        public IActionResult DeleteRange([FromBody] List<int> ids)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserAsync(int id)
         {
-            var actErrorResponse = new ActionResponse<List<string>>();
-            var listError = new Dictionary<int, string>();
+            if (!_userRepository.IsExisted(id))
+            {
+                return BadRequest("Người dùng không tồn tại");
+            }
+            var user = await _userRepository.FindById(id);
+            var role = await _roleRepository.FindById(user.RoleId);
+            if(Enum.TryParse(role.Code, true, out TypeUserEnum type))
+            {
+                var checkRes = await _userRepository.IsExistAnotherTable(id, type);
+                if(!checkRes.IsSuccess)
+                {
+                    return BadRequest(checkRes);
+                }
+            }
+
+            return Ok(_userRepository.DeleteAndSave(id));
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteRangeAsync([FromBody] List<int> ids)
+        {
+            var actErrorResponse = new ActionResponse();
             if (ids == null || ids.Count == 0)
             {
                 return BadRequest();
             }
             foreach (var id in ids)
             {
-                if (!_userRepository.IsExisted(id) && !listError.TryGetValue(id, out var error))
+                var user = await _userRepository.FindById(id);
+                if (user == null)
                 {
-                    listError[id] = $"Không tồn tại người dùng có mã {id}";
+                    actErrorResponse.AddError($"Không tồn tại người dùng có mã {id}");
+                    return BadRequest(actErrorResponse);
+                }
+                var role = await _roleRepository.FindById(user.RoleId);
+                if (Enum.TryParse(role.Code, true, out TypeUserEnum type))
+                {
+                    var checkRes = await _userRepository.IsExistAnotherTable(id, type);
+                    if (!checkRes.IsSuccess)
+                    {
+                        return BadRequest(checkRes);
+                    }
                 }
             }
-            if (listError.Count > 0)
-            {
-                actErrorResponse.SetResult(listError.Select(x => x.Value).ToList());
-                return BadRequest(actErrorResponse);
-            }
+
             return Ok(_userRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
 

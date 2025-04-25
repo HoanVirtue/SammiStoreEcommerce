@@ -31,6 +31,7 @@ namespace SAMMI.ECOM.Domain.Commands.Products
     }
     public class CreateProductCommand : ProductCommand
     {
+        public decimal? ImportPrice { get; set; }
         public int StockQuantity { get; set; }
         public List<CreateImageCommand>? Images { get; set; }
     }

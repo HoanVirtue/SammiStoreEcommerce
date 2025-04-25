@@ -129,5 +129,11 @@ namespace SAMMI.ECOM.API.Controllers.Products
         {
             return Ok(await _productElasticService.SuggestProducts(keyWord, size));
         }
+
+        [HttpGet("get-related-products")]
+        public async Task<IActionResult> GetRelatedProductsAsync(int productId, int numberTop = 5)
+        {
+            return Ok(await _productQueries.GetRelated(productId, numberTop));
+        }
     }
 }

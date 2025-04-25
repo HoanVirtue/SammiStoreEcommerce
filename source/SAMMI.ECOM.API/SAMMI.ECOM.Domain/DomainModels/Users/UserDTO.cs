@@ -21,6 +21,8 @@
         public string? Username { get; set; }
         public bool? IsLock { get; set; }
         public string? Avatar { get; set; }
+        public DateTime? Birthday { get; set; }
+        public string? IdCardNumber { get; set; }
 
 
         public DateTime? CreatedDate { get; set; }
@@ -37,14 +39,12 @@
         public int? Gender { get; set; }
         public bool? IsAdmin { get; set; }
         public int RoleId { get; set; }
-        public DateTime? Birthday { get; set; }
     }
 
     public class CustomerDTO : UserDTO
     {
         public int? Gender { get; set; }
         public int RoleId { get; set; }
-        public DateTime? Birthday { get; set; }
     }
 
     public class SupplierDTO : UserDTO

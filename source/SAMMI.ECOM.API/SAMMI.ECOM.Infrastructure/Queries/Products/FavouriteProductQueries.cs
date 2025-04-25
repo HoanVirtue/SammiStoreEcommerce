@@ -15,7 +15,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.FavouriteProducts
     {
         Task<IPagedList<FavouriteProductDTO>> GetList(RequestFilterModel filterModel);
         Task<FavouriteProductDTO> GetById(int id);
-        Task<IEnumerable<FavouriteProductDTO>> GetAll(RequestFilterModel? filterModel = null);
+        Task<IEnumerable<FavouriteProductDTO>> GetAll(int customerId, RequestFilterModel? filterModel = null);
     }
     public class FavouriteProductQueries : QueryRepository<FavouriteProduct>, IFavouriteProductQueries
     {
@@ -23,11 +23,12 @@ namespace SAMMI.ECOM.Infrastructure.Queries.FavouriteProducts
         {
         }
 
-        public Task<IEnumerable<FavouriteProductDTO>> GetAll(RequestFilterModel? filterModel = null)
+        public Task<IEnumerable<FavouriteProductDTO>> GetAll(int customerId, RequestFilterModel? filterModel = null)
         {
             return WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    sqlBuilder.Where("t1.CustomerId = @customerId", new {customerId});
                     return conn.QueryAsync<FavouriteProductDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, filterModel
             );

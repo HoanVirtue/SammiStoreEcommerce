@@ -6,6 +6,7 @@
         Brand,
         User,
         Banner,
-        Event
+        Event,
+        Review
     }
 }

@@ -78,30 +78,30 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             return BadRequest(response);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            if (!_districtRepository.IsExisted(id))
-            {
-                return BadRequest("Quận/huyện không tồn tại");
-            }
-            return Ok(_districtRepository.DeleteAndSave(id));
-        }
+        //[HttpDelete("{id}")]
+        //public IActionResult Delete(int id)
+        //{
+        //    if (!_districtRepository.IsExisted(id))
+        //    {
+        //        return BadRequest("Quận/huyện không tồn tại");
+        //    }
+        //    return Ok(_districtRepository.DeleteAndSave(id));
+        //}
 
-        [HttpDelete]
-        public IActionResult DeleteRange([FromBody] List<int> ids)
-        {
-            var actErrorResponse = new ActionResponse();
-            if (ids == null || ids.Count == 0)
-            {
-                return BadRequest();
-            }
-            if (!ids.All(id => _districtRepository.IsExisted(id)))
-            {
-                actErrorResponse.AddError("Một số quận/huyện không tồn tại.");
-                return BadRequest(actErrorResponse);
-            }
-            return Ok(_districtRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
-        }
+        //[HttpDelete]
+        //public IActionResult DeleteRange([FromBody] List<int> ids)
+        //{
+        //    var actErrorResponse = new ActionResponse();
+        //    if (ids == null || ids.Count == 0)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    if (!ids.All(id => _districtRepository.IsExisted(id)))
+        //    {
+        //        actErrorResponse.AddError("Một số quận/huyện không tồn tại.");
+        //        return BadRequest(actErrorResponse);
+        //    }
+        //    return Ok(_districtRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
+        //}
     }
 }

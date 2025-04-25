@@ -2,13 +2,8 @@
 
 // React & Next.js imports
 import { NextPage } from "next";
-import { memo, useMemo, Suspense, useCallback } from "react";
+import { memo, Suspense, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { useTranslation } from "react-i18next";
-
-// Material UI imports
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { Typography } from "@mui/material";
 
 // Components imports
 const AdminPage = dynamic(() => import("src/components/admin-page"), {
@@ -31,13 +26,13 @@ import {
 } from "src/stores/employee/action";
 import { resetInitialState } from "src/stores/employee";
 
-// Component imports
+
 const CreateUpdateEmployee = dynamic(() => import("./components/CreateUpdateEmployee"), {
-  loading: () => <Spinner />,
+  loading: () => <></>,
   ssr: false
 });
 
-// Create a memoized selector for employee data
+
 const createEmployeeSelector = createSelector(
   (state: RootState) => state.employee.employees.data,
   (state: RootState) => state.employee.employees.total,
@@ -49,18 +44,12 @@ const createEmployeeSelector = createSelector(
   })
 );
 
-/**
- * Trang danh sách nhân viên
- * Sử dụng dynamic import để tối ưu performance
- * Sử dụng memo để tránh re-render không cần thiết
- */
-const ListEmployeePage: NextPage = () => {
-  const { t } = useTranslation();
 
-  // Sử dụng useMemo để cache columns, tránh tính toán lại mỗi lần render
+const ListEmployeePage: NextPage = () => {
+
   const columns = getEmployeeColumns();
   
-  // Use the memoized selector
+
   const employeeSelector = useCallback((state: RootState) => createEmployeeSelector(state), []);
 
   return (
@@ -87,5 +76,5 @@ const ListEmployeePage: NextPage = () => {
   );
 };
 
-// Sử dụng memo để tránh re-render không cần thiết
+
 export default memo(ListEmployeePage);

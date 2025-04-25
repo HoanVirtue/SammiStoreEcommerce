@@ -11,6 +11,15 @@ export const getAllEmployees = async (data: {params: TParamsGetAllEmployees}) =>
     }
 }
 
+export const getEmployeeCode = async (data: {params: {type: number}}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.USER.INDEX}/get-code-by-last-id`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const createEmployee = async (data: TParamsCreateEmployee) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.USER.EMPLOYEE.INDEX}`, data)

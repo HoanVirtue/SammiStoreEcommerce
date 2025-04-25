@@ -12,6 +12,7 @@ import {
     Typography,
     InputAdornment,
     FormControl,
+    Switch,
 } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -24,7 +25,9 @@ import { getAllWards, getWardDetail } from "src/services/ward";
 import { getAllProvinces } from "src/services/province";
 import { getAllDistricts } from "src/services/district";
 import { AutocompleteOption } from "src/components/custom-autocomplete";
-import { getEmployeeDetail } from "src/services/employee";
+import { getEmployeeCode, getEmployeeDetail } from "src/services/employee";
+import { FormControlLabel } from "@mui/material";
+import { InputLabel } from "@mui/material";
 
 const CustomModal = lazy(() => import("src/components/custom-modal"));
 const IconifyIcon = lazy(() => import("src/components/Icon"));
@@ -53,6 +56,11 @@ interface FormValues {
     username: string;
     password?: string;
     gender: number;
+    birthday: string;
+    idCardNumber: string;
+    verifyToken: string;
+    verifiedAt?: Date | null;
+    isLock: boolean | false;
 }
 
 interface AutocompleteOptionNumber {
@@ -71,6 +79,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     const [showPassword, setShowPassword] = useState(false);
     const [avatarError, setAvatarError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [employeeDefaultCode, setEmployeeDefaultCode] = useState("");
     const defaultAvatar = "/images/avatars/default-avatar.png";
 
     const { open, onClose, id } = props;
@@ -81,17 +90,26 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     const schema = yup.object().shape({
         roleId: yup.number().required(t("required_code")),
         code: yup.string().required(t("required_code")),
-        type: yup.string().required(t("required_type")),
+        type: yup.string().default(""),
         firstName: yup.string().required(t("required_first_name")),
         lastName: yup.string().required(t("required_last_name")),
         email: yup.string().required(t("required_email")).email().matches(EMAIL_REG, t("incorrect_email_format")),
-        phone: yup.string().required(t("required_phone")).min(10, t("incorrect_phone_format")),
+        phone: yup.string()
+            .required(t("required_phone"))
+            .matches(/^\d{10}$/, t("incorrect_phone_format")),
         streetAddress: yup.string().required(t("required_address")),
         wardId: yup.number().required(t("required_ward_id")),
-        wardName: yup.string().required(t("required_ward_name")),
+        wardName: yup.string().default(""),
         username: yup.string().required(t("required_username")),
         password: id ? yup.string() : yup.string().required(t("required_password")).matches(PASSWORD_REG, t("incorrect_password_format")),
         gender: yup.number().required(t("required_gender")),
+        birthday: yup.string().required(t("required_birthday")),
+        idCardNumber: yup.string()
+            .required(t("required_id_card_number"))
+            .matches(/^\d{12}$/, t("id_card_number_format")),
+        verifyToken: yup.string().default(""),
+        verifiedAt: yup.date().nullable(),
+        isLock: yup.boolean().required(t("required_is_lock")),
     });
 
     const defaultValues: FormValues = {
@@ -108,7 +126,12 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
         username: "",
         password: "",
         gender: 0,
-    };
+        birthday: "",
+        idCardNumber: "",
+        verifyToken: "",
+        verifiedAt: null,
+        isLock: false,
+        };
 
     const {
         handleSubmit,
@@ -139,7 +162,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                 roleId: data.roleId,
                 code: data.code,
                 identityGuid: "",
-                type: data.type,
+                type: data.type || "",
                 firstName: data.firstName,
                 lastName: data.lastName,
                 fullName: "",
@@ -151,6 +174,11 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                 username: data.username,
                 securityStamp: "",
                 gender: data.gender,
+                birthday: data.birthday,
+                idCardNumber: data.idCardNumber,
+                verifyToken: "",
+                verifiedAt: null,
+                isLock: data.isLock || false,
             };
 
             if (id) {
@@ -160,8 +188,8 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                     roleId: data.roleId,
                     password: data.password || ""
                 } as any))
-                    .then((result) => {
-                        if (result.meta.requestStatus === 'fulfilled') {
+                    .then((result: any) => {
+                        if (result.isSuccess === true) {
                             onClose();
                         }
                     })
@@ -175,10 +203,10 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                 dispatch(createEmployeeAsync({
                     ...baseData,
                     roleId: data.roleId,
-                    password: data.password // Password required for create
+                    password: data.password
                 } as any))
-                    .then((result) => {
-                        if (result.meta.requestStatus === 'fulfilled') {
+                    .then((result: any) => {
+                        if (result.isSuccess === true) {
                             onClose();
                         }
                     })
@@ -229,6 +257,11 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
             setValue("wardName", "");
         }
     }, [setValue]);
+
+    const getEmployeeDefaultCode = async () => {
+        const res = await getEmployeeCode({params: {type:  1}});
+        setEmployeeDefaultCode(res?.result);
+    };
 
     const fetchAllProvinces = useCallback(async () => {
         setLoading(true);
@@ -326,7 +359,6 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
         setLoading(true);
         await getEmployeeDetail(id)
             .then((res) => {
-                console.log('Employee detail:', res?.result); // Debug log
                 const data = res?.result;
                 if (data) {
                     formReset({
@@ -343,6 +375,10 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                         username: data.username || "",
                         password: "",
                         gender: data.gender || 0,
+                        birthday: data.birthday || "",
+                        idCardNumber: data.idCardNumber || "",
+                        verifyToken: data.verifyToken || "",
+                        verifiedAt: data.verifiedAt || null,
                     });
                     setAvatar(data.avatar || defaultAvatar);
                     if (data.wardId) {
@@ -358,8 +394,12 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     };
 
     useEffect(() => {
+        getEmployeeDefaultCode();
+    }, []);
+
+    useEffect(() => {
         fetchAllProvinces();
-    }, [fetchAllProvinces]);
+    }, []);
 
     useEffect(() => {
         if (selectedProvince) {
@@ -574,6 +614,50 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
 
                                             <Controller
                                                 control={control}
+                                                name="birthday"
+                                                render={({ field: { onChange, onBlur, value } }) => (
+                                                    <CustomTextField
+                                                        fullWidth
+                                                        label={t("birthday")}
+                                                        type="date"
+                                                        onChange={onChange}
+                                                        onBlur={onBlur}
+                                                        value={value}
+                                                        error={!!errors.birthday}
+                                                        helperText={errors.birthday?.message}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                        }}
+                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                    />
+                                                )}
+                                            />
+
+                                            <Controller
+                                                control={control}
+                                                name="idCardNumber"
+                                                render={({ field: { onChange, onBlur, value } }) => (
+                                                    <CustomTextField
+                                                        fullWidth
+                                                        label={t("id_card_number")}
+                                                        onChange={(e) => onChange(e.target.value.replace(/\D/g, ""))}
+                                                        onBlur={onBlur}
+                                                        value={value}
+                                                        placeholder={t("enter_id_card_number")}
+                                                        error={!!errors.idCardNumber}
+                                                        helperText={errors.idCardNumber?.message}
+                                                        inputProps={{
+                                                            maxLength: 12,
+                                                            inputMode: "numeric",
+                                                            pattern: "[0-9]*"
+                                                        }}
+                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                    />
+                                                )}
+                                            />
+
+                                            <Controller
+                                                control={control}
                                                 name="roleId"
                                                 render={({ field: { onChange, onBlur, value } }) => (
                                                     <Box>
@@ -594,23 +678,6 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                                 )}
                                             />
 
-                                            <Controller
-                                                control={control}
-                                                name="code"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        label={t("employee_code")}
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        value={value}
-                                                        placeholder={t("enter_employee_code")}
-                                                        error={!!errors.code}
-                                                        helperText={errors.code?.message}
-                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-                                                    />
-                                                )}
-                                            />
                                         </Box>
                                     </Grid>
 
@@ -736,22 +803,50 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                                     />
                                                 )}
                                             />
-
                                             <Controller
                                                 control={control}
-                                                name="type"
+                                                name="code"
                                                 render={({ field: { onChange, onBlur, value } }) => (
                                                     <CustomTextField
                                                         fullWidth
-                                                        label={t("type")}
+                                                        label={t("employee_code")}
                                                         onChange={onChange}
                                                         onBlur={onBlur}
                                                         value={value}
-                                                        placeholder={t("enter_type")}
-                                                        error={!!errors.type}
-                                                        helperText={errors.type?.message}
+                                                        placeholder={employeeDefaultCode}
+                                                        error={!!errors.code}
+                                                        helperText={errors.code?.message}
                                                         sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                                                     />
+                                                )}
+                                            />
+                                            <Controller
+                                                name="isLock"
+                                                control={control}
+                                                render={({ field: { onChange, value } }) => (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                        <InputLabel>{t("status")}</InputLabel>
+                                                        <FormControlLabel
+                                                            control={
+                                                                <Switch
+                                                                    checked={Boolean(value)}
+                                                                    defaultValue={0}
+                                                                    onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                                                                    sx={{
+                                                                        '& .MuiSwitch-track': {
+                                                                            color: theme.palette.primary.main,
+                                                                            border: `1px solid ${theme.palette.primary.main}`,
+                                                                            backgroundColor: theme.palette.primary.main,
+                                                                            '&:hover': {
+                                                                                backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                />
+                                                            }
+                                                            label={Boolean(value) ? t("locked") : t("active")}
+                                                        />
+                                                    </Box>
                                                 )}
                                             />
                                         </Box>

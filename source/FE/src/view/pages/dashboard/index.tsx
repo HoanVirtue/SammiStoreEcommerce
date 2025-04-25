@@ -16,7 +16,7 @@ import {
   getCountRevenueYear,
   getCountUserType
 } from 'src/services/report'
-import { getAllProducts } from 'src/services/product'
+
 
 // Dynamic imports
 const CardCountRecords = dynamic(() => import('src/view/pages/dashboard/components/CardCountRecords'), { ssr: false })

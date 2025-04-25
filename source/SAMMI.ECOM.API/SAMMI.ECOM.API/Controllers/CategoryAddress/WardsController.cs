@@ -78,30 +78,30 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             return BadRequest(response);
         }
 
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            if (!_wardRepository.IsExisted(id))
-            {
-                return BadRequest("Phường/xã không tồn tại.");
-            }
-            return Ok(_wardRepository.DeleteAndSave(id));
-        }
+        //[HttpDelete("{id}")]
+        //public IActionResult Delete(int id)
+        //{
+        //    if (!_wardRepository.IsExisted(id))
+        //    {
+        //        return BadRequest("Phường/xã không tồn tại.");
+        //    }
+        //    return Ok(_wardRepository.DeleteAndSave(id));
+        //}
 
-        [HttpDelete]
-        public IActionResult DeleteRange([FromBody] List<int> ids)
-        {
-            var actErrorResponse = new ActionResponse();
-            if (ids == null || ids.Count == 0)
-            {
-                return BadRequest();
-            }
-            if (!ids.All(id => _wardRepository.IsExisted(id)))
-            {
-                actErrorResponse.AddError("Một số phường/xã không tồn tại.");
-                return BadRequest(actErrorResponse);
-            }
-            return Ok(_wardRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
-        }
+        //[HttpDelete]
+        //public IActionResult DeleteRange([FromBody] List<int> ids)
+        //{
+        //    var actErrorResponse = new ActionResponse();
+        //    if (ids == null || ids.Count == 0)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    if (!ids.All(id => _wardRepository.IsExisted(id)))
+        //    {
+        //        actErrorResponse.AddError("Một số phường/xã không tồn tại.");
+        //        return BadRequest(actErrorResponse);
+        //    }
+        //    return Ok(_wardRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
+        //}
     }
 }

@@ -25,6 +25,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         Task<ActionResponse> CancelldOrder(int orderId);
         Task<Order> FindByCode(string code);
         Task<NumberOfOrders> GetNumberOrder();
+        Task<bool> IsExisted(int orderId, int customerId);
     }
     public class OrderRepository : CrudRepository<Order>, IOrderRepository, IDisposable
     {
@@ -379,6 +380,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 TotalCancelled = totalCancelled,
                 TotalOrder = totalPending + totalCompleted + totalCancelled
             };
+        }
+
+        public Task<bool> IsExisted(int orderId, int customerId)
+        {
+            return DbSet.Where(x => x.Id == orderId && x.CustomerId == customerId && x.IsDeleted != true).AnyAsync();
         }
     }
 }

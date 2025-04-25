@@ -36,7 +36,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Other
                 { ImageEnum.Brand, _config["CloundSettings:ImageBrandFolder"] },
                 { ImageEnum.User, _config["CloundSettings:ImageUserFolder"] },
                 { ImageEnum.Banner, _config["CloundSettings:ImageBannerFolder"] },
-                { ImageEnum.Event, _config["CloundSettings:ImageEventFolder"] }
+                { ImageEnum.Event, _config["CloundSettings:ImageEventFolder"] },
+                { ImageEnum.Review, _config["CloundSettings:ImageReviewFolder"] },
             };
             string typeImage = "", folder = "", fileName = "", urlImage = "";
             if (!Enum.TryParse(request.TypeImage, true, out ImageEnum imageType))

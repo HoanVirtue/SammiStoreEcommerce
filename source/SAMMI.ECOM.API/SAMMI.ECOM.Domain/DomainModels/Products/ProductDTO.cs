@@ -25,6 +25,7 @@ namespace SAMMI.ECOM.Domain.DomainModels.Products
         public DateTime? EndDate { get; set; }
         public List<ImageDTO>? Images { get; set; }
         public int? TotalSold { get; set; }
+        public int? TotalLike { get; set; }
 
 
         public int Id { get; set; }

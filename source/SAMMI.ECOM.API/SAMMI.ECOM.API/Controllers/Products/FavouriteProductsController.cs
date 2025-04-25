@@ -45,7 +45,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAsync(RequestFilterModel request)
+        public async Task<IActionResult> GetAsync([FromQuery]RequestFilterModel request)
         {
             if(request.Type == RequestType.Grid)
             {
@@ -53,13 +53,13 @@ namespace SAMMI.ECOM.API.Controllers.Products
             }
             if (_redisService != null && _redisService.IsConnected())
             {
-                var cachedList = _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
+                var cachedList = await _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
                 if (cachedList != null)
                 {
                     return Ok(cachedList);
                 }
             }
-            return Ok(await _favouriteQueries.GetAll(request));
+            return Ok(await _favouriteQueries.GetAll(UserIdentity.Id, request));
         }
 
         [HttpPost("{productId}")]

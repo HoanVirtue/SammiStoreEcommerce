@@ -44,6 +44,7 @@ export const API_ENDPOINT = {
     },
   },
   USER: {
+    INDEX: `${BASE_URL}/users`,
     ME: {
       INDEX: `${BASE_URL}/users/get-current-user`,
     },

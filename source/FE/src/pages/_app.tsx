@@ -107,12 +107,12 @@ export default function App(props: ExtendedAppProps) {
   return (
     <Provider store={store}>
       <Head>
-        <title>{`${themeConfig.templateName} - Online Cosmetic Shop`}</title>
+        <title>{`${themeConfig.templateName} - Cửa hàng mỹ phẩm Sammi`}</title>
         <meta
           name='description'
-          content={`${themeConfig.templateName} – Online Cosmetic Shop`}
+          content={`${themeConfig.templateName} – Cửa hàng mỹ phẩm Sammi`}
         />
-        <meta name='keywords' content='Online Cosmetic Shop, Sammi Stores' />
+        <meta name='keywords' content='Cửa hàng mỹ phẩm Sammi, Sammi Stores' />
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
 

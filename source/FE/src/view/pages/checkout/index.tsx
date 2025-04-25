@@ -31,7 +31,7 @@ import { useTranslation } from 'react-i18next';
 import { AppDispatch, RootState } from 'src/stores';
 import { useDispatch, useSelector } from 'react-redux';
 
-// Dynamic imports cho các components nặng
+
 const CheckoutSummary = dynamic(() => import('./components/CheckoutSummary'), {
     loading: () => <Spinner />,
     ssr: false
@@ -106,12 +106,11 @@ const CheckoutPage: NextPage<TProps> = () => {
     const [shippingPrice, setShippingPrice] = useState<number>(0);
     const [leadTime, setLeadTime] = useState<Date | null>(null);
 
-    // States cho address và voucher
+
     const [myCurrentAddress, setMyCurrentAddress] = useState<TParamsAddresses>();
     const [selectedVoucherId, setSelectedVoucherId] = useState<number>(0);
     const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
 
-    // ============= Hooks và Constants =============
     const { user } = useAuth();
     const { i18n, t } = useTranslation();
     const router = useRouter();
@@ -119,11 +118,10 @@ const CheckoutPage: NextPage<TProps> = () => {
     const dispatch: AppDispatch = useDispatch();
     const PAYMENT_DATA = PAYMENT_METHOD();
 
-    // Redux selectors
+
     const { addresses } = useSelector((state: RootState) => state.address);
     const { carts, isLoading } = useSelector((state: RootState) => state.cart);
 
-    // ============= Memoized Values =============
     const breadcrumbItems = useMemo(() => [
         {
             label: t('home'),
@@ -188,11 +186,11 @@ const CheckoutPage: NextPage<TProps> = () => {
                         const discountType = res.result.discountTypeId;
 
                         let calculatedDiscount = 0;
-                        if (discountType === 1) { // Percentage discount
+                        if (discountType === 1) { 
                             calculatedDiscount = (Number(memoQueryProduct.totalPrice) * Number(discountValue)) / 100;
-                        } else if (discountType === 2) { // Fixed amount discount
+                        } else if (discountType === 2) {
                             calculatedDiscount = Number(discountValue);
-                        } else if (discountType === 3) { // Free shipping
+                        } else if (discountType === 3) { 
                             calculatedDiscount = Number(shippingPrice);
                         }
 

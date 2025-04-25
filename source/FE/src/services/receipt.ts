@@ -11,6 +11,15 @@ export const getAllReceipts = async (data: { params: TParamsGetAllReceipts }) =>
     }
 }
 
+export const getReceiptCode = async () => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}`)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const createReceipt = async (data: TParamsCreateReceipt) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}`, data)

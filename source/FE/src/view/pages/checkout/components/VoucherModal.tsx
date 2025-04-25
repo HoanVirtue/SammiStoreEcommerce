@@ -87,7 +87,7 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
         try {
             const formattedDetails = {
                 details: cartDetails?.map(item => ({
-                    cartId: 0,
+                    cartId: 1,
                     productId: Number(item.productId),
                     productName: item.productName,
                     price: Number(item.price),

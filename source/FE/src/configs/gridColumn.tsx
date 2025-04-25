@@ -1325,6 +1325,30 @@ export const getCustomerColumns = (): GridColDef[] => {
     renderCell: (params: GridRenderCellParams) => <Typography>{params.row.phone}</Typography>,
   },
   {
+    field: "address",
+    headerName: t("address"),
+    minWidth: 300,
+    maxWidth: 300,
+    renderCell: (params: GridRenderCellParams) => <Typography sx={{
+      textWrap: 'wrap',
+    }}>{params.row.streetAddress ? `${params.row.streetAddress}, ` : ''}{params.row.wardName}, {params.row.districtName}, {params.row.provinceName}</Typography>,
+  },
+  {
+    field: 'birthday',
+    headerName: t('birthday'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return (
+        <Typography>
+          {formatDate(row?.birthday, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
+  },
+  {
     field: "email",
     headerName: t("email"),
     minWidth: 200,
@@ -1341,6 +1365,26 @@ export const getCustomerColumns = (): GridColDef[] => {
           {params.row.gender === 1 ? t("male") : params.row.gender === 0 ? t("female") : t("unknown")}
         </Typography>
       ),
+    },
+    {
+      field: 'status',
+      headerName: t('status'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <>
+            {row?.isLock === false ? (
+              <StyledPublicProduct label={t('active')} />
+            ) : (
+              <StyledPrivateProduct label={t('locked')} />
+            )
+            }
+          </>
+        )
+      }
     },
     {
       field: 'createdBy',
@@ -1427,6 +1471,13 @@ export const getEmployeeColumns = (): GridColDef[] => {
     renderCell: (params: GridRenderCellParams) => <Typography>{params.row.fullName}</Typography>,
   },
   {
+    field: "cardNumber",
+    headerName: t("card_number"),
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => <Typography>{params.row.idCardNumber}</Typography>,
+  },
+  {
     field: "phone",
     headerName: t("phone"),
     minWidth: 200,
@@ -1434,11 +1485,35 @@ export const getEmployeeColumns = (): GridColDef[] => {
     renderCell: (params: GridRenderCellParams) => <Typography>{params.row.phone}</Typography>,
   },
   {
+    field: 'birthday',
+    headerName: t('birthday'),
+    flex: 1,
+    minWidth: 200,
+    maxWidth: 200,
+    renderCell: (params: GridRenderCellParams) => {
+      const { row } = params
+      return (
+        <Typography>
+          {formatDate(row?.birthday, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
+  },
+  {
     field: "email",
     headerName: t("email"),
     minWidth: 200,
     maxWidth: 200,
     renderCell: (params: GridRenderCellParams) => <Typography>{params.row.email}</Typography>,
+  },
+  {
+    field: "address",
+    headerName: t("address"),
+    minWidth: 300,
+    maxWidth: 300,
+    renderCell: (params: GridRenderCellParams) => <Typography sx={{
+      textWrap: 'wrap',
+    }}>{params.row.streetAddress ? `${params.row.streetAddress}, ` : ''}{params.row.wardName}, {params.row.districtName}, {params.row.provinceName}</Typography>,
   },
   {
     field: "gender",
@@ -1548,6 +1623,15 @@ export const getSupplierColumns = (): GridColDef[] => {
     minWidth: 200,
     maxWidth: 200,
     renderCell: (params: GridRenderCellParams) => <Typography>{params.row.email}</Typography>,
+  },
+  {
+    field: "address",
+    headerName: t("address"),
+    minWidth: 300,
+    maxWidth: 300,
+    renderCell: (params: GridRenderCellParams) => <Typography sx={{
+      textWrap: 'wrap',
+    }}>{params.row.streetAddress ? `${params.row.streetAddress}, ` : ''}{params.row.wardName}, {params.row.districtName}, {params.row.provinceName}</Typography>,
   },
   {
     field: "gender",

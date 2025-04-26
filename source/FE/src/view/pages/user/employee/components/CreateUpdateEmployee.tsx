@@ -80,7 +80,6 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     const [avatarError, setAvatarError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [employeeDefaultCode, setEmployeeDefaultCode] = useState("");
-    const defaultAvatar = "/images/avatars/default-avatar.png";
 
     const { open, onClose, id } = props;
     const { t } = useTranslation();
@@ -109,7 +108,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
             .matches(/^\d{12}$/, t("id_card_number_format")),
         verifyToken: yup.string().default(""),
         verifiedAt: yup.date().nullable(),
-        isLock: yup.boolean().required(t("required_is_lock")),
+        isLock: yup.boolean().default(false),
     });
 
     const defaultValues: FormValues = {
@@ -155,6 +154,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
         { label: t('female'), value: 0 },
     ], [t]);
 
+    console.log(errors);
     const onSubmit = (data: FormValues) => {
         if (!Object.keys(errors).length) {
             setIsSubmitting(true);
@@ -357,40 +357,94 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
 
     const fetchDetailEmployee = async (id: number) => {
         setLoading(true);
-        await getEmployeeDetail(id)
-            .then((res) => {
-                const data = res?.result;
-                if (data) {
-                    formReset({
-                        roleId: data.roleId || 0,
-                        code: data.code || "",
-                        type: data.type || "",
-                        firstName: data.firstName || "",
-                        lastName: data.lastName || "",
-                        email: data.email || "",
-                        phone: data.phone || "",
-                        streetAddress: data.streetAddress || "",
-                        wardId: data.wardId || 0,
-                        wardName: data.wardName || "",
-                        username: data.username || "",
-                        password: "",
-                        gender: data.gender || 0,
-                        birthday: data.birthday || "",
-                        idCardNumber: data.idCardNumber || "",
-                        verifyToken: data.verifyToken || "",
-                        verifiedAt: data.verifiedAt || null,
-                    });
-                    setAvatar(data.avatar || defaultAvatar);
-                    if (data.wardId) {
-                        fetchWardDetail(data.wardId);
+        try {
+            const res = await getEmployeeDetail(id);
+            const data = res?.result;
+            if (data) {
+                // Format birthday to YYYY-MM-DD for date input
+                let formattedBirthday = "";
+                if (data.birthday) {
+                    const date = new Date(data.birthday);
+                    formattedBirthday = date.toISOString().split('T')[0];
+                }
+
+                formReset({
+                    roleId: data.roleId || 0,
+                    code: data.code || "",
+                    type: data.type || "",
+                    firstName: data.firstName || "",
+                    lastName: data.lastName || "",
+                    email: data.email || "",
+                    phone: data.phone || "",
+                    streetAddress: data.streetAddress || "",
+                    wardId: data.wardId || 0,
+                    wardName: data.wardName || "",
+                    username: data.username || "",
+                    password: "",
+                    gender: data.gender || 0,
+                    birthday: formattedBirthday,
+                    idCardNumber: data.idCardNumber || "",
+                    verifyToken: data.verifyToken || "",
+                    verifiedAt: data.verifiedAt || null,
+                    isLock: data.isLock || false,
+                });
+                
+                setAvatar(data.avatar);
+                
+                // Set province, district, ward
+                if (data.provinceId) {
+                    // First, make sure we have all provinces loaded
+                    if (provinceOptions.length === 0) {
+                        await fetchAllProvinces();
+                    }
+                    
+                    // Find the province option
+                    const provinceOption = provinceOptions.find(
+                        option => option.value === data.provinceId.toString()
+                    ) || {
+                        label: data.provinceName || "",
+                        value: data.provinceId.toString()
+                    };
+                    
+                    // Set the province
+                    setSelectedProvince(provinceOption);
+                    
+                    // Fetch districts for this province
+                    await fetchDistrictsByProvince(Number(data.provinceId));
+                    
+                    // Set district if available
+                    if (data.districtId) {
+                        // Find the district option
+                        const districtOption = districtOptions.find(
+                            option => option.value === data.districtId.toString()
+                        ) || {
+                            label: data.districtName || "",
+                            value: data.districtId.toString()
+                        };
+                        setSelectedDistrict(districtOption);
+                        
+                        await fetchWardsByDistrict(Number(data.districtId));
+                        
+                        if (data.wardId) {
+                            const wardOption = wardOptions.find(
+                                option => option.value === data.wardId.toString()
+                            ) || {
+                                label: data.wardName || "",
+                                value: data.wardId.toString()
+                            };
+                            
+                            // Set the ward
+                            setValue("wardId", Number(data.wardId));
+                            setValue("wardName", data.wardName || "");
+                        }
                     }
                 }
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error('Error fetching employee:', err);
-                setLoading(false);
-            });
+            }
+        } catch (err) {
+            console.error('Error fetching employee:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     useEffect(() => {
@@ -493,7 +547,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                                     </IconButton>
                                                 )}
                                                 <Avatar
-                                                    src={avatar || defaultAvatar}
+                                                    src={avatar}
                                                     alt="avatar"
                                                     sx={{ width: 100, height: 100, border: `2px solid ${theme.palette.primary.main}` }}
                                                 >
@@ -813,6 +867,7 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
                                                         onChange={onChange}
                                                         onBlur={onBlur}
                                                         value={value}
+                                                        disabled={!!id}
                                                         placeholder={employeeDefaultCode}
                                                         error={!!errors.code}
                                                         helperText={errors.code?.message}

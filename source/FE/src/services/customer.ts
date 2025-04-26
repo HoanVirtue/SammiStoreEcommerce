@@ -11,6 +11,15 @@ export const getAllCustomers = async (data: {params: TParamsGetAllCustomers}) =>
     }
 }
 
+export const getCustomerCode = async (data: {params: {type: number}}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.USER.INDEX}/get-code-by-last-id`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const createCustomer = async (data: TParamsCreateCustomer) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.USER.CUSTOMER.INDEX}`, data)

@@ -60,13 +60,21 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateEventCommand request)
         {
+            var actRes = new ActionResponse();
             if (id != request.Id)
             {
                 return BadRequest();
             }
-            if (!_eventRepository.IsExisted(id))
+            var eventEntity = await _eventRepository.FindById(id);
+            if (eventEntity == null)
             {
-                return BadRequest("Chương trình khuyến mãi không tồn tại.");
+                actRes.AddError("Chương trình khuyến mãi không tồn tại.");
+                return BadRequest(actRes);
+            }
+            if (DateTime.Now >= eventEntity.StartDate && DateTime.Now <= eventEntity.EndDate)
+            {
+                actRes.AddError("Chương trình khuyến mãi đang diễn ra không thể cập nhật.");
+                return BadRequest(actRes);
             }
             var response = await _mediator.Send(request);
             if (response.IsSuccess)
@@ -80,11 +88,19 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         public async Task<IActionResult> DeleteAsync(int id)
         {
             var actResponse = new ActionResponse();
-            if (!_eventRepository.IsExisted(id))
+            var eventEntity = await _eventRepository.FindById(id);
+            if (eventEntity == null)
             {
                 return BadRequest("Chương trình khuyến mãi không tồn tại.");
             }
-            if(!await _eventRepository.IsExistAnother(id))
+
+            if(DateTime.Now >= eventEntity.StartDate && DateTime.Now <= eventEntity.EndDate)
+            {
+                actResponse.AddError("Chương trình khuyến mãi đang diễn ra không thể xóa.");
+                return BadRequest(actResponse);
+            }
+
+            if (!await _eventRepository.IsExistAnother(id))
             {
                 actResponse.AddError("Không thể xóa! Phiếu giảm giá của chương trình đã được sử dụng");
                 return BadRequest(actResponse);
@@ -113,6 +129,15 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 actErrorResponse.AddError("Một số chương trình khuyến mãi không tồn tại.");
                 return BadRequest(actErrorResponse);
+            }
+            foreach(var id in ids)
+            {
+                var eventEntity = await _eventRepository.FindById(id);
+                if (DateTime.Now >= eventEntity.StartDate && DateTime.Now <= eventEntity.EndDate)
+                {
+                    actErrorResponse.AddError($"Chương trình khuyến mãi {id} đang diễn ra không thể xóa.");
+                    return BadRequest(actErrorResponse);
+                }
             }
             var exists = await Task.WhenAll(ids.Select(id => _eventRepository.IsExistAnother(id)));
             if (!exists.All(x => x))

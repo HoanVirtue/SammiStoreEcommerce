@@ -178,6 +178,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             if (request.VoucherId != 0 && request.VoucherId != null)
             {
                 var totalDiscount = await _voucherRepository.CalculateDiscount(request.VoucherId ?? 0, request.CostShip ?? 0, totalAmount);
+                request.DiscountValue = totalDiscount;
                 totalAmount -= totalDiscount;
                 // update kho voucher
                 var myVoucher = await _myVoucherRepository.GetDataByVoucherAndCustomer(request.VoucherId ?? 0, _currentUser.Id);

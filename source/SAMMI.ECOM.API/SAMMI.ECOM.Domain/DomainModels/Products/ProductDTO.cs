@@ -41,4 +41,15 @@ namespace SAMMI.ECOM.Domain.DomainModels.Products
         // suggest
         public CompletionField? Suggest { get; set; }
     }
+
+    public class SuggestProductDTO
+    {
+        public int Id { get; set; }
+        public string Code { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public decimal? Price { get; set; }
+        public decimal? Discount { get; set; }
+        public decimal? NewPrice { get; set; }
+        public string? ProductImage { get; set; }
+    }
 }

@@ -81,11 +81,21 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
 
-            if (!_eventRepository.IsExisted(request.EventId))
+            var eventEntity = await _eventRepository.FindById(request.EventId);
+            if (eventEntity == null)
             {
                 actResponse.AddError("Chương trình khuyến mãi không tồn tại");
                 return actResponse;
             }
+            if (!(request.StartDate >= eventEntity.StartDate
+                  && request.StartDate < eventEntity.EndDate
+                  && request.EndDate > eventEntity.StartDate
+                  && request.EndDate <= eventEntity.EndDate))
+            {
+                actResponse.AddError("Thời gian áp dụng của voucher không hợp lệ với chương trình khuyến mãi này");
+                return actResponse;
+            }
+
             if (!_typeRepository.IsExisted(request.DiscountTypeId))
             {
                 actResponse.AddError("Loại phiếu giảm giá không tồn tại");

@@ -67,7 +67,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
             {
                 request.CreatedDate = DateTime.Now;
                 request.CreatedBy = _currentUser.UserName;
-                request.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
                 request.Type = TypeUserEnum.Supplier.ToString();
                 request.IdentityGuid = Guid.NewGuid().ToString();
 
@@ -85,7 +84,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
 
                 request.UpdatedDate = DateTime.Now;
                 request.UpdatedBy = _currentUser.UserName;
-                request.FullName = $"{request.FirstName.Trim()} {request.LastName.Trim()}";
                 //supplier.Code = request.Code;
                 //supplier.FirstName = request.FirstName;
                 //supplier.LastName = request.LastName;
@@ -111,13 +109,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.User
     {
         public CUSupplierCommandValidator()
         {
-            RuleFor(x => x.FirstName)
+            RuleFor(x => x.FullName)
                 .NotEmpty()
-                .WithMessage("Họ không được bỏ trống");
-
-            RuleFor(x => x.LastName)
-                .NotEmpty()
-                .WithMessage("Tên không được bỏ trống");
+                .WithMessage("Tên nhà cung cấp không được bỏ trống");
 
             RuleFor(x => x.Phone)
                 .NotEmpty()

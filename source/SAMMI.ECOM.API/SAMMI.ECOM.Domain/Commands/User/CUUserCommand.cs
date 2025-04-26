@@ -11,8 +11,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public string Code { get; set; } = null!;
         public string IdentityGuid { get; set; } = null!;
         public string? Type { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        
         public string? FullName { get; set; }
         public string? Email { get; set; }
         public string Phone { get; set; }
@@ -35,6 +34,8 @@ namespace SAMMI.ECOM.Domain.Commands.User
 
     public class CreateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string IdCardNumber { get; set; }
         [DefaultValue(false)]
         public bool? IsAdmin { get; set; } = false!;
@@ -50,6 +51,8 @@ namespace SAMMI.ECOM.Domain.Commands.User
 
     public class UpdateEmployeeCommand : CUUserCommand, IRequest<ActionResponse<EmployeeDTO>>
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public string IdCardNumber { get; set; }
         [DefaultValue(false)]
         public bool? IsAdmin { get; set; } = false!;
@@ -60,6 +63,8 @@ namespace SAMMI.ECOM.Domain.Commands.User
 
     public class CUCustomerCommand : CUUserCommand, IRequest<ActionResponse<CustomerDTO>>
     {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
         public int? Gender { get; set; }
         public string? Username { get; set; }
         public string? Password { get; set; }

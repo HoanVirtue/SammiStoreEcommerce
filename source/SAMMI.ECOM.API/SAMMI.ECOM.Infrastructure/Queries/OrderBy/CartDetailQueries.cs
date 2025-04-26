@@ -92,6 +92,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     sqlBuilder.Select("t3.Name AS ProductName");
+                    sqlBuilder.Select("t3.StockQuantity");
                     sqlBuilder.Select($@"CASE
                                             WHEN t3.StartDate IS NOT NULL
                                             AND t3.EndDate IS NOT NULL
@@ -100,9 +101,17 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                             THEN t3.Price * (1 - t3.Discount)
                                             ELSE t3.Price
                                         END AS Price");
+                    sqlBuilder.Select("t4.ImageUrl AS ProductImage");
 
                     sqlBuilder.InnerJoin("Cart t2 ON t1.CartId = t2.Id AND t2.IsDeleted != 1");
                     sqlBuilder.InnerJoin("Product t3 ON t1.ProductId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.LeftJoin(@"(SELECT pi.ProductId,
+                                          i.ImageUrl
+                                    FROM ProductImage pi
+                                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                    WHERE pi.IsDeleted != 1
+                                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                                    ) t4 ON t3.Id = t4.ProductId");
                     sqlBuilder.Where("t2.CustomerId = @userId", new { userId = UserIdentity.Id });
 
                     return conn.QueryAsync<CartDetailDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);

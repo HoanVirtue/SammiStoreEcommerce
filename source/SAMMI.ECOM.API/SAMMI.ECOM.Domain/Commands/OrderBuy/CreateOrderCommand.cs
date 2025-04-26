@@ -11,6 +11,7 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public string? OrderStatus { get; set; }
         public string? ShippingStatus { get; set; }
         public int? VoucherId { get; set; }
+        public decimal? DiscountValue { get; set; }
         public int? WardId { get; set; }
         public string? CustomerAddress { get; set; }
         public decimal? CostShip { get; set; }

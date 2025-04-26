@@ -135,5 +135,12 @@ namespace SAMMI.ECOM.API.Controllers.Products
         {
             return Ok(await _productQueries.GetRelated(productId, numberTop));
         }
+
+        [HttpPost("push-product-elastic")]
+        public async Task<IActionResult> PushProductInElasticAsync()
+        {
+            _productElasticService.BulkImportProducts();
+            return Ok();
+        }
     }
 }

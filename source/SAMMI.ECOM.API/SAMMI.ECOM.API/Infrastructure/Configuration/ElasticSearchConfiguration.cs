@@ -3,7 +3,7 @@ using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Utility;
 
-namespace SAMMI.ECOM.API.Infrastructure
+namespace SAMMI.ECOM.API.Infrastructure.Configuration
 {
     public static class ElasticSearchConfiguration
     {
@@ -33,7 +33,6 @@ namespace SAMMI.ECOM.API.Infrastructure
         private static void AddDefaultMappings(ConnectionSettings settings)
         {
             settings.DefaultMappingFor<ProductDTO>(m => m
-                .Ignore(p => p.Images)
                 .Ignore(p => p.CreatedDate)
                 .Ignore(p => p.UpdatedDate)
                 .Ignore(p => p.CreatedBy)

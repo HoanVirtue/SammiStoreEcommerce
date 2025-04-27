@@ -52,6 +52,8 @@ import { resetInitialState } from 'src/stores/auth'
 import { toast } from 'react-toastify'
 import { getAllRoles } from 'src/services/role'
 import { useAuth } from 'src/hooks/useAuth'
+import { format, parseISO, isValid } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
 
 type TProps = {}
 
@@ -115,13 +117,21 @@ const MyProfilePage: NextPage<TProps> = () => {
                 setLoading(false)
                 const data = response?.result
                 if (data) {
+                    let parsedBirthday = null;
+                    if (data.birthday) {
+                        parsedBirthday = parseISO(data.birthday);
+                        if (isValid(parsedBirthday)) {
+                            parsedBirthday = toZonedTime(parsedBirthday, 'Asia/Ho_Chi_Minh');
+                        }
+                    }
+                    
                     reset({
                         email: data?.email,
                         phone: data?.phone,
                         firstName: data?.firstName,
                         lastName: data?.lastName,
                         gender: data?.gender,
-                        birthday: data?.birthday,
+                        birthday: parsedBirthday ? format(parsedBirthday, 'yyyy-MM-dd') : '',
                     })
                     setAvatar(data?.avatar)
                     setUser({ ...data })
@@ -150,13 +160,22 @@ const MyProfilePage: NextPage<TProps> = () => {
     }, [isErrorUpdateProfile, isSuccessUpdateProfile, errorMessageUpdateProfile])
 
     const onSubmit = (data: any) => {
+        let formattedBirthday = data.birthday;
+        if (data.birthday) {
+            const parsedDate = parseISO(data.birthday);
+            if (isValid(parsedDate)) {
+                const vietnamDate = toZonedTime(parsedDate, 'Asia/Ho_Chi_Minh');
+                formattedBirthday = format(vietnamDate, 'yyyy-MM-dd');
+            }
+        }
+
         dispatch(updateProfileAsync({
             email: data.email,
             firstName: data.firstName,
             lastName: data.lastName,
             phone: data.phone,
             gender: data.gender,
-            birthday: data.birthday,
+            birthday: formattedBirthday,
         }))
     }
 

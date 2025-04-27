@@ -363,7 +363,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                         t1.IsActive AS IsActive,
                         t1.IsDeleted AS IsDeleted,
                         t1.DisplayOrder AS DisplayOrder,
-                        SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) AS 'TotalPrice',
+                        SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) - t1.DiscountValue AS 'TotalPrice',
                         t3.FullName AS 'CustomerName', t3.Phone AS 'PhoneNumber',
                         t4.PaymentMethodId,
                         t5.Name AS 'PaymentMethod'
@@ -425,7 +425,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             var totalRevenue = await WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) AS 'TotalPrice'");
+                    sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) - t1.DiscountValue AS 'TotalPrice'");
 
                     sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
                     sqlBuilder.InnerJoin("Payment t3 ON t1.Id = t3.OrderId AND t3.IsDeleted != 1");

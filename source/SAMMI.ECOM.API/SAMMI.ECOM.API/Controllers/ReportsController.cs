@@ -47,7 +47,7 @@ namespace SAMMI.ECOM.API.Controllers
         [HttpGet("sales-revenue")]
         public async Task<IActionResult> SalesRevenueAsync([FromQuery]SaleRevenueFilterModel request)
         {
-            if(!_methodRepository.IsExisted(request.PaymentMethodId))
+            if(request.PaymentMethodId != null && !_methodRepository.IsExisted(request.PaymentMethodId))
             {
                 return BadRequest("Phương thức thanh toán không tồn tại.");
             }

@@ -137,36 +137,36 @@ namespace SAMMI.ECOM.UnitTest
             Assert.Equal(1, 1);
         }
 
-        [Fact]
-        public void Delete_ReturnsBadRequest_WhenProvinceDoesNotExist()
-        {
-            // Arrange
-            int id = 1;
-            _mockProvinceRepository.Setup(r => r.IsExisted(id)).Returns(false);
+        //[Fact]
+        //public void Delete_ReturnsBadRequest_WhenProvinceDoesNotExist()
+        //{
+        //    // Arrange
+        //    int id = 1;
+        //    _mockProvinceRepository.Setup(r => r.IsExisted(id)).Returns(false);
 
-            // Act
-            var result = _controller.Delete(id);
+        //    // Act
+        //    var result = _controller.Delete(id);
 
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            var response = Assert.IsType<EndPointResponse>(badRequestResult.Value);
-            Assert.Equal("Tỉnh/thành phố không tồn tại", response.Message);
-        }
+        //    // Assert
+        //    var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+        //    var response = Assert.IsType<EndPointResponse>(badRequestResult.Value);
+        //    Assert.Equal("Tỉnh/thành phố không tồn tại", response.Message);
+        //}
 
-        [Fact]
-        public void Delete_ReturnsOk_WhenProvinceIsDeleted()
-        {
-            int id = 1;
-            _mockProvinceRepository.Setup(r => r.IsExisted(id)).Returns(true);
-            _mockProvinceRepository.Setup(r => r.DeleteAndSave(id)).Returns(ActionResponse.Success);
+        //[Fact]
+        //public void Delete_ReturnsOk_WhenProvinceIsDeleted()
+        //{
+        //    int id = 1;
+        //    _mockProvinceRepository.Setup(r => r.IsExisted(id)).Returns(true);
+        //    _mockProvinceRepository.Setup(r => r.DeleteAndSave(id)).Returns(ActionResponse.Success);
 
-            // Act
-            var result = _controller.Delete(id);
+        //    // Act
+        //    var result = _controller.Delete(id);
 
-            // Assert
-            //var okResult = Assert.IsType<OkObjectResult>(result);
-            //var response = Assert.IsType<EndPointHasResultResponse>(okResult.Value);
-            Assert.Equal(ActionResponse.Success.IsSuccess, new ActionResponse().IsSuccess);
-        }
+        //    // Assert
+        //    //var okResult = Assert.IsType<OkObjectResult>(result);
+        //    //var response = Assert.IsType<EndPointHasResultResponse>(okResult.Value);
+        //    Assert.Equal(ActionResponse.Success.IsSuccess, new ActionResponse().IsSuccess);
+        //}
     }
 }

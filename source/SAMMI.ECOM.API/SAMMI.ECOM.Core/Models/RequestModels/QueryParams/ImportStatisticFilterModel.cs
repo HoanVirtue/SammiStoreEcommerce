@@ -10,7 +10,7 @@ namespace SAMMI.ECOM.Core.Models.RequestModels.QueryParams
     {
         public int? EmployeeId { get; set; }
         public int? SupplierId { get; set; }
-        public DateTime DateFrom { get; set; }
-        public DateTime DateTo { get; set; }
+        public DateTime DateFrom { get; set; } = DateTime.Today;
+        public DateTime DateTo { get; set; } = DateTime.Today.AddDays(1);
     }
 }

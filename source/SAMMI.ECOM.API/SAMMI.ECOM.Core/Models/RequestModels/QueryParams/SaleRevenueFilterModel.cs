@@ -12,8 +12,8 @@ namespace SAMMI.ECOM.Core.Models.RequestModels.QueryParams
         //public int? Month { get; set; }
         //public int? Quarter { get; set; }
         //public int? Week { get; set; }
-        public DateTime? DateFrom { get; set; }
-        public DateTime? DateTo { get; set; }
+        public DateTime? DateFrom { get; set; } = DateTime.Today;
+        public DateTime? DateTo { get; set; } = DateTime.Today.AddDays(0);
         public int? PaymentMethodId { get; set; }
     }
 }

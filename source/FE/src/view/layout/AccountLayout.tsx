@@ -37,7 +37,7 @@ export default function AccountLayout({ children }: Props) {
     const breadcrumbItems = [
         { label: t('home'), href: '/', icon: <IconifyIcon color='primary' icon='healthicons:home-outline' /> },
         { label: t('my_account'), href: '/account/my-profile' },
-        { label: t(pathname.split('/').pop()?.replace(/-/g, '_') || ''), href: pathname },
+        { label: t(pathname?.split('/').pop()?.replace(/-/g, '_') || ''), href: pathname },
     ];
 
 

@@ -33,6 +33,7 @@ import { PAYMENT_METHOD } from 'src/configs/payment'
 import { OrderStatus, PaymentStatus, ShippingStatus } from 'src/configs/order'
 import Image from 'src/components/image'
 import StepLabel from 'src/components/step-label'
+import OrderStatusStepper from './components/OrderStatusStepper'
 
 type TProps = {}
 
@@ -149,6 +150,10 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
             />
             <Container maxWidth="lg">
                 <Stack spacing={3}>
+                    {/* Order Status Stepper */}
+                    <OrderStatusStepper 
+                        orderStatus={orderData?.orderStatus}
+                    />
                     <Box
                         sx={{
                             p: 3,
@@ -296,7 +301,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                             </Stack>
                         </Stack>
                     </Box>
-
+{/* 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                         {orderData?.paymentStatus !== PaymentStatus.Paid.label && (
                             <Button
@@ -325,7 +330,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                         >
                             {t('buy_again')}
                         </Button>
-                    </Box>
+                    </Box> */}
                 </Stack>
             </Container>
         </>

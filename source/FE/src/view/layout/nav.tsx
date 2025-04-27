@@ -163,7 +163,7 @@ type NavItemProps = {
 
 function NavItem({ item }: NavItemProps) {
     const pathname = usePathname();
-    const isActive = pathname.includes(item.path);
+    const isActive = pathname?.includes(item.path);
     const theme = useTheme();
 
     return (

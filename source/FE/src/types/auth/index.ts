@@ -29,6 +29,15 @@ export interface LoginParams {
     isEmployee?: boolean;
 }
 
+export type TUpdateProfile = {
+    firstName: string,
+    lastName: string,
+    email: string,
+    phone: string,
+    gender: number,
+    birthday: Date
+}
+
 export interface UserDataType {
     id: number;
     username: string

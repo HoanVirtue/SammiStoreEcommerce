@@ -2,17 +2,17 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 
 namespace SAMMI.ECOM.API.Controllers.OrderBuy
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CartsController : CustomBaseController
@@ -40,6 +40,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _config = config;
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerCartView)]
         [HttpGet("get-cart")]
         public async Task<IActionResult> GetCart()
         {
@@ -63,6 +64,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         //customer
+        [AuthorizePermission(PermissionEnum.CustomerCartAdd)]
         [HttpPost("add-to-cart")]
         public async Task<IActionResult> AddToCart([FromBody] CreateCartDetailCommand request)
         {
@@ -79,6 +81,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerCartRemove)]
         [HttpDelete("{productId}")]
         public async Task<IActionResult> DeleteProductFromCart(int productId)
         {

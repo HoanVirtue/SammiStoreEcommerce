@@ -62,6 +62,17 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
                         _userQueries.FindCustomerById(request.UserId!.Value);
             }
 
+            int roleId = 0;
+
+            if(user is CustomerDTO customer)
+            {
+                roleId = customer.RoleId;
+            }
+            else if(user is EmployeeDTO employee)
+            {
+                roleId = employee.RoleId;
+            }    
+
             if (user == null)
             {
                 return ActionResponse<AuthTokenResult>.Failed(SignInError.Failed);
@@ -71,7 +82,6 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
             {
                 return ActionResponse<AuthTokenResult>.Failed(string.Format(SignInError.UserIsLocked, user.Username));
             }
-
 
             var now = DateTime.Now;
             var tokenResult = new AuthTokenResult();
@@ -85,7 +95,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
                 new Claim(GlobalClaimsTypes.LocalId, user.Id.ToString())
             });
 
-            var userPermissions = await _userQueries.GetPermissionOfRole(user.Id);
+            var userPermissions = await _userQueries.GetPermissionOfRole(roleId);
             if (userPermissions != null && userPermissions.Any())
             {
                 var permissionIds = string.Join(',', userPermissions.Select(p => p.PermissionId.ToString()));

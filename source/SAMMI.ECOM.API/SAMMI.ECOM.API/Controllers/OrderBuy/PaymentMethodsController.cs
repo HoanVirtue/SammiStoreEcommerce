@@ -54,20 +54,20 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CUPaymentMethodCommand request)
-        {
-            if (id != request.Id)
-            {
-                return BadRequest();
-            }
-            var response = await _mediator.Send(request);
-            if (response.IsSuccess)
-            {
-                return Ok(response);
-            }
-            return BadRequest(response);
-        }
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> Put(int id, [FromBody] CUPaymentMethodCommand request)
+        //{
+        //    if (id != request.Id)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    var response = await _mediator.Send(request);
+        //    if (response.IsSuccess)
+        //    {
+        //        return Ok(response);
+        //    }
+        //    return BadRequest(response);
+        //}
 
         //[HttpDelete("{id}")]
         //public IActionResult Delete(int id)

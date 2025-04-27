@@ -1597,7 +1597,7 @@ export const getSupplierColumns = (): GridColDef[] => {
   const { t } = useTranslation()
   return [
     {
-      field: "supplier_code",
+      field: "code",
       headerName: t("supplier_code"),
       minWidth: 200,
       maxWidth: 200,

@@ -80,10 +80,10 @@ export const useAdminData = (
   }, []);
 
 
-  // Fetch data when pagination or sorting changes
+  // Fetch data when pagination, sorting, or filters change
   useEffect(() => {
     handleFetchData();
-  }, [page, pageSize, sortBy]);
+  }, [page, pageSize, sortBy, debouncedFilters]);
 
   return {
     // State

@@ -97,7 +97,7 @@ VALUES
 (88,'https://res.cloudinary.com/duqduitnd/image/upload/v1744544423/uploads/products/SP0000068.jpg','uploads/products/SP0000068','Product','vn',NOW(),NULL,'N/A','',1,0,1),
 (89,'https://res.cloudinary.com/duqduitnd/image/upload/v1744544424/uploads/products/SP0000069.jpg','uploads/products/SP0000069','Product','vn',NOW(),NULL,'N/A','',1,0,1);
 
-select *FROM product p
+
 
 INSERT INTO `product` (
     `id`,

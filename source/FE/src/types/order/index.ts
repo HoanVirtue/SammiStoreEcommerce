@@ -111,5 +111,6 @@ export type TOrderItem = {
     details: TOrderDetail[],
     discount?: number,
     discountAmount?: number,
-    deliveryMethod?: string
+    deliveryMethod?: string,
+    createdDate?: Date,
 }

@@ -32,13 +32,12 @@ import { toast } from 'react-toastify'
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action'
 import { createPayBackOrder } from 'src/services/order'
 
-// Dynamic imports for heavy components
+
 const Spinner = dynamic(() => import('src/components/spinner'), { ssr: false })
 const IconifyIcon = dynamic(() => import('src/components/Icon'), { ssr: false })
 const Image = dynamic(() => import('src/components/image'), { ssr: false })
 const ConfirmDialog = dynamic(() => import('src/components/confirm-dialog'), { ssr: false })
 
-// MUI components that can be dynamically imported
 const MUIComponents = {
     Button: dynamic(() => import('@mui/material/Button'), { ssr: false }),
     Divider: dynamic(() => import('@mui/material/Divider'), { ssr: false }),

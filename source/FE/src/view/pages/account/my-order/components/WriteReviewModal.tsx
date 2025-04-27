@@ -7,7 +7,7 @@ import { Controller, useForm } from "react-hook-form"
 import * as yup from 'yup';
 
 //Mui
-import { Box, Button, Grid, IconButton, InputAdornment, Rating, Typography } from "@mui/material"
+import { Box, Button, Grid, IconButton, InputAdornment, Rating, Typography, Paper } from "@mui/material"
 import { useTheme } from "@mui/material"
 
 //components
@@ -15,6 +15,8 @@ import CustomModal from "src/components/custom-modal"
 import IconifyIcon from "src/components/Icon"
 import Spinner from "src/components/spinner"
 import CustomTextField from "src/components/text-field"
+import FileUploadWrapper from "src/components/file-upload-wrapper"
+import CustomTextArea from "src/components/text-area"
 
 //services
 import { getReviewDetail } from "src/services/review";
@@ -25,14 +27,13 @@ import { useTranslation } from "react-i18next"
 //redux
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "src/stores"
-import CustomTextArea from "src/components/text-area";
 import { createReviewAsync } from "src/stores/review/action";
 
 interface TWriteReviewModal {
     open: boolean
     onClose: () => void
     productId?: number
-    userId?: number
+    orderId?: number
 }
 
 type TDefaultValues = {
@@ -41,12 +42,13 @@ type TDefaultValues = {
 }
 
 const WriteReviewModal = (props: TWriteReviewModal) => {
-
     //state
     const [loading, setLoading] = useState(false)
+    const [imageFile, setImageFile] = useState<File | null>(null)
+    const [imagePreview, setImagePreview] = useState<string | null>(null)
 
     //props
-    const { open, onClose, userId, productId } = props
+    const { open, onClose, orderId, productId } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -73,28 +75,56 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
         resolver: yupResolver(schema)
     });
 
+    const handleImageUpload = (file: File) => {
+        setImageFile(file)
+        const reader = new FileReader()
+        reader.onloadend = () => {
+            setImagePreview(reader.result as string)
+        }
+        reader.readAsDataURL(file)
+    }
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            //update 
-            if (productId && userId) {
-                dispatch(createReviewAsync({
+            if (productId && orderId) {
+                const formData = {
                     productId: productId,
-                    user: userId,
-                    content: data?.content,
-                    star: data?.star,
-                }))
+                    orderId: orderId,
+                    rating: data?.star,
+                    comment: data?.content,
+                }
+
+                if (imageFile) {
+                    const reader = new FileReader()
+                    reader.onloadend = () => {
+                        const base64String = reader.result as string
+                        const imageCommand = {
+                            imageUrl: '',
+                            imageBase64: base64String,
+                            publicId: '',
+                            typeImage: imageFile.type,
+                            value: imageFile.name
+                        }
+                        dispatch(createReviewAsync({
+                            ...formData,
+                            imageCommand
+                        }))
+                    }
+                    reader.readAsDataURL(imageFile)
+                } else {
+                    dispatch(createReviewAsync(formData))
+                }
             }
         }
     }
-
-    //handler
 
     useEffect(() => {
         if (!open) {
             reset({
                 ...defaultValues
             })
+            setImageFile(null)
+            setImagePreview(null)
         }
     }, [open])
 
@@ -102,96 +132,137 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
         <>
             {loading && <Spinner />}
             <CustomModal open={open} onClose={onClose}>
-                <Box
+                <Paper
                     sx={{
-                        backgroundColor: theme.palette.customColors.bodyBg,
+                        backgroundColor: theme.palette.background.paper,
                         padding: '20px',
-                        bReviewRadius: '15px',
+                        borderRadius: '15px',
+                        minWidth: { md: '500px', xs: '90vw' },
+                        maxWidth: { md: '600px', xs: '90vw' },
                     }}
-                    minWidth={{ md: '40px', xs: '80vw' }}
-                    maxWidth={{ md: '40vw', xs: '80vw' }}
                 >
                     <Box sx={{
                         display: 'flex',
-                        justifyContent: 'center',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
-                        position: 'relative',
-                        paddingBottom: '20px'
+                        mb: 3
                     }}>
-                        <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {t('update_review')}
+                        <Typography variant="h5" sx={{ fontWeight: 600 }}>
+                            {t('rate_product')}
                         </Typography>
-                        <IconButton sx={{
-                            position: 'absolute',
-                            right: "-10px",
-                            top: "-6px",
-                        }}>
+                        <IconButton onClick={onClose}>
                             <IconifyIcon
                                 icon="material-symbols-light:close-rounded"
-                                fontSize={"30px"}
-                                onClick={onClose}
+                                fontSize={"24px"}
                             />
                         </IconButton>
                     </Box>
-                    <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate >
-                        <Box
-                            sx={{
-                                backgroundColor: theme.palette.background.paper,
-                                bReviewRadius: "15px",
-                                py: 5, px: 4
-                            }}>
-                            <Grid container
-                                spacing={4}
-                            >
-                                <Grid container item md={12} xs={12}>
-                                    <Box sx={{
-                                        width: "100%",
-                                        height: "100%",
-                                    }}>
-                                        <Grid container spacing={4}>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <Rating name="rating" defaultValue={0} value={+value} onChange={(e: any)=>{
-                                                            onChange(e.target.value)
-                                                        }} precision={0.1} />
-                                                    )}
-                                                    name='star'
-                                                />
-                                            </Grid>
-                                            <Grid item md={12} xs={12} >
-                                                <Controller
-                                                    control={control}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextArea
-                                                            required
-                                                            label={t('content')}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t('enter_content')}
-                                                            error={errors.content ? true : false}
-                                                            helperText={errors.content?.message}
-                                                            minRows={3}
-                                                            maxRows={3}
-                                                        />
-                                                    )}
-                                                    name='content'
-                                                />
-                                            </Grid>
-                                        </Grid>
-                                    </Box>
-                                </Grid>
+                    <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate>
+                        <Grid container spacing={3}>
+                            <Grid item xs={12}>
+                                <Box sx={{ mb: 2 }}>
+                                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                        {t('rating')}
+                                    </Typography>
+                                    <Controller
+                                        control={control}
+                                        render={({ field: { onChange, value } }) => (
+                                            <Rating 
+                                                value={value} 
+                                                onChange={(e, newValue) => onChange(newValue)}
+                                                precision={1}
+                                                size="large"
+                                            />
+                                        )}
+                                        name='star'
+                                    />
+                                    {errors.star && (
+                                        <Typography color="error" variant="caption">
+                                            {errors.star.message}
+                                        </Typography>
+                                    )}
+                                </Box>
                             </Grid>
-                        </Box>
-                        <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                            <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {t('confirm')}
-                            </Button>
-                        </Box>
+                            <Grid item xs={12}>
+                                <Controller
+                                    control={control}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <CustomTextArea
+                                            required
+                                            label={t('content')}
+                                            onChange={onChange}
+                                            onBlur={onBlur}
+                                            value={value}
+                                            placeholder={t('enter_content')}
+                                            error={!!errors.content}
+                                            helperText={errors.content?.message}
+                                            minRows={4}
+                                            maxRows={6}
+                                        />
+                                    )}
+                                    name='content'
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                                    {t('upload_image')}
+                                </Typography>
+                                <FileUploadWrapper
+                                    uploadFile={handleImageUpload}
+                                    objectAcceptedFile={{
+                                        'image/*': ['.png', '.jpg', '.jpeg', '.gif']
+                                    }}
+                                >
+                                    <Box
+                                        sx={{
+                                            border: `2px dashed ${theme.palette.divider}`,
+                                            borderRadius: 1,
+                                            p: 3,
+                                            textAlign: 'center',
+                                            cursor: 'pointer',
+                                            '&:hover': {
+                                                borderColor: theme.palette.primary.main
+                                            }
+                                        }}
+                                    >
+                                        {imagePreview ? (
+                                            <Box
+                                                component="img"
+                                                src={imagePreview}
+                                                alt="Preview"
+                                                sx={{
+                                                    maxWidth: '100%',
+                                                    maxHeight: '200px',
+                                                    objectFit: 'contain'
+                                                }}
+                                            />
+                                        ) : (
+                                            <Typography color="text.secondary">
+                                                {t('drag_drop_image')}
+                                            </Typography>
+                                        )}
+                                    </Box>
+                                </FileUploadWrapper>
+                            </Grid>
+                            <Grid item xs={12}>
+                                <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                                    <Button
+                                        variant="outlined"
+                                        onClick={onClose}
+                                    >
+                                        {t('cancel')}
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                    >
+                                        {t('submit')}
+                                    </Button>
+                                </Box>
+                            </Grid>
+                        </Grid>
                     </form>
-                </Box>
+                </Paper>
             </CustomModal>
         </>
     )

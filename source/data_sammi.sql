@@ -97,8 +97,33 @@ VALUES
 (88,'https://res.cloudinary.com/duqduitnd/image/upload/v1744544423/uploads/products/SP0000068.jpg','uploads/products/SP0000068','Product','vn',NOW(),NULL,'N/A','',1,0,1),
 (89,'https://res.cloudinary.com/duqduitnd/image/upload/v1744544424/uploads/products/SP0000069.jpg','uploads/products/SP0000069','Product','vn',NOW(),NULL,'N/A','',1,0,1);
 
+select *FROM product p
 
-INSERT INTO `product` VALUES 
+INSERT INTO `product` (
+    `id`,
+    `Code`, 
+    `Name`, 
+    `StockQuantity`, 
+    `Price`, 
+    `Discount`, 
+    `Ingredient`, 
+    `Uses`, 
+    `UsageGuide`, 
+    `Status`, 
+    `BrandId`, 
+    `CategoryId`, 
+    `StartDate`, 
+    `EndDate`, 
+    `Culture`, 
+    `CreatedDate`, 
+    `UpdatedDate`, 
+    `CreatedBy`, 
+    `UpdatedBy`, 
+    `IsActive`, 
+    `IsDeleted`, 
+    `DisplayOrder`,
+    `ImportPrice`
+)VALUES 
 (50, 'SP0000050', 'Kem dưỡng Whoo Cheonyuldan', 50, 2500000.00, 0.15, 'Chiết xuất nhân sâm', 'Dưỡng ẩm, chống lão hóa', 'Thoa đều lên mặt mỗi tối', 1, 50, 56, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 2000000),
 (51, 'SP0000051', 'Mặt nạ Mediheal Tea Tree', 60, 25000.00, 0.10, 'Chiết xuất trà xanh', 'Làm dịu da, giảm mụn', 'Đắp 15-20 phút rồi rửa sạch', 1, 50, 52, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 20000),
 (52, 'SP0000052', 'Son dưỡng Laneige Lip Sleeping Mask', 54, 450000.00, 0.20, 'Dâu tây và vitamin C', 'Dưỡng ẩm môi qua đêm', 'Thoa trước khi đi ngủ', 1, 50, 54, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 360000),
@@ -169,7 +194,32 @@ VALUES
 (109,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692665/uploads/products/SP0000089.jpg','uploads/products/SP0000089','Product','vn',NOW(),NULL,'N/A','',1,0,1);
 
 
-INSERT INTO `product` VALUES 
+INSERT INTO `product`(
+    `id`,
+    `Code`, 
+    `Name`, 
+    `StockQuantity`, 
+    `Price`, 
+    `Discount`, 
+    `Ingredient`, 
+    `Uses`, 
+    `UsageGuide`, 
+    `Status`, 
+    `BrandId`, 
+    `CategoryId`, 
+    `StartDate`, 
+    `EndDate`, 
+    `Culture`, 
+    `CreatedDate`, 
+    `UpdatedDate`, 
+    `CreatedBy`, 
+    `UpdatedBy`, 
+    `IsActive`, 
+    `IsDeleted`, 
+    `DisplayOrder`,
+    `ImportPrice`
+)
+VALUES 
 (70, 'SP0000070', 'Kem dưỡng trắng Whoo Brightening Cream', 50, 2100000.00, 0.10, 'Chiết xuất thảo dược', 'Làm sáng da, giảm thâm nám', 'Thoa đều lên mặt mỗi tối', 1, 50, 56, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 1680000),
 (71, 'SP0000071', 'Mặt nạ Mediheal Vita Lightbeam', 60, 29000.00, 0.15, 'Vitamin C', 'Làm sáng da, cấp ẩm', 'Đắp 15-20 phút', 1, 50, 52, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 23200),
 (72, 'SP0000072', 'Son lì Laneige Two Tone Lip Bar', 54, 480000.00, 0.20, 'Dầu dưỡng tự nhiên', 'Tạo hiệu ứng ombre', 'Thoa đều lên môi', 1, 50, 54, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 384000),
@@ -268,6 +318,7 @@ INSERT INTO `event` VALUES
 
 
 -- voucher
+/*
 INSERT INTO `image`
 VALUES
 (50,'','','Voucher',NULL,'vn',NOW(),'','N/A','',1,0,1),
@@ -290,7 +341,7 @@ VALUES
 (67,'','','Voucher',NULL,'vn',NOW(),'','N/A','',1,0,1),
 (68,'','','Voucher',NULL,'vn',NOW(),'','N/A','',1,0,1),
 (69,'','','Voucher',NULL,'vn',NOW(),'','N/A','',1,0,1);
-
+*/
 
 
 INSERT INTO `voucher` VALUES

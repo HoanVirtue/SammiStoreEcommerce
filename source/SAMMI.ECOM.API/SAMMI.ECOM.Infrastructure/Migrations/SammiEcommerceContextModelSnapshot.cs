@@ -1221,6 +1221,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("DisplayOrder");
 
+                    b.Property<int?>("ImageId")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("IsActive");
@@ -1248,6 +1251,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ImageId");
 
                     b.HasIndex("ProductId");
 
@@ -2736,6 +2741,10 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
 
             modelBuilder.Entity("SAMMI.ECOM.Domain.AggregateModels.OrderBuy.Review", b =>
                 {
+                    b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Image", "Image")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ImageId");
+
                     b.HasOne("SAMMI.ECOM.Domain.AggregateModels.Products.Product", "Product")
                         .WithMany("Reviews")
                         .HasForeignKey("ProductId")
@@ -2745,6 +2754,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         .WithMany("Reviews")
                         .HasForeignKey("UserId")
                         .IsRequired();
+
+                    b.Navigation("Image");
 
                     b.Navigation("Product");
 
@@ -3015,6 +3026,8 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     b.Navigation("EventImages");
 
                     b.Navigation("ProductImages");
+
+                    b.Navigation("Reviews");
 
                     b.Navigation("UserImages");
                 });

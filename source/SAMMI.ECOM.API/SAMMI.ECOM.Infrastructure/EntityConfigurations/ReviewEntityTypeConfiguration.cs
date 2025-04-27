@@ -22,7 +22,8 @@ namespace SAMMI.ECOM.Infrastructure.EntityConfigurations
 
             builder.HasOne(d => d.Image)
                .WithMany(p => p.Reviews)
-               .HasForeignKey(d => d.ImageId);
+               .HasForeignKey(d => d.ImageId)
+               .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }
 }

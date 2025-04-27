@@ -39,6 +39,29 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Image",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    ImageUrl = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    PublicId = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    TypeImage = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Image", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PaymentMethod",
                 columns: table => new
                 {
@@ -253,6 +276,94 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Banner",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    ImageId = table.Column<int>(type: "int", nullable: true),
+                    Level = table.Column<int>(type: "int", nullable: false),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Banner", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Banner_Image_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Image",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Brand",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    ImageId = table.Column<int>(type: "int", nullable: true),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Brand", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Brand_Image_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Image",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Event",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    EventType = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    ImageId = table.Column<int>(type: "int", nullable: true),
+                    Description = table.Column<string>(type: "longtext", maxLength: 2147483647, nullable: true),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Event", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Event_Image_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Image",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "District",
                 columns: table => new
                 {
@@ -348,109 +459,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Ward",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Code = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    DistrictId = table.Column<int>(type: "int", nullable: true),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Ward", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Ward_District_DistrictId",
-                        column: x => x.DistrictId,
-                        principalTable: "District",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Banner",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    ImageId = table.Column<int>(type: "int", nullable: true),
-                    Level = table.Column<int>(type: "int", nullable: false),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Banner", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Brand",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    ImageId = table.Column<int>(type: "int", nullable: true),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Brand", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Image",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    ImageUrl = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    PublicId = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    TypeImage = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    BrandId = table.Column<int>(type: "int", nullable: true),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Image", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Image_Brand_BrandId",
-                        column: x => x.BrandId,
-                        principalTable: "Brand",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Product",
                 columns: table => new
                 {
@@ -460,6 +468,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     StockQuantity = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    ImportPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
                     Discount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     Ingredient = table.Column<string>(type: "longtext", nullable: true),
                     Uses = table.Column<string>(type: "longtext", nullable: true),
@@ -494,18 +503,20 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Event",
+                name: "Voucher",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
                     Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    DiscountTypeId = table.Column<int>(type: "int", nullable: false),
+                    DiscountValue = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
+                    UsageLimit = table.Column<int>(type: "int", nullable: false),
+                    UsedCount = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    EventType = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    ImageId = table.Column<int>(type: "int", nullable: true),
-                    Description = table.Column<string>(type: "longtext", maxLength: 2147483647, nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -517,39 +528,30 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Event", x => x.Id);
+                    table.PrimaryKey("PK_Voucher", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Event_Image_ImageId",
-                        column: x => x.ImageId,
-                        principalTable: "Image",
-                        principalColumn: "Id");
+                        name: "FK_Voucher_DiscountType_DiscountTypeId",
+                        column: x => x.DiscountTypeId,
+                        principalTable: "DiscountType",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Voucher_Event_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Event",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "Ward",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
-                    IdentityGuid = table.Column<string>(type: "varchar(36)", maxLength: 36, nullable: false),
-                    Type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    FirstName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    LastName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    FullName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    Email = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    Phone = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true),
-                    StreetAddress = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true),
-                    WardId = table.Column<int>(type: "int", nullable: true),
-                    IsAdmin = table.Column<bool>(type: "tinyint(1)", nullable: true),
-                    Username = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    Password = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    Gender = table.Column<int>(type: "int", nullable: true),
-                    IsLock = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    SecurityStamp = table.Column<string>(type: "varchar(68)", maxLength: 68, nullable: true),
-                    AvatarId = table.Column<int>(type: "int", nullable: true),
-                    IdCardNumber = table.Column<string>(type: "longtext", nullable: true),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    Code = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    DistrictId = table.Column<int>(type: "int", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -561,21 +563,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Ward", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_Image_AvatarId",
-                        column: x => x.AvatarId,
-                        principalTable: "Image",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Users_Role_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "Role",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Users_Ward_WardId",
-                        column: x => x.WardId,
-                        principalTable: "Ward",
+                        name: "FK_Ward_District_DistrictId",
+                        column: x => x.DistrictId,
+                        principalTable: "District",
                         principalColumn: "Id");
                 });
 
@@ -612,23 +604,14 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Voucher",
+                name: "VoucherCondition",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
-                    Name = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
-                    EventId = table.Column<int>(type: "int", nullable: false),
-                    DiscountTypeId = table.Column<int>(type: "int", nullable: false),
-                    DiscountValue = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
-                    UsageLimit = table.Column<int>(type: "int", nullable: false),
-                    UsedCount = table.Column<int>(type: "int", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    BrandId = table.Column<int>(type: "int", nullable: true),
-                    ProductCategoryId = table.Column<int>(type: "int", nullable: true),
-                    ProductId = table.Column<int>(type: "int", nullable: true),
+                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    ConditionType = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
+                    ConditionValue = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -640,33 +623,70 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Voucher", x => x.Id);
+                    table.PrimaryKey("PK_VoucherCondition", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Voucher_Brand_BrandId",
-                        column: x => x.BrandId,
-                        principalTable: "Brand",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Voucher_DiscountType_DiscountTypeId",
-                        column: x => x.DiscountTypeId,
-                        principalTable: "DiscountType",
+                        name: "FK_VoucherCondition_Voucher_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Voucher",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
+                    IdentityGuid = table.Column<string>(type: "varchar(36)", maxLength: 36, nullable: false),
+                    Type = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    FirstName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    LastName = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    FullName = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    Email = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    Phone = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true),
+                    StreetAddress = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true),
+                    WardId = table.Column<int>(type: "int", nullable: true),
+                    IsAdmin = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    Username = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    Password = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    Gender = table.Column<int>(type: "int", nullable: true),
+                    IsLock = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    SecurityStamp = table.Column<string>(type: "varchar(68)", maxLength: 68, nullable: true),
+                    AvatarId = table.Column<int>(type: "int", nullable: true),
+                    IdCardNumber = table.Column<string>(type: "longtext", nullable: true),
+                    RoleId = table.Column<int>(type: "int", nullable: true),
+                    IsVerify = table.Column<bool>(type: "tinyint(1)", nullable: true),
+                    VerifyToken = table.Column<string>(type: "longtext", nullable: true),
+                    VerifiedAt = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Birthday = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Voucher_Event_EventId",
-                        column: x => x.EventId,
-                        principalTable: "Event",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Voucher_ProductCategory_ProductCategoryId",
-                        column: x => x.ProductCategoryId,
-                        principalTable: "ProductCategory",
+                        name: "FK_Users_Image_AvatarId",
+                        column: x => x.AvatarId,
+                        principalTable: "Image",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Voucher_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
+                        name: "FK_Users_Role_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Role",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Users_Ward_WardId",
+                        column: x => x.WardId,
+                        principalTable: "Ward",
                         principalColumn: "Id");
                 });
 
@@ -798,11 +818,99 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "MyVoucher",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    VoucherId = table.Column<int>(type: "int", nullable: false),
+                    IsUsed = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MyVoucher", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MyVoucher_Users_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_MyVoucher_Voucher_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Voucher",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
+                    CustomerId = table.Column<int>(type: "int", nullable: false),
+                    OrderStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    ShippingStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
+                    VoucherId = table.Column<int>(type: "int", nullable: true),
+                    DiscountValue = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
+                    WardId = table.Column<int>(type: "int", nullable: true),
+                    CustomerAddress = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
+                    ShippingMethod = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    CostShip = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
+                    TrackingNumber = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
+                    EstimatedDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    ActualDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    ShippingCompanyId = table.Column<int>(type: "int", nullable: true),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_ShippingCompany_ShippingCompanyId",
+                        column: x => x.ShippingCompanyId,
+                        principalTable: "ShippingCompany",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Orders_Users_CustomerId",
+                        column: x => x.CustomerId,
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Orders_Voucher_VoucherId",
+                        column: x => x.VoucherId,
+                        principalTable: "Voucher",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Orders_Ward_WardId",
+                        column: x => x.WardId,
+                        principalTable: "Ward",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PurchaseOrder",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Code = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
                     EmployeeId = table.Column<int>(type: "int", nullable: false),
                     SupplierId = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
@@ -841,6 +949,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     UserId = table.Column<int>(type: "int", nullable: false),
                     Rating = table.Column<int>(type: "int", nullable: false),
                     Comment = table.Column<string>(type: "longtext", nullable: true),
+                    ImageId = table.Column<int>(type: "int", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -854,6 +963,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Review", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Review_Image_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Image",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Review_Product_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Product",
@@ -863,122 +977,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                         column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "MyVoucher",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    VoucherId = table.Column<int>(type: "int", nullable: false),
-                    IsUsed = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_MyVoucher", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_MyVoucher_Users_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_MyVoucher_Voucher_VoucherId",
-                        column: x => x.VoucherId,
-                        principalTable: "Voucher",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Order",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    Code = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: false),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    PaymentStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    OrderStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    ShippingStatus = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: true),
-                    VoucherId = table.Column<int>(type: "int", nullable: true),
-                    WardId = table.Column<int>(type: "int", nullable: true),
-                    CustomerAddress = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: true),
-                    ShippingMethod = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    CostShip = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    TrackingNumber = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: true),
-                    EstimatedDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    ActualDeliveryDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    ShippingCompanyId = table.Column<int>(type: "int", nullable: true),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Order", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Order_ShippingCompany_ShippingCompanyId",
-                        column: x => x.ShippingCompanyId,
-                        principalTable: "ShippingCompany",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Order_Users_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "Users",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Order_Voucher_VoucherId",
-                        column: x => x.VoucherId,
-                        principalTable: "Voucher",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Order_Ward_WardId",
-                        column: x => x.WardId,
-                        principalTable: "Ward",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "VoucherCondition",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    VoucherId = table.Column<int>(type: "int", nullable: false),
-                    ConditionType = table.Column<string>(type: "varchar(50)", maxLength: 50, nullable: false),
-                    ConditionValue = table.Column<string>(type: "varchar(255)", maxLength: 255, nullable: false),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_VoucherCondition", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_VoucherCondition_Voucher_VoucherId",
-                        column: x => x.VoucherId,
-                        principalTable: "Voucher",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -1015,41 +1013,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PurchaseOrderDetail",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    PurchaseOrderId = table.Column<int>(type: "int", nullable: false),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    Tax = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
-                    Culture = table.Column<string>(type: "longtext", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
-                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
-                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PurchaseOrderDetail", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_PurchaseOrderDetail_Product_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Product",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_PurchaseOrderDetail_PurchaseOrder_PurchaseOrderId",
-                        column: x => x.PurchaseOrderId,
-                        principalTable: "PurchaseOrder",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Notification",
                 columns: table => new
                 {
@@ -1072,9 +1035,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Notification", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Notification_Order_OrderId",
+                        name: "FK_Notification_Orders_OrderId",
                         column: x => x.OrderId,
-                        principalTable: "Order",
+                        principalTable: "Orders",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Notification_Users_ReceiverId",
@@ -1107,9 +1070,9 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_OrderDetail", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OrderDetail_Order_OrderId",
+                        name: "FK_OrderDetail_Orders_OrderId",
                         column: x => x.OrderId,
-                        principalTable: "Order",
+                        principalTable: "Orders",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_OrderDetail_Product_ProductId",
@@ -1129,9 +1092,7 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                     PaymentAmount = table.Column<decimal>(type: "decimal(65,30)", nullable: false),
                     PaymentStatus = table.Column<string>(type: "longtext", nullable: true),
                     TransactionId = table.Column<string>(type: "longtext", nullable: true),
-                    ReponseCode = table.Column<string>(type: "varchar(10)", maxLength: 10, nullable: true),
                     PaymentDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
-                    PaymentCreated = table.Column<DateTime>(type: "datetime(6)", nullable: true),
                     Culture = table.Column<string>(type: "longtext", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
@@ -1145,14 +1106,49 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Payment", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Payment_Order_OrderId",
+                        name: "FK_Payment_Orders_OrderId",
                         column: x => x.OrderId,
-                        principalTable: "Order",
+                        principalTable: "Orders",
                         principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Payment_PaymentMethod_PaymentMethodId",
                         column: x => x.PaymentMethodId,
                         principalTable: "PaymentMethod",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PurchaseOrderDetail",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    PurchaseOrderId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UnitPrice = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
+                    Tax = table.Column<decimal>(type: "decimal(65,30)", nullable: true),
+                    Culture = table.Column<string>(type: "longtext", nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: true),
+                    CreatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "longtext", nullable: true),
+                    IsActive = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false),
+                    DisplayOrder = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PurchaseOrderDetail", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PurchaseOrderDetail_Product_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Product",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_PurchaseOrderDetail_PurchaseOrder_PurchaseOrderId",
+                        column: x => x.PurchaseOrderId,
+                        principalTable: "PurchaseOrder",
                         principalColumn: "Id");
                 });
 
@@ -1212,11 +1208,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Image_BrandId",
-                table: "Image",
-                column: "BrandId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Message_CustomerId",
                 table: "Message",
                 column: "CustomerId");
@@ -1247,26 +1238,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "ReceiverId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Order_CustomerId",
-                table: "Order",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Order_ShippingCompanyId",
-                table: "Order",
-                column: "ShippingCompanyId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Order_VoucherId",
-                table: "Order",
-                column: "VoucherId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Order_WardId",
-                table: "Order",
-                column: "WardId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_OrderDetail_OrderId",
                 table: "OrderDetail",
                 column: "OrderId");
@@ -1275,6 +1246,26 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "IX_OrderDetail_ProductId",
                 table: "OrderDetail",
                 column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_CustomerId",
+                table: "Orders",
+                column: "CustomerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_ShippingCompanyId",
+                table: "Orders",
+                column: "ShippingCompanyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_VoucherId",
+                table: "Orders",
+                column: "VoucherId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_WardId",
+                table: "Orders",
+                column: "WardId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Payment_OrderId",
@@ -1332,6 +1323,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "PurchaseOrderId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Review_ImageId",
+                table: "Review",
+                column: "ImageId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Review_ProductId",
                 table: "Review",
                 column: "ProductId");
@@ -1377,11 +1373,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "WardId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Voucher_BrandId",
-                table: "Voucher",
-                column: "BrandId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Voucher_DiscountTypeId",
                 table: "Voucher",
                 column: "DiscountTypeId");
@@ -1392,16 +1383,6 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 column: "EventId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Voucher_ProductCategoryId",
-                table: "Voucher",
-                column: "ProductCategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Voucher_ProductId",
-                table: "Voucher",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_VoucherCondition_VoucherId",
                 table: "VoucherCondition",
                 column: "VoucherId");
@@ -1410,29 +1391,11 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "IX_Ward_DistrictId",
                 table: "Ward",
                 column: "DistrictId");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Banner_Image_ImageId",
-                table: "Banner",
-                column: "ImageId",
-                principalTable: "Image",
-                principalColumn: "Id");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Brand_Image_ImageId",
-                table: "Brand",
-                column: "ImageId",
-                principalTable: "Image",
-                principalColumn: "Id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Brand_Image_ImageId",
-                table: "Brand");
-
             migrationBuilder.DropTable(
                 name: "Banner");
 
@@ -1485,13 +1448,16 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "Cart");
 
             migrationBuilder.DropTable(
-                name: "Order");
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "PaymentMethod");
 
             migrationBuilder.DropTable(
                 name: "PurchaseOrder");
+
+            migrationBuilder.DropTable(
+                name: "Product");
 
             migrationBuilder.DropTable(
                 name: "Permission");
@@ -1512,13 +1478,16 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "Users");
 
             migrationBuilder.DropTable(
+                name: "Brand");
+
+            migrationBuilder.DropTable(
+                name: "ProductCategory");
+
+            migrationBuilder.DropTable(
                 name: "DiscountType");
 
             migrationBuilder.DropTable(
                 name: "Event");
-
-            migrationBuilder.DropTable(
-                name: "Product");
 
             migrationBuilder.DropTable(
                 name: "Role");
@@ -1527,19 +1496,13 @@ namespace SAMMI.ECOM.Infrastructure.Migrations
                 name: "Ward");
 
             migrationBuilder.DropTable(
-                name: "ProductCategory");
+                name: "Image");
 
             migrationBuilder.DropTable(
                 name: "District");
 
             migrationBuilder.DropTable(
                 name: "Province");
-
-            migrationBuilder.DropTable(
-                name: "Image");
-
-            migrationBuilder.DropTable(
-                name: "Brand");
         }
     }
 }

@@ -61,7 +61,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.Select("t3.ImageUrl");
                     sqlBuilder.Select("t4.ImageUrl AS CustomerImage");
 
-                    sqlBuilder.Join("Users t2 ON t1.UserId = t2.Id AND t2.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("Users t2 ON t1.UserId = t2.Id AND t2.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Image t3 ON t1.ImageId = t3.Id AND t3.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Image t4 ON t2.AvatarId = t4.Id AND t4.IsDeleted != 1");
 
@@ -114,7 +114,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                             SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS TotalRating1,
                             SUM(CASE WHEN comment IS NOT NULL AND comment != '' THEN 1 ELSE 0 END) AS TotalComment,
                             SUM(CASE WHEN ImageId IS NOT NULL THEN 1 ELSE 0 END) AS TotalImage
-                        FROM reviews
+                        FROM review
                         WHERE ProductId = {productId}";
 
                     return conn.QueryFirstOrDefaultAsync<OverallRatingDTO>(query);

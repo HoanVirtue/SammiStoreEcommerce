@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 // ** Axios Imports
-import { changePasswordAsync, registerAuthAsync, serviceName, updateAuthMeAsync } from './action'
+import { changePasswordAsync, registerAuthAsync, serviceName, updateAuthMeAsync, updateProfileAsync } from './action'
 
 //Type
 import { UserDataType } from 'src/contexts/types'
@@ -16,6 +16,11 @@ type TInitialState = {
   isSuccessUpdateMe: boolean,
   isErrorUpdateMe: boolean,
   errorMessageUpdateMe: string,
+
+  isSuccessUpdateProfile: boolean,
+  isErrorUpdateProfile: boolean,
+  errorMessageUpdateProfile: string,
+
   isSuccessChangePassword: boolean,
   isErrorChangePassword: boolean,
   errorMessageChangePassword: string,
@@ -33,6 +38,11 @@ const initialState: TInitialState = {
   isSuccessUpdateMe: false,
   isErrorUpdateMe: false,
   errorMessageUpdateMe: '',
+
+  isSuccessUpdateProfile: false,
+  isErrorUpdateProfile: false,
+  errorMessageUpdateProfile: '',
+
   isSuccessChangePassword: false,
   isErrorChangePassword: false,
   errorMessageChangePassword: '',
@@ -49,9 +59,16 @@ export const authSlice = createSlice({
       state.isError = true
       state.errorMessage = ""
       state.typeError = ""
+
       state.isSuccessUpdateMe = false
       state.isErrorUpdateMe = true
       state.errorMessageUpdateMe = ""
+
+      state.isSuccessUpdateProfile = false
+      state.isErrorUpdateProfile = true
+      state.errorMessageUpdateProfile = ""
+
+
       state.isSuccessChangePassword = false
       state.isErrorChangePassword = true
       state.errorMessageChangePassword = ""
@@ -76,6 +93,23 @@ export const authSlice = createSlice({
       state.isError = true
       state.errorMessage = ""
       state.typeError = ""
+    })
+
+    //update profile
+    builder.addCase(updateProfileAsync.pending, (state, action) => {
+      state.isLoading = true
+    })
+    builder.addCase(updateProfileAsync.fulfilled, (state, action) => {
+      state.isLoading = false
+      state.isSuccessUpdateProfile = !!action.payload?.isSuccess
+      state.isErrorUpdateProfile = !action.payload?.isSuccess
+      state.errorMessageUpdateProfile = action.payload?.message
+    })
+    builder.addCase(updateProfileAsync.rejected, (state, action) => {
+      state.isLoading = false
+      state.isSuccessUpdateProfile = false
+      state.isErrorUpdateProfile = false
+      state.errorMessageUpdateProfile = action.error?.message || ''
     })
 
     //update me

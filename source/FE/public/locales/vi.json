@@ -434,9 +434,9 @@
     "login_success": "Đăng nhập thành công",
     "logout_success": "Đăng xuất thành công",
     "update_password_success": "Cập nhật mật khẩu thành công",
-    "update_profile_success": "Cập nhật thông tin cá nhân thành công",
+
     "change_password_success": "Đổi mật khẩu thành công",
-    "change_profile_success": "Cập nhật thông tin cá nhân thành công",
+
     "change_profile": "Cập nhật thông tin cá nhân",
     "select_brand": "Chọn thương hiệu",
     "ingredient": "Thành phần",
@@ -802,6 +802,10 @@
     "id_card_number_required": "Số CMND không được để trống",
     "id_card_number_invalid": "Số CMND không hợp lệ",
     "id_card_number": "Số CMND",
+    "enter_your_first_name": "Nhập tên của bạn",
+    "enter_your_last_name": "Nhập họ của bạn",
+    "required_birthday": "Ngày sinh không được để trống",
+    "update_profile_success": "Cập nhật thông tin cá nhân thành công",
 
 
     "province_id": "Mã Tỉnh/Thành phố",

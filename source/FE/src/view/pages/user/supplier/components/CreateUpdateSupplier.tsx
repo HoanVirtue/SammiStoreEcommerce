@@ -53,7 +53,7 @@ interface FormValues {
     streetAddress: string;
     wardId: number;
     wardName: string;
-
+    isDeleted: boolean | false;
     isLock: boolean | false;
     isActive: boolean | true;
 }
@@ -96,6 +96,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         wardName: yup.string().required(t("required_ward_name")),
         isLock: yup.boolean().default(false),
         isActive: yup.boolean().default(true),
+        isDeleted: yup.boolean().default(false),
     });
 
     // Default values cho form
@@ -112,6 +113,8 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         wardName: "",
         isLock: false,
         isActive: true,
+        isDeleted: false,
+        
     };
 
     // Form control
@@ -151,6 +154,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                 securityStamp: "",
                 isLock: data.isLock || false,
                 isActive: data.isActive || true,
+                isDeleted: data.isDeleted || false,
             };
 
             if (id) {
@@ -425,9 +429,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         }
     };
 
-    useEffect(() => {
-        fetchAllProvinces();
-    }, []);
 
     useEffect(() => {
         if (selectedProvince) {
@@ -475,6 +476,11 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
     useEffect(() => {
         getSupplierDefaultCode();
+    }, []);
+
+    
+    useEffect(() => {
+        fetchAllProvinces();
     }, []);
 
     return (

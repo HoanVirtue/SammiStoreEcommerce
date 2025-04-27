@@ -34,7 +34,7 @@ import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
 //Service
-import { getAuthMe, getLoginUser } from 'src/services/auth'
+import { getAuthMe, getLoginUser, updateProfile } from 'src/services/auth'
 
 //Types
 import { UserDataType } from 'src/contexts/types'
@@ -45,7 +45,7 @@ import { convertBase64, separationFullname, toFullName } from 'src/utils'
 //Redux
 import { AppDispatch, RootState } from 'src/stores'
 import { useDispatch, useSelector } from 'react-redux'
-import { updateAuthMeAsync } from 'src/stores/auth/action'
+import { updateProfileAsync } from 'src/stores/auth/action'
 import { resetInitialState } from 'src/stores/auth'
 
 //Other
@@ -57,19 +57,17 @@ type TProps = {}
 
 interface TDefaultValues {
     email: string
-    address: string
-    city: string
-    phoneNumber: string
-    role: string
-    fullName: string
+    phone: string
+    firstName: string
+    lastName: string
+    gender: number
+    birthday: string
 }
+
 const MyProfilePage: NextPage<TProps> = () => {
     //States
     const [loading, setLoading] = React.useState<boolean>(false)
     const [avatar, setAvatar] = React.useState<string>('')
-    const [roleOptions, setRoleOptions] = React.useState<{ label: string, value: string }[]>([])
-    const [cityOptions, setCityOptions] = React.useState<{ label: string, value: string }[]>([])
-    const [isDisableRole, setIsDisableRole] = React.useState<boolean>(false)
 
     //hooks
     const { setUser } = useAuth()
@@ -80,27 +78,27 @@ const MyProfilePage: NextPage<TProps> = () => {
 
     //Dispatch
     const dispatch: AppDispatch = useDispatch();
-    const { isLoading, isErrorUpdateMe, errorMessageUpdateMe, isSuccessUpdateMe } = useSelector((state: RootState) => state.auth)
+    const { isLoading, isErrorUpdateProfile, errorMessageUpdateProfile, isSuccessUpdateProfile } = useSelector((state: RootState) => state.auth)
 
     const schema = yup.object().shape({
         email: yup
             .string()
             .required(t("required_email"))
             .matches(EMAIL_REG, t("incorrect_email_format")),
-        fullName: yup.string().notRequired(),
-        address: yup.string().notRequired(),
-        city: yup.string().notRequired(),
-        phoneNumber: yup.string().required(t("required_phone_number")).min(10, t("incorrect_phone_format")),
-        role: isDisableRole ? yup.string().notRequired() : yup.string().required(t("required_role")),
+        firstName: yup.string().required(t("required_first_name")),
+        lastName: yup.string().required(t("required_last_name")),
+        phone: yup.string().required(t("required_phone_number")).min(10, t("incorrect_phone_format")),
+        gender: yup.number().required(t("required_gender")),
+        birthday: yup.string().required(t("required_birthday")),
     });
 
     const defaultValues: TDefaultValues = {
         email: '',
-        address: '',
-        city: '',
-        phoneNumber: '',
-        role: '',
-        fullName: ''
+        phone: '',
+        firstName: '',
+        lastName: '',
+        gender: 1,
+        birthday: '',
     }
 
     const { handleSubmit, reset, control, formState: { errors } } = useForm({
@@ -115,16 +113,15 @@ const MyProfilePage: NextPage<TProps> = () => {
         await getLoginUser()
             .then(async response => {
                 setLoading(false)
-                const data = response?.data
+                const data = response?.result
                 if (data) {
-                    setIsDisableRole(!data?.role?.permissions?.length)
                     reset({
-                        role: data?.role?._id,
                         email: data?.email,
-                        address: data?.address,
-                        city: data?.city,
-                        phoneNumber: data?.phoneNumber,
-                        fullName: toFullName(data?.lastName, data?.middleName, data?.firstName, i18n.language)
+                        phone: data?.phone,
+                        firstName: data?.firstName,
+                        lastName: data?.lastName,
+                        gender: data?.gender,
+                        birthday: data?.birthday,
                     })
                     setAvatar(data?.avatar)
                     setUser({ ...data })
@@ -135,58 +132,31 @@ const MyProfilePage: NextPage<TProps> = () => {
             })
     }
 
-    const fetchAllRoles = async () => {
-        setLoading(true)
-        await getAllRoles({ params: { limit: -1, page: -1, search: '', order: '' } }).then((res) => {
-            const data = res?.data?.roles
-            if (data) {
-                setRoleOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-            }
-            setLoading(false)
-        }).catch((err) => {
-            setLoading(false)
-        })
-    }
-
-
     useEffect(() => {
         fetchGetAuthMe()
     }, [i18n.language])
 
-
     useEffect(() => {
-        if (errorMessageUpdateMe) {
-            if (isErrorUpdateMe) {
-                toast.error(errorMessageUpdateMe)
+        if (errorMessageUpdateProfile) {
+            if (isErrorUpdateProfile) {
+                toast.error(errorMessageUpdateProfile)
             }
-            else if (isSuccessUpdateMe) {
-                toast.success(t("update_success"))
+            else if (isSuccessUpdateProfile) {
+                toast.success(t("update_profile_success"))
                 fetchGetAuthMe()
             }
         }
         dispatch(resetInitialState())
-    }, [isErrorUpdateMe, isSuccessUpdateMe, errorMessageUpdateMe])
-
-
-    useEffect(() => {
-        fetchAllRoles()
-    }, [])
+    }, [isErrorUpdateProfile, isSuccessUpdateProfile, errorMessageUpdateProfile])
 
     const onSubmit = (data: any) => {
-        const { firstName, middleName, lastName } = separationFullname(data.fullName, i18n.language)
-        dispatch(updateAuthMeAsync({
+        dispatch(updateProfileAsync({
             email: data.email,
-            firstName: firstName,
-            middleName: middleName,
-            lastName: lastName,
-            role: data.role,
-            address: data.address,
-            city: data.city,
-            phoneNumber: data.phoneNumber,
-            avatar
+            firstName: data.firstName,
+            lastName: data.lastName,
+            phone: data.phone,
+            gender: data.gender,
+            birthday: data.birthday,
         }))
     }
 
@@ -281,17 +251,54 @@ const MyProfilePage: NextPage<TProps> = () => {
                         <Grid item md={6} xs={12} >
                             <Controller
                                 control={control}
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <CustomTextField
+                                        required
+                                        fullWidth
+                                        label={t('first_name')}
+                                        onChange={onChange}
+                                        onBlur={onBlur}
+                                        value={value}
+                                        placeholder={t('enter_your_first_name')}
+                                        error={errors.firstName ? true : false}
+                                        helperText={errors.firstName?.message}
+                                    />
+                                )}
+                                name='firstName'
+                            />
+                        </Grid>
+                        <Grid item md={6} xs={12} >
+                            <Controller
+                                control={control}
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <CustomTextField
+                                        required
+                                        fullWidth
+                                        label={t('last_name')}
+                                        onChange={onChange}
+                                        onBlur={onBlur}
+                                        value={value}
+                                        placeholder={t('enter_your_last_name')}
+                                        error={errors.lastName ? true : false}
+                                        helperText={errors.lastName?.message}
+                                    />
+                                )}
+                                name='lastName'
+                            />
+                        </Grid>
+                        <Grid item md={6} xs={12} >
+                            <Controller
+                                control={control}
                                 rules={{ required: true }}
                                 render={({ field: { onChange, onBlur, value } }) => (
                                     <CustomTextField
                                         required
-                                        disabled
                                         fullWidth
                                         label="Email"
                                         onChange={onChange}
                                         onBlur={onBlur}
                                         value={value}
-                                        placeholder='Enter your email'
+                                        placeholder={t('enter_your_email')}
                                         error={errors.email ? true : false}
                                         helperText={errors.email?.message}
                                     />
@@ -299,42 +306,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                                 name='email'
                             />
                         </Grid>
-                        <Grid item md={6} xs={12} >
-                            <Controller
-                                control={control}
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <CustomTextField
-                                        fullWidth
-                                        label={t('full_name')}
-                                        onChange={onChange}
-                                        onBlur={onBlur}
-                                        value={value}
-                                        placeholder={t('enter_your_full_name')}
-                                        error={errors.fullName ? true : false}
-                                        helperText={errors.fullName?.message}
-                                    />
-                                )}
-                                name='fullName'
-                            />
-                        </Grid>
-                        <Grid item md={6} xs={12} >
-                            <Controller
-                                control={control}
-                                name='address'
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <CustomTextField
-                                        fullWidth
-                                        label={t('address')}
-                                        onChange={onChange}
-                                        onBlur={onBlur}
-                                        value={value}
-                                        placeholder={t('enter_your_address')}
-                                        error={errors.address ? true : false}
-                                        helperText={errors.address?.message}
-                                    />
-                                )}
-                            />
-                        </Grid>
+
                         <Grid item md={6} xs={12} >
                             <Controller
                                 control={control}
@@ -355,17 +327,18 @@ const MyProfilePage: NextPage<TProps> = () => {
                                         }}
                                         value={value}
                                         placeholder={t('enter_your_phone_number')}
-                                        error={errors.phoneNumber ? true : false}
-                                        helperText={errors.phoneNumber?.message}
+                                        error={errors.phone ? true : false}
+                                        helperText={errors.phone?.message}
                                     />
                                 )}
-                                name='phoneNumber'
+                                name='phone'
                             />
                         </Grid>
+            
                         <Grid item md={6} xs={12} >
                             <Controller
                                 control={control}
-                                name='city'
+                                name='gender'
                                 render={({ field: { onChange, onBlur, value } }) => (
                                     <Box sx={{
                                         mt: -5
@@ -374,24 +347,27 @@ const MyProfilePage: NextPage<TProps> = () => {
                                             fontSize: "13px",
                                             mb: "4px",
                                             display: "block",
-                                            color: errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                            color: errors?.gender ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                         }}>
-                                            {t('city')}
+                                            {t('gender')}
                                         </InputLabel>
                                         <CustomSelect
                                             fullWidth
                                             onChange={onChange}
                                             onBlur={onBlur}
                                             value={value}
-                                            options={cityOptions}
-                                            placeholder={t('enter_your_city')}
-                                            error={errors.city ? true : false}
+                                            options={[
+                                                { label: t('male'), value: 1 },
+                                                { label: t('female'), value: 2 }
+                                            ]}
+                                            placeholder={t('select_gender')}
+                                            error={errors.gender ? true : false}
                                         />
-                                        {errors?.city?.message && (
+                                        {errors?.gender?.message && (
                                             <FormHelperText sx={{
-                                                color: !errors?.city ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
+                                                color: !errors?.gender ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
                                             }}>
-                                                {errors?.city?.message}
+                                                {errors?.gender?.message}
                                             </FormHelperText>
                                         )}
                                     </Box>
@@ -399,43 +375,26 @@ const MyProfilePage: NextPage<TProps> = () => {
                             />
                         </Grid>
                         <Grid item md={6} xs={12} >
-                            {!isDisableRole && (
-                                <Controller
-                                    control={control}
-                                    rules={{ required: true }}
-                                    render={({ field: { onChange, onBlur, value } }) => (
-                                        <Box sx={{
-                                            mt: -5
-                                        }}>
-                                            <InputLabel sx={{
-                                                fontSize: "13px",
-                                                mb: "4px",
-                                                display: "block",
-                                                color: errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                            }}>
-                                                {t('role')}
-                                            </InputLabel>
-                                            <CustomSelect
-                                                fullWidth
-                                                onChange={onChange}
-                                                onBlur={onBlur}
-                                                value={value}
-                                                options={roleOptions}
-                                                placeholder={t('enter_your_role')}
-                                                error={errors.role ? true : false}
-                                            />
-                                            {!errors?.role?.message && (
-                                                <FormHelperText sx={{
-                                                    color: !errors?.role ? theme.palette.error.main : `rgba(${theme.palette.customColors.main}, 0.42)`
-                                                }}>
-                                                    {errors?.role?.message}
-                                                </FormHelperText>
-                                            )}
-                                        </Box>
-                                    )}
-                                    name='role'
-                                />
-                            )}
+                            <Controller
+                                control={control}
+                                name='birthday'
+                                render={({ field: { onChange, onBlur, value } }) => (
+                                    <CustomTextField
+                                        required
+                                        fullWidth
+                                        type="date"
+                                        label={t('birthday')}
+                                        onChange={onChange}
+                                        onBlur={onBlur}
+                                        value={value ? new Date(value).toISOString().split('T')[0] : ''}
+                                        InputLabelProps={{
+                                            shrink: true,
+                                        }}
+                                        error={errors.birthday ? true : false}
+                                        helperText={errors.birthday?.message}
+                                    />
+                                )}
+                            />
                         </Grid>
                     </Grid>
                     <Box sx={{

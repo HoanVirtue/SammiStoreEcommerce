@@ -8,10 +8,18 @@ export type TParamsGetAllReviews = {
 }
 
 export type TParamsCreateReview = {
-    productId?: number,
-    user?: number,
-    star: number,
-    content: string,
+    productId: number,
+    orderId: number,
+    rating: number,
+    comment?: string,
+    imageId?: number
+    imageCommand?: {
+        imageUrl: string,
+        imageBase64: string,
+        publicId: string,
+        typeImage: string,
+        value: string
+    }
 }
 
 export interface TParamsUpdateReview {

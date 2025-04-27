@@ -12,7 +12,6 @@ const steps = [
   { key: 'WaitingForPayment', icon: 'tabler:credit-card', label: 'Chờ thanh toán' },
   { key: 'Processing', icon: 'tabler:truck-delivery', label: 'Đang xử lý' },
   { key: 'Completed', icon: 'tabler:star', label: 'Hoàn thành' },
-  { key: 'Cancelled', icon: 'tabler:ban', label: 'Đã huỷ' },
 ];
 
 const CustomConnector = styled(StepConnector)(({ theme }) => ({
@@ -60,6 +59,9 @@ function OrderStepIcon(props: any) {
 }
 
 export default function OrderStatusStepper({ orderStatus }: { orderStatus: string }) {
+  if (orderStatus === 'Cancelled') {
+    return null;
+  }
   const currentStep = steps.findIndex(s => s.key === orderStatus);
 
   if (currentStep === -1) {

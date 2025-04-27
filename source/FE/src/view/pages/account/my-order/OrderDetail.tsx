@@ -145,7 +145,7 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
             <WriteReviewModal
                 open={openReview.open}
                 productId={openReview.productId}
-                userId={openReview.userId}
+                orderId={orderId}
                 onClose={() => setOpenReview({ open: false, userId: 0, productId: 0 })}
             />
             <Container maxWidth="lg">
@@ -301,9 +301,12 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                             </Stack>
                         </Stack>
                     </Box>
-{/* 
+
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                        {orderData?.paymentStatus !== PaymentStatus.Paid.label && (
+                        {(orderData.orderStatus === OrderStatus.Pending.label
+                        || orderData.orderStatus === OrderStatus.WaitingForPayment.label) &&
+                        orderData.paymentStatus !== PaymentStatus.Paid.label
+                        && orderData.paymentMethod === 'VNPay' && (
                             <Button
                                 variant="contained"
                                 color='error'
@@ -313,7 +316,8 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                 {t('go_to_payment')}
                             </Button>
                         )}
-                        {orderData?.orderStatus !== OrderStatus.Completed.label && (
+                        {(orderData.orderStatus === OrderStatus.WaitingForPayment.label || orderData.orderStatus === OrderStatus.Pending.label) &&
+                        orderData.paymentMethod !== 'VNPay' && (
                             <Button
                                 variant="contained"
                                 color='error'
@@ -324,13 +328,18 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                             </Button>
                         )}
                         <Button
-                            variant="outlined"
+                            variant="contained"
                             color='primary'
-                            startIcon={<IconifyIcon icon="bx:cart" />}
+                            startIcon={<IconifyIcon icon="fluent:stack-star-16-regular" />}
+                            onClick={() => setOpenReview({ 
+                                open: true, 
+                                userId: user?.id || 0,
+                                productId: orderData?.details?.[0]?.productId || 0
+                            })}
                         >
-                            {t('buy_again')}
+                            {t('rate_product')}
                         </Button>
-                    </Box> */}
+                    </Box>
                 </Stack>
             </Container>
         </>

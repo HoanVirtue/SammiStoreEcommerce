@@ -283,7 +283,7 @@ const MyOrderPage: NextPage = () => {
             px: { xs: 2, sm: 4 }, // Responsive padding
             width: '100%',
             maxWidth: '100%',
-            overflow: 'hidden', // Tránh overflow trên mobile
+            overflow: 'hidden', 
         }}>
             {renderTabs}
             {renderSearch}
@@ -292,5 +292,4 @@ const MyOrderPage: NextPage = () => {
     )
 }
 
-// Tối ưu với memo để tránh re-renders không cần thiết
 export default React.memo(MyOrderPage)

@@ -84,8 +84,8 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
     // Validation schema cho form
     const schema = yup.object().shape({
-        roleId: yup.number().required(t("required_code")),
-        code: yup.string().required(t("required_code")),
+        roleId: yup.number().required(t("required_role_id")),
+        code: yup.string().required(t("required_supplier_code")),
         type: yup.string().default(""),
         firstName: yup.string().required(t("required_first_name")),
         lastName: yup.string().required(t("required_last_name")),

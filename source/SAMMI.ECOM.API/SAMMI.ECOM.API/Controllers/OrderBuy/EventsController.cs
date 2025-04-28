@@ -1,7 +1,10 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 
@@ -26,6 +29,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _voucherRepository = voucherRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.EventView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -36,12 +40,14 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _eventQueries.GetList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.EventView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             return Ok(await _eventQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.EventCreate)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateEventCommand request)
         {
@@ -57,6 +63,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.EventUpdate)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateEventCommand request)
         {
@@ -84,6 +91,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.EventDelete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
@@ -117,6 +125,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(_eventRepository.DeleteAndSave(id));
         }
 
+        [AuthorizePermission(PermissionEnum.EventDelete)]
         [HttpDelete]
         public async Task<IActionResult> DeleteRange([FromBody] List<int> ids)
         {
@@ -159,6 +168,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             }
             return Ok(_eventRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
+
 
         [HttpGet("get-code-by-last-id")]
         public async Task<IActionResult> GetCodeByLastId()

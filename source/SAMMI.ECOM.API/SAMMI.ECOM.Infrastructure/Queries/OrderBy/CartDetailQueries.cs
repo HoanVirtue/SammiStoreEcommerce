@@ -18,6 +18,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<IEnumerable<CartDetailDTO>> GetAll(RequestFilterModel? filterModel = null);
         Task<CartDetailDTO> GetById(int id);
         Task<IEnumerable<CartDetailDTO>> GetMyCart();
+        Task<IEnumerable<CartDetailDTO>> GetMyCart(List<int> ProductIds);
         Task CacheCart(int userId);
         Task RemoveCartCache(int userId);
     }
@@ -91,8 +92,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             return WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.Select("t3.Name AS ProductName");
-                    sqlBuilder.Select("t3.StockQuantity");
+                    sqlBuilder.Select("t3.Name AS ProductName, t3.StockQuantity, t3.Price");
                     sqlBuilder.Select($@"CASE
                                             WHEN t3.StartDate IS NOT NULL
                                             AND t3.EndDate IS NOT NULL
@@ -100,7 +100,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                             AND NOW() <= t3.EndDate
                                             THEN t3.Price * (1 - t3.Discount)
                                             ELSE t3.Price
-                                        END AS Price");
+                                        END AS NewPrice");
                     sqlBuilder.Select("t4.ImageUrl AS ProductImage");
 
                     sqlBuilder.InnerJoin("Cart t2 ON t1.CartId = t2.Id AND t2.IsDeleted != 1");
@@ -113,6 +113,38 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                     AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
                                     ) t4 ON t3.Id = t4.ProductId");
                     sqlBuilder.Where("t2.CustomerId = @userId", new { userId = UserIdentity.Id });
+
+                    return conn.QueryAsync<CartDetailDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                });
+        }
+
+        public Task<IEnumerable<CartDetailDTO>> GetMyCart(List<int> ProductIds)
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("t3.Name AS ProductName, t3.StockQuantity, t3.Price");
+                    sqlBuilder.Select($@"CASE
+                                            WHEN t3.StartDate IS NOT NULL
+                                            AND t3.EndDate IS NOT NULL
+                                            AND NOW() >= t3.StartDate
+                                            AND NOW() <= t3.EndDate
+                                            THEN t3.Price * (1 - t3.Discount)
+                                            ELSE t3.Price
+                                        END AS NewPrice");
+                    sqlBuilder.Select("t4.ImageUrl AS ProductImage");
+
+                    sqlBuilder.InnerJoin("Cart t2 ON t1.CartId = t2.Id AND t2.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("Product t3 ON t1.ProductId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.LeftJoin(@"(SELECT pi.ProductId,
+                                          i.ImageUrl
+                                    FROM ProductImage pi
+                                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                    WHERE pi.IsDeleted != 1
+                                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                                    ) t4 ON t3.Id = t4.ProductId");
+                    sqlBuilder.Where("t2.CustomerId = @userId", new { userId = UserIdentity.Id });
+                    sqlBuilder.Where("t1.ProductId IN @productIds", new { productIds = ProductIds });
 
                     return conn.QueryAsync<CartDetailDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 });

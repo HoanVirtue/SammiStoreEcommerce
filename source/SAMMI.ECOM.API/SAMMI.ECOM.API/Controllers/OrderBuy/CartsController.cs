@@ -1,9 +1,11 @@
-﻿using MediatR;
+﻿using System.Runtime.InteropServices;
+using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Authorizations;
+using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.Enums;
@@ -40,14 +42,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _config = config;
         }
 
-        [AuthorizePermission(PermissionEnum.CustomerCartView)]
+        //[AuthorizePermission(PermissionEnum.CustomerCartView)]
         [HttpGet("get-cart")]
         public async Task<IActionResult> GetCart()
         {
             var cartKey = $"{_config["RedisOptions:cart_key"]}{UserIdentity.Id}";
             if (_redisService != null && _redisService.IsConnected() && _redisService.IsConnected())
             {
-                Console.WriteLine("Redis connected hoan nha");
                 var cachedCart = await _redisService.GetCache<List<CartDetailDTO>>(cartKey);
                 if (cachedCart != null && cachedCart.Count > 0)
                 {
@@ -64,7 +65,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         //customer
-        [AuthorizePermission(PermissionEnum.CustomerCartAdd)]
+        //[AuthorizePermission(PermissionEnum.CustomerCartAdd)]
         [HttpPost("add-to-cart")]
         public async Task<IActionResult> AddToCart([FromBody] CreateCartDetailCommand request)
         {
@@ -81,7 +82,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
-        [AuthorizePermission(PermissionEnum.CustomerCartRemove)]
+        //[AuthorizePermission(PermissionEnum.CustomerCartRemove)]
         [HttpDelete("{productId}")]
         public async Task<IActionResult> DeleteProductFromCart(int productId)
         {
@@ -97,6 +98,53 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             }
             await _cartDetailQueries.CacheCart(UserIdentity.Id);
             return Ok(removeRes);
+        }
+
+        [HttpGet("get-order-select-products")]
+        public async Task<IActionResult> GetOrderBySelectProductAsync([FromQuery]string ProductIds)
+        {
+            var actionRes = new ActionResponse<List<CartDetailDTO>>();
+            var invalidEntries = ProductIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                .Where(s => !int.TryParse(s, out _))
+                .ToList();
+            if (invalidEntries.Any())
+            {
+                actionRes.AddError("Giá trị truyền vào không hợp lệ, phải là số nguyên");
+                return BadRequest(actionRes);
+            }
+            List<int> ids = ProductIds.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(int.Parse)
+                                        .Distinct()
+                                        .ToList();
+            var cartKey = $"{_config["RedisOptions:cart_key"]}{UserIdentity.Id}";
+            if (_redisService != null && _redisService.IsConnected() && _redisService.IsConnected())
+            {
+                var cachedCart = await _redisService.GetCache<List<CartDetailDTO>>(cartKey);
+                if (!ids.All(id => cachedCart.Any(x => x.ProductId == id)))
+                {
+                    actionRes.AddError("Sản phẩm không tồn tại trong giỏ hàng");
+                    return BadRequest(actionRes);
+                }
+                if (cachedCart != null && cachedCart.Count > 0)
+                {
+                    return Ok(cachedCart.Where(x => ids.Contains(x.ProductId)));
+                }
+            }
+
+            foreach (var id in ids)
+            {
+                if (!await _detailRepository.IsExisted(UserIdentity.Id, id))
+                {
+                    actionRes.AddError("Sản phẩm không tồn tại trong giỏ hàng");
+                    return BadRequest(actionRes);
+                }
+            }
+            var cartItems = (await _cartDetailQueries.GetMyCart(ids)).ToList();
+            if (cartItems != null && cartItems.Count > 0 && _redisService != null && _redisService.IsConnected())
+            {
+                await _redisService.SetCache(cartKey, cartItems);
+            }
+            return Ok(cartItems);
         }
     }
 }

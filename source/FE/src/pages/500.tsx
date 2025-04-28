@@ -1,4 +1,4 @@
-import BlankLayout from 'src/view/layout/BlankLayout'
+import NoNavLayout from 'src/view/layout/NoNavLayout'
 import dynamic from 'next/dynamic'
 
 const InternalServerError = dynamic(() => import('src/view/pages/500'), {
@@ -11,4 +11,4 @@ const Error500 = () => {
 }
 
 export default Error500
-Error500.getLayout = (page: React.ReactNode) =><BlankLayout>{page}</BlankLayout>
+Error500.getLayout = (page: React.ReactNode) =><NoNavLayout>{page}</NoNavLayout>

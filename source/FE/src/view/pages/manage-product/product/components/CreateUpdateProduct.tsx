@@ -699,6 +699,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                         </Grid>
                                     </Grid>
 
+                                </Grid>
                                     {/* Tabs Section */}
                                     <Box sx={{ width: '100%', mt: 4 }}>
                                         <Tabs value={tabValue} onChange={handleTabChange}>
@@ -756,7 +757,6 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                             />
                                         )}
                                     </Box>
-                                </Grid>
                             </Grid>
                         </form>
                     </Paper>

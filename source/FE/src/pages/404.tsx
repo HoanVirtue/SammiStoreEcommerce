@@ -1,5 +1,5 @@
 // ** React Imports
-import BlankLayout from 'src/view/layout/BlankLayout'
+import NoNavLayout from 'src/view/layout/NoNavLayout'
 import dynamic from 'next/dynamic'
 
 const NotFound = dynamic(() => import('src/view/pages/404'), {
@@ -12,4 +12,4 @@ const Error404 = () => {
 }
 
 export default Error404
-Error404.getLayout = (page: React.ReactNode) =><BlankLayout>{page}</BlankLayout>
+Error404.getLayout = (page: React.ReactNode) =><NoNavLayout>{page}</NoNavLayout>

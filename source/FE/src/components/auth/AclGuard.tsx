@@ -7,7 +7,7 @@ import { buildAbilityFor, type ACLObj, type AppAbility } from 'src/configs/acl'
 import { useAuth } from 'src/hooks/useAuth'
 
 // ** Components
-import Error401 from 'src/pages/401'
+import Error401 from 'src/pages/403'
 import BlankLayout from 'src/view/layout/BlankLayout'
 import { AbilityContext } from '../acl/Can'
 import { PERMISSIONS } from 'src/configs/permission'

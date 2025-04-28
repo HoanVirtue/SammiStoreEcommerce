@@ -143,8 +143,6 @@ const ListProductPage: NextPage = () => {
                     currentTab={currentTab}
                     onTabChange={handleTabChange}
                     onAddClick={handleAddClick}
-                    hideAddButton={true}
-                    hideDeleteButton={true}
                     onDetailClick={handleDetailClick}
                     onCloseCreateTab={handleCloseCreateTab}
                     onCloseUpdateTab={handleCloseUpdateTab}

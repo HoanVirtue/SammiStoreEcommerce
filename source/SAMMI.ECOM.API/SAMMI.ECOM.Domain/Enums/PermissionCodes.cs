@@ -102,6 +102,17 @@ namespace SAMMI.ECOM.Domain.Enums
         ReportStock,
         ReportImport,
 
+        // Quyền quản lý sự kiện
+        EventCreate,    
+        EventUpdate,    
+        EventDelete,    
+        EventView,      
+
+        // Quyền quản lý voucher
+        VoucherCreate,  
+        VoucherUpdate,  
+        VoucherDelete,  
+        VoucherView,    
 
 
         // Sản phẩm (Customer)
@@ -237,6 +248,18 @@ namespace SAMMI.ECOM.Domain.Enums
                 PermissionEnum.ReportRevenue => "REPORT_REVENUE",
                 PermissionEnum.ReportStock => "REPORT_STOCK",
                 PermissionEnum.ReportImport => "REPORT_IMPORT",
+
+                // Quyền quản lý sự kiện
+                PermissionEnum.EventCreate => "EVENT_CREATE",
+                PermissionEnum.EventUpdate => "EVENT_UPDATE",
+                PermissionEnum.EventDelete => "EVENT_DELETE",
+                PermissionEnum.EventView => "EVENT_VIEW",
+
+                // Quyền quản lý voucher
+                PermissionEnum.VoucherCreate => "VOUCHER_CREATE",
+                PermissionEnum.VoucherUpdate => "VOUCHER_UPDATE",
+                PermissionEnum.VoucherDelete => "VOUCHER_DELETE",
+                PermissionEnum.VoucherView => "VOUCHER_VIEW",
 
 
 
@@ -377,6 +400,17 @@ namespace SAMMI.ECOM.Domain.Enums
             PermissionEnum.ReportStock,
             PermissionEnum.ReportImport,
 
+            // Quyền quản lý event
+            PermissionEnum.EventCreate,
+            PermissionEnum.EventUpdate,
+            PermissionEnum.EventDelete,
+            PermissionEnum.EventView,
+
+            // quyền quản lý voucher
+            PermissionEnum.VoucherCreate,
+            PermissionEnum.VoucherUpdate,
+            PermissionEnum.VoucherDelete,
+            PermissionEnum.VoucherView,
 
 
             // Quyền xem và tìm kiếm sản phẩm (khách hàng)

@@ -4,11 +4,13 @@ using Castle.Core.Resource;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
@@ -55,6 +57,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
 
         // top 20 vouchers cho trang chủ
 
+        [AuthorizePermission(PermissionEnum.VoucherView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -65,12 +68,14 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _voucherQueries.GetList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.VoucherView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             return Ok(await _voucherQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.VoucherCreate)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUVoucherCommand request)
         {
@@ -86,6 +91,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.VoucherUpdate)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CUVoucherCommand request)
         {
@@ -105,6 +111,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.VoucherDelete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -127,6 +134,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(_voucherRepository.DeleteAndSave(id));
         }
 
+        [AuthorizePermission(PermissionEnum.VoucherDelete)]
         [HttpDelete]
         public async Task<IActionResult> DeleteRangeAsync([FromBody] List<int> ids)
         {
@@ -164,6 +172,8 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _voucherQueries.GetCodeByLastId());
         }
 
+
+        [AuthorizePermission(PermissionEnum.CustomerVoucherManage)]
         [HttpPost("save-voucher")]
         public async Task<IActionResult> PostMyVoucherAsync([FromBody] int voucherId)
         {
@@ -196,13 +206,14 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(createRes);
         }
 
-
+        [AuthorizePermission(PermissionEnum.CustomerVoucherManage)]
         [HttpGet("my-voucher")]
         public async Task<IActionResult> GetMyVoucherAsync()
         {
             return Ok(await _voucherQueries.GetVoucherOfCustomer(UserIdentity.Id));
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerVoucherManage)]
         [HttpPost("my-voucher-apply")]
         public async Task<IActionResult> GetMyVoucherApplyAsync([FromBody] RequestVoucherDTO request)
         {
@@ -228,6 +239,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _myVoucherQueries.GetDataInCheckout(UserIdentity.Id, totalAmount, request.Details));
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerVoucherManage)]
         [HttpPost("apply-voucher/{voucherCode}")]
         public async Task<IActionResult> ApplyVoucher(string voucherCode, [FromBody] RequestVoucherDTO request)
         {

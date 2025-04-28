@@ -150,22 +150,15 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     return actResponse;
 
                 // update cart && update stock quantity
-                if (!request.IsBuyNow)
+                var cartDetail = await _cartDetailRepository.GetByUserIdAndProductId(_currentUser.Id, detail.ProductId);
+                if (cartDetail != null)
                 {
-                    var cartDetail = await _cartDetailRepository.GetByUserIdAndProductId(_currentUser.Id, detail.ProductId);
-                    if (cartDetail != null)
-                    {
-                        actResponse.Combine(_cartDetailRepository.DeleteAndSave(cartDetail.Id));
-                        if (!actResponse.IsSuccess)
-                            return actResponse;
+                    actResponse.Combine(_cartDetailRepository.DeleteAndSave(cartDetail.Id));
+                    if (!actResponse.IsSuccess)
+                        return actResponse;
 
-                        product.StockQuantity -= cartDetail.Quantity;
-                        await _cartDetailQueries.RemoveCartCache(_currentUser.Id);
-                    }
-                }
-                else
-                {
-                    product.StockQuantity -= detail.Quantity;
+                    product.StockQuantity -= cartDetail.Quantity;
+                    await _cartDetailQueries.RemoveCartCache(_currentUser.Id);
                 }
                 actResponse.Combine(await _productRepository.UpdateAndSave(product));
                 if (!actResponse.IsSuccess)

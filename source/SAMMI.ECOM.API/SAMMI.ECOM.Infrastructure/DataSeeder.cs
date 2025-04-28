@@ -497,6 +497,18 @@ namespace SAMMI.ECOM.Infrastructure
                     new Permission { Code = PermissionEnum.AccountChangePassword.ToPolicyName(), Name = "Đổi mật khẩu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
                     new Permission { Code = PermissionEnum.AccountLogout.ToPolicyName(), Name = "Đăng xuất", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
 
+                    // Danh mục sự kiện
+                    new Permission { Code = PermissionEnum.EventCreate.ToPolicyName(), Name = "Thêm mới sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.EventUpdate.ToPolicyName(), Name = "Cập nhật thông tin sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.EventDelete.ToPolicyName(), Name = "Xóa sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.EventView.ToPolicyName(), Name = "Xem danh sách sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Danh mục voucher
+                    new Permission { Code = PermissionEnum.VoucherCreate.ToPolicyName(), Name = "Thêm mới voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.VoucherUpdate.ToPolicyName(), Name = "Cập nhật thông tin voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.VoucherDelete.ToPolicyName(), Name = "Xóa voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.VoucherView.ToPolicyName(), Name = "Xem danh sách voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
                     // Role khách hàng
                     // Sản phẩm
                     new Permission { Code = PermissionEnum.CustomerProductView.ToPolicyName(), Name = "Khách hàng xem thông tin sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },

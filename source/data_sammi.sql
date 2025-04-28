@@ -1,4 +1,5 @@
 ﻿
+-- nhân viên
 INSERT INTO `users` (
   `Id`, `Code`, `IdentityGuid`, `Type`, `FirstName`, `LastName`, `FullName`, 
   `Email`, `Phone`, `StreetAddress`, `WardId`, `IsAdmin`, `Username`, 
@@ -20,7 +21,7 @@ VALUES
 (19, 'KH000014', UUID(), 'Employee', 'Khoa', 'Vo', 'Vo Khoa', 'vokhoa@example.com', '0912345681', '606 Cach Mang Thang 8, Quan 10', 9, 0, 'customer14', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, 'security-stamp-606', NULL, '9876543214', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 9, 1),
 (20, 'KH000015', UUID(), 'Employee', 'Lan', 'Le', 'Le Lan', 'lelan@example.com', '0912345682', '707 Nguyen Thi Minh Khai, Quan 3', 10, 0, 'customer15', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, 'security-stamp-707', NULL, '9876543215', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 10, 1);
 
-
+-- khách hàng
 INSERT INTO `users` (
   `Id`, `Code`, `IdentityGuid`, `Type`, `FirstName`, `LastName`, `FullName`, 
   `Email`, `Phone`, `StreetAddress`, `WardId`, `IsAdmin`, `Username`, 
@@ -52,7 +53,7 @@ VALUES
 (40, 'KH000040', UUID(), 'Customer', 'Trang', 'Vo', 'Vo Trang', 'trang.vo@example.com', '0912345696', NULL, NULL, 0, 'trangvo', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
 (41, 'KH000041', UUID(), 'Customer', 'Phong', 'Le', 'Le Phong', 'phong.le@example.com', '0912345697', NULL, NULL, 0, 'phongle', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1);
 
-
+-- nhà cung cấp
 INSERT INTO `users` (
   `Id`, `Code`, `IdentityGuid`, `Type`, `FullName`, 
   `Email`, `Phone`, `StreetAddress`, `WardId`, `Culture`, `CreatedDate`, `UpdatedDate`, 
@@ -94,7 +95,7 @@ VALUES
 (68,'https://res.cloudinary.com/duqduitnd/image/upload/v1744539537/uploads/brands/Cocoon.jpg','uploads/brands/Cocoon','Brand','vn',NOW(), NULL,'N/A','',1,0,1),
 (69,'https://res.cloudinary.com/duqduitnd/image/upload/v1744539539/uploads/brands/M.O.ICosmetics.jpg','uploads/brands/M.O.ICosmetics','Brand','vn',NOW(), NULL,'N/A','',1,0,1);
 
-
+-- thương hiệu
 INSERT INTO `brand` VALUES 
 (50, 'TH000050', 'WHOO', 50, 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, NULL),
 (51, 'TH000051', 'Doctor G', 51, 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, NULL),
@@ -119,7 +120,7 @@ INSERT INTO `brand` VALUES
 
 
 
-
+-- loại sản phẩm
 INSERT INTO `productcategory` VALUES 
 (50, 'PC000050', 'Trang điểm', NULL, 1, 'vn', NOW(), NULL, 'Unknown', NULL, 1, 0, NULL),
 (51, 'PC000051', 'Chăm sóc da mặt', NULL, 1, 'vn', NOW(), NULL, 'Unknown', NULL, 1, 0, NULL),
@@ -168,6 +169,7 @@ VALUES
 (89,'https://res.cloudinary.com/duqduitnd/image/upload/v1744544424/uploads/products/SP0000069.jpg','uploads/products/SP0000069','Product','vn',NOW(),NULL,'N/A','',1,0,1);
 
 
+-- sản phẩm
 
 INSERT INTO `product` (
     `id`,
@@ -362,6 +364,7 @@ VALUES
 
 -- chưa nhập  id img vào into event
 
+-- sự kiện
 INSERT INTO `event` VALUES 
 (50, 'EVE000050', 'Chương trình giảm giá mùa xuân', '2025-04-15 09:00:00.000000', '2025-04-22 23:59:59.999999', 'SpecialOccasion', NULL, NULL, 'vn', NOW(), NULL, 'N/A', 'string', 1, 0, 0),
 (51, 'EVE000051', 'Flash Sale mỹ phẩm Hàn Quốc', '2025-04-20 10:00:00.000000', '2025-04-21 23:59:59.999999', 'FlashSale', NULL, NULL, 'vn', NOW(), NULL, 'N/A', 'string', 1, 0, 0),
@@ -413,7 +416,7 @@ VALUES
 (69,'','','Voucher',NULL,'vn',NOW(),'','N/A','',1,0,1);
 */
 
-
+-- phiếu giảm giá
 INSERT INTO `voucher` VALUES
 (50, 'SAMMI000050', 'Giảm giá mùa xuân 12%', 50, 1, 12.00, 100, 0, '2025-04-15 09:00:00.000000', '2025-04-22 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, 0),
 (51, 'SAMMI000051', 'Flash Sale giảm 50K', 51, 2, 50000.00, 50, 0, '2025-04-20 10:00:00.000000', '2025-04-21 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, 0),
@@ -438,7 +441,7 @@ INSERT INTO `voucher` VALUES
 
 
 
-
+-- điều kiện giảm giá
 INSERT INTO `vouchercondition` VALUES
 (50, 50, 'MinOrderValue', '200000', 'vn', '2025-04-15 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 200K cho voucher 50
 (51, 50, 'MaxDiscountAmount', '300000', 'vn', '2025-04-15 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Giảm tối đa 300K cho voucher 50
@@ -451,3 +454,43 @@ INSERT INTO `vouchercondition` VALUES
 (58, 58, 'RequiredProducts', '50,51', 'vn', '2025-07-10 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Chỉ áp dụng sản phẩm ID 50, 51 cho voucher 58
 (59, 60, 'MinOrderValue', '400000', 'vn', '2025-08-01 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 400K cho voucher 60
 (60, 68, 'MaxDiscountAmount', '500000', 'vn', '2025-11-28 00:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0); -- Giảm tối đa 500K cho voucher 68
+
+
+select * FROM users
+
+SELECT
+DISTINCT t1.Id,
+t1.CartId AS CartId,
+t1.ProductId AS ProductId,
+t1.Quantity AS Quantity,
+t1.CreatedDate AS CreatedDate,
+t1.UpdatedDate AS UpdatedDate,
+t1.CreatedBy AS CreatedBy,
+t1.UpdatedBy AS UpdatedBy,
+t1.IsActive AS IsActive,
+t1.IsDeleted AS IsDeleted,
+t1.DisplayOrder AS DisplayOrder,
+t3.Name AS ProductName,
+t3.StockQuantity,
+CASE
+      WHEN t3.StartDate IS NOT NULL
+      AND t3.EndDate IS NOT NULL
+      AND NOW() >= t3.StartDate
+      AND NOW() <= t3.EndDate
+      THEN t3.Price * (1 - t3.Discount)
+      ELSE t3.Price
+  END AS Price,
+t4.ImageUrl AS ProductImage FROM CartDetail t1 
+INNER JOIN Cart t2 ON t1.CartId = t2.Id AND t2.IsDeleted != 1
+INNER JOIN Product t3 ON t1.ProductId = t3.Id AND t3.IsDeleted != 1
+LEFT JOIN (SELECT pi.ProductId,
+                                          i.ImageUrl
+                                    FROM ProductImage pi
+                                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                    WHERE pi.IsDeleted != 1
+                                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                                    ) t4 ON t3.Id = t4.ProductId
+WHERE t1.ISDELETED = 0 AND t2.CustomerId = 22
+
+
+SELECT * FROM product

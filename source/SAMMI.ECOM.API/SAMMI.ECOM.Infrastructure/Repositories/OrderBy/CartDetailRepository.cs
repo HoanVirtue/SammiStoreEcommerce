@@ -8,6 +8,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     {
         Task<CartDetail> GetByCartIdAndProductId(int cartId, int productId);
         Task<CartDetail> GetByUserIdAndProductId(int userId, int productId);
+        Task<bool> IsExisted(int userId, int productId);
     }
     public class CartDetailRepository : CrudRepository<CartDetail>, ICartDetailRepository, IDisposable
     {
@@ -33,6 +34,16 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             return await _context.CartDetails
                 .Include(x => x.Cart)
                 .SingleOrDefaultAsync(x => x.Cart.CustomerId == userId && x.ProductId == productId && x.IsDeleted != true);
+        }
+
+        public Task<bool> IsExisted(int userId, int productId)
+        {
+            var query = from c in _context.Carts
+                        where c.CustomerId == userId && c.IsDeleted != true
+                        join cd in _context.CartDetails on c.Id equals cd.CartId
+                        where cd.ProductId == productId && cd.IsDeleted != true
+                        select c.Id;
+            return query.AnyAsync();
         }
     }
 }

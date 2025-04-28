@@ -818,6 +818,9 @@
     "upload_image_success": "Tải ảnh thành công",
     "upload_image_error": "Đã xảy ra lỗi khi tải ảnh, vui lòng thử lại!",
     "drag_drop_image": "Kéo thả ảnh",
+    "required_employee_code": "Mã nhân viên không được để trống",
+    "required_role_id": "Vai trò không được để trống",
+    "required_id_card_number": "Số CMND không được để trống",
 
 
     "province_id": "Mã Tỉnh/Thành phố",

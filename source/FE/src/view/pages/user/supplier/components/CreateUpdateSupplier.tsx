@@ -478,10 +478,12 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         getSupplierDefaultCode();
     }, []);
 
-    
     useEffect(() => {
-        fetchAllProvinces();
-    }, []);
+        if (open && !id) {
+            fetchAllProvinces();
+        }
+    }, [open, id]);
+
 
     return (
         <>

@@ -2,7 +2,7 @@
 
 // React & Next.js imports
 import { NextPage } from "next";
-import { memo, useMemo, Suspense } from "react";
+import { memo, useMemo, Suspense, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { useTranslation } from "react-i18next";
 
@@ -23,6 +23,7 @@ import Spinner from 'src/components/spinner';
 
 // Redux imports
 import { RootState } from "src/stores";
+import { createSelector } from "@reduxjs/toolkit";
 import {
   deleteMultipleSuppliersAsync,
   deleteSupplierAsync,
@@ -36,6 +37,18 @@ const CreateUpdateSupplier = dynamic(() => import("./components/CreateUpdateSupp
   ssr: false
 });
 
+// Create a memoized selector for supplier data
+const createSupplierSelector = createSelector(
+  (state: RootState) => state.supplier.suppliers.data,
+  (state: RootState) => state.supplier.suppliers.total,
+  (state: RootState) => state.supplier,
+  (data, total, supplierState) => ({
+    data,
+    total,
+    ...supplierState,
+  })
+);
+
 /**
  * Trang danh sách nhà cung cấp
  * Sử dụng dynamic import để tối ưu performance
@@ -46,6 +59,9 @@ const ListSupplierPage: NextPage = () => {
 
   // Sử dụng useMemo để cache columns, tránh tính toán lại mỗi lần render
   const columns: GridColDef[] = getSupplierColumns();
+  
+  // Use the memoized selector
+  const supplierSelector = useCallback((state: RootState) => createSupplierSelector(state), []);
 
   return (
     <Suspense fallback={<Spinner />}>
@@ -53,11 +69,7 @@ const ListSupplierPage: NextPage = () => {
         entityName="supplier"
         columns={columns}
         fields={getSupplierFields()}
-        reduxSelector={(state: RootState) => ({
-          data: state.supplier.suppliers.data,
-          total: state.supplier.suppliers.total,
-          ...state.supplier,
-        })}
+        reduxSelector={supplierSelector}
         fetchAction={getAllSuppliersAsync}
         deleteAction={deleteSupplierAsync}
         deleteMultipleAction={deleteMultipleSuppliersAsync as unknown as (ids: { [key: number]: number[] }) => any}

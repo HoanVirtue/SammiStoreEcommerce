@@ -2,7 +2,7 @@
 
 // React & Next.js imports
 import { NextPage } from "next";
-import { memo, useMemo, Suspense } from "react";
+import { memo, Suspense, useCallback } from "react";
 import dynamic from "next/dynamic";
 
 // Material UI imports
@@ -10,7 +10,7 @@ import { GridColDef } from "@mui/x-data-grid";
 
 // Components imports
 const AdminPage = dynamic(() => import("src/components/admin-page"), {
-  loading: () => <div>Loading...</div>,
+  loading: () => <Spinner />,
   ssr: false
 });
 
@@ -20,6 +20,7 @@ import { getCustomerColumns } from "src/configs/gridColumn";
 
 // Redux imports
 import { RootState } from "src/stores";
+import { createSelector } from "@reduxjs/toolkit";
 import {
   deleteMultipleCustomersAsync,
   deleteCustomerAsync,
@@ -34,11 +35,18 @@ const CreateUpdateCustomer = dynamic(() => import("./components/CreateUpdateCust
   ssr: false
 });
 
-// Loading spinner component
-const LoadingSpinner = () => (
-  <div className="flex items-center justify-center h-screen">
-    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-  </div>
+
+
+// Create a memoized selector for customer data
+const createCustomerSelector = createSelector(
+  (state: RootState) => state.customer.customers.data,
+  (state: RootState) => state.customer.customers.total,
+  (state: RootState) => state.customer,
+  (data, total, customerState) => ({
+    data,
+    total,
+    ...customerState,
+  })
 );
 
 /**
@@ -48,19 +56,18 @@ const LoadingSpinner = () => (
  */
 const ListCustomerPage: NextPage = () => {
   // Sử dụng useMemo để cache columns, tránh tính toán lại mỗi lần render
-  const columns: GridColDef[] = useMemo(() => getCustomerColumns(), []);
+  const columns: GridColDef[] = getCustomerColumns()
+  
+  // Use the memoized selector
+  const customerSelector = useCallback((state: RootState) => createCustomerSelector(state), []);
 
   return (
-    <Suspense fallback={<LoadingSpinner />}>
+    <Suspense fallback={<Spinner />}>
       <AdminPage
         entityName="customer"
         columns={columns}
         fields={getCustomerFields()}
-        reduxSelector={(state: RootState) => ({
-          data: state.customer.customers.data,
-          total: state.customer.customers.total,
-          ...state.customer,
-        })}
+        reduxSelector={customerSelector}
         fetchAction={getAllCustomersAsync}
         deleteAction={deleteCustomerAsync}
         deleteMultipleAction={deleteMultipleCustomersAsync as unknown as (ids: { [key: number]: number[] }) => any}

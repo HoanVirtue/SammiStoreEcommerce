@@ -1,36 +1,49 @@
-//React
-import React, { useEffect, useMemo, useState } from "react"
+// React
+import React, { useEffect, useMemo, useState, Suspense } from "react"
+import dynamic from 'next/dynamic'
 
-//Next
+// Next
 import { useRouter } from "next/navigation";
 
-// MUI Imports
-import { Avatar, Badge, Box, Button, IconButton, Menu, MenuItem, MenuItemProps, styled, Tooltip, Typography, useTheme } from "@mui/material"
+// MUI Imports - Optimized individual imports
+import Avatar from "@mui/material/Avatar"
+import Badge from "@mui/material/Badge"
+import Box from "@mui/material/Box"
+import Button from "@mui/material/Button"
+import IconButton from "@mui/material/IconButton"
+import Menu from "@mui/material/Menu"
+import MenuItem from "@mui/material/MenuItem"
+import { MenuItemProps } from "@mui/material"
+import { styled } from "@mui/material/styles"
+import Tooltip from "@mui/material/Tooltip"
+import Typography from "@mui/material/Typography"
+import { useTheme } from "@mui/material/styles"
 
+// Dynamic imports
+const IconifyIcon = dynamic(() => import("../../../../components/Icon"), {
+  ssr: false,
+  loading: () => <Spinner />
+})
 
-//components
-import IconifyIcon from "../../../../components/Icon";
+const NoData = dynamic(() => import("src/components/no-data"), {
+  ssr: false
+})
 
-//hooks
+// Hooks
 import { useAuth } from "src/hooks/useAuth";
 
-//Translate
+// Translate
 import { useTranslation } from "react-i18next";
 
-
-//Utils
+// Utils
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "src/stores";
-import { TItemCart } from "src/types/order";
-import { getLocalProductFromCart } from "src/helpers/storage";
-import { updateProductToCart } from "src/stores/order";
-import { hexToRGBA } from "src/utils/hex-to-rgba";
 import { formatPrice } from "src/utils";
 import { ROUTE_CONFIG } from "src/configs/route";
-import NoData from "src/components/no-data";
 import { getProductDetail } from "src/services/product";
 import { getCartsAsync } from "src/stores/cart/action";
-
+import Link from "next/link";
+import Spinner from "src/components/spinner";
 type TProps = {}
 
 const StyledMenuItem = styled(MenuItem)<MenuItemProps>(({ theme }) => ({
@@ -57,7 +70,7 @@ const ProductCart = (props: TProps) => {
     const theme = useTheme()
 
     const router = useRouter()
-    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
     const open = Boolean(anchorEl);
 
     //handler
@@ -72,9 +85,6 @@ const ProductCart = (props: TProps) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${id}`)
     }
 
-    const handleNavigateMyCart = () => {
-        router.push(`${ROUTE_CONFIG.MY_CART}`)
-    }
 
     const totalItemsCart = useMemo(() => {
         if (!carts?.data) return 0;
@@ -103,23 +113,102 @@ const ProductCart = (props: TProps) => {
 
     useEffect(() => {
         const fetchImages = async () => {
+            if (!carts?.data?.length) return;
+            
             const imageMap: Record<string, string> = {};
             const cartItems = carts?.data as CartItem[] || [];
-            for (const item of cartItems) {
-                const res = await getProductDetail(item.productId);
-                const data = res?.result;
-                if (data) {
-                    const image = data.images?.[0]?.imageUrl;
-                    imageMap[item.productId] = image;
-                }
-            }
+            
+            // Use Promise.all for parallel requests
+            await Promise.all(
+                cartItems.map(async (item) => {
+                    try {
+                        const res = await getProductDetail(item.productId);
+                        const data = res?.result;
+                        if (data) {
+                            const image = data.images?.[0]?.imageUrl;
+                            imageMap[item.productId] = image;
+                        }
+                    } catch (error) {
+                        console.error(`Error fetching image for product ${item.productId}:`, error);
+                    }
+                })
+            );
+            
             setProductImages(imageMap);
         };
 
-        if (carts?.data?.length > 0) {
-            fetchImages();
-        }
+        fetchImages();
     }, [carts?.data]);
+
+    // Memoize cart items rendering to prevent unnecessary re-renders
+    const renderCartItems = useMemo(() => {
+        if (!carts?.data?.length) {
+            return (
+                <Box sx={{
+                    padding: "20px",
+                    width: "fit-content",
+                }}>
+                    <Suspense fallback={<Spinner />}>
+                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
+                    </Suspense>
+                </Box>
+            );
+        }
+
+        return (
+            <Box sx={{ maxHeight: "300px", maxWidth: "300px", overflow: "auto" }}>
+                {carts?.data?.map((item: CartItem) => (
+                    <StyledMenuItem 
+                        key={item.productId} 
+                        onClick={() => handleNavigateProductDetail(item.productId)}
+                    >
+                        <Avatar src={productImages[item.productId]} />
+                        <Box sx={{ ml: 1 }}>
+                            <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.productName}</Typography>
+                            <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                <Typography variant="h4" sx={{
+                                    color: theme.palette.primary.main,
+                                    fontWeight: "bold",
+                                    fontSize: "12px"
+                                }}>
+                                    {item?.discount && item?.discount > 0 && item?.price ? (
+                                        formatPrice(item.price * (100 - item.discount * 100) / 100)
+                                    ) : item?.price ? (
+                                        formatPrice(item.price)
+                                    ) : null}
+                                </Typography>
+                                {(item?.discount && item?.discount > 0 && item?.price) ? (
+                                    <Typography variant="h6" sx={{
+                                        color: theme.palette.error.main,
+                                        fontWeight: "bold",
+                                        textDecoration: "line-through",
+                                        fontSize: "10px"
+                                    }}>
+                                        {formatPrice(item.price)}
+                                    </Typography>
+                                ) : null}
+                            </Box>
+                        </Box>
+                        <Typography sx={{ textWrap: "wrap", fontSize: "13px", fontWeight: 600, ml: 2 }}>
+                            x{item?.quantity}
+                        </Typography>
+                    </StyledMenuItem>
+                ))}
+                <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", padding: '0 20px' }}>
+                    <Button 
+                        type="submit" 
+                        variant="contained" 
+                        fullWidth
+                        sx={{ mt: 3, mb: 2, py: 1.5, mr: 2, borderRadius: "8px" }}
+                    >
+                        <Link href={`${ROUTE_CONFIG.MY_CART}`}>
+                            {t('view_cart')}
+                        </Link>
+                    </Button>
+                </Box>
+            </Box>
+        );
+    }, [carts?.data, productImages, theme, t, handleNavigateProductDetail]);
 
     return (
         <React.Fragment>
@@ -133,13 +222,15 @@ const ProductCart = (props: TProps) => {
                         aria-haspopup="true"
                         aria-expanded={open ? 'true' : undefined}
                     >
-                        {!!carts?.data?.length ? (
-                            <Badge color="primary" badgeContent={totalItemsCart}>
+                        <Suspense fallback={<Spinner />}>
+                            {!!carts?.data?.length ? (
+                                <Badge color="primary" badgeContent={totalItemsCart}>
+                                    <IconifyIcon icon="flowbite:cart-outline" />
+                                </Badge>
+                            ) : (
                                 <IconifyIcon icon="flowbite:cart-outline" />
-                            </Badge>
-                        ) : (
-                            <IconifyIcon icon="flowbite:cart-outline" />
-                        )}
+                            )}
+                        </Suspense>
                     </IconButton>
                 </Tooltip>
             </Box>
@@ -180,65 +271,7 @@ const ProductCart = (props: TProps) => {
                 transformOrigin={{ horizontal: 'right', vertical: 'top' }}
                 anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
             >
-                {carts?.data?.length > 0 ? (
-                    <Box sx={{ maxHeight: "300px", maxWidth: "300px", overflow: "auto" }}>
-                        {carts?.data?.map((item: CartItem) => {
-                            return (
-                                <StyledMenuItem key={item.productId} onClick={() => handleNavigateProductDetail(item.productId)}>
-                                    <Avatar src={productImages[item.productId]} />
-                                    <Box sx={{ ml: 1 }}>
-                                        <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.productName}</Typography>
-                                        <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                                            <Typography variant="h4" sx={{
-                                                color: theme.palette.primary.main,
-                                                fontWeight: "bold",
-                                                fontSize: "12px"
-                                            }}>
-                                                {item?.discount && item?.discount > 0 && item?.price ? (
-                                                    <>
-                                                        {formatPrice(item.price * (100 - item.discount * 100) / 100)}
-                                                    </>
-                                                ) : item?.price ? (
-                                                    <>
-                                                        {formatPrice(item.price)}
-                                                    </>
-                                                ) : null}
-                                            </Typography>
-                                            {(item?.discount && item?.discount > 0 && item?.price) ? (
-                                                <Typography variant="h6" sx={{
-                                                    color: theme.palette.error.main,
-                                                    fontWeight: "bold",
-                                                    textDecoration: "line-through",
-                                                    fontSize: "10px"
-                                                }}>
-                                                    {formatPrice(item.price)}
-                                                </Typography>
-                                            ) : null}
-
-                                        </Box>
-                                    </Box>
-                                    <Typography sx={{ textWrap: "wrap", fontSize: "13px", fontWeight: 600, ml: 2 }}>
-                                        x{item?.quantity}
-                                    </Typography>
-                                </StyledMenuItem>
-                            )
-                        })}
-                        <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", padding: '0 20px' }}>
-                            <Button type="submit" variant="contained" fullWidth
-                                onClick={handleNavigateMyCart}
-                                sx={{ mt: 3, mb: 2, py: 1.5, mr: 2, borderRadius: "8px" }}>
-                                {t('view_cart')}
-                            </Button>
-                        </Box>
-                    </Box>
-                ) : (
-                    <Box sx={{
-                        padding: "20px",
-                        width: "fit-content",
-                    }}>
-                        <NoData imageWidth="60px" imageHeight="60px" textNodata={t("empty_cart")} />
-                    </Box>
-                )}
+                {renderCartItems}
             </Menu>
         </React.Fragment>
     )

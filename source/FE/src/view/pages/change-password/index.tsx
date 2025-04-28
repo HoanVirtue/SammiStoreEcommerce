@@ -28,16 +28,15 @@ import RegisterDark from '/public/images/register-dark.png'
 import RegisterLight from '/public/images/register-light.png'
 import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, RootState } from 'src/stores'
-import { changePasswordAsync, registerAuthAsync } from 'src/stores/auth/action'
+import { changePasswordAsync } from 'src/stores/auth/action'
 
 import { toast } from 'react-toastify'
 
-import FallbackSpinner from 'src/components/fall-back'
 import { resetInitialState } from 'src/stores/auth'
 import { useRouter } from 'next/navigation'
 import { useAuth } from 'src/hooks/useAuth'
 import { useTranslation } from '../../../../node_modules/react-i18next'
-
+import Spinner from 'src/components/spinner'
 type TProps = {}
 
 interface IDefaultValues {
@@ -60,7 +59,7 @@ const ChangePasswordPage: NextPage<TProps> = () => {
 
     //Redux
     const dispatch: AppDispatch = useDispatch();
-    const { isLoading, isErrorChangePassword, isSuccessChangePassword, messageChangePassword } = useSelector((state: RootState) => state.auth)
+    const { isLoading, isErrorChangePassword, isSuccessChangePassword, errorMessageChangePassword } = useSelector((state: RootState) => state.auth)
 
     //Theme
     const theme = useTheme();
@@ -101,23 +100,23 @@ const ChangePasswordPage: NextPage<TProps> = () => {
     }
 
     useEffect(() => {
-        if (messageChangePassword) {
+        if (errorMessageChangePassword) {
             if (isErrorChangePassword) {
-                toast.error(messageChangePassword)
+                toast.error(errorMessageChangePassword)
             }
             else if (isSuccessChangePassword) {
-                toast.success(messageChangePassword)
+                toast.success(t("update_success"))
                 setTimeout(() => {
                     logout()
                 }, 500)
             }
         }
         dispatch(resetInitialState())
-    }, [isErrorChangePassword, isSuccessChangePassword, messageChangePassword])
+    }, [isErrorChangePassword, isSuccessChangePassword, errorMessageChangePassword])
 
     return (
         <>
-            {isLoading && <FallbackSpinner />}
+            {isLoading && <Spinner />}
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 display: 'flex',

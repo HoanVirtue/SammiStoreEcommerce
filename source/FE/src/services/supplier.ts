@@ -21,6 +21,15 @@ export const createSupplier = async (data: TParamsCreateSupplier) => {
     }
 }
 
+export const getSupplierCode = async (data: {params: {type: number}}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.USER.INDEX}/get-code-by-last-id`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 
 export const updateSupplier = async (data: TParamsUpdateSupplier) => {
     const { id, ...rests } = data

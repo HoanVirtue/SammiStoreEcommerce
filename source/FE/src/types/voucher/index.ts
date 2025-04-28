@@ -47,6 +47,8 @@ export type TParamsCreateVoucher = {
     usageLimit: number;
     startDate: Date;
     endDate: Date;
+    isActive: boolean | true;
+    isDeleted: boolean | false;
     conditions: {
         voucherId: number;
         conditionType: number;

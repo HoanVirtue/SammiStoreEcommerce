@@ -1,14 +1,18 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
 
 //views
-import ListDistrictPage from 'src/view/pages/address/district/ListDistrict'
+const ListDistrictPage = lazy(() => import('src/view/pages/address/district/ListDistrict'))
 
 type TProps = {}
 
 const District: NextPage<TProps> = () => {
-    return <ListDistrictPage />
+    return (
+        <Suspense fallback={<></>}>
+            <ListDistrictPage />
+        </Suspense>
+    )
 }
 
 export default District

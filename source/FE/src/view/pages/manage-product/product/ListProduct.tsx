@@ -4,6 +4,7 @@ import { NextPage } from "next";
 import dynamic from "next/dynamic";
 import { useState, useMemo, useCallback, Suspense } from "react";
 import { RootState } from "src/stores";
+import { createSelector } from "@reduxjs/toolkit";
 import { resetInitialState } from "src/stores/product";
 import {
     deleteMultipleProductsAsync,
@@ -31,6 +32,18 @@ const CreateUpdateProduct = dynamic(() => import("./components/CreateUpdateProdu
     loading: () => <Spinner />,
     ssr: false
 }) as any;
+
+// Create a memoized selector for product data
+const createProductSelector = createSelector(
+    (state: RootState) => state.product.products.data || [],
+    (state: RootState) => state.product.products.total || 0,
+    (state: RootState) => state.product,
+    (data, total, productState) => ({
+        data,
+        total,
+        ...productState,
+    })
+);
 
 // Separate state management into a custom hook
 const useProductState = () => {
@@ -94,6 +107,8 @@ const ListProductPage: NextPage = () => {
 
     const columns = getProductColumns();
 
+    // Use the memoized selector
+    const productSelector = useCallback((state: RootState) => createProductSelector(state), []);
 
     // Memoize fields to prevent unnecessary re-renders
     const fields = useMemo(() => {
@@ -112,11 +127,7 @@ const ListProductPage: NextPage = () => {
                     entityName="product"
                     columns={columns}
                     fields={fields}
-                    reduxSelector={(state: RootState) => ({
-                        data: state.product.products.data || [],
-                        total: state.product.products.total || 0,
-                        ...state.product,
-                    })}
+                    reduxSelector={productSelector}
                     fetchAction={getAllProductsAsync}
                     deleteAction={deleteProductAsync as unknown as (id: number) => any}
                     deleteMultipleAction={deleteMultipleProductsAsync as unknown as (ids: { [key: number]: number[] }) => any}

@@ -1,14 +1,19 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
+import Spinner from 'src/components/spinner'
 
 //views
-import ListEventPage from 'src/view/pages/manage-promotion/event/ListEvent'
+const ListEventPage = lazy(() => import('src/view/pages/manage-promotion/event/ListEvent'))
 
 type TProps = {}
 
-    const Event: NextPage<TProps> = () => {
-    return <ListEventPage />
+const Event: NextPage<TProps> = () => {
+    return (
+        <Suspense fallback={<Spinner />}>
+            <ListEventPage />
+        </Suspense>
+    )
 }
 
 export default Event

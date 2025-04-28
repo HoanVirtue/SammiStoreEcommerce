@@ -1,14 +1,18 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListBanner from 'src/view/pages/manage-category/banner/ListBanner'
-
 //views
+// Dynamically import the ListBanner component
+const ListBanner = lazy(() => import('src/view/pages/manage-category/banner/ListBanner'))
 
 type TProps = {}
 
 const Banner: NextPage<TProps> = () => {
-    return <ListBanner />
+    return (
+        <Suspense fallback={<></>}>
+            <ListBanner />
+        </Suspense>
+    )
 }
 
 export default Banner

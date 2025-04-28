@@ -12,7 +12,9 @@ import {
     Typography,
     InputAdornment,
     FormControl,
-    CircularProgress,
+    Switch,
+    FormControlLabel,
+    InputLabel,
 } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -25,14 +27,13 @@ import { getAllWards, getWardDetail } from "src/services/ward";
 import { getAllProvinces } from "src/services/province";
 import { getAllDistricts } from "src/services/district";
 import { AutocompleteOption } from "src/components/custom-autocomplete";
-import { getCustomerDetail } from "src/services/customer";
+import { getCustomerDetail, getCustomerCode } from "src/services/customer";
 
 const CustomModal = lazy(() => import("src/components/custom-modal"));
 const IconifyIcon = lazy(() => import("src/components/Icon"));
 const Spinner = lazy(() => import("src/components/spinner"));
 const CustomTextField = lazy(() => import("src/components/text-field"));
 const FileUploadWrapper = lazy(() => import("src/components/file-upload-wrapper"));
-const CustomSelect = lazy(() => import("src/components/custom-select"));
 const CustomAutocomplete = lazy(() => import("src/components/custom-autocomplete"));
 
 /**
@@ -62,6 +63,10 @@ interface FormValues {
     username: string;
     password?: string;
     gender: number;
+    birthday: string;
+    verifyToken: string;
+    verifiedAt?: Date | null;
+    isLock: boolean | false;
 }
 
 interface AutocompleteOptionNumber {
@@ -81,7 +86,8 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
     const [showPassword, setShowPassword] = useState(false);
     const [avatarError, setAvatarError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
-
+    const defaultAvatar = "/images/avatars/default-avatar.png";
+    const [customerDefaultCode, setCustomerDefaultCode] = useState("");
 
     // Props và hooks
     const { open, onClose, id } = props;
@@ -91,19 +97,25 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
 
     // Validation schema cho form
     const schema = yup.object().shape({
-        roleId: yup.number().required(t("required_code")),
-        code: yup.string().required(t("required_code")),
-        type: yup.string().required(t("required_type")),
+        roleId: yup.number().required(t("required_role_id")),
+        code: yup.string().required(t("required_customer_code")),
+        type: yup.string().default(""),
         firstName: yup.string().required(t("required_first_name")),
         lastName: yup.string().required(t("required_last_name")),
         email: yup.string().required(t("required_email")).email().matches(EMAIL_REG, t("incorrect_email_format")),
-        phone: yup.string().required(t("required_phone")).min(10, t("incorrect_phone_format")),
+        phone: yup.string() 
+            .required(t("required_phone"))
+            .matches(/^\d{10}$/, t("incorrect_phone_format")),
         streetAddress: yup.string().required(t("required_address")),
         wardId: yup.number().required(t("required_ward_id")),
-        wardName: yup.string().required(t("required_ward_name")),
+        wardName: yup.string().default(""),
         username: yup.string().required(t("required_username")),
         password: id ? yup.string() : yup.string().required(t("required_password")).matches(PASSWORD_REG, t("incorrect_password_format")),
         gender: yup.number().required(t("required_gender")),
+        birthday: yup.string().required(t("required_birthday")),
+        verifyToken: yup.string().default(""),
+        verifiedAt: yup.date().nullable(),
+        isLock: yup.boolean().default(false),
     });
 
     // Default values cho form
@@ -121,6 +133,10 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
         username: "",
         password: "",
         gender: 0,
+        birthday: "",
+        verifyToken: "",
+        verifiedAt: null,
+        isLock: false,
     };
 
     // Form control
@@ -128,7 +144,7 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
         handleSubmit,
         control,
         formState: { errors },
-        reset,
+        reset: formReset,
         setValue,
     } = useForm<FormValues>({
         defaultValues,
@@ -144,10 +160,10 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
         if (!Object.keys(errors).length) {
             setIsSubmitting(true);
             const baseData = {
-                roleId: data.roleId,
+                roleId: data.roleId || 0,
                 code: data.code,
                 identityGuid: "",
-                type: data.type,
+                type: data.type || "",
                 firstName: data.firstName,
                 lastName: data.lastName,
                 fullName: "",
@@ -159,6 +175,10 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                 username: data.username,
                 securityStamp: "",
                 gender: data.gender,
+                birthday: data.birthday,
+                verifyToken: "",
+                verifiedAt: null,
+                isLock: data.isLock || false,
             };
 
             if (id) {
@@ -168,8 +188,8 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                     roleId: data.roleId,
                     password: data.password || ""
                 } as any))
-                    .then((result) => {
-                        if (result.meta.requestStatus === 'fulfilled') {
+                    .then((result: any) => {
+                        if (result.isSuccess === true) {
                             onClose();
                         }
                     })
@@ -183,10 +203,10 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                 dispatch(createCustomerAsync({
                     ...baseData,
                     roleId: data.roleId,
-                    password: data.password // Password required for create
+                    password: data.password
                 } as any))
-                    .then((result) => {
-                        if (result.meta.requestStatus === 'fulfilled') {
+                    .then((result: any) => {
+                        if (result.isSuccess === true) {
                             onClose();
                         }
                     })
@@ -362,42 +382,106 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
 
     const fetchDetailCustomer = async (id: number) => {
         setLoading(true);
-        await getCustomerDetail(id)
-            .then((res) => {
-                console.log('Customer detail:', res?.result); // Debug log
-                const data = res?.result;
-                if (data) {
-                    reset({
-                        roleId: data.roleId || 0,
-                        code: data.code || "",
-                        type: data.type || "",
-                        firstName: data.firstName || "",
-                        lastName: data.lastName || "",
-                        email: data.email || "",
-                        phone: data.phone || "",
-                        streetAddress: data.streetAddress || "",
-                        wardId: data.wardId || 0,
-                        wardName: data.wardName || "",
-                        username: data.username || "",
-                        password: "",
-                        gender: data.gender || 0,
-                    });
-                    setAvatar(data.avatar);
-                    if (data.wardId) {
-                        fetchWardDetail(data.wardId);
+        try {
+            const res = await getCustomerDetail(id);
+            const data = res?.result;
+            if (data) {
+                // Format birthday to YYYY-MM-DD for date input
+                let formattedBirthday = "";
+                if (data.birthday) {
+                    const date = new Date(data.birthday);
+                    formattedBirthday = date.toISOString().split('T')[0];
+                }
+
+                formReset({
+                    roleId: data.roleId || 0,
+                    code: data.code || "",
+                    type: data.type || "",
+                    firstName: data.firstName || "",
+                    lastName: data.lastName || "",
+                    email: data.email || "",
+                    phone: data.phone || "",
+                    streetAddress: data.streetAddress || "",
+                    wardId: data.wardId || 0,
+                    wardName: data.wardName || "",
+                    username: data.username || "",
+                    password: "",
+                    gender: data.gender || 0,
+                    birthday: formattedBirthday,
+                    verifyToken: data.verifyToken || "",
+                    verifiedAt: data.verifiedAt || null,
+                    isLock: data.isLock || false,
+                });
+                
+                setAvatar(data.avatar || defaultAvatar);
+                
+                // Set province, district, ward
+                if (data.provinceId) {
+                    // First, make sure we have all provinces loaded
+                    if (provinceOptions.length === 0) {
+                        await fetchAllProvinces();
+                    }
+                    
+                    // Find the province option
+                    const provinceOption = provinceOptions.find(
+                        option => option.value === data.provinceId.toString()
+                    ) || {
+                        label: data.provinceName || "",
+                        value: data.provinceId.toString()
+                    };
+                    
+                    // Set the province
+                    setSelectedProvince(provinceOption);
+                    
+                    // Fetch districts for this province
+                    await fetchDistrictsByProvince(Number(data.provinceId));
+                    
+                    // Set district if available
+                    if (data.districtId) {
+                        // Find the district option
+                        const districtOption = districtOptions.find(
+                            option => option.value === data.districtId.toString()
+                        ) || {
+                            label: data.districtName || "",
+                            value: data.districtId.toString()
+                        };
+                        setSelectedDistrict(districtOption);
+                        
+                        await fetchWardsByDistrict(Number(data.districtId));
+                        
+                        if (data.wardId) {
+                            const wardOption = wardOptions.find(
+                                option => option.value === data.wardId.toString()
+                            ) || {
+                                label: data.wardName || "",
+                                value: data.wardId.toString()
+                            };
+                            
+                            // Set the ward
+                            setValue("wardId", Number(data.wardId));
+                            setValue("wardName", data.wardName || "");
+                        }
                     }
                 }
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error('Error fetching customer:', err);
-                setLoading(false);
-            });
+            }
+        } catch (err) {
+            console.error('Error fetching customer:', err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const getCustomerDefaultCode = async () => {
+        const res = await getCustomerCode({params: {type: 0}});
+        setCustomerDefaultCode(res?.result);
     };
 
     useEffect(() => {
-        fetchAllProvinces();
-    }, [fetchAllProvinces]);
+        if (open && !id) {
+            fetchAllProvinces();
+        }
+    }, [open, id]);
+
 
     useEffect(() => {
         if (selectedProvince) {
@@ -421,9 +505,19 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
 
     useEffect(() => {
         if (open) {
-            if (id) fetchDetailCustomer(id);
+            if (id) {
+                fetchDetailCustomer(id);
+            } else {
+                formReset(defaultValues);
+                setAvatar("");
+                setSelectedProvince(null);
+                setSelectedDistrict(null);
+                setProvinceOptions([]);
+                setDistrictOptions([]);
+                setWardOptions([]);
+            }
         } else {
-            reset(defaultValues);
+            formReset(defaultValues);
             setAvatar("");
             setSelectedProvince(null);
             setSelectedDistrict(null);
@@ -431,12 +525,16 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
             setDistrictOptions([]);
             setWardOptions([]);
         }
-    }, [open, id]);
+    }, [open, id, formReset]);
+
+    useEffect(() => {
+        getCustomerDefaultCode();
+    }, []);
 
     return (
         <>
             {loading && <Spinner />}
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<Spinner />}>
                 <CustomModal open={open} onClose={onClose}>
                     <Box
                         sx={{
@@ -491,7 +589,7 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                                                     </IconButton>
                                                 )}
                                                 <Avatar
-                                                    src={avatar}
+                                                    src={avatar || defaultAvatar}
                                                     alt="avatar"
                                                     sx={{ width: 100, height: 100, border: `2px solid ${theme.palette.primary.main}` }}
                                                 >
@@ -515,7 +613,6 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                                     </Grid>
                                     <Grid item md={6} xs={12}>
                                         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-
                                             <Controller
                                                 control={control}
                                                 name="firstName"
@@ -613,23 +710,22 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
 
                                             <Controller
                                                 control={control}
-                                                name="roleId"
+                                                name="birthday"
                                                 render={({ field: { onChange, onBlur, value } }) => (
-                                                    <Box>
-                                                        <CustomAutocomplete
-                                                            fullWidth
-                                                            value={roleOptions.find(opt => opt.value === value) || null}
-                                                            options={roleOptions}
-                                                            label={t("role_ids")}
-                                                            placeholder={t("select_role_ids_name")}
-                                                            onChange={(newValue: AutocompleteOption | null) => {
-                                                                onChange(newValue?.value || 0);
-                                                            }}
-                                                            onBlur={onBlur}
-                                                            error={!!errors.roleId}
-                                                        />
-                                                        {errors.roleId && <FormHelperText error>{errors.roleId.message}</FormHelperText>}
-                                                    </Box>
+                                                    <CustomTextField
+                                                        fullWidth
+                                                        label={t("birthday")}
+                                                        type="date"
+                                                        onChange={onChange}
+                                                        onBlur={onBlur}
+                                                        value={value}
+                                                        error={!!errors.birthday}
+                                                        helperText={errors.birthday?.message}
+                                                        InputLabelProps={{
+                                                            shrink: true,
+                                                        }}
+                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
+                                                    />
                                                 )}
                                             />
 
@@ -643,20 +739,19 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                                                         onChange={onChange}
                                                         onBlur={onBlur}
                                                         value={value}
-                                                        placeholder={t("enter_customer_code")}
+                                                        disabled={!!id}
+                                                        placeholder={customerDefaultCode}
                                                         error={!!errors.code}
                                                         helperText={errors.code?.message}
                                                         sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                                                     />
                                                 )}
                                             />
-
                                         </Box>
                                     </Grid>
 
                                     <Grid item md={6} xs={12}>
                                         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-
                                             <Controller
                                                 control={control}
                                                 name="username"
@@ -779,20 +874,32 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                                             />
 
                                             <Controller
+                                                name="isLock"
                                                 control={control}
-                                                name="type"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        label={t("type")}
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        value={value}
-                                                        placeholder={t("enter_type")}
-                                                        error={!!errors.type}
-                                                        helperText={errors.type?.message}
-                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-                                                    />
+                                                render={({ field: { onChange, value } }) => (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                        <InputLabel>{t("status")}</InputLabel>
+                                                        <FormControlLabel
+                                                            control={
+                                                                <Switch
+                                                                    checked={Boolean(value)}
+                                                                    defaultValue={0}
+                                                                    onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                                                                    sx={{
+                                                                        '& .MuiSwitch-track': {
+                                                                            color: theme.palette.primary.main,
+                                                                            border: `1px solid ${theme.palette.primary.main}`,
+                                                                            backgroundColor: theme.palette.primary.main,
+                                                                            '&:hover': {
+                                                                                backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                />
+                                                            }
+                                                            label={Boolean(value) ? t("locked") : t("active")}
+                                                        />
+                                                    </Box>
                                                 )}
                                             />
                                         </Box>
@@ -816,7 +923,7 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? (
-                                        <CircularProgress size={24} color="inherit" />
+                                        <Spinner />
                                     ) : id ? t("update") : t("create")}
                                 </Button>
                             </Box>

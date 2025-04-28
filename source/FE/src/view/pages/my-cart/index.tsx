@@ -14,23 +14,22 @@ import {
     Tooltip,
     Typography,
     useTheme,
-    CircularProgress,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { AppDispatch, RootState } from 'src/stores';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from 'src/hooks/useAuth';
-import { formatPrice, isExpired } from 'src/utils';
+import { isExpired } from 'src/utils';
 import { TItemOrderProduct } from 'src/types/order';
 import IconifyIcon from 'src/components/Icon';
-import { getCartsAsync, createCartAsync, deleteCartAsync } from 'src/stores/cart/action';
+import { getCartsAsync, deleteCartAsync } from 'src/stores/cart/action';
 import NoData from 'src/components/no-data';
 import { ROUTE_CONFIG } from 'src/configs/route';
 import ProductCartItem from './components/ProductCartItem';
 import CartSummary from './components/CartSummary';
 import CustomBreadcrumbs from 'src/components/custom-breadcrum';
 import { getProductDetail } from 'src/services/product';
-
+import Spinner from 'src/components/spinner';
 type TProps = {};
 
 const MyCartPage: NextPage<TProps> = () => {
@@ -191,7 +190,7 @@ const MyCartPage: NextPage<TProps> = () => {
             >
                 {isLoading && !carts?.data?.length ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
-                        <CircularProgress />
+                        <Spinner />
                     </Box>
                 ) : carts?.data?.length > 0 ? (
                     <Grid container>
@@ -248,7 +247,7 @@ const MyCartPage: NextPage<TProps> = () => {
                                 </Grid>
 
                                 <Grid container item spacing={2} sx={{ maxWidth: '100%' }}>
-                                    <Suspense fallback={<CircularProgress />}>
+                                    <Suspense fallback={<Spinner />}>
                                         {carts?.data?.map((item: TItemOrderProduct, index: number) => (
                                             <ProductCartItem
                                                 item={item}
@@ -264,7 +263,7 @@ const MyCartPage: NextPage<TProps> = () => {
                         </Grid>
 
                         <Grid item xs={12} md={3}>
-                            <Suspense fallback={<CircularProgress />}>
+                            <Suspense fallback={<Spinner />}>
                                 <CartSummary
                                     subtotal={memoSubtotal}
                                     total={memoTotalPrice}

@@ -1,11 +1,13 @@
 "use client";
 
 import { NextPage } from "next";
-import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
 import { useTranslation } from "react-i18next";
-import { Typography, Box } from "@mui/material";
+import { Box } from "@mui/material";
 import { getReceiptFields } from "src/configs/gridConfig";
-import React from "react";
+import React, { useCallback } from "react";
+import { createSelector } from "@reduxjs/toolkit";
+import dynamic from "next/dynamic";
+import { getReceiptColumns } from "src/configs/gridColumn";
 
 import {
   deleteMultipleReceiptsAsync,
@@ -14,11 +16,29 @@ import {
 } from "src/stores/receipt/action";
 import { resetInitialState } from "src/stores/receipt";
 import { RootState } from "src/stores";
-import AdminPage from "src/components/admin-page";
+
+// Dynamic import for AdminPage
+const AdminPage = dynamic(() => import("src/components/admin-page"), {
+    loading: () => <Spinner />,
+    ssr: false
+});
+
 import CreateUpdateReceipt from "./components/CreateUpdateReceipt";
 import ReceiptDetail from "./components/ReceiptDetail";
-import { getReceiptColumns } from "src/configs/gridColumn";
 import CreateNewProduct from "./components/CreateNewProduct";
+import Spinner from "src/components/spinner";
+
+// Create a memoized selector for receipt data
+const createReceiptSelector = createSelector(
+  (state: RootState) => state.receipt.receipts.data,
+  (state: RootState) => state.receipt.receipts.total,
+  (state: RootState) => state.receipt,
+  (data, total, receiptState) => ({
+    data,
+    total,
+    ...receiptState,
+  })
+);
 
 const ListReceiptPage: NextPage = () => {
   const { t } = useTranslation();
@@ -30,6 +50,9 @@ const ListReceiptPage: NextPage = () => {
   const [showCreateNewTab, setShowCreateNewTab] = React.useState(false);
 
   const columns = getReceiptColumns()
+  
+  // Use the memoized selector
+  const receiptSelector = useCallback((state: RootState) => createReceiptSelector(state), []);
 
   const handleTabChange = (newTab: number) => {
     setCurrentTab(newTab);
@@ -49,6 +72,11 @@ const ListReceiptPage: NextPage = () => {
     setShowCreateTab(true);
   };
 
+  const handleUpdateClick = () => {
+    setCurrentTab(2);
+    setShowUpdateTab(true);
+  };
+
   const handleCreateNewClick = () => {
     setCurrentTab(4);
     setShowCreateNewTab(true);
@@ -59,17 +87,18 @@ const ListReceiptPage: NextPage = () => {
     setShowCreateNewTab(false);
   };
 
+  const handleCloseUpdateTab = () => {
+    setCurrentTab(0);
+    setShowUpdateTab(false);
+  };
+
   return (
     <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
       <AdminPage
         entityName="receipt"
         columns={columns}
         fields={getReceiptFields()}
-        reduxSelector={(state: RootState) => ({
-          data: state.receipt.receipts.data,
-          total: state.receipt.receipts.total,
-          ...state.receipt,
-        })}
+        reduxSelector={receiptSelector}
         fetchAction={getAllReceiptsAsync}
         deleteAction={deleteReceiptAsync}
         deleteMultipleAction={deleteMultipleReceiptsAsync as unknown as (ids: { [key: number]: number[] }) => any}
@@ -94,17 +123,18 @@ const ListReceiptPage: NextPage = () => {
         onTabChange={handleTabChange}
 
         onAddClick={handleAddClick}
+        onUpdateClick={handleUpdateClick}
         onDetailClick={handleDetailClick}
         onCreateNewClick={handleCreateNewClick}
 
         hideAddButton={false}
-        disableUpdateButton={true}
-        disableDeleteButton={true}  
+
         showDetailButton={true}
 
         onCloseCreateTab={() => setShowCreateTab(false)}
         onCloseDetailTab={() => setShowDetailTab(false)}
         onCloseCreateNewTab={handleCloseCreateNewTab}
+        onCloseUpdateTab={handleCloseUpdateTab}
 
         hideTableHeader={true}
         showUpdateReceiptStatusHeader={true}

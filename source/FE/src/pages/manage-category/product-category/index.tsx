@@ -1,14 +1,17 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListProductCategory from 'src/view/pages/manage-category/product-category/ListProductCategory'
-
 //views
+const ListProductCategory = lazy(() => import('src/view/pages/manage-category/product-category/ListProductCategory'))
 
 type TProps = {}
 
 const ProductCategory: NextPage<TProps> = () => {
-    return <ListProductCategory />
+    return (
+        <Suspense fallback={<></>}>
+            <ListProductCategory />
+        </Suspense>
+    )
 }
 
 ProductCategory.permission = [PERMISSIONS.MANAGE_PRODUCT.PRODUCT_CATEGORY.VIEW]

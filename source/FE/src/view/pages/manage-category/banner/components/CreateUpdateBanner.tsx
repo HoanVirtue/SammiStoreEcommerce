@@ -184,15 +184,17 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
                             {id ? t('update_banner') : t('create_banner')}
                         </Typography>
-                        <IconButton sx={{
-                            position: 'absolute',
-                            right: "-10px",
-                            top: "-6px",
-                        }}>
+                        <IconButton 
+                            sx={{
+                                position: 'absolute',
+                                right: "-10px",
+                                top: "-6px",
+                            }}
+                            onClick={onClose}
+                        >
                             <IconifyIcon
                                 icon="material-symbols-light:close-rounded"
                                 fontSize={"30px"}
-                                onClick={onClose}
                             />
                         </IconButton>
                     </Box>

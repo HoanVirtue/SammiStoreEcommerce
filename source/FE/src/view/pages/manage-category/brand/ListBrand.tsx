@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 
 // Redux imports
 import { RootState } from "src/stores";
+import { createSelector } from "@reduxjs/toolkit";
 import {
   deleteMultipleBrandsAsync,
   deleteBrandAsync,
@@ -21,40 +22,51 @@ import {
 import { resetInitialState } from "src/stores/brand";
 
 // Component imports
-import AdminPage from "src/components/admin-page";
+import { FC, useCallback } from "react";
 
 // Config imports
 import { getBrandFields } from "src/configs/gridConfig";
 import { getBrandColumns } from "src/configs/gridColumn";
-import { FC } from "react";
-
+import Spinner from "src/components/spinner";
 // Dynamic import for CreateUpdateBrand component to reduce initial bundle size
 const CreateUpdateBrand = dynamic(
   () => import("./components/CreateUpdateBrand"),
   {
-    loading: () => <Typography>Loading...</Typography>,
+    loading: () => <Spinner />,
     ssr: false // Disable SSR for this component since it's not needed on initial load
   }
 );
 
-/**
- * Trang quản lý thương hiệu
- * Sử dụng AdminPage component để hiển thị danh sách thương hiệu
- * với các chức năng CRUD cơ bản
- */
+// Dynamic import for AdminPage
+const AdminPage = dynamic(() => import("src/components/admin-page"), {
+    loading: () => <Spinner />,
+    ssr: false
+});
+
+// Create a memoized selector for brand data
+const createBrandSelector = createSelector(
+  (state: RootState) => state.brand.brands.data,
+  (state: RootState) => state.brand.brands.total,
+  (state: RootState) => state.brand,
+  (data, total, brandState) => ({
+    data,
+    total,
+    ...brandState,
+  })
+);
+
+
 const ListBrandPage: NextPage = () => {
   const columns = getBrandColumns();
+  
+  const brandSelector = useCallback((state: RootState) => createBrandSelector(state), []);
 
   return (
     <AdminPage
       entityName="brand"
       columns={columns}
       fields={getBrandFields()}
-      reduxSelector={(state: RootState) => ({
-        data: state.brand.brands.data,
-        total: state.brand.brands.total,
-        ...state.brand,
-      })}
+      reduxSelector={brandSelector}
       fetchAction={getAllBrandsAsync}
       deleteAction={deleteBrandAsync}
       deleteMultipleAction={deleteMultipleBrandsAsync as unknown as (ids: { [key: number]: number[] }) => any}

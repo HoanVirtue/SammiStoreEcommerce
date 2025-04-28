@@ -5,7 +5,7 @@ import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
 
 //types
-import { TChangePassword, TLoginAuth, TRegisterAuth } from "src/types/auth"
+import { TChangePassword, TLoginAuth, TRegisterAuth, TUpdateProfile } from "src/types/auth"
 
 export const loginAuth = async (data: TLoginAuth) => {
     try {
@@ -42,6 +42,15 @@ export const loginAdminAuth = async (data: TLoginAuth) => {
 export const getLoginUser = async () => {
     try {
         const res = await instance.get(`${API_ENDPOINT.USER.ME.INDEX}`)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+export const updateProfile = async (data: TUpdateProfile) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.USER.INDEX}/update-customer-info`, data)
         return res.data
     } catch (error) {
         return error

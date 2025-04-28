@@ -44,8 +44,13 @@ export default function Nav({ open, onClose }: Props) {
         {
             title: t('wishlist'),
             path: '/account/my-product',
-            icon: <IconifyIcon icon="carbon:document" />,
+            icon: <IconifyIcon icon="iconoir:favourite-book" />,
         },
+        {
+            title: t('my_vouchers'),
+            path: '/account/my-vouchers',
+            icon: <IconifyIcon icon="mdi:voucher-outline" />,
+        }
     ];
 
     const renderContent = (
@@ -158,7 +163,7 @@ type NavItemProps = {
 
 function NavItem({ item }: NavItemProps) {
     const pathname = usePathname();
-    const isActive = pathname.includes(item.path);
+    const isActive = pathname?.includes(item.path);
     const theme = useTheme();
 
     return (

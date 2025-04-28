@@ -27,6 +27,12 @@ export type TParamsCreateEmployee = {
     password: string;
     gender: number;
     securityStamp: string;
+    idCardNumber?: string;
+    birthday?: Date | null;
+    verifyToken: string;
+    verifiedAt: Date | null;
+    isLock: boolean | false;
+
 }
 
 export interface TParamsUpdateEmployee extends TParamsCreateEmployee {

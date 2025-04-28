@@ -26,6 +26,11 @@ export type TParamsCreateCustomer = {
     password: string;
     gender: number;
     securityStamp: string;
+    idCardNumber?: string;
+    birthday?: Date | null;
+    verifyToken: string;
+    verifiedAt: Date | null;
+    isLock: boolean | false;
 }
 
 export interface TParamsUpdateCustomer extends TParamsCreateCustomer {

@@ -24,10 +24,18 @@ import { AuthProvider } from 'src/contexts/AuthContext'
 // ** Global css styles
 import 'src/styles/globals.scss'
 
+// ** Configure NProgress
+NProgress.configure({ 
+  minimum: 0.3,
+  easing: 'ease',
+  speed: 200,
+  showSpinner: false,
+  trickleSpeed: 100
+})
+
 import { store } from 'src/stores'
 import GuestGuard from 'src/components/auth/GuestGuard'
 import AuthGuard from 'src/components/auth/AuthGuard'
-import FallbackSpinner from 'src/components/fall-back'
 import { SettingsConsumer, SettingsProvider } from 'src/contexts/SettingsContext'
 import AclGuard from 'src/components/auth/AclGuard'
 
@@ -41,6 +49,7 @@ import NoGuard from 'src/components/auth/NoGuard'
 // ** React Query
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import Spinner from 'src/components/spinner'
 
 type ExtendedAppProps = AppProps & {
   Component: NextPage
@@ -67,11 +76,11 @@ if (themeConfig.routingLoader) {
 
 const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
   if (guestGuard) {
-    return <GuestGuard fallback={<FallbackSpinner />}>{children}</GuestGuard>
+    return <GuestGuard fallback={<Spinner />}>{children}</GuestGuard>
   } else if (!guestGuard && !authGuard) {
-    return <NoGuard fallback={<FallbackSpinner />}>{children}</NoGuard>
+    return <NoGuard fallback={<Spinner />}>{children}</NoGuard>
   } else {
-    return <AuthGuard fallback={<FallbackSpinner />}>{children}</AuthGuard>
+    return <AuthGuard fallback={<Spinner />}>{children}</AuthGuard>
   }
 }
 
@@ -98,12 +107,12 @@ export default function App(props: ExtendedAppProps) {
   return (
     <Provider store={store}>
       <Head>
-        <title>{`${themeConfig.templateName} - Online Cosmetic Shop`}</title>
+        <title>{`${themeConfig.templateName} - Cửa hàng mỹ phẩm Sammi`}</title>
         <meta
           name='description'
-          content={`${themeConfig.templateName} – Online Cosmetic Shop`}
+          content={`${themeConfig.templateName} – Cửa hàng mỹ phẩm Sammi`}
         />
-        <meta name='keywords' content='Online Cosmetic Shop, Sammi Stores' />
+        <meta name='keywords' content='Cửa hàng mỹ phẩm Sammi, Sammi Stores' />
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
 
@@ -123,7 +132,7 @@ export default function App(props: ExtendedAppProps) {
                       </Guard>
                       <CustomToastContainer />
                     </ThemeComponent>
-                  )
+                  ) 
                 }}
               </SettingsConsumer>
             </SettingsProvider>

@@ -12,7 +12,9 @@ import {
     Typography,
     InputAdornment,
     FormControl,
-    CircularProgress,
+    FormControlLabel,
+    InputLabel,
+    Switch,
 } from "@mui/material";
 import { useTheme } from "@mui/material";
 import { useTranslation } from "react-i18next";
@@ -25,14 +27,13 @@ import { getAllWards, getWardDetail } from "src/services/ward";
 import { getAllProvinces } from "src/services/province";
 import { getAllDistricts } from "src/services/district";
 import { AutocompleteOption } from "src/components/custom-autocomplete";
-import { getSupplierDetail } from "src/services/supplier";
+import { getSupplierDetail, getSupplierCode } from "src/services/supplier";
+import FileUploadWrapper from "src/components/file-upload-wrapper";
 
 const CustomModal = lazy(() => import("src/components/custom-modal"));
 const IconifyIcon = lazy(() => import("src/components/Icon"));
 const Spinner = lazy(() => import("src/components/spinner"));
 const CustomTextField = lazy(() => import("src/components/text-field"));
-const FileUploadWrapper = lazy(() => import("src/components/file-upload-wrapper"));
-const CustomSelect = lazy(() => import("src/components/custom-select"));
 const CustomAutocomplete = lazy(() => import("src/components/custom-autocomplete"));
 
 interface TCreateUpdateSupplier {
@@ -52,9 +53,9 @@ interface FormValues {
     streetAddress: string;
     wardId: number;
     wardName: string;
-    username: string;
-    password?: string;
-    gender: number;
+    isDeleted: boolean | false;
+    isLock: boolean | false;
+    isActive: boolean | true;
 }
 
 interface AutocompleteOptionNumber {
@@ -71,9 +72,9 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
     const [districtOptions, setDistrictOptions] = useState<AutocompleteOption[]>([]);
     const [selectedProvince, setSelectedProvince] = useState<AutocompleteOption | null>(null);
     const [selectedDistrict, setSelectedDistrict] = useState<AutocompleteOption | null>(null);
-    const [showPassword, setShowPassword] = useState(false);
     const [avatarError, setAvatarError] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [supplierDefaultCode, setSupplierDefaultCode] = useState("");
 
     // Props và hooks
     const { open, onClose, id } = props;
@@ -83,9 +84,9 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
     // Validation schema cho form
     const schema = yup.object().shape({
-        roleId: yup.number().required(t("required_code")),
-        code: yup.string().required(t("required_code")),
-        type: yup.string().required(t("required_type")),
+        roleId: yup.number().required(t("required_role_id")),
+        code: yup.string().required(t("required_supplier_code")),
+        type: yup.string().default(""),
         firstName: yup.string().required(t("required_first_name")),
         lastName: yup.string().required(t("required_last_name")),
         email: yup.string().required(t("required_email")).email().matches(EMAIL_REG, t("incorrect_email_format")),
@@ -93,9 +94,9 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         streetAddress: yup.string().required(t("required_address")),
         wardId: yup.number().required(t("required_ward_id")),
         wardName: yup.string().required(t("required_ward_name")),
-        username: yup.string().required(t("required_username")),
-        password: id ? yup.string() : yup.string().required(t("required_password")).matches(PASSWORD_REG, t("incorrect_password_format")),
-        gender: yup.number().required(t("required_gender")),
+        isLock: yup.boolean().default(false),
+        isActive: yup.boolean().default(true),
+        isDeleted: yup.boolean().default(false),
     });
 
     // Default values cho form
@@ -110,9 +111,10 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         streetAddress: "",
         wardId: 0,
         wardName: "",
-        username: "",
-        password: "",
-        gender: 0,
+        isLock: false,
+        isActive: true,
+        isDeleted: false,
+        
     };
 
     // Form control
@@ -132,6 +134,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
      * Xử lý submit form
      * @param {FormValues} data - Dữ liệu form
      */
+
     const onSubmit = (data: FormValues) => {
         if (!Object.keys(errors).length) {
             setIsSubmitting(true);
@@ -139,7 +142,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                 roleId: data.roleId,
                 code: data.code,
                 identityGuid: "",
-                type: data.type,
+                type: "",
                 firstName: data.firstName,
                 lastName: data.lastName,
                 fullName: "",
@@ -148,9 +151,10 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                 streetAddress: data.streetAddress,
                 wardId: Number(data.wardId),
                 wardName: data.wardName,
-                username: data.username,
                 securityStamp: "",
-                gender: data.gender,
+                isLock: data.isLock || false,
+                isActive: data.isActive || true,
+                isDeleted: data.isDeleted || false,
             };
 
             if (id) {
@@ -158,10 +162,9 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                     ...baseData,
                     id: Number(id),
                     roleId: data.roleId,
-                    password: data.password || ""
                 } as any))
-                    .then((result) => {
-                        if (result.meta.requestStatus === 'fulfilled') {
+                    .then((result: any) => {
+                        if (result.isSuccess === true) {
                             onClose();
                         }
                     })
@@ -175,10 +178,9 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                 dispatch(createSupplierAsync({
                     ...baseData,
                     roleId: data.roleId,
-                    password: data.password // Password required for create
                 } as any))
-                    .then((result) => {
-                        if (result.meta.requestStatus === 'fulfilled') {
+                    .then((result: any) => {
+                        if (result.isSuccess === true) {
                             onClose();
                         }
                     })
@@ -193,17 +195,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
             console.log('Validation errors:', errors);
         }
     };
-
-    // Memoized values và handlers
-    const roleOptions = useMemo(() => [
-        { label: "Admin", value: 1 },
-        { label: "User", value: 2 },
-    ], []);
-
-    const genderOptions = useMemo(() => [
-        { label: t('male'), value: 1 },
-        { label: t('female'), value: 0 },
-    ], [t]);
 
     /**
      * Xử lý upload avatar
@@ -257,9 +248,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         }
     }, [setValue]);
 
-    /**
-     * Lấy danh sách tỉnh/thành phố
-     */
+
     const fetchAllProvinces = useCallback(async () => {
         setLoading(true);
         try {
@@ -354,42 +343,92 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
     const fetchDetailSupplier = async (id: number) => {
         setLoading(true);
-        await getSupplierDetail(id)
-            .then((res) => {
-                console.log('Supplier detail:', res?.result); // Debug log
-                const data = res?.result;
-                if (data) {
-                    reset({
-                        roleId: data.roleId || 0,
-                        code: data.code || "",
-                        type: data.type || "",
-                        firstName: data.firstName || "",
-                        lastName: data.lastName || "",
-                        email: data.email || "",
-                        phone: data.phone || "",
-                        streetAddress: data.streetAddress || "",
-                        wardId: data.wardId || 0,
-                        wardName: data.wardName || "",
-                        username: data.username || "",
-                        password: "",
-                        gender: data.gender || 0,
-                    });
-                    setAvatar(data.avatar);
-                    if (data.wardId) {
-                        fetchWardDetail(data.wardId);
+        try {
+            const res = await getSupplierDetail(id);
+            const data = res?.result;
+            if (data) {
+
+                reset({
+                    roleId: data.roleId || 0,
+                    code: data.code || "",
+                    type: "",
+                    firstName: data.firstName || "",
+                    lastName: data.lastName || "",
+                    email: data.email || "",
+                    phone: data.phone || "",
+                    streetAddress: data.streetAddress || "",
+                    wardId: data.wardId || 0,
+                    wardName: data.wardName || "",
+                    isLock: data.isLock || false,
+                });
+
+                setAvatar(data.avatar);
+
+                // Set province, district, ward
+                if (data.provinceId) {
+                    // First, make sure we have all provinces loaded
+                    if (provinceOptions.length === 0) {
+                        await fetchAllProvinces();
+                    }
+
+                    // Find the province option
+                    const provinceOption = provinceOptions.find(
+                        option => option.value === data.provinceId.toString()
+                    ) || {
+                        label: data.provinceName || "",
+                        value: data.provinceId.toString()
+                    };
+
+                    // Set the province
+                    setSelectedProvince(provinceOption);
+
+                    // Fetch districts for this province
+                    await fetchDistrictsByProvince(Number(data.provinceId));
+
+                    // Set district if available
+                    if (data.districtId) {
+                        // Find the district option
+                        const districtOption = districtOptions.find(
+                            option => option.value === data.districtId.toString()
+                        ) || {
+                            label: data.districtName || "",
+                            value: data.districtId.toString()
+                        };
+                        setSelectedDistrict(districtOption);
+
+                        await fetchWardsByDistrict(Number(data.districtId));
+
+                        if (data.wardId) {
+                            const wardOption = wardOptions.find(
+                                option => option.value === data.wardId.toString()
+                            ) || {
+                                label: data.wardName || "",
+                                value: data.wardId.toString()
+                            };
+
+                            // Set the ward
+                            setValue("wardId", Number(data.wardId));
+                            setValue("wardName", data.wardName || "");
+                        }
                     }
                 }
-                setLoading(false);
-            })
-            .catch((err) => {
-                console.error('Error fetching supplier:', err);
-                setLoading(false);
-            });
+            }
+        } catch (err) {
+            console.error('Error fetching supplier:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
-    useEffect(() => {
-        fetchAllProvinces();
-    }, [fetchAllProvinces]);
+    const getSupplierDefaultCode = async () => {
+        try {
+            const res = await getSupplierCode({ params: { type: 2 } });
+            setSupplierDefaultCode(res?.result);
+        } catch (err) {
+            console.error('Error fetching supplier default code:', err);
+        }
+    };
+
 
     useEffect(() => {
         if (selectedProvince) {
@@ -413,7 +452,17 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
     useEffect(() => {
         if (open) {
-            if (id) fetchDetailSupplier(id);
+            if (id) {
+                fetchDetailSupplier(id);
+            } else {
+                reset(defaultValues);
+                setAvatar("");
+                setSelectedProvince(null);
+                setSelectedDistrict(null);
+                setProvinceOptions([]);
+                setDistrictOptions([]);
+                setWardOptions([]);
+            }
         } else {
             reset(defaultValues);
             setAvatar("");
@@ -425,10 +474,21 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         }
     }, [open, id]);
 
+    useEffect(() => {
+        getSupplierDefaultCode();
+    }, []);
+
+    useEffect(() => {
+        if (open && !id) {
+            fetchAllProvinces();
+        }
+    }, [open, id]);
+
+
     return (
         <>
             {loading && <Spinner />}
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<Spinner />}>
                 <CustomModal open={open} onClose={onClose}>
                     <Box
                         sx={{
@@ -583,50 +643,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
                                             <Controller
                                                 control={control}
-                                                name="gender"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <Box>
-                                                        <CustomAutocomplete
-                                                            fullWidth
-                                                            value={genderOptions.find(opt => opt.value === value) || null}
-                                                            options={genderOptions}
-                                                            label={t("gender")}
-                                                            placeholder={t("select_gender")}
-                                                            onChange={(newValue: AutocompleteOption | null) => {
-                                                                onChange(newValue?.value || 0);
-                                                            }}
-                                                            onBlur={onBlur}
-                                                            error={!!errors.gender}
-                                                        />
-                                                        {errors.gender && <FormHelperText error>{errors.gender.message}</FormHelperText>}
-                                                    </Box>
-                                                )}
-                                            />
-
-                                            <Controller
-                                                control={control}
-                                                name="roleId"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <Box>
-                                                        <CustomAutocomplete
-                                                            fullWidth
-                                                            value={roleOptions.find(opt => opt.value === value) || null}
-                                                            options={roleOptions}
-                                                            label={t("role_ids")}
-                                                            placeholder={t("select_role_ids_name")}
-                                                            onChange={(newValue: AutocompleteOption | null) => {
-                                                                onChange(newValue?.value || 0);
-                                                            }}
-                                                            onBlur={onBlur}
-                                                            error={!!errors.roleId}
-                                                        />
-                                                        {errors.roleId && <FormHelperText error>{errors.roleId.message}</FormHelperText>}
-                                                    </Box>
-                                                )}
-                                            />
-
-                                            <Controller
-                                                control={control}
                                                 name="code"
                                                 render={({ field: { onChange, onBlur, value } }) => (
                                                     <CustomTextField
@@ -635,7 +651,8 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                                                         onChange={onChange}
                                                         onBlur={onBlur}
                                                         value={value}
-                                                        placeholder={t("enter_supplier_code")}
+                                                        disabled={!!id}
+                                                        placeholder={supplierDefaultCode}
                                                         error={!!errors.code}
                                                         helperText={errors.code?.message}
                                                         sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
@@ -648,65 +665,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
                                     <Grid item md={6} xs={12}>
                                         <Box sx={{ display: "flex", flexDirection: "column", gap: 4 }}>
-
-                                            <Controller
-                                                control={control}
-                                                name="username"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        label={t("username")}
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        value={value}
-                                                        placeholder={t("enter_username")}
-                                                        error={!!errors.username}
-                                                        helperText={errors.username?.message}
-                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-                                                    />
-                                                )}
-                                            />
-
-                                            {!id && (
-                                                <Controller
-                                                    control={control}
-                                                    rules={{ required: true }}
-                                                    render={({ field: { onChange, onBlur, value } }) => (
-                                                        <CustomTextField
-                                                            required
-                                                            fullWidth
-                                                            label={t("password")}
-                                                            onChange={onChange}
-                                                            onBlur={onBlur}
-                                                            value={value}
-                                                            placeholder={t("enter_password")}
-                                                            helperText={errors.password?.message}
-                                                            error={errors.password ? true : false}
-                                                            type={showPassword ? 'text' : 'password'}
-                                                            InputProps={{
-                                                                endAdornment: (
-                                                                    <InputAdornment position="end">
-                                                                        <IconButton
-                                                                            aria-label={
-                                                                                showPassword ? 'hide the password' : 'display the password'
-                                                                            }
-                                                                            edge="end"
-                                                                            onClick={() => setShowPassword(!showPassword)}>
-                                                                            {
-                                                                                showPassword ?
-                                                                                    <IconifyIcon icon='material-symbols:visibility-outline' />
-                                                                                    :
-                                                                                    <IconifyIcon icon='material-symbols:visibility-off-outline-rounded' />
-                                                                            }
-                                                                        </IconButton>
-                                                                    </InputAdornment>
-                                                                )
-                                                            }}
-                                                        />
-                                                    )}
-                                                    name='password'
-                                                />
-                                            )}
 
                                             <FormControl>
                                                 <CustomAutocomplete
@@ -771,20 +729,32 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                                             />
 
                                             <Controller
+                                                name="isLock"
                                                 control={control}
-                                                name="type"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        label={t("type")}
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        value={value}
-                                                        placeholder={t("enter_type")}
-                                                        error={!!errors.type}
-                                                        helperText={errors.type?.message}
-                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-                                                    />
+                                                render={({ field: { onChange, value } }) => (
+                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                        <InputLabel>{t("status")}</InputLabel>
+                                                        <FormControlLabel
+                                                            control={
+                                                                <Switch
+                                                                    checked={Boolean(value)}
+                                                                    defaultValue={0}
+                                                                    onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                                                                    sx={{
+                                                                        '& .MuiSwitch-track': {
+                                                                            color: theme.palette.primary.main,
+                                                                            border: `1px solid ${theme.palette.primary.main}`,
+                                                                            backgroundColor: theme.palette.primary.main,
+                                                                            '&:hover': {
+                                                                                backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                                                            },
+                                                                        },
+                                                                    }}
+                                                                />
+                                                            }
+                                                            label={Boolean(value) ? t("locked") : t("active")}
+                                                        />
+                                                    </Box>
                                                 )}
                                             />
                                         </Box>
@@ -808,7 +778,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? (
-                                        <CircularProgress size={24} color="inherit" />
+                                        <Spinner />
                                     ) : id ? t("update") : t("create")}
                                 </Button>
                             </Box>

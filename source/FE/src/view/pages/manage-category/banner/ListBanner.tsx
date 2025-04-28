@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic'
 // Redux imports
 import { RootState } from 'src/stores'
 import { useDispatch, useSelector } from 'react-redux'
+import { createSelector } from '@reduxjs/toolkit'
 
 // Translation imports
 import { useTranslation } from 'react-i18next'
@@ -53,6 +54,18 @@ import Spinner from 'src/components/spinner'
 // Types
 type TProps = {}
 
+// Create a memoized selector
+const createBannerSelector = createSelector(
+    (state: RootState) => state.banner.banners.data,
+    (state: RootState) => state.banner.banners.total,
+    (state: RootState) => state.banner,
+    (data, total, bannerState) => ({
+        data,
+        total,
+        ...bannerState
+    })
+)
+
 // Component chính hiển thị danh sách banner
 const ListBanner: NextPage<TProps> = memo(() => {
     const { t } = useTranslation()
@@ -61,12 +74,8 @@ const ListBanner: NextPage<TProps> = memo(() => {
     // Lấy danh sách cột cho grid
     const columns = useCallback(() => getBannerColumns(), [])
 
-    // Selector để lấy dữ liệu từ Redux store
-    const bannerSelector = useCallback((state: RootState) => ({
-        data: state.banner.banners.data,
-        total: state.banner.banners.total,
-        ...state.banner
-    }), [])
+    // Use the memoized selector
+    const bannerSelector = useCallback((state: RootState) => createBannerSelector(state), [])
 
     return (
         <AdminPage

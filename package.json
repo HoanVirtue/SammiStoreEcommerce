@@ -4,6 +4,7 @@
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-picker/picker": "^2.11.0",
     "@reduxjs/toolkit": "^2.6.1",
+    "date-fns-tz": "^3.2.0",
     "expo": "^52.0.46",
     "expo-splash-screen": "^0.29.24",
     "react-native-event-listeners": "^1.0.7",
@@ -11,6 +12,7 @@
     "resolve-from": "^5.0.0"
   },
   "devDependencies": {
+    "critters": "^0.0.23",
     "typescript": "^5.3.3"
   }
 }

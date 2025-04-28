@@ -44,7 +44,7 @@ const FileUploadWrapper = lazy(() => import("src/components/file-upload-wrapper"
 const CustomAutocomplete = lazy(() => import("src/components/custom-autocomplete"));
 const CustomEditor = lazy(() => import("src/components/custom-editor"));
 
-// Memoized components
+
 const MemoizedCustomTextField = React.memo(CustomTextField);
 const MemoizedCustomAutocomplete = React.memo(CustomAutocomplete);
 const MemoizedCustomEditor = React.memo(CustomEditor);
@@ -82,12 +82,9 @@ const DEFAULT_PAGING_PARAMS = {
     keywords: "''"
 };
 
-/**
- * Component chính để tạo/cập nhật sản phẩm
- * Sử dụng lazy loading và memoization để tối ưu hiệu suất
- */
+
 const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
-    // State quản lý loading và dữ liệu
+
     const [loading, setLoading] = useState(false);
     const [categoryOptions, setCategoryOptions] = useState<{ label: string; value: string }[]>([]);
     const [brandOptions, setBrandOptions] = useState<{ label: string; value: string }[]>([]);
@@ -168,7 +165,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             .min(1, t("images_required")),
     });
 
-    // Default values cho form
+
     const defaultValues: TDefaultValues = {
         code: productCode,
         name: "",
@@ -370,7 +367,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <Box sx={{ p: 3 }}>
-                <Suspense fallback={<div>Loading...</div>}>
+                <Suspense fallback={<Spinner />}>
                     {loading && <Spinner />}
                     <Paper
                         sx={{
@@ -702,6 +699,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                         </Grid>
                                     </Grid>
 
+                                </Grid>
                                     {/* Tabs Section */}
                                     <Box sx={{ width: '100%', mt: 4 }}>
                                         <Tabs value={tabValue} onChange={handleTabChange}>
@@ -759,7 +757,6 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                             />
                                         )}
                                     </Box>
-                                </Grid>
                             </Grid>
                         </form>
                     </Paper>

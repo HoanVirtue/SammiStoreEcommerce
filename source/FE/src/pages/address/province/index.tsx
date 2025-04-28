@@ -1,14 +1,18 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-import ListProvincePage from 'src/view/pages/address/province/ListProvince'
 
 //views
+const ListProvincePage = lazy(() => import('src/view/pages/address/province/ListProvince'))
 
 type TProps = {}
 
 const Province: NextPage<TProps> = () => {
-    return <ListProvincePage />
+    return (
+        <Suspense fallback={<></>}>
+            <ListProvincePage />
+        </Suspense>
+    )
 }
 
 export default Province

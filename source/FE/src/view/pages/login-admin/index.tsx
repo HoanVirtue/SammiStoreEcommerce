@@ -10,7 +10,7 @@ import Link from 'next/link'
 import dynamic from 'next/dynamic'
 
 //MUI
-import { IconButton, InputAdornment, useTheme } from '@mui/material'
+import { IconButton, InputAdornment, useTheme, CircularProgress } from '@mui/material'
 import { Box, Button, Checkbox, CssBaseline, FormControlLabel, Typography } from '@mui/material'
 
 //Form
@@ -49,6 +49,7 @@ const LoginAdminPage: NextPage<TProps> = () => {
     //States
     const [showPassword, setShowPassword] = useState(false);
     const [isRemember, setIsRemember] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
 
     //context
     const { loginAdmin } = useAuth();
@@ -78,13 +79,18 @@ const LoginAdminPage: NextPage<TProps> = () => {
         resolver: yupResolver(schema)
     });
 
-    const onSubmit = (data: { username: string, password: string }) => {
+    const onSubmit = async (data: { username: string, password: string }) => {
         if (!Object.keys(errors)?.length) {
-            loginAdmin({ ...data, rememberMe: isRemember }, (err: any) => {
-                if (err?.response?.errors !== "") {
-                    toast.error(err?.response?.message)
-                }
-            })
+            setIsLoading(true);
+            try {
+                await loginAdmin({ ...data, rememberMe: isRemember }, (err: any) => {
+                    if (err?.response?.errors !== "") {
+                        toast.error(err?.response?.message)
+                    }
+                });
+            } finally {
+                setIsLoading(false);
+            }
         }
     }
 
@@ -212,8 +218,21 @@ const LoginAdminPage: NextPage<TProps> = () => {
                                 label={t("remember_me")} />
                             <Link href="#">{t("forgot_password")}</Link>
                         </Box>
-                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                            {t("login")}
+                        <Button 
+                            type="submit" 
+                            fullWidth 
+                            variant="contained" 
+                            sx={{ mt: 3, mb: 2, py: 1.5 }}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                    <CircularProgress size={20} color="inherit" />
+                                    {t("logging_in")}
+                                </Box>
+                            ) : (
+                                t("login")
+                            )}
                         </Button>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: "4px" }}>
                             <Typography>

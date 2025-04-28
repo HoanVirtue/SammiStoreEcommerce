@@ -1,20 +1,27 @@
 "use client"
 
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, lazy, Suspense } from "react";
 import { NextPage } from "next"
-
-//MUI
-import { Box, Collapse, List, ListItemButton, ListItemIcon, ListItemText, ListItemTextProps, styled, Tooltip } from "@mui/material";
-
-//conponents
-import IconifyIcon from "src/components/Icon";
-import { TVerticalLayoutItem, VerticalLayoutItems } from "src/configs/layout";
-import { useTheme } from "@mui/material";
 import { useRouter } from "next/router";
+import Link from "next/link";
+
+// MUI - optimized imports
+import Box from "@mui/material/Box";
+import Collapse from "@mui/material/Collapse";
+import List from "@mui/material/List";
+import ListItemButton from "@mui/material/ListItemButton";
+import ListItemIcon from "@mui/material/ListItemIcon";
+import ListItemText, { ListItemTextProps } from "@mui/material/ListItemText";
+import Tooltip from "@mui/material/Tooltip";
+import { styled, useTheme } from "@mui/material/styles";
+
+//components
+const IconifyIcon = lazy(() => import("src/components/Icon"));
+import { TVerticalLayoutItem, VerticalLayoutItems } from "src/configs/layout";
 import { hexToRGBA } from "src/utils/hex-to-rgba";
 import { PERMISSIONS } from "src/configs/permission";
 import { useAuth } from "src/hooks/useAuth";
-
+import Spinner from "src/components/spinner";
 type TProps = {
     open: boolean
 }
@@ -40,7 +47,9 @@ interface TListItemText extends ListItemTextProps {
     isParent?: boolean
 }
 
-const StyledListItemText = styled(ListItemText)<TListItemText>(({ theme, active, hasActiveChild, isOpen, isParent }) => ({
+const StyledListItemText = styled(ListItemText, {
+    shouldForwardProp: (prop) => prop !== 'active' && prop !== 'hasActiveChild' && prop !== 'isOpen' && prop !== 'isParent',
+})<TListItemText>(({ theme, active, hasActiveChild, isOpen, isParent }) => ({
     ".MuiTypography-root.MuiTypography-body1.MuiListItemText-primary": {
         textOverflow: "ellipsis",
         overflow: "hidden",
@@ -78,10 +87,8 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
 
     const handleSelectItem = (path: string) => {
         setActivePath(path)
-        if (path) {
-            router.push(path)
-        }
     }
+    
     const hasActiveChild = (item: TVerticalLayoutItem): boolean => {
         if (!item.children) {
             return item.path === activePath
@@ -93,103 +100,202 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
         return item.path === activePath || !!openItem[item.title] || hasActiveChild(item)
     }
 
-
     return (
         <>
-
             {items?.map((item: any) => {
                 const activeParent = hasActiveChild(item)
                 const isActive = isActiveItem(item)
 
                 return (
                     <React.Fragment key={item.title}>
-                        <ListItemButton
-                            sx={{
-                                padding: `8px 25px 8px ${level * (level === 1 ? 15 : 15)}px !important`,
-                                margin: "2px 8px 2px 0px",
-                                borderTopRightRadius: "30px",
-                                borderBottomRightRadius: "30px",
-                                background:
-                                    isActive
-                                        ? item.path === activePath
-                                            ? `linear-gradient(135deg, ${hexToRGBA(theme.palette.secondary.main, 0.8)} 0%, ${hexToRGBA(theme.palette.primary.main, 0.8)} 100%)`
-                                            : `${hexToRGBA(theme.palette.primary.main, 0.08)}`
-                                        : theme.palette.background.paper,
-                            }}
-                            onClick={() => {
-                                if (item.children) {
-                                    handleClick(item.title)
-                                }
-                                if (item.path) {
-                                    handleSelectItem(item.path)
-                                }
-                            }}
-                        >
-                            <ListItemIcon>
-                                <Box sx={{
-                                    borderRadius: "8px",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    width: "30px",
-                                    height: "30px",
-                                    color:
-                                        isActive
-                                            ? `${theme.palette.primary.main} !important`
-                                            : theme.palette.background.paper,
-                                }}>
-                                    <IconifyIcon icon={item.icon}
-                                        // strokeWidth="1.6"
-                                        style={{
-                                            color: item.children
-                                                ? openItem[item.title] || hasActiveChild(item)
-                                                    ? theme.palette.primary.main
-                                                    : theme.palette.text.primary
-                                                : isActive
-                                                    ? theme.palette.common.white
-                                                    : theme.palette.text.primary
-                                        }} />
-                                </Box>
-                            </ListItemIcon>
-                            {!disabled && (
-                                <Tooltip title={item?.title}>
-                                    <StyledListItemText
-                                        primary={item?.title}
-                                        active={isActive}
-                                        hasActiveChild={!!item.children?.length && hasActiveChild(item)}
-                                        isOpen={openItem[item.title]}
-                                        isParent={!!item.children}
-                                    />
-                                </Tooltip>
-                            )}
-                            {item?.children && item?.children.length > 0 && (
-                                <>
-                                    {openItem[item.title] ? (
-                                        <IconifyIcon icon='weui:arrow-outlined'
-                                            style={{
-                                                color:
-                                                    isActive
-                                                        ? theme.palette.primary.main
-                                                        : `rgba(${theme.palette.customColors.main}, 0.78)`,
-                                                transform: 'rotate(90deg)',
-                                                transition: "transform 0.3s ease",
-                                            }} />
-                                    )
-                                        : (
-                                            <IconifyIcon icon='weui:arrow-outlined'
-                                                style={{
-                                                    color:
-                                                        isActive
-                                                            ? `${theme.palette.primary.main}`
-                                                            : `rgba(${theme.palette.customColors.main}, 0.78)`,
-                                                    transition: "transform 0.3s ease",
-                                                }}
+                        {item.path ? (
+                            <Link href={item.path} passHref legacyBehavior>
+                                <ListItemButton
+                                    component="a"
+                                    sx={{
+                                        padding: `8px 25px 8px ${level * (level === 1 ? 15 : 15)}px !important`,
+                                        margin: "2px 8px 2px 0px",
+                                        borderTopRightRadius: "30px",
+                                        borderBottomRightRadius: "30px",
+                                        background:
+                                            isActive
+                                                ? item.path === activePath
+                                                    ? `linear-gradient(135deg, ${hexToRGBA(theme.palette.secondary.main, 0.8)} 0%, ${hexToRGBA(theme.palette.primary.main, 0.8)} 100%)`
+                                                    : `${hexToRGBA(theme.palette.primary.main, 0.08)}`
+                                                : theme.palette.background.paper,
+                                    }}
+                                    onClick={(e) => {
+                                        if (item.children) {
+                                            e.preventDefault()
+                                            handleClick(item.title)
+                                        }
+                                        if (item.path) {
+                                            handleSelectItem(item.path)
+                                        }
+                                    }}
+                                >
+                                    <ListItemIcon>
+                                        <Box sx={{
+                                            borderRadius: "8px",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            width: "30px",
+                                            height: "30px",
+                                            color:
+                                                isActive
+                                                    ? `${theme.palette.primary.main} !important`
+                                                    : theme.palette.background.paper,
+                                        }}>
+                                            <Suspense fallback={<Spinner />}>
+                                                <IconifyIcon icon={item.icon}
+                                                    style={{
+                                                        color: item.children
+                                                            ? openItem[item.title] || hasActiveChild(item)
+                                                                ? theme.palette.primary.main
+                                                                : theme.palette.text.primary
+                                                            : isActive
+                                                                ? theme.palette.common.white
+                                                                : theme.palette.text.primary
+                                                    }} />
+                                            </Suspense>
+                                        </Box>
+                                    </ListItemIcon>
+                                    {!disabled && (
+                                        <Tooltip title={item?.title}>
+                                            <StyledListItemText
+                                                primary={item?.title}
+                                                active={isActive}
+                                                hasActiveChild={!!item.children?.length && hasActiveChild(item)}
+                                                isOpen={openItem[item.title]}
+                                                isParent={!!item.children}
                                             />
-                                        )
+                                        </Tooltip>
+                                    )}
+                                    {item?.children && item?.children.length > 0 && (
+                                        <>
+                                            {openItem[item.title] ? (
+                                                <Suspense fallback={<Spinner />}>
+                                                    <IconifyIcon icon='weui:arrow-outlined'
+                                                        style={{
+                                                            color:
+                                                                isActive
+                                                                    ? theme.palette.primary.main
+                                                                    : `rgba(${theme.palette.customColors.main}, 0.78)`,
+                                                            transform: 'rotate(90deg)',
+                                                            transition: "transform 0.3s ease",
+                                                        }} />
+                                                </Suspense>
+                                            )
+                                                : (
+                                                    <Suspense fallback={<Spinner />}>
+                                                        <IconifyIcon icon='weui:arrow-outlined'
+                                                            style={{
+                                                                color:
+                                                                    isActive
+                                                                        ? `${theme.palette.primary.main}`
+                                                                        : `rgba(${theme.palette.customColors.main}, 0.78)`,
+                                                                transition: "transform 0.3s ease",
+                                                            }}
+                                                        />
+                                                    </Suspense>
+                                                )
+                                            }
+                                        </>
+                                    )}
+                                </ListItemButton>
+                            </Link>
+                        ) : (
+                            <ListItemButton
+                                sx={{
+                                    padding: `8px 25px 8px ${level * (level === 1 ? 15 : 15)}px !important`,
+                                    margin: "2px 8px 2px 0px",
+                                    borderTopRightRadius: "30px",
+                                    borderBottomRightRadius: "30px",
+                                    background:
+                                        isActive
+                                            ? item.path === activePath
+                                                ? `linear-gradient(135deg, ${hexToRGBA(theme.palette.secondary.main, 0.8)} 0%, ${hexToRGBA(theme.palette.primary.main, 0.8)} 100%)`
+                                                : `${hexToRGBA(theme.palette.primary.main, 0.08)}`
+                                            : theme.palette.background.paper,
+                                }}
+                                onClick={() => {
+                                    if (item.children) {
+                                        handleClick(item.title)
                                     }
-                                </>
-                            )}
-                        </ListItemButton>
+                                }}
+                            >
+                                <ListItemIcon>
+                                    <Box sx={{
+                                        borderRadius: "8px",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        width: "30px",
+                                        height: "30px",
+                                        color:
+                                            isActive
+                                                ? `${theme.palette.primary.main} !important`
+                                                : theme.palette.background.paper,
+                                    }}>
+                                        <Suspense fallback={<Spinner />}>
+                                            <IconifyIcon icon={item.icon}
+                                                style={{
+                                                    color: item.children
+                                                        ? openItem[item.title] || hasActiveChild(item)
+                                                            ? theme.palette.primary.main
+                                                            : theme.palette.text.primary
+                                                        : isActive
+                                                            ? theme.palette.common.white
+                                                            : theme.palette.text.primary
+                                                }} />
+                                        </Suspense>
+                                    </Box>
+                                </ListItemIcon>
+                                {!disabled && (
+                                    <Tooltip title={item?.title}>
+                                        <StyledListItemText
+                                            primary={item?.title}
+                                            active={isActive}
+                                            hasActiveChild={!!item.children?.length && hasActiveChild(item)}
+                                            isOpen={openItem[item.title]}
+                                            isParent={!!item.children}
+                                        />
+                                    </Tooltip>
+                                )}
+                                {item?.children && item?.children.length > 0 && (
+                                    <>
+                                        {openItem[item.title] ? (
+                                                <Suspense fallback={<Spinner />}>
+                                                <IconifyIcon icon='weui:arrow-outlined'
+                                                    style={{
+                                                        color:
+                                                            isActive
+                                                                ? theme.palette.primary.main
+                                                                : `rgba(${theme.palette.customColors.main}, 0.78)`,
+                                                        transform: 'rotate(90deg)',
+                                                        transition: "transform 0.3s ease",
+                                                    }} />
+                                            </Suspense>
+                                        )
+                                            : (
+                                                <Suspense fallback={<Spinner />}>
+                                                    <IconifyIcon icon='weui:arrow-outlined'
+                                                        style={{
+                                                            color:
+                                                                isActive
+                                                                    ? `${theme.palette.primary.main}`
+                                                                    : `rgba(${theme.palette.customColors.main}, 0.78)`,
+                                                            transition: "transform 0.3s ease",
+                                                        }}
+                                                    />
+                                                </Suspense>
+                                            )
+                                        }
+                                    </>
+                                )}
+                            </ListItemButton>
+                        )}
                         {
                             item.children && item.children.length > 0 && (
                                 <Collapse in={openItem[item.title]} timeout="auto" unmountOnExit>
@@ -212,6 +318,7 @@ const RecursiveListItem: NextPage<TListItem> = ({ level, openItem, items, setOpe
     )
 }
 
+// Dynamically import the main component to optimize initial load time
 const ListVerticalLayout: NextPage<TProps> = ({ open }) => {
     const [openItem, setOpenItem] = React.useState<{ [key: string]: boolean }>({})
     const [activePath, setActivePath] = React.useState<null | string>('')

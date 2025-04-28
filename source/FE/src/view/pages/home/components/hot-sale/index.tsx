@@ -171,12 +171,16 @@ const listProduct = [
     },
 ]
 
-const HotSale = () => {
+interface HotSaleProps {
+    initialData?: any[];
+}
+
+const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
 
     const theme = useTheme();
     const { t } = useTranslation();
 
-    const saleEndTime = '2025-04-08T23:59:59';
+    const saleEndTime = '2025-04-26T23:59:59';
     const [publicProducts, setPublicProducts] = useState({
         data: [],
         total: 0

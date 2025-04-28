@@ -1,9 +1,10 @@
 import { NextPage } from 'next'
-import React from 'react'
+import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
-
+import Spinner from 'src/components/spinner'
 //Pages
-import ListRolePage from 'src/view/pages/system/role/ListRole'
+// Dynamically import the ListRole component
+const ListRolePage = lazy(() => import('src/view/pages/system/role/ListRole'))
 
 //views
 
@@ -11,7 +12,9 @@ type TProps = {}
 
 const Role: NextPage<TProps> = () => {
     return (
-        <ListRolePage />
+        <Suspense fallback={<Spinner />}>
+            <ListRolePage />
+        </Suspense>
     )
 }
 

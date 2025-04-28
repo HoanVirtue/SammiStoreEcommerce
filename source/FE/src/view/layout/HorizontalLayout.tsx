@@ -1,30 +1,45 @@
 "use client"
 
 import { NextPage } from "next"
+import { useState } from "react"
+import { useTranslation } from "react-i18next"
+import Link from "next/link"
+import { useRouter } from "next/router"
+import dynamic from 'next/dynamic'
 
-//MUI
-import { Badge, Box, IconButton, styled, Toolbar, Typography, useTheme } from '@mui/material';
+// MUI imports - optimized by importing from specific paths
+import Box from '@mui/material/Box'
+import Toolbar from '@mui/material/Toolbar'
+import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
+import Badge from '@mui/material/Badge'
+import Button from '@mui/material/Button'
+import { styled, useTheme } from '@mui/material/styles'
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar'
 
-//conponents
-import IconifyIcon from "src/components/Icon";
-import UserMenu from "src/view/layout/components/user-menu";
-import ModeToggle from "./components/mode-toggle";
-import LanguageDropdown from "./components/language-dropdown";
+// Hooks
+import { useAuth } from "src/hooks/useAuth"
 
-//hooks
-import { useAuth } from "src/hooks/useAuth";
-import { Button } from "@mui/material";
-import { useRouter } from "next/router";
+// Config
+import { ROUTE_CONFIG } from "src/configs/route"
 
-//config
-import { ROUTE_CONFIG } from "src/configs/route";
-import Link from "next/link";
-import ProductCart from "./components/product-cart";
-import { useTranslation } from "react-i18next";
-import { useState } from "react";
-import HomeSearch from "src/components/home-search";
+// Components
+import IconifyIcon from "src/components/Icon"
+import HomeSearch from "src/components/home-search"
 
+// Dynamically imported components
+const UserMenu = dynamic(() => import("src/view/layout/components/user-menu"), { 
+  ssr: false 
+})
+const ModeToggle = dynamic(() => import("./components/mode-toggle"), { 
+  ssr: false 
+})
+const LanguageDropdown = dynamic(() => import("./components/language-dropdown"), { 
+  ssr: false 
+})
+const ProductCart = dynamic(() => import("./components/product-cart"), { 
+  ssr: false 
+})
 
 type TProps = {
     open: boolean
@@ -121,7 +136,7 @@ const HorizontalLayout: NextPage<TProps> = ({ open, toggleDrawer, showIcon, show
                                     WebkitTextFillColor: 'transparent',
                                     backgroundClip: 'text',
                                     cursor: "pointer"
-                                }}>Sammi Stores</Typography>
+                                }}>SammiStores</Typography>
                         </Box>
                     </Link>
                 </Box>

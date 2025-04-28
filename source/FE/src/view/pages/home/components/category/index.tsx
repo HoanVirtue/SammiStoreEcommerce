@@ -37,9 +37,11 @@ const useCategories = () => {
     ], []);
 };
 
-interface OutstandingCategoryProps { }
+export interface OutstandingCategoryProps {
+    initialData?: any[];
+}
 
-const OutstandingCategory: React.FC<OutstandingCategoryProps> = () => {
+const OutstandingCategory: React.FC<OutstandingCategoryProps> = ({ initialData }) => {
     const { t } = useTranslation();
     const theme = useTheme();
     const categories = useCategories();

@@ -99,7 +99,7 @@ export const getProductCategoryFields = (): FieldConfig[] => [
 ];
 
 export const getEmployeeFields = (): FieldConfig[] => [
-    { value: "employee_code", label: i18n.t("employee_code"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("employee_code"), type: "string", operators: getStringOperators() },
     { value: "fullName", label: i18n.t("name"), type: "string", operators: getStringOperators() },
     { value: "phone", label: i18n.t("phone"), type: "string", operators: getStringOperators() },
     { value: "email", label: i18n.t("email"), type: "string", operators: getStringOperators() },
@@ -107,7 +107,7 @@ export const getEmployeeFields = (): FieldConfig[] => [
 ];
 
 export const getCustomerFields = (): FieldConfig[] => [
-    { value: "customer_code", label: i18n.t("customer_code"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("customer_code"), type: "string", operators: getStringOperators() },
     { value: "fullName", label: i18n.t("name"), type: "string", operators: getStringOperators() },
     { value: "phone", label: i18n.t("phone"), type: "string", operators: getStringOperators() },
     { value: "email", label: i18n.t("email"), type: "string", operators: getStringOperators() },
@@ -115,7 +115,7 @@ export const getCustomerFields = (): FieldConfig[] => [
 ];
 
 export const getSupplierFields = (): FieldConfig[] => [
-    { value: "supplier_code", label: i18n.t("supplier_code"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("supplier_code"), type: "string", operators: getStringOperators() },
     { value: "fullName", label: i18n.t("name"), type: "string", operators: getStringOperators() },
     { value: "phone", label: i18n.t("phone"), type: "string", operators: getStringOperators() },
     { value: "email", label: i18n.t("email"), type: "string", operators: getStringOperators() },

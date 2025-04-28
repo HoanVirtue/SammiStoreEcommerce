@@ -87,8 +87,8 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     const dispatch: AppDispatch = useDispatch();
 
     const schema = yup.object().shape({
-        roleId: yup.number().required(t("required_code")),
-        code: yup.string().required(t("required_code")),
+        roleId: yup.number().required(t("required_role_id")),
+        code: yup.string().required(t("required_employee_code")),
         type: yup.string().default(""),
         firstName: yup.string().required(t("required_first_name")),
         lastName: yup.string().required(t("required_last_name")),
@@ -452,8 +452,10 @@ const CreateUpdateEmployee = (props: TCreateUpdateEmployee) => {
     }, []);
 
     useEffect(() => {
-        fetchAllProvinces();
-    }, []);
+        if (open && !id) {
+            fetchAllProvinces();
+        }
+    }, [open, id]);
 
     useEffect(() => {
         if (selectedProvince) {

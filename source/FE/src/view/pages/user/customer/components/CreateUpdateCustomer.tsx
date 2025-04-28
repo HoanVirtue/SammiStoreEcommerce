@@ -477,8 +477,11 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
     };
 
     useEffect(() => {
-        fetchAllProvinces();
-    }, [fetchAllProvinces]);
+        if (open && !id) {
+            fetchAllProvinces();
+        }
+    }, [open, id]);
+
 
     useEffect(() => {
         if (selectedProvince) {

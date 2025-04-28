@@ -1,18 +1,74 @@
 ﻿
-
 INSERT INTO `users` (
-  (
   `Id`, `Code`, `IdentityGuid`, `Type`, `FirstName`, `LastName`, `FullName`, 
   `Email`, `Phone`, `StreetAddress`, `WardId`, `IsAdmin`, `Username`, 
   `Password`, `Gender`, `IsLock`, `SecurityStamp`, `AvatarId`, 
   `IdCardNumber`, `RoleId`, `Culture`, `CreatedDate`, `UpdatedDate`, 
-  `CreatedBy`, `UpdatedBy`, `IsActive`, `IsDeleted`, `DisplayOrder`
+  `CreatedBy`, `UpdatedBy`, `IsActive`, `IsDeleted`, `DisplayOrder`,
+  `IsVerify`
 )
 VALUES
-(1,'NV000001','123983de-589e-43c4-94d5-590e118cb712','Employee','ad','min','admin',NULL,'012321232',NULL,1,1,'admin','AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==',1,0,NULL,NULL,NULL,1,'vn','2025-03-15 02:40:49.714920',NULL,'N/A',NULL,1,0,NULL),
-(2,'NV000002','2362b254-f90e-495c-a89f-073df86be9e2','Employee','employee','employee','employee',NULL,'012321443',NULL,1,0,'employee','AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==',1,0,NULL,NULL,NULL,3,'vn','2025-03-15 02:40:49.715010',NULL,'N/A',NULL,1,0,NULL),
-(3,'KH000001','83b666a9-e3a5-405c-8459-25aab031c18e','Customer','Thu','Tháº£o','Thu Tháº£o',NULL,'0123216543',NULL,1,0,'thao','AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==',0,0,NULL,NULL,NULL,4,'vn','2025-03-15 02:40:49.715074',NULL,'N/A',NULL,1,0,NULL)
+(10, 'NV000002', UUID(), 'Employee', 'employee', 'employee', 'employee', NULL, '012321443', NULL, 1, 0, 'employee', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, '182832992833', 3, 'vn', '2025-03-15 02:40:49.715010', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(11, 'NV000011', UUID(), 'Employee', 'Minh', 'Nguyen', 'Nguyen Minh', 'nguyenminh@example.com', '0901234568', '123 Le Loi, Quan 1', 1, 1, 'manager11', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, 'security-stamp-123', NULL, '1234567891', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 1, 1),
+(12, 'NV000012', UUID(), 'Employee', 'Anh', 'Tran', 'Tran Anh', 'trananh@example.com', '0901234569', '456 Nguyen Trai, Quan 5', 2, 0, 'manager12', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, 'security-stamp-456', NULL, '1234567892', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 2, 1),
+(13, 'NV000013', UUID(), 'Employee', 'Huy', 'Pham', 'Pham Huy', 'phamhuy@example.com', '0901234570', '789 Tran Hung Dao, Quan 1', 3, 0, 'manager13', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, 'security-stamp-789', NULL, '1234567893', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 3, 1),
+(14, 'NV000014', UUID(), 'Employee', 'Linh', 'Vo', 'Vo Linh', 'volinh@example.com', '0901234571', '101 Nguyen Hue, Quan 3', 4, 0, 'manager14', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, 'security-stamp-101', NULL, '1234567894', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 4, 1),
+(15, 'NV000015', UUID(), 'Employee', 'Tuan', 'Le', 'Le Tuan', 'letuan@example.com', '0901234572', '202 Vo Thi Sau, Quan 3', 5, 0, 'manager15', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, 'security-stamp-202', NULL, '1234567895', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 5, 1),
+(16, 'KH000011', UUID(), 'Employee', 'Thi', 'Nguyen', 'Nguyen Thi', 'nguyenthi@example.com', '0912345678', '303 Ly Thuong Kiet, Quan 10', 6, 0, 'customer11', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, 'security-stamp-303', NULL, '9876543211', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 6, 1),
+(17, 'KH000012', UUID(), 'Employee', 'Bao', 'Tran', 'Tran Bao', 'tranbao@example.com', '0912345679', '404 Hai Ba Trung, Quan 1', 7, 0, 'customer12', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, 'security-stamp-404', NULL, '9876543211', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 7, 1),
+(18, 'KH000013', UUID(), 'Employee', 'Mai', 'Pham', 'Pham Mai', 'phammai@example.com', '0912345680', '505 Le Van Sy, Quan 3', 8, 0, 'customer13', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, 'security-stamp-505', NULL, '9876543213', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 8, 1),
+(19, 'KH000014', UUID(), 'Employee', 'Khoa', 'Vo', 'Vo Khoa', 'vokhoa@example.com', '0912345681', '606 Cach Mang Thang 8, Quan 10', 9, 0, 'customer14', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, 'security-stamp-606', NULL, '9876543214', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 9, 1),
+(20, 'KH000015', UUID(), 'Employee', 'Lan', 'Le', 'Le Lan', 'lelan@example.com', '0912345682', '707 Nguyen Thi Minh Khai, Quan 3', 10, 0, 'customer15', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, 'security-stamp-707', NULL, '9876543215', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 10, 1);
 
+
+INSERT INTO `users` (
+  `Id`, `Code`, `IdentityGuid`, `Type`, `FirstName`, `LastName`, `FullName`, 
+  `Email`, `Phone`, `StreetAddress`, `WardId`, `IsAdmin`, `Username`, 
+  `Password`, `Gender`, `IsLock`, `SecurityStamp`, `AvatarId`, 
+  `IdCardNumber`, `RoleId`, `Culture`, `CreatedDate`, `UpdatedDate`, 
+  `CreatedBy`, `UpdatedBy`, `IsActive`, `IsDeleted`, `DisplayOrder`,
+  `IsVerify`
+)
+VALUES
+(21, 'KH000021',uuid(),'Customer','Thu','Tháº£o','Thu Tháº£o','21A100100345@students.hou.edu.vn','0123216543',NULL,NULL,0,'thao','AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==',0,0,NULL,NULL,NULL,4,'vn','2025-03-15 02:40:49.715074',NULL,'N/A',NULL,1,0,NULL, 0),
+(22, 'KH000022', UUID(), 'Customer', 'Mai', 'Nguyen', 'Nguyen Mai', 'mai.nguyen@example.com', '0912345678', NULL, NULL, 0, 'mainguyen', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(23, 'KH000023', UUID(), 'Customer', 'Bao', 'Tran', 'Tran Bao', 'bao.tran@example.com', '0912345679', NULL, NULL, 0, 'baotran', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(24, 'KH000024', UUID(), 'Customer', 'Lan', 'Pham', 'Pham Lan', 'lan.pham@example.com', '0912345680', NULL, NULL, 0, 'lanpham', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(25, 'KH000025', UUID(), 'Customer', 'Khoa', 'Vo', 'Vo Khoa', 'khoa.vo@example.com', '0912345681', NULL, NULL, 0, 'khoavo', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(26, 'KH000026', UUID(), 'Customer', 'Huyen', 'Le', 'Le Huyen', 'huyen.le@example.com', '0912345682', NULL, NULL, 0, 'huyenle', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(27, 'KH000027', UUID(), 'Customer', 'Tuan', 'Nguyen', 'Nguyen Tuan', 'tuan.nguyen@example.com', '0912345683', NULL, NULL, 0, 'tuannguyen', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(28, 'KH000028', UUID(), 'Customer', 'Thi', 'Tran', 'Tran Thi', 'thi.tran@example.com', '0912345684', NULL, NULL, 0, 'thitran', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(29, 'KH000029', UUID(), 'Customer', 'Minh', 'Pham', 'Pham Minh', 'minh.pham@example.com', '0912345685', NULL, NULL, 0, 'minhpham', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(30, 'KH000030', UUID(), 'Customer', 'Anh', 'Vo', 'Vo Anh', 'anh.vo@example.com', '0912345686', NULL, NULL, 0, 'anhvo', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(31, 'KH000031', UUID(), 'Customer', 'Huy', 'Le', 'Le Huy', 'huy.le@example.com', '0912345687', NULL, NULL, 0, 'huyle', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(32, 'KH000032', UUID(), 'Customer', 'Linh', 'Nguyen', 'Nguyen Linh', 'linh.nguyen@example.com', '0912345688', NULL, NULL, 0, 'linhnguyen', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(33, 'KH000033', UUID(), 'Customer', 'Dung', 'Tran', 'Tran Dung', 'dung.tran@example.com', '0912345689', NULL, NULL, 0, 'dungtran', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(34, 'KH000034', UUID(), 'Customer', 'Ngoc', 'Pham', 'Pham Ngoc', 'ngoc.pham@example.com', '0912345690', NULL, NULL, 0, 'ngocpham', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(35, 'KH000035', UUID(), 'Customer', 'Vinh', 'Vo', 'Vo Vinh', 'vinh.vo@example.com', '0912345691', NULL, NULL, 0, 'vinhvo', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(36, 'KH000036', UUID(), 'Customer', 'Thao', 'Le', 'Le Thao', 'thao.le@example.com', '0912345692', NULL, NULL, 0, 'thaole', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(37, 'KH000037', UUID(), 'Customer', 'Nam', 'Nguyen', 'Nguyen Nam', 'nam.nguyen@example.com', '0912345693', NULL, NULL, 0, 'namnguyen', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(38, 'KH000038', UUID(), 'Customer', 'Hoa', 'Tran', 'Tran Hoa', 'hoa.tran@example.com', '0912345694', NULL, NULL, 0, 'hoatran', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(39, 'KH000039', UUID(), 'Customer', 'Quang', 'Pham', 'Pham Quang', 'quang.pham@example.com', '0912345695', NULL, NULL, 0, 'quangpham', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(40, 'KH000040', UUID(), 'Customer', 'Trang', 'Vo', 'Vo Trang', 'trang.vo@example.com', '0912345696', NULL, NULL, 0, 'trangvo', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1),
+(41, 'KH000041', UUID(), 'Customer', 'Phong', 'Le', 'Le Phong', 'phong.le@example.com', '0912345697', NULL, NULL, 0, 'phongle', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1);
+
+
+INSERT INTO `users` (
+  `Id`, `Code`, `IdentityGuid`, `Type`, `FullName`, 
+  `Email`, `Phone`, `StreetAddress`, `WardId`, `Culture`, `CreatedDate`, `UpdatedDate`, 
+  `CreatedBy`, `UpdatedBy`, `IsActive`, `IsDeleted`, `DisplayOrder`, `IsLock`
+)
+VALUES
+(43, 'NCC000043', UUID(), 'Supplier', 'Công ty TNHH L\'Oréal Việt Nam', 'contact@loreal.vn', '0932922983', 'Tầng 10, Tòa nhà Vincom, 72 Lê Thánh Tôn, Quận 1', 3, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(44, 'NCC000044', UUID(), 'Supplier', 'Công ty TNHH Unilever Việt Nam', 'info@unilever.vn', '0932922984', '156 Nguyễn Lương Bằng, Quận 7', 4, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(45, 'NCC000045', UUID(), 'Supplier', 'Công ty TNHH Mỹ Phẩm Shiseido Việt Nam', 'contact@shiseido.vn', '0932922985', 'Tầng 5, Tòa nhà Metropolitan, 235 Đồng Khởi, Quận 1', 5, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(46, 'NCC000046', UUID(), 'Supplier', 'Công ty TNHH Estée Lauder Việt Nam', 'support@esteelauder.vn', '0932922986', 'Tầng 7, Tòa nhà Centre Point, 106 Nguyễn Văn Trỗi, Quận Phú Nhuận', 6, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(47, 'NCC000047', UUID(), 'Supplier', 'Công ty TNHH Thorakao', 'info@thorakao.vn', '0932922987', '163 La Thành, Quận Đống Đa, Hà Nội', 7, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(48, 'NCC000048', UUID(), 'Supplier', 'Công ty TNHH Sắc Việt', 'contact@sacviet.vn', '0932922988', '123 Lý Thường Kiệt, Quận 10', 8, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(49, 'NCC000049', UUID(), 'Supplier', 'Công ty TNHH Mỹ Phẩm LG Vina', 'support@lgvina.vn', '0932922989', 'Tầng 3, Tòa nhà Sài Gòn Centre, 65 Lê Lợi, Quận 1', 9, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(50, 'NCC000050', UUID(), 'Supplier', 'Công ty TNHH DHC Việt Nam', 'info@dhc.vn', '0932922990', '208 Nguyễn Trãi, Quận 5', 10, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(51, 'NCC000051', UUID(), 'Supplier', 'Công ty TNHH The Face Shop Việt Nam', 'contact@thefaceshop.vn', '0932922991', 'Tầng 2, Tòa nhà Diamond Plaza, 34 Lê Duẩn, Quận 1', 11, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0),
+(52, 'NCC000052', UUID(), 'Supplier', 'Công ty TNHH Ohui Việt Nam', 'support@ohui.vn', '0932922992', '89 Cách Mạng Tháng 8, Quận 3', 12, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0);
 
 -- brand
 INSERT INTO `image`

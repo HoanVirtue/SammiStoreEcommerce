@@ -83,7 +83,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
                 var reviewEntity = _mapper.Map<Review>(request);
                 reviewEntity.UserId = _currentUser.Id;
-                var createResponse = await _reviewRepository.CreateAndSave(request);
+                var createResponse = await _reviewRepository.CreateAndSave(reviewEntity);
                 actResponse.Combine(createResponse);
                 actResponse.SetResult(_mapper.Map<ReviewDTO>(createResponse.Result));
             }

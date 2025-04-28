@@ -40,7 +40,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         public override async Task<ActionResponse<ReviewDTO>> Handle(CUReviewCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<ReviewDTO>();
-            if(await _orderRepository.IsExisted(request.OrderId, _currentUser.Id))
+            if(!await _orderRepository.IsExisted(request.OrderId, _currentUser.Id))
             {
                 actResponse.AddError("Đơn hàng không tồn tại hoặc không thuộc quyền sở hữu của bạn.");
                 return actResponse;

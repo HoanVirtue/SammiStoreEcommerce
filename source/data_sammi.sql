@@ -454,3 +454,43 @@ INSERT INTO `vouchercondition` VALUES
 (58, 58, 'RequiredProducts', '50,51', 'vn', '2025-07-10 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Chỉ áp dụng sản phẩm ID 50, 51 cho voucher 58
 (59, 60, 'MinOrderValue', '400000', 'vn', '2025-08-01 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 400K cho voucher 60
 (60, 68, 'MaxDiscountAmount', '500000', 'vn', '2025-11-28 00:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0); -- Giảm tối đa 500K cho voucher 68
+
+
+select * FROM users
+
+SELECT
+DISTINCT t1.Id,
+t1.CartId AS CartId,
+t1.ProductId AS ProductId,
+t1.Quantity AS Quantity,
+t1.CreatedDate AS CreatedDate,
+t1.UpdatedDate AS UpdatedDate,
+t1.CreatedBy AS CreatedBy,
+t1.UpdatedBy AS UpdatedBy,
+t1.IsActive AS IsActive,
+t1.IsDeleted AS IsDeleted,
+t1.DisplayOrder AS DisplayOrder,
+t3.Name AS ProductName,
+t3.StockQuantity,
+CASE
+      WHEN t3.StartDate IS NOT NULL
+      AND t3.EndDate IS NOT NULL
+      AND NOW() >= t3.StartDate
+      AND NOW() <= t3.EndDate
+      THEN t3.Price * (1 - t3.Discount)
+      ELSE t3.Price
+  END AS Price,
+t4.ImageUrl AS ProductImage FROM CartDetail t1 
+INNER JOIN Cart t2 ON t1.CartId = t2.Id AND t2.IsDeleted != 1
+INNER JOIN Product t3 ON t1.ProductId = t3.Id AND t3.IsDeleted != 1
+LEFT JOIN (SELECT pi.ProductId,
+                                          i.ImageUrl
+                                    FROM ProductImage pi
+                                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                    WHERE pi.IsDeleted != 1
+                                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                                    ) t4 ON t3.Id = t4.ProductId
+WHERE t1.ISDELETED = 0 AND t2.CustomerId = 22
+
+
+SELECT * FROM product

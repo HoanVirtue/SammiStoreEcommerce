@@ -97,13 +97,13 @@ const CreateUpdateCustomer = (props: TCreateUpdateCustomer) => {
 
     // Validation schema cho form
     const schema = yup.object().shape({
-        roleId: yup.number().required(t("required_code")),
-        code: yup.string().required(t("required_code")),
+        roleId: yup.number().required(t("required_role_id")),
+        code: yup.string().required(t("required_customer_code")),
         type: yup.string().default(""),
         firstName: yup.string().required(t("required_first_name")),
         lastName: yup.string().required(t("required_last_name")),
         email: yup.string().required(t("required_email")).email().matches(EMAIL_REG, t("incorrect_email_format")),
-        phone: yup.string()
+        phone: yup.string() 
             .required(t("required_phone"))
             .matches(/^\d{10}$/, t("incorrect_phone_format")),
         streetAddress: yup.string().required(t("required_address")),

@@ -1,5 +1,7 @@
 ﻿using Autofac;
+using Microsoft.AspNetCore.Authorization;
 using Nest;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Controllers;
 using SAMMI.ECOM.API.Infrastructure.Configuration;
 using SAMMI.ECOM.API.Services.ElasticSearch;
@@ -69,6 +71,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
             builder.RegisterType<ProductElasticService>().As<IProductElasticService>().SingleInstance();
 
             builder.RegisterType<EmailHelper>().As<EmailHelper>().SingleInstance();
+
+            builder.RegisterType<PermissionAuthorizationHandler>().As<IAuthorizationHandler>().SingleInstance();
 
 
             // Register all the Repository classes (they implement CrudRepository) in assembly holding the Repositories

@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
@@ -38,6 +40,7 @@ namespace SAMMI.ECOM.API.Controllers
             UserIdentity = currentUser;
             _imageRepository = imageRepository;
         }
+
 
         [HttpGet("employee")]
         public async Task<IActionResult> GetEmployee([FromQuery] RequestFilterModel request)
@@ -89,9 +92,9 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
-        
 
 
+        [AuthorizePermission(PermissionEnum.CustomerView)]
         [HttpGet("customer")]
         public async Task<IActionResult> GetCustomer([FromQuery] RequestFilterModel request)
         {

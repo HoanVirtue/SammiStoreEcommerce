@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.CategoryAddress;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 
@@ -23,6 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             _provinRepository = provinRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.ProvinceView)]
         [HttpGet]
         // đây là quyền xem: Xem tỉnh/thành phố, mã code: PROVINCE_VIEW
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
@@ -39,6 +42,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             return Ok();
         }
 
+        [AuthorizePermission(PermissionEnum.ProvinceView)]
         [HttpGet("{id}")]
         // PROVINCE_VIEW
         public async Task<IActionResult> Get(int id)
@@ -46,22 +50,23 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             return Ok(await _provinceQueries.GetById(id));
         }
 
-        [HttpPost]
-        // PROVINCE_CREATE
-        public async Task<IActionResult> Post([FromBody] CUProvinceCommand request)
-        {
-            if (request.Id != 0)
-            {
-                return BadRequest();
-            }
-            var response = await _mediator.Send(request);
-            if (response.IsSuccess)
-            {
-                return Ok(response);
-            }
-            return BadRequest(response);
-        }
+        //[HttpPost]
+        //// PROVINCE_CREATE
+        //public async Task<IActionResult> Post([FromBody] CUProvinceCommand request)
+        //{
+        //    if (request.Id != 0)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    var response = await _mediator.Send(request);
+        //    if (response.IsSuccess)
+        //    {
+        //        return Ok(response);
+        //    }
+        //    return BadRequest(response);
+        //}
 
+        [AuthorizePermission(PermissionEnum.ProvinceUpdate)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CUProvinceCommand request)
         {

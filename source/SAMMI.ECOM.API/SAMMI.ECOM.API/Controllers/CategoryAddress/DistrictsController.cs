@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.CategoryAddress;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 
@@ -23,6 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             _districtRepository = districtRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.DistrictView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -38,45 +41,47 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             return Ok();
         }
 
+        [AuthorizePermission(PermissionEnum.DistrictView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             return Ok(await _districtQueries.GetById(id));
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Post([FromBody] CUDistrictCommand request)
-        {
-            if (request.Id != 0)
-            {
-                return BadRequest();
-            }
-            var response = await _mediator.Send(request);
-            if (response.IsSuccess)
-            {
-                return Ok(response);
-            }
-            return BadRequest(response);
-        }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] CUDistrictCommand request)
-        {
-            if (id != request.Id)
-            {
-                return BadRequest();
-            }
-            if (!_districtRepository.IsExisted(id))
-            {
-                return BadRequest("Quận/huyện không tồn tại.");
-            }
-            var response = await _mediator.Send(request);
-            if (response.IsSuccess)
-            {
-                return Ok(response);
-            }
-            return BadRequest(response);
-        }
+        //[HttpPost]
+        //public async Task<IActionResult> Post([FromBody] CUDistrictCommand request)
+        //{
+        //    if (request.Id != 0)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    var response = await _mediator.Send(request);
+        //    if (response.IsSuccess)
+        //    {
+        //        return Ok(response);
+        //    }
+        //    return BadRequest(response);
+        //}
+
+        //[HttpPut("{id}")]
+        //public async Task<IActionResult> Put(int id, [FromBody] CUDistrictCommand request)
+        //{
+        //    if (id != request.Id)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    if (!_districtRepository.IsExisted(id))
+        //    {
+        //        return BadRequest("Quận/huyện không tồn tại.");
+        //    }
+        //    var response = await _mediator.Send(request);
+        //    if (response.IsSuccess)
+        //    {
+        //        return Ok(response);
+        //    }
+        //    return BadRequest(response);
+        //}
 
         //[HttpDelete("{id}")]
         //public IActionResult Delete(int id)

@@ -7,13 +7,16 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
 using SAMMI.ECOM.API.Infrastructure.Configuration;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.AggregateModels.System;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure;
+using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
 using StackExchange.Redis;
@@ -108,9 +111,19 @@ builder.Services
         };
     });
 
+builder.Services.AddAuthorization(options => 
+{
+    foreach(var per in PermissionCodes.AllPermissionCodes)
+    {
+        options.AddPolicy(per.ToPolicyName(), policy =>
+        {
+            policy.Requirements.Add(new PermissionRequirement(per));
+        });
+    }
+});
+
 await builder.Services.AddElasticSearch(builder.Configuration);
 
-builder.Services.AddAuthorization();
 try
 {
     var multiplexer = ConnectionMultiplexer.Connect(builder.Configuration.GetValue<string>("RedisOptions:ConnectionString"));
@@ -131,6 +144,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

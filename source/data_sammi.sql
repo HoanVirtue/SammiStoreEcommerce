@@ -1,6 +1,20 @@
 ﻿
--- brand
 
+INSERT INTO `users` (
+  (
+  `Id`, `Code`, `IdentityGuid`, `Type`, `FirstName`, `LastName`, `FullName`, 
+  `Email`, `Phone`, `StreetAddress`, `WardId`, `IsAdmin`, `Username`, 
+  `Password`, `Gender`, `IsLock`, `SecurityStamp`, `AvatarId`, 
+  `IdCardNumber`, `RoleId`, `Culture`, `CreatedDate`, `UpdatedDate`, 
+  `CreatedBy`, `UpdatedBy`, `IsActive`, `IsDeleted`, `DisplayOrder`
+)
+VALUES
+(1,'NV000001','123983de-589e-43c4-94d5-590e118cb712','Employee','ad','min','admin',NULL,'012321232',NULL,1,1,'admin','AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==',1,0,NULL,NULL,NULL,1,'vn','2025-03-15 02:40:49.714920',NULL,'N/A',NULL,1,0,NULL),
+(2,'NV000002','2362b254-f90e-495c-a89f-073df86be9e2','Employee','employee','employee','employee',NULL,'012321443',NULL,1,0,'employee','AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==',1,0,NULL,NULL,NULL,3,'vn','2025-03-15 02:40:49.715010',NULL,'N/A',NULL,1,0,NULL),
+(3,'KH000001','83b666a9-e3a5-405c-8459-25aab031c18e','Customer','Thu','Tháº£o','Thu Tháº£o',NULL,'0123216543',NULL,1,0,'thao','AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==',0,0,NULL,NULL,NULL,4,'vn','2025-03-15 02:40:49.715074',NULL,'N/A',NULL,1,0,NULL)
+
+
+-- brand
 INSERT INTO `image`
 VALUES
 (50,'https://res.cloudinary.com/duqduitnd/image/upload/v1744538678/uploads/brands/Who.jpg','uploads/brands/Who','Brand','vn',NOW(), NULL,'N/A','',1,0,1),

@@ -46,7 +46,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
 
-            if (_productRepository.IsExisted(request.ProductId))
+            if (!_productRepository.IsExisted(request.ProductId))
             {
                 actResponse.AddError("Sản phẩm không tồn tại.");
                 return actResponse;

@@ -13,7 +13,7 @@ namespace SAMMI.ECOM.Core.Models.RequestModels.QueryParams
         //public int? Quarter { get; set; }
         //public int? Week { get; set; }
         public DateTime? DateFrom { get; set; } = DateTime.Today;
-        public DateTime? DateTo { get; set; } = DateTime.Today.AddDays(0);
+        public DateTime? DateTo { get; set; } = DateTime.Today.AddDays(1);
         public int? PaymentMethodId { get; set; }
     }
 }

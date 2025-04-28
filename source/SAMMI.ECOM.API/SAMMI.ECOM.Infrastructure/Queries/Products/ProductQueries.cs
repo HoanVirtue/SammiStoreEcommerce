@@ -264,7 +264,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
 		                    FROM Product t1
                             LEFT JOIN PurchaseOrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1
                             LEFT JOIN PurchaseOrder t3 ON t2.PurchaseOrderId = t3.Id AND t3.IsDeleted != 1
-                            WHERE t1.ISDELETED = 0 {((filterModel.MinimumStockQuantity != null) ? string.Format("AND t1.StockQuantity < {0}", filterModel.MinimumStockQuantity) : "")}
+                            WHERE t1.ISDELETED = 0 {((filterModel.MaximumStockQuantity != null) ? string.Format("AND t1.StockQuantity < {0}", filterModel.MaximumStockQuantity) : "")}
 
                             {((filterModel.DaysOfExistence != null) ? string.Format("HAVING DATEDIFF(NOW(), MAX(t3.CreatedDate)) > {0} OR MAX(t3.CreatedDate) IS NULL", filterModel.DaysOfExistence) : "")}
 
@@ -308,9 +308,9 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                     sqlBuilder.LeftJoin("PurchaseOrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
                     sqlBuilder.LeftJoin("PurchaseOrder t3 ON t2.PurchaseOrderId = t3.Id AND t3.IsDeleted != 1");
 
-                    if (filterModel.MinimumStockQuantity != null)
+                    if (filterModel.MaximumStockQuantity != null)
                     {
-                        sqlBuilder.Where("t1.StockQuantity < @minimumStockQuantity", new { minimumStockQuantity = filterModel.MinimumStockQuantity });
+                        sqlBuilder.Where("t1.StockQuantity < @minimumStockQuantity", new { minimumStockQuantity = filterModel.MaximumStockQuantity });
                     }
 
                     sqlBuilder.GroupBy(@"t1.Id,

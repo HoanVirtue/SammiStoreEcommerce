@@ -134,7 +134,6 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
     setReceiptCode(res?.result);
 };
 
-
   const fetchAllSupplier = async () => {
     setLoading(true);
     try {
@@ -315,6 +314,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
     fetchAllSupplier();
     fetchAllEmployee();
     fetchAllProducts();
+    getReceiptDefaultCode();
   }, []);
 
   useEffect(() => {

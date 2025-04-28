@@ -1,67 +1,64 @@
 import { Grid, Typography, useTheme } from '@mui/material';
 import { Box } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { getAllProducts } from 'src/services/product';
+import { getListRelatedProducts } from 'src/services/product';
 import ProductCard from 'src/view/pages/product/components/ProductCard';
 import { TProduct } from 'src/types/product';
 import NoData from 'src/components/no-data';
 import { useTranslation } from 'react-i18next';
 
-interface TopSaleProps {
+interface RelatedProductProps {
+    productId: number;
     initialData?: any[];
 }
 
-const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
-
+const RelatedProduct: React.FC<RelatedProductProps> = ({ productId, initialData }) => {
     const theme = useTheme();
     const { t } = useTranslation();
 
-    const [publicProducts, setPublicProducts] = useState({
+    const [relatedProducts, setRelatedProducts] = useState({
         data: [],
         total: 0
     });
     const [loading, setLoading] = useState(false);
 
-    const handleGetListProduct = async () => {
+    const handleGetListRelatedProduct = async () => {
         setLoading(true)
         const query = {
             params: {
-                take: 10,
-                skip: 0,
-                paging: true,
-                orderBy: "name",
-                dir: "asc",
-                keywords: "''",
-                filters: ""
+                productId: productId,
+                numberTop: 5
             },
         };
-        await getAllProducts(query).then((res) => {
+        await getListRelatedProducts(query).then((res) => {
             if (res?.result) {
                 setLoading(false)
-                setPublicProducts({
-                    data: res?.result?.subset,
-                    total: res?.result?.totalItemCount
+                setRelatedProducts({
+                    data: res?.result,
+                    total: res?.result?.length
                 })
             }
         })
     }
 
     useEffect(() => {
-        handleGetListProduct()
-    }, [])
+        if (productId) {
+            handleGetListRelatedProduct()
+        }
+    }, [productId])
 
     return (
         <Box sx={{ backgroundColor: theme.palette.background.paper, width: '100%', height: '100%', padding: '10px', marginTop: '20px', maxWidth: '1440px !important', margin: '0 auto' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', padding: '20px' }}>
-                    <Typography sx={{ textTransform: 'uppercase', cursor: 'pointer' }} variant="h3">Make up xịn - Bật mood xinh</Typography>
+                    <Typography sx={{ textTransform: 'uppercase', cursor: 'pointer' }} variant="h3">{t('related_products')}</Typography>
                 </Box>
             </Box>
             <Box>
                 <Grid container spacing={{ md: 4, sx: 2 }}>
-                    {publicProducts?.data?.length > 0 ? (
+                    {relatedProducts?.data?.length > 0 ? (
                         <>
-                            {publicProducts?.data?.map((item: TProduct) => {
+                            {relatedProducts?.data?.map((item: TProduct) => {
                                 return (
                                     <Grid item key={item.id} md={2.4} sm={6} xs={12}>
                                         <ProductCard item={item} />
@@ -86,4 +83,4 @@ const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
     )
 }
 
-export default TopSale
+export default RelatedProduct

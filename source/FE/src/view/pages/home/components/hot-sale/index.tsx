@@ -180,7 +180,7 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
     const theme = useTheme();
     const { t } = useTranslation();
 
-    const saleEndTime = '2025-04-26T23:59:59';
+    const saleEndTime = '2025-05-26T23:59:59';
     const [publicProducts, setPublicProducts] = useState({
         data: [],
         total: 0
@@ -191,9 +191,9 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
         setLoading(true)
         const query = {
             params: {
-                take: -1,
+                take: 10,
                 skip: 0,
-                paging: false,
+                paging: true,
                 orderBy: "name",
                 dir: "asc",
                 keywords: "''",
@@ -234,7 +234,7 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
                                 {publicProducts?.data?.map((item: TProduct) => {
                                     return (
                                         <Grid item key={item.id} md={2.4} sm={4} xs={12}>
-                                            <ProductCard item={item} />
+                                            <ProductCard item={item} showProgress={true} />
                                         </Grid>
                                     )
                                 })}

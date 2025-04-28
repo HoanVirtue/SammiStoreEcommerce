@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Box, Checkbox, Stack, useTheme } from '@mui/material';
@@ -30,6 +29,8 @@ type TProps = {
 
 interface TItemOrderProductState extends TItemOrderProduct {
   stockQuantity?: number;
+  startDate?: Date | null;
+  endDate?: Date | null;
 }
 
 const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TProps) => {
@@ -63,6 +64,8 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
           productId: id,
           quantity: cartItem?.quantity || item.quantity || 1,
           stockQuantity: data.stockQuantity,
+          startDate: data.startDate,
+          endDate: data.endDate,
         });
         setInputQuantity(cartItem?.quantity || item.quantity || 1);
       }
@@ -184,6 +187,10 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
     return basePrice * (itemState.quantity || 1);
   }, [itemState?.quantity, itemState?.price, itemState?.discount]);
 
+  const isExpiredDiscount = useMemo(() => {
+    return itemState?.discount && itemState?.discount > 0 && isExpired(itemState?.startDate || null, itemState?.endDate || null);
+  }, [itemState?.discount, itemState?.startDate, itemState?.endDate]);
+
   return (
     <Fragment>
       <Stack
@@ -236,9 +243,9 @@ const ProductCartItem = ({ item, index, handleChangeCheckBox, selectedRow }: TPr
             {formatPrice(itemState?.price || 0)}
           </Typography>
           <Typography variant="subtitle2" sx={{ color: theme.palette.primary.main }}>
-            {itemState?.discount && itemState?.discount > 0
+            {isExpiredDiscount && itemState?.discount
               ? formatPrice((itemState?.price * (100 - itemState?.discount)) / 100)
-              : formatPrice(itemState?.price || 0)}
+              : ""}
           </Typography>
         </Stack>
 

@@ -1,12 +1,15 @@
 import { Box, Container, Typography, Button, Paper } from '@mui/material'
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import LockIcon from '@mui/icons-material/Lock'
+import { useAuth } from 'src/hooks/useAuth'
 import { useRouter } from 'next/router'
 
-export default function NotFound() {
+export default function Unauthorized() {
+  const { logout } = useAuth()
   const router = useRouter()
 
-  const handleGoHome = () => {
-    router.push('/')
+  const handleLogoutAndRedirect = () => {
+    logout()
+    router.push('/login')
   }
 
   return (
@@ -28,7 +31,7 @@ export default function NotFound() {
             borderRadius: 2,
           }}
         >
-          <HelpOutlineIcon sx={{ fontSize: 80, color: '#e91e63', mb: 2 }} />
+          <LockIcon sx={{ fontSize: 80, color: '#e91e63', mb: 2 }} />
           <Typography
             variant="h2"
             component="h1"
@@ -38,7 +41,7 @@ export default function NotFound() {
               fontSize: { xs: '2rem', sm: '3rem' },
             }}
           >
-            404 - Không Tìm Thấy Trang
+            403 - Truy Cập Bị Từ Chối
           </Typography>
           <Typography
             variant="body1"
@@ -49,11 +52,11 @@ export default function NotFound() {
               lineHeight: 1.6,
             }}
           >
-            Xin lỗi, trang bạn đang tìm kiếm không tồn tại trong hệ thống quản lý cửa hàng mỹ phẩm. Vui lòng kiểm tra lại URL hoặc quay về trang chính.
+            Xin lỗi, bạn không có quyền truy cập vào trang này trong hệ thống quản lý cửa hàng mỹ phẩm. Vui lòng kiểm tra lại thông tin đăng nhập hoặc liên hệ quản trị viên để được hỗ trợ.
           </Typography>
           <Button
             variant="contained"
-            onClick={handleGoHome}
+            onClick={handleLogoutAndRedirect}
             sx={{
               bgcolor: '#e91e63',
               '&:hover': {
@@ -61,7 +64,7 @@ export default function NotFound() {
               },
             }}
           >
-            Quay Lại Trang Chủ
+            Quay Lại Trang Đăng Nhập
           </Button>
         </Paper>
       </Container>

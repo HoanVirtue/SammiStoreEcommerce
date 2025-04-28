@@ -15,7 +15,7 @@ const Button = () => {
           props: { variant: 'text', color: 'primary' },
           style: ({ theme }: OwnerStateThemeType) => ({
             '&:hover': {
-              backgroundColor: hexToRGBA(theme.palette.primary.main, 0.08)
+              backgroundColor: hexToRGBA(theme.palette.primary.main, 0.8)
             }
           })
         },
@@ -210,7 +210,8 @@ const Button = () => {
           boxShadow: theme.shadows[2],
           padding: theme.spacing(2.5, 5),
           '&:hover': {
-            boxShadow: theme.shadows[2]
+            boxShadow: theme.shadows[2],
+            backgroundColor: hexToRGBA(theme.palette.primary.main, 0.9)
           }
         }),
         tonal: ({ theme }: OwnerStateThemeType) => ({

@@ -3,6 +3,7 @@ using FluentValidation;
 using MediatR;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
+using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.Products;
@@ -79,6 +80,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
                 request.CreatedDate = DateTime.Now;
                 request.CreatedBy = _currentUser.UserName;
+
+                var reviewEntity = _mapper.Map<Review>(request);
+                reviewEntity.UserId = _currentUser.Id;
                 var createResponse = await _reviewRepository.CreateAndSave(request);
                 actResponse.Combine(createResponse);
                 actResponse.SetResult(_mapper.Map<ReviewDTO>(createResponse.Result));
@@ -113,7 +117,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 }
                 request.UpdatedDate = DateTime.Now;
                 request.UpdatedBy = _currentUser.UserName;
-
+                
                 var updateRes = await _reviewRepository.UpdateAndSave(request);
                 actResponse.Combine(updateRes);
                 actResponse.SetResult(_mapper.Map<ReviewDTO>(updateRes.Result));

@@ -25,13 +25,13 @@ import { AuthProvider } from 'src/contexts/AuthContext'
 import 'src/styles/globals.scss'
 
 // ** Configure NProgress
-NProgress.configure({ 
-  minimum: 0.3,
-  easing: 'ease',
-  speed: 200,
-  showSpinner: false,
-  trickleSpeed: 100
-})
+// NProgress.configure({ 
+//   minimum: 0.3,
+//   easing: 'ease',
+//   speed: 200,
+//   showSpinner: false,
+//   trickleSpeed: 100
+// })
 
 import { store } from 'src/stores'
 import GuestGuard from 'src/components/auth/GuestGuard'
@@ -117,7 +117,7 @@ export default function App(props: ExtendedAppProps) {
       </Head>
 
       <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' />
+        {/* <ReactQueryDevtools initialIsOpen={false} buttonPosition='bottom-left' /> */}
         <AuthProvider>
           <AxiosInterceptor>
             <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>

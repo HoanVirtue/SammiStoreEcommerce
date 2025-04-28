@@ -823,6 +823,9 @@
     "required_supplier_code": "Mã nhà cung cấp không được để trống",
     "required_role_id": "Vai trò không được để trống",
     "required_id_card_number": "Số CMND không được để trống",
+    "submit": "Gửi",
+    "enter_product_stock_quantity": "Nhập số lượng sản phẩm",
+    "enter_product_stock_quantity_required": "Số lượng sản phẩm không được để trống",
 
 
     "province_id": "Mã Tỉnh/Thành phố",

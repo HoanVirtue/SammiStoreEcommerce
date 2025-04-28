@@ -108,3 +108,8 @@ export type TParamsGetRelatedProduct = {
     order?: string
     slug: string
 }
+
+export type TParamsGetRelatedProducts = {
+    productId: number,
+    numberTop: number,
+}

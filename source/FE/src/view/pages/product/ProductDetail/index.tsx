@@ -49,6 +49,7 @@ import { useAuth } from 'src/hooks/useAuth'
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
 import { formatPrice, isExpired } from 'src/utils'
 import { ROUTE_CONFIG } from 'src/configs/route'
+import RelatedProduct from './RelatedProduct'
 
 // Constants
 const INITIAL_PRODUCT_STATE: TProduct = {
@@ -683,6 +684,16 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
                                 </Grid>
                             ))}
                         </Grid>
+                    </Box>
+                </Grid>
+                <Grid xs={12} sx={{ mt: 4 }}>
+                    <Box sx={{
+                        backgroundColor: theme.palette.background.paper,
+                        borderRadius: "15px",
+                        py: 5,
+                        px: 4
+                    }}>
+                        <RelatedProduct productId={productId} />
                     </Box>
                 </Grid>
             </Grid>

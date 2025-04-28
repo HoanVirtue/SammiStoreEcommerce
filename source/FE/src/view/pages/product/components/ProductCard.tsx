@@ -29,7 +29,8 @@ const ProductCardSkeleton = dynamic(() => import('./ProductCardSkeleton'), {
 
 interface TProductCard {
     item: TProduct
-    isLoading?: boolean
+    isLoading?: boolean,
+    showProgress?: boolean
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -62,7 +63,7 @@ const ButtonGroupWrapper = styled(Box)(({ theme }) => ({
 
 const ProductCard: React.FC<TProductCard> = (props: any) => {
 
-    const { item, isLoading = false } = props
+    const { item, isLoading = false, showProgress = false } = props
 
     //hooks
     const { t } = useTranslation()
@@ -304,49 +305,54 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                         </Box>
                     )}
                 </Box>
-                <Box sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between"
-                }}>
-                    <Box sx={{
-                        display: "flex",
-                        width: "100%",
-                        flexDirection: "column",
-                        gap: "4px",
-                        alignItems: "flex-start",
-                        justifyContent: "center"
-                    }}>
-                        <Box sx={{ width: "100%", mt: 1, position: 'relative' }}>
-                            <LinearProgress
-                                variant="determinate"
-                                value={soldPercentage}
-                                color={progressColor}
-                                sx={{
-                                    height: 18, borderRadius: 6, width: '100%',
-                                    backgroundColor: '#fedfe2',
-                                    '& .MuiLinearProgress-bar': {
-                                        backgroundImage: 'linear-gradient(to right, #d82e4d, #ff7f8e)',
-                                        borderRadius: 6,
-                                    }
-                                }}
-                            />
-                            <Typography variant="body2"
-                                sx={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    textWrap: 'nowrap',
-                                    left: '50%',
-                                    transform: 'translate(-50%, -50%)',
-                                    color: progressColor === 'error' ? theme.palette.error.main : progressColor === 'warning' ? theme.palette.warning.main : theme.palette.text.primary,
-                                    textShadow: '0px 0px 2px rgba(255, 255, 255, 0.8)',
-                                    fontWeight: 'bold'
-                                }}>
-                                {statusText}
-                            </Typography>
+                {
+                    showProgress && (
+                        <Box sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "space-between"
+                        }}>
+                            <Box sx={{
+                                display: "flex",
+                                width: "100%",
+                                flexDirection: "column",
+                                gap: "4px",
+                                alignItems: "flex-start",
+                                justifyContent: "center"
+                            }}>
+                                <Box sx={{ width: "100%", mt: 1, position: 'relative' }}>
+                                    <LinearProgress
+                                        variant="determinate"
+                                        value={soldPercentage}
+                                        color={progressColor}
+                                        sx={{
+                                            height: 18, borderRadius: 6, width: '100%',
+                                            backgroundColor: '#fedfe2',
+                                            '& .MuiLinearProgress-bar': {
+                                                backgroundImage: 'linear-gradient(to right, #d82e4d, #ff7f8e)',
+                                                borderRadius: 6,
+                                            }
+                                        }}
+                                    />
+                                    <Typography variant="body2"
+                                        sx={{
+                                            position: 'absolute',
+                                            top: '50%',
+                                            textWrap: 'nowrap',
+                                            left: '50%',
+                                            transform: 'translate(-50%, -50%)',
+                                            color: progressColor === 'error' ? theme.palette.error.main : progressColor === 'warning' ? theme.palette.warning.main : theme.palette.text.primary,
+                                            textShadow: '0px 0px 2px rgba(255, 255, 255, 0.8)',
+                                            fontWeight: 'bold'
+                                        }}>
+                                        {statusText}
+                                    </Typography>
+                                </Box>
+                            </Box>
                         </Box>
-                    </Box>
-                </Box>
+                    )
+                }
+
             </CardContent>
         </StyledCard>
     )

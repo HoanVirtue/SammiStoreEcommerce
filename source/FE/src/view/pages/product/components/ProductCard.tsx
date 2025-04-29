@@ -20,7 +20,7 @@ import { useAuth } from 'src/hooks/useAuth';
 import { likeProductAsync, unlikeProductAsync } from 'src/stores/product/action';
 import { toast } from 'react-toastify';
 import { createCartAsync, getCartsAsync } from 'src/stores/cart/action';
-
+import { likeProduct, unlikeProduct } from 'src/services/product';
 // Dynamic imports for heavy components
 const ProductCardSkeleton = dynamic(() => import('./ProductCardSkeleton'), {
     loading: () => <Skeleton variant="rectangular" width="100%" height={400} />,
@@ -118,12 +118,12 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
         }
     }
 
-    const handleToggleFavoriteProduct = (id: number, isLiked: boolean) => {
+    const handleToggleFavoriteProduct = async (id: number, isLiked: boolean) => {
         if (user?.id) {
             if (isLiked) {
-                dispatch(unlikeProductAsync({ productId: id }))
+                await unlikeProduct(id)
             } else {
-                dispatch(likeProductAsync({ productId: id }))
+                await likeProduct(id)
             }
         } else {
             router.replace({

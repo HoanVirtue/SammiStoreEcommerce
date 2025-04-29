@@ -113,52 +113,40 @@ export const getListRelatedProducts = async (data: {params: TParamsGetRelatedPro
 export const deleteMultipleProducts = async (data: TParamsDeleteMultipleProducts) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}`, {data})
-        if(res?.data?.status === "Success") {
-            return {
-                data: []
-            }
-        }
-        return {
-            data: null
-        }
+        return res.data
     } catch (error: any) {
         return error?.response?.data
     }
 }
 
 
-export const likeProduct = async (data: {productId: number }) => {
+export const likeProduct = async (productId: number) => {
     try {
-        const res = await instance.post(`${API_ENDPOINT.FAVOURITE_PRODUCT.INDEX}`, data)
-        if(res?.data?.status === "Success") {
-            return {
-                data: {id: 1}
-            }
-        }
-        return {
-            data: null
-        }
+        const res = await instance.post(`${API_ENDPOINT.FAVOURITE_PRODUCT.INDEX}/${productId}`)
+        return res.data
     } catch (error: any) {
         return error?.response?.data
     }
 }
 
-export const unlikeProduct = async (data: {productId: number }) => {
+export const unlikeProduct = async (productId: number) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.FAVOURITE_PRODUCT.INDEX}/${data.productId}`)
-        if(res?.data?.status === "Success") {
-            return {
-                data: {id: 1}
-            }
-        }
-        return {
-            data: null
-        }
+        const res = await instance.delete(`${API_ENDPOINT.FAVOURITE_PRODUCT.INDEX}/${productId}`)
+        return res.data
     } catch (error: any) {
         return error?.response?.data
     }
 }
 
+
+export const getMyLikedProduct = async (data: {params: TParamsGetAllProducts}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.FAVOURITE_PRODUCT.INDEX}`, data)
+        return res.data
+    } catch (error: any) {
+        return error?.response?.data
+    }
+}
 
 export const getAllLikedProduct = async (data: {params: TParamsGetAllProducts}) => {
     try {

@@ -62,7 +62,6 @@ const ProductReview = ({ productId }: ProductReviewProps) => {
             setLoading(false)
         }
     }
-    console.log(listReview)
 
     const fetchOverallReview = async () => {
         try {
@@ -160,7 +159,7 @@ const ProductReview = ({ productId }: ProductReviewProps) => {
                                 color="primary"
                                 sx={{ minWidth: 100 }}
                             >
-                                Tất Cả
+                                Tất Cả ({overallReview?.totalRating || 0})
                             </Button>
                             <Button
                                 variant={selectedFilter.typeReview === 1 && selectedFilter.rateNumber === 5 ? 'contained' : 'outlined'}
@@ -216,7 +215,7 @@ const ProductReview = ({ productId }: ProductReviewProps) => {
                                 color="primary"
                                 onClick={() => setSelectedFilter({ typeReview: 3, rateNumber: 0 })}
                             >
-                                Có Hình Ảnh / Video ({overallReview?.totalImage || 0})
+                                Có Hình Ảnh ({overallReview?.totalImage || 0})
                             </Button>
                         </Stack>
                     </Grid>

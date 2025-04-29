@@ -25,7 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             _districtRepository = districtRepository;
         }
 
-        [AuthorizePermission(PermissionEnum.DistrictView)]
+        //[AuthorizePermission(PermissionEnum.DistrictView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -41,7 +41,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             return Ok();
         }
 
-        [AuthorizePermission(PermissionEnum.DistrictView)]
+        //[AuthorizePermission(PermissionEnum.DistrictView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {

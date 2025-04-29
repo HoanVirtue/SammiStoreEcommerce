@@ -1,10 +1,19 @@
-
 export type TParamsGetAllReviews = {
-    limit?: number,
-    page?: number,
-    search?: string,
-    isPublic?: boolean,
-    order?: string
+    skip?: number;
+    take?: number;
+    filters?: string;
+    orderBy?: string;
+    dir?: string;
+    type?: number | (1 | 2 | 3 | 4 | 5 | 6)
+    paging?: boolean;
+    restrictOrderBy?: boolean;
+    keywords?: string;
+}
+
+export interface TParamsGetAllReviewsByProductId extends TParamsGetAllReviews {
+    productId: number,
+    rateNumber?: number,
+    typeReview?: number,
 }
 
 export type TParamsCreateReview = {
@@ -33,21 +42,22 @@ export type TParamsDeleteMultipleReviews = {
 }
 
 export type TReviewItem = {
-    id: number,
-    user: {
-        firstName: string,
-        middleName: string,
-        lastName: string,
-        avatar: string,
-        id: number
-    },
-    product:{
-        id: number,
-        name: string
-    },
-    content: string,
-    star: number,
-    updatedAt?: string | Date
+    id: number;
+    productId: number;
+    userId: number;
+    customerName: string;
+    customerImage?: string;
+    rating: number;
+    comment: string;
+    imageId?: number;
+    imageUrl?: string;
+    createdDate: string;
+    updatedDate?: string;
+    createdBy?: string;
+    updatedBy?: string;
+    isActive: boolean;
+    isDeleted: boolean;
+    displayOrder?: number;
 }
 
 

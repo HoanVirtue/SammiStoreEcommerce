@@ -7,7 +7,7 @@ import { Controller, useForm } from "react-hook-form"
 import * as yup from 'yup';
 
 //Mui
-import { Box, Button, Grid, IconButton, InputAdornment, Rating, Typography, Paper } from "@mui/material"
+import { Box, Button, Grid, IconButton, InputAdornment, Rating, Typography, Paper, MenuItem, Stack } from "@mui/material"
 import { useTheme } from "@mui/material"
 
 //components
@@ -17,6 +17,7 @@ import Spinner from "src/components/spinner"
 import CustomTextField from "src/components/text-field"
 import FileUploadWrapper from "src/components/file-upload-wrapper"
 import CustomTextArea from "src/components/text-area"
+import Image from "src/components/image"
 
 //services
 import { getReviewDetail } from "src/services/review";
@@ -28,17 +29,20 @@ import { useTranslation } from "react-i18next"
 import { useDispatch } from "react-redux"
 import { AppDispatch } from "src/stores"
 import { createReviewAsync } from "src/stores/review/action";
+import { TOrderDetail } from "src/types/order";
+import { convertBase64 } from "src/utils"
 
 interface TWriteReviewModal {
     open: boolean
     onClose: () => void
-    productId?: number
-    orderId?: number
+    orderId: number
+    orderDetails: TOrderDetail[]
 }
 
 type TDefaultValues = {
-    content: string,
-    star: number
+    comment?: string,
+    star: number,
+    productId: number
 }
 
 const WriteReviewModal = (props: TWriteReviewModal) => {
@@ -48,7 +52,7 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
     const [imagePreview, setImagePreview] = useState<string | null>(null)
 
     //props
-    const { open, onClose, orderId, productId } = props
+    const { open, onClose, orderId, orderDetails } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -60,13 +64,15 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
     const dispatch: AppDispatch = useDispatch()
 
     const schema = yup.object().shape({
-        content: yup.string().required(t("required_content")),
+        comment: yup.string().optional(),
         star: yup.number().required(t("required_star")),
+        productId: yup.number().required(t("required_product")),
     });
 
     const defaultValues: TDefaultValues = {
-        content: '',
-        star: 0
+        comment: undefined,
+        star: 0,
+        productId: orderDetails[0]?.productId || 0
     }
 
     const { handleSubmit, getValues, setError, clearErrors, control, formState: { errors }, reset } = useForm<TDefaultValues>({
@@ -75,42 +81,39 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
         resolver: yupResolver(schema)
     });
 
-    const handleImageUpload = (file: File) => {
-        setImageFile(file)
-        const reader = new FileReader()
-        reader.onloadend = () => {
-            setImagePreview(reader.result as string)
+    const handleImageUpload = async (file: File) => {
+        try {
+            const base64WithPrefix = await convertBase64(file);
+            const base64 = base64WithPrefix.split(",")[1];
+            setImageFile(file);
+            setImagePreview(base64WithPrefix);
+        } catch (error) {
+            console.error('Error uploading image:', error);
         }
-        reader.readAsDataURL(file)
     }
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (productId && orderId) {
+            if (data.productId && orderId) {
                 const formData = {
-                    productId: productId,
+                    productId: data.productId,
                     orderId: orderId,
                     rating: data?.star,
-                    comment: data?.content,
+                    comment: data?.comment,
                 }
 
                 if (imageFile) {
-                    const reader = new FileReader()
-                    reader.onloadend = () => {
-                        const base64String = reader.result as string
-                        const imageCommand = {
-                            imageUrl: '',
-                            imageBase64: base64String,
-                            publicId: '',
-                            typeImage: imageFile.type,
-                            value: imageFile.name
-                        }
-                        dispatch(createReviewAsync({
-                            ...formData,
-                            imageCommand
-                        }))
+                    const imageCommand = {
+                        imageUrl: "",
+                        imageBase64: imagePreview?.split(",")[1] || "",
+                        publicId: "''",
+                        typeImage: imageFile.type.split("/")[1],
+                        value: "main"
                     }
-                    reader.readAsDataURL(imageFile)
+                    dispatch(createReviewAsync({
+                        ...formData,
+                        imageCommand
+                    }))
                 } else {
                     dispatch(createReviewAsync(formData))
                 }
@@ -160,6 +163,40 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
                     <form onSubmit={handleSubmit(onSubmit)} autoComplete='off' noValidate>
                         <Grid container spacing={3}>
                             <Grid item xs={12}>
+                                <Controller
+                                    control={control}   
+                                    name="productId"
+                                    render={({ field: { onChange, value } }) => (
+                                        <CustomTextField
+                                            select
+                                            fullWidth
+                                            label={t('select_product')}
+                                            value={value || ''}
+                                            onChange={onChange}
+                                            error={!!errors.productId}
+                                        >
+                                            {orderDetails.map((item) => (
+                                                <MenuItem key={item.productId} value={item.productId}>
+                                                    <Stack direction="row" spacing={2} alignItems="center" sx={{ width: '100%' }}>
+                                                        <Image
+                                                            src={item.imageUrl || '/public/svgs/placeholder.svg'}
+                                                            sx={{ width: 40, height: 40, borderRadius: 1, flexShrink: 0 }}
+                                                        />
+                                                        <Typography sx={{ 
+                                                            overflow: 'hidden',
+                                                            textOverflow: 'ellipsis',
+                                                            textWrap: 'wrap'
+                                                        }}>
+                                                            {item.productName}
+                                                        </Typography>
+                                                    </Stack>
+                                                </MenuItem>
+                                            ))}
+                                        </CustomTextField>
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
                                 <Box sx={{ mb: 2 }}>
                                     <Typography variant="subtitle2" sx={{ mb: 1 }}>
                                         {t('rating')}
@@ -189,18 +226,18 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
                                     render={({ field: { onChange, onBlur, value } }) => (
                                         <CustomTextArea
                                             required
-                                            label={t('content')}
+                                            label={t('comment')}
                                             onChange={onChange}
                                             onBlur={onBlur}
                                             value={value}
-                                            placeholder={t('enter_content')}
-                                            error={!!errors.content}
-                                            helperText={errors.content?.message}
+                                            placeholder={t('enter_comment')}
+                                            error={!!errors.comment}
+                                            helperText={errors.comment?.message}
                                             minRows={4}
                                             maxRows={6}
                                         />
                                     )}
-                                    name='content'
+                                    name='comment'
                                 />
                             </Grid>
                             <Grid item xs={12}>
@@ -232,6 +269,7 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
                                                 alt="Preview"
                                                 sx={{
                                                     maxWidth: '100%',
+                                                    margin: '0 auto',
                                                     maxHeight: '200px',
                                                     objectFit: 'contain'
                                                 }}

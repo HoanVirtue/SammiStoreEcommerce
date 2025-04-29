@@ -144,8 +144,8 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
             {isLoading && <Spinner />}
             <WriteReviewModal
                 open={openReview.open}
-                productId={openReview.productId}
                 orderId={orderId}
+                orderDetails={orderData?.details || []}
                 onClose={() => setOpenReview({ open: false, userId: 0, productId: 0 })}
             />
             <Container maxWidth="lg">

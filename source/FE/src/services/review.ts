@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateReview, TParamsDeleteMultipleReviews, TParamsGetAllReviews, TParamsUpdateReview } from "src/types/review"
+import { TParamsCreateReview, TParamsDeleteMultipleReviews, TParamsGetAllReviews, TParamsUpdateReview, TParamsGetAllReviewsByProductId } from "src/types/review"
 
 
 export const getAllReviews = async (data: {params: TParamsGetAllReviews  }) => {
@@ -15,6 +15,26 @@ export const getAllReviews = async (data: {params: TParamsGetAllReviews  }) => {
 export const getReviewDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/${id}`)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+export const getAllReviewByProductId = async (data: {params: TParamsGetAllReviewsByProductId  }) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/get-reviews-product`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+
+
+export const getOverallReview = async (productId: number) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/get-overall-rating/${productId}`)
         return res.data
     } catch (error) {
         return error

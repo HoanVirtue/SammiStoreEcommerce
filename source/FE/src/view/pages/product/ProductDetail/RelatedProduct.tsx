@@ -48,11 +48,12 @@ const RelatedProduct: React.FC<RelatedProductProps> = ({ productId, initialData 
     }, [productId])
 
     return (
-        <Box sx={{ backgroundColor: theme.palette.background.paper, width: '100%', height: '100%', padding: '10px', marginTop: '20px', maxWidth: '1440px !important', margin: '0 auto' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                <Box sx={{ display: 'flex', flexDirection: 'column', padding: '20px' }}>
-                    <Typography sx={{ textTransform: 'uppercase', cursor: 'pointer' }} variant="h3">{t('related_products')}</Typography>
-                </Box>
+        <Box sx={{
+            backgroundColor: theme.palette.background.paper, width: '100%', height: '100%', maxWidth: '1440px !important', margin: '0 auto', py: 10,
+            px: 8
+        }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 5 }}>
+                <Typography sx={{ textTransform: 'uppercase', cursor: 'pointer' }} variant="h3">{t('related_products')}</Typography>
             </Box>
             <Box>
                 <Grid container spacing={{ md: 4, sx: 2 }}>

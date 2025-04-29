@@ -667,14 +667,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
                 </Grid>
 
                 <Grid xs={12} sx={{ mt: 4 }}>
-                    <Box sx={{
-                        backgroundColor: theme.palette.background.paper,
-                        borderRadius: "15px",
-                        py: 5,
-                        px: 4
-                    }}>
-                        <RelatedProduct productId={productId} />
-                    </Box>
+                    <RelatedProduct productId={productId} />
                 </Grid>
             </Grid>
         </Box>

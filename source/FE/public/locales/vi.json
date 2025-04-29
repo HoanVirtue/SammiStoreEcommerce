@@ -833,6 +833,8 @@
     "comment": "Nội dung đánh giá",
     "required_product": "Sản phẩm không được để trống",
     "just_recently": "Đã đánh giá gần đây",
+    "reviews_product": "Đánh giá sản phẩm",
+    "no_reviews_found": "Không có đánh giá nào",
 
 
     "province_id": "Mã Tỉnh/Thành phố",

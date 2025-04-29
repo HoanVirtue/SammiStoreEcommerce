@@ -269,6 +269,7 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
                                                 alt="Preview"
                                                 sx={{
                                                     maxWidth: '100%',
+                                                    margin: '0 auto',
                                                     maxHeight: '200px',
                                                     objectFit: 'contain'
                                                 }}

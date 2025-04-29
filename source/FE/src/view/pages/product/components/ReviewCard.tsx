@@ -126,21 +126,18 @@ const ReviewCard = (props: TReviewCard) => {
                         </Typography>
                         {item.imageUrl && (
                             <Box sx={{ mt: 2 }}>
-                                <ImageList cols={3} gap={8} sx={{ maxWidth: 400 }}>
-                                    <ImageListItem>
-                                        <Image
-                                            src={item.imageUrl}
-                                            alt="Review image"
-                                            sx={{
-                                                width: '100%',
-                                                height: '100%',
-                                                borderRadius: 1,
-                                                cursor: 'pointer',
-                                                objectFit: 'cover'
-                                            }}
-                                        />
-                                    </ImageListItem>
-                                </ImageList>
+                                <Image
+                                    src={item.imageUrl}
+                                    alt="Review image"
+                                    sx={{
+                                        width: '100%',
+                                        maxWidth: 200,
+                                        maxHeight: 200,
+                                        borderRadius: 1,
+                                        cursor: 'pointer',
+                                        objectFit: 'cover'
+                                    }}
+                                />
                             </Box>
                         )}
                         {user?.id === item.userId && (

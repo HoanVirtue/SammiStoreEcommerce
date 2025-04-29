@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.ProductCategorys;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
@@ -22,6 +24,7 @@ namespace SAMMI.ECOM.API.Controllers.ProductCategorys
             _categoryRepository = categoryRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.ProductCategoryView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -36,12 +39,14 @@ namespace SAMMI.ECOM.API.Controllers.ProductCategorys
             return Ok(await _categoryQueries.GetList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.ProductCategoryView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             return Ok(await _categoryQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.ProductCategoryCreate)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUProductCategoryCommand request)
         {
@@ -57,6 +62,7 @@ namespace SAMMI.ECOM.API.Controllers.ProductCategorys
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.ProductCategoryUpdate)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CUProductCategoryCommand request)
         {
@@ -76,28 +82,43 @@ namespace SAMMI.ECOM.API.Controllers.ProductCategorys
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.ProductCategoryDelete)]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             if (!_categoryRepository.IsExisted(id))
             {
                 return BadRequest("Loại sản phẩm không tồn tại.");
             }
+            var checkRes = await _categoryRepository.IsExistAnotherTbl(id);
+            if (!checkRes.IsSuccess)
+            {
+                return BadRequest(checkRes);
+            }
             return Ok(_categoryRepository.DeleteAndSave(id));
         }
 
+        [AuthorizePermission(PermissionEnum.ProductCategoryDelete)]
         [HttpDelete]
-        public IActionResult DeleteRange([FromBody] List<int> ids)
+        public async Task<IActionResult> DeleteRangeAsync([FromBody] List<int> ids)
         {
             var actErrorResponse = new ActionResponse();
             if (ids == null || ids.Count == 0)
             {
                 return BadRequest();
             }
-            if (!ids.All(id => _categoryRepository.IsExisted(id)))
+            foreach(var id in ids)
             {
-                actErrorResponse.AddError("Một số danh mục sản phẩm không tồn tại.");
-                return BadRequest(actErrorResponse);
+                if (!_categoryRepository.IsExisted(id))
+                {
+                    actErrorResponse.AddError($"Danh mục sản phẩm có id {id} không tồn tại.");
+                    return BadRequest(actErrorResponse);
+                }
+                var checkRes = await _categoryRepository.IsExistAnotherTbl(id);
+                if (!checkRes.IsSuccess)
+                {
+                    return BadRequest(checkRes);
+                }
             }
             
             return Ok(_categoryRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));

@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
@@ -56,7 +57,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             UserIdentity = userIdentity;
         }
 
-
+        [AuthorizePermission(PermissionEnum.OrderView)]
         [HttpGet]
         public async Task<IActionResult> GetOrdersAsync([FromQuery] RequestFilterModel request)
         {
@@ -67,6 +68,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok();
         }
 
+        [AuthorizePermission(PermissionEnum.OrderView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOrderAsync(int id)
         {
@@ -77,6 +79,24 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _orderQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.OrderUpdateStatus)]
+        [HttpPost("update-status-order")]
+        public async Task<IActionResult> UpdateOrderStatusAsync([FromBody] UpdateOrderStatusCommand request)
+        {
+            if (!_orderRepository.IsExisted(request.OrderId))
+            {
+                return BadRequest("Mã đơn hàng không tồn tại.");
+            }
+
+            var updateStatus = await _orderRepository.UpdateOrderStatus(request);
+            if (updateStatus.IsSuccess)
+            {
+                return Ok(updateStatus);
+            }
+            return BadRequest(updateStatus);
+        }
+
+        [AuthorizePermission(PermissionEnum.CustomerOrderTrack)]
         [HttpGet("customer/get-my-orders")]
         public async Task<IActionResult> GetMyOrders([FromQuery]RequestFilterModel request)
         {
@@ -87,6 +107,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _orderQueries.GetOrdersByCustomerId(UserIdentity.Id, request));
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerOrderTrack)]
         [HttpGet("customer/{code}")]
         public async Task<IActionResult> GetOrderAsync(string code)
         {
@@ -103,7 +124,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _orderQueries.GetById(order.Id));
         }
 
-        // thêm hủy đơn, xác nhận đơn hàng thành công
+        [AuthorizePermission(PermissionEnum.CustomerOrderCancel)]
         [HttpPost("customer/update-status-order/{code}")]
         public async Task<IActionResult> UpdateStatusOrderCustomerAsync(string code, [FromBody]OrderStatusEnum status = OrderStatusEnum.Cancelled)
         {
@@ -128,22 +149,8 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(updateOrderRes);
         }
 
-        [HttpPost("update-status-order")]
-        public async Task<IActionResult> UpdateOrderStatusAsync([FromBody]UpdateOrderStatusCommand request)
-        {
-            if(!_orderRepository.IsExisted(request.OrderId))
-            {
-                return BadRequest("Mã đơn hàng không tồn tại.");
-            }
 
-            var updateStatus = await _orderRepository.UpdateOrderStatus(request);
-            if (updateStatus.IsSuccess)
-            {
-                return Ok(updateStatus);
-            }
-            return BadRequest(updateStatus);
-        }
-
+        [AuthorizePermission(PermissionEnum.OrderUpdateStatus)]
         [HttpPost]
         public async Task<IActionResult> CancelledOrderAsync([FromBody]int orderId)
         {
@@ -159,6 +166,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(updateRes);
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerOrderPlace)]
         [HttpPost("create-order")]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderCommand request)
         {
@@ -222,6 +230,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Redirect($"{_config.GetValue<string>("VNPAYOptions:RedirectUrl")}?payment-status=1");
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerOrderPayment)]
         [HttpPost("pay-back")]
         public async Task<IActionResult> Payback([FromBody] CreatePayback model)
         {

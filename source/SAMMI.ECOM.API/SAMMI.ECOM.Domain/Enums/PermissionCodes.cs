@@ -47,12 +47,12 @@ namespace SAMMI.ECOM.Domain.Enums
         BrandView,
         // Quản lý nhập hàng (Manager)
         ImportCreate,
+        ImportUpdate,
         ImportUpdateStatus,
         ImportDelete,
         ImportView,
         // Quản lý đơn hàng (Manager)
         OrderView,
-        OrderDetail,
         OrderUpdateStatus,
         // Thông báo (Manager)
         NotificationView,
@@ -190,13 +190,13 @@ namespace SAMMI.ECOM.Domain.Enums
 
                 // Quyền quản lý nhập hàng (dành cho admin)
                 PermissionEnum.ImportCreate => "IMPORT_CREATE", // Cho phép tạo bản ghi nhập hàng
+                PermissionEnum.ImportUpdate => "IMPORT_UPDATE", // Cho phép sửa bản ghi nhập hàng
                 PermissionEnum.ImportUpdateStatus => "IMPORT_UPDATE_STATUS", // Cho phép cập nhật trạng thái nhập hàng
                 PermissionEnum.ImportDelete => "IMPORT_DELETE", // Cho phép xóa bản ghi nhập hàng
                 PermissionEnum.ImportView => "IMPORT_VIEW", // Cho phép xem bản ghi nhập hàng
 
                 // Quyền quản lý đơn hàng (dành cho admin)
                 PermissionEnum.OrderView => "ORDER_VIEW", // Cho phép xem chi tiết đơn hàng
-                PermissionEnum.OrderDetail => "ORDER_DETAIL", // Cho phép xem thông tin chi tiết đơn hàng
                 PermissionEnum.OrderUpdateStatus => "ORDER_UPDATE_STATUS", // Cho phép cập nhật trạng thái đơn hàng
 
                 // Quyền quản lý thông báo (dành cho admin)
@@ -348,7 +348,6 @@ namespace SAMMI.ECOM.Domain.Enums
 
             // Quyền quản lý đơn hàng (admin)
             PermissionEnum.OrderView,
-            PermissionEnum.OrderDetail,
             PermissionEnum.OrderUpdateStatus,
 
             // Quyền quản lý thông báo (admin)

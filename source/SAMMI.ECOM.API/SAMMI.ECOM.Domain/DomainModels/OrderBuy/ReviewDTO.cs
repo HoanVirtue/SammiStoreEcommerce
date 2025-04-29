@@ -24,6 +24,7 @@
     public class OverallRatingDTO
     {
         public int TotalRating { get; set; }
+        public decimal AverageRating { get; set; }
         public int TotalRating5 { get; set; }
         public int TotalRating4 { get; set; }
         public int TotalRating3 { get; set; }

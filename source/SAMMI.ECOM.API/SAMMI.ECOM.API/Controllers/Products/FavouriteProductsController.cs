@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Domain.DomainModels.Products;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.FavouriteProducts;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
@@ -23,6 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         private string cacheKey;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
+        private readonly IImageRepository _imageRepository;
         public FavouriteProductsController(
             IFavouriteProductQueries favouriteQueries,
             IProductRepository productRepository,
@@ -32,6 +35,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             IConfiguration config,
             IMapper mapper,
             IMediator mediator,
+            IImageRepository imageRepository,
             ILogger<FavouriteProductsController> logger) : base(mediator, logger)
         {
             _favouriteQueries = favouriteQueries;
@@ -42,8 +46,11 @@ namespace SAMMI.ECOM.API.Controllers.Products
             _config = config;
             cacheKey = $"{_config["RedisOptions:favourite_key"]}{UserIdentity.Id}";
             _mapper = mapper;
+            _imageRepository = imageRepository;
         }
 
+
+        //[AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery]RequestFilterModel request)
         {
@@ -51,24 +58,42 @@ namespace SAMMI.ECOM.API.Controllers.Products
             {
                 return Ok(await _favouriteQueries.GetList(request));
             }
-            if (_redisService != null && _redisService.IsConnected())
+            else if (request.Type == RequestType.SimpleAll)
             {
-                var cachedList = await _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
-                if (cachedList != null)
+                if (_redisService != null && _redisService.IsConnected())
                 {
-                    return Ok(cachedList);
+                    var cachedList = await _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
+                    if (cachedList != null && cachedList.Count > 0)
+                    {
+                        return Ok(cachedList);
+                    }
                 }
+
+                var favouriteList = await _favouriteQueries.GetAll(UserIdentity.Id, request);
+                if (_redisService != null && _redisService.IsConnected() && favouriteList != null && favouriteList.Any())
+                {
+                    _redisService.SetCache(cacheKey, favouriteList);
+                }
+                return Ok(favouriteList);
             }
-            return Ok(await _favouriteQueries.GetAll(UserIdentity.Id, request));
+            return Ok();
         }
 
+        //[AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
         [HttpPost("{productId}")]
         public async Task<IActionResult> PostAsync(int productId)
         {
+            var actionRes = new ActionResponse<FavouriteProductDTO>();
             if(!_productRepository.IsExisted(productId))
             {
-                return BadRequest("Sản phẩm không tồn tại");
+                actionRes.AddError("Sản phẩm không tồn tại");
+                return BadRequest(actionRes);
             }
+            if(await _favouriteRepository.IsExisted(UserIdentity.Id, productId))
+            {
+                actionRes.AddError("Sản phẩm này đã được lưu trong kho yêu thích");
+                return BadRequest(actionRes);
+            }    
             var request = new FavouriteProduct
             {
                 ProductId = productId,
@@ -77,30 +102,42 @@ namespace SAMMI.ECOM.API.Controllers.Products
                 CreatedBy = "System"
             };
             var createRes = await _favouriteRepository.CreateAndSave(request);
-            if(createRes.IsSuccess)
+            actionRes.Combine(createRes);
+            var favouriteResult = createRes.Result;
+            if(actionRes.IsSuccess)
             {
+                var favouriteDTO = _mapper.Map<FavouriteProductDTO>(favouriteResult);
+                favouriteDTO.ProductName = favouriteResult.Product.Name;
+                favouriteDTO.StockQuantity = favouriteResult.Product.StockQuantity;
+                favouriteDTO.Price = favouriteResult.Product.Price;
+                favouriteDTO.NewPrice = Math.Round(
+                    (favouriteResult.Product.StartDate?.AddTicks(0) <= DateTime.Now && favouriteResult.Product.EndDate >= DateTime.Now)
+                        ? (decimal)(favouriteResult.Product.Price * (1 - favouriteResult.Product.Discount))
+                        : favouriteResult.Product?.Price ?? 0, 2);
+                favouriteDTO.ProductImage = (await _imageRepository.GetAvatarProduct(productId)).ImageUrl;
                 if (_redisService != null && _redisService.IsConnected())
                 {
                     var cachedList = await _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
                     if (cachedList != null)
-                    {
-                        cachedList.Add(_mapper.Map<FavouriteProductDTO>(createRes.Result));
-                        await _redisService.SetCache(cacheKey, cachedList);
-                    }
+                        cachedList = new List<FavouriteProductDTO>();
+                    cachedList.Add(favouriteDTO);
+                    await _redisService.SetCache(cacheKey, cachedList);
                 }
-                return Ok(createRes);
+                actionRes.SetResult(favouriteDTO);
+                return Ok(actionRes);
             }
-            return BadRequest(createRes);
+            return BadRequest(actionRes);
         }
 
+        //[AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
         [HttpDelete("{productId}")]
         public async Task<IActionResult> DeleteAsync(int productId)
         {
-            if (!_productRepository.IsExisted(productId))
-            {
-                return BadRequest("Sản phẩm không tồn tại");
-            }
             var favourite = await _favouriteRepository.GetByCustomerAndProduct(UserIdentity.Id, productId);
+            if (favourite == null)
+            {
+                return BadRequest("Sản phẩm không tồn tại trong danh sách yêu thích");
+            }
             var deleteRes = _favouriteRepository.DeleteAndSave(favourite.Id);
             if (deleteRes.IsSuccess)
             {

@@ -1,10 +1,13 @@
-﻿using MediatR;
+﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
+using SAMMI.ECOM.Infrastructure.Repositories.Permission;
 
 namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
 {
@@ -14,22 +17,27 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
     {
         private readonly IPurchaseOrderQueries _purchaseQueries;
         private readonly IPurchaseOrderRepository _purchaseRepository;
+        private readonly IRoleRepository _roleRepository;
         public PurchaseOrdersController(
             IPurchaseOrderQueries purchaseQueries,
             IPurchaseOrderRepository purchaseOrderRepository,
+            IRoleRepository roleRepository,
             IMediator mediator,
             ILogger<PurchaseOrdersController> logger) : base(mediator, logger)
         {
             _purchaseQueries = purchaseQueries;
             _purchaseRepository = purchaseOrderRepository;
+            _roleRepository = roleRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.ImportView)]
         [HttpGet]
         public async Task<IActionResult> GetsAsync([FromQuery] RequestFilterModel request)
         {
             return Ok(await _purchaseQueries.GetList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.ImportView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetAsync(int id)
         {
@@ -40,6 +48,7 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             return Ok(await _purchaseQueries.GetPurchaseOrder(id));
         }
 
+        [AuthorizePermission(PermissionEnum.ImportCreate)]
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody] CreatePurchaseOrderCommand request)
         {
@@ -55,6 +64,7 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.ImportUpdate)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdatePurchaseOrderCommand request)
         {
@@ -79,6 +89,7 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.ImportUpdateStatus)]
         [HttpPost("update-status")]
         public async Task<IActionResult> UpdateStatusAsync([FromBody] UpdatePurchaseStatusCommand request)
         {
@@ -97,14 +108,18 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             return Ok(updateStatusRes);
         }
 
+        [AuthorizePermission(PermissionEnum.ImportUpdateStatus)]
         [HttpPost("update-purchases-status")]
         public async Task<IActionResult> UpdatePurchasesStatus([FromBody] UpdatePurchasesStatusCommand request)
         {
             var actRes = new ActionResponse();
-            if (!request.PurchaseOrderIds.All(x => _purchaseRepository.IsExisted(x)))
+            foreach (var id in request.PurchaseOrderIds)
             {
-                actRes.AddError("Một số mã đơn nhập không tồn tại");
-                return BadRequest(actRes);
+                if (!_purchaseRepository.IsExisted(id))
+                {
+                    actRes.AddError($"Đơn nhập có id {id} không tồn tại");
+                    return BadRequest(actRes);
+                }
             }
 
             foreach(var id in request.PurchaseOrderIds)
@@ -117,6 +132,34 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             }
             
             return Ok(ActionResponse.Success);
+        }
+
+        [AuthorizePermission(PermissionEnum.ImportDelete)]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var purchase = await _purchaseRepository.GetByIdAsync(id);
+            if (purchase == null)
+            {
+                return BadRequest("Đơn nhập hàng không tồn tại");
+            }
+            var role = await _roleRepository.GetByIdAsync(UserIdentity.Roles.FirstOrDefault());
+            if (role != null && role.Code == RoleTypeEnum.ADMIN.ToString())
+            {
+                if (purchase.Status != PurchaseOrderStatus.Draft.ToString() && purchase.Status != PurchaseOrderStatus.PendingApproval.ToString())
+                {
+                    return BadRequest("Không thể xóa đơn nhập hàng, đơn đã được phê duyệt hoặc đang xử lý");
+                }
+            }
+            else
+            {
+                if (purchase.Status != PurchaseOrderStatus.Draft.ToString())
+                {
+                    return BadRequest("Không thể xóa đơn nhập hàng, chỉ có thể xóa đơn nhập hàng khi trạng thái là bản nháp");
+                }
+            }
+
+            return Ok(_purchaseRepository.DeleteAndSave(id));
         }
 
         [HttpGet("get-code-by-last-id")]

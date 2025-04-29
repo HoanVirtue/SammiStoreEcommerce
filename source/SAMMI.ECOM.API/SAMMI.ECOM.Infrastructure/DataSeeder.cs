@@ -451,13 +451,14 @@ namespace SAMMI.ECOM.Infrastructure
 
                     // Phiếu nhập hàng
                     new Permission { Code = PermissionEnum.ImportCreate.ToPolicyName(), Name = "Tạo phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.ImportUpdate.ToPolicyName(), Name = "Cập nhật thông tin phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
                     new Permission { Code = PermissionEnum.ImportUpdateStatus.ToPolicyName(), Name = "Cập nhật trạng thái phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
                     new Permission { Code = PermissionEnum.ImportDelete.ToPolicyName(), Name = "Xóa phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
                     new Permission { Code = PermissionEnum.ImportView.ToPolicyName(), Name = "Xem danh sách phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
 
                     // Đơn hàng
                     new Permission { Code = PermissionEnum.OrderView.ToPolicyName(), Name = "Xem danh sách đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.OrderDetail.ToPolicyName(), Name = "Xem chi tiết đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    //new Permission { Code = PermissionEnum.OrderDetail.ToPolicyName(), Name = "Xem chi tiết đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
                     new Permission { Code = PermissionEnum.OrderUpdateStatus.ToPolicyName(), Name = "Cập nhật trạng thái đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
 
                     // Quản lý danh mục loại sản phẩm

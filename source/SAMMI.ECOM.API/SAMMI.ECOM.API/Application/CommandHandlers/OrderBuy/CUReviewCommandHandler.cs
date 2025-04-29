@@ -47,6 +47,21 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actResponse;
             }
 
+            var orderEntity = await _orderRepository.GetByIdAsync(request.OrderId);
+            if(orderEntity.OrderStatus != OrderStatusEnum.Completed.ToString())
+            {
+                if (orderEntity.OrderStatus == OrderStatusEnum.Cancelled.ToString())
+                {
+                    actResponse.AddError("Đơn hàng này đã bị hủy nên không thể đánh giá sản phẩm.");
+                    return actResponse;
+                }
+                else
+                {
+                    actResponse.AddError("Đơn hàng của bạn chưa được hoàn tất. Vui lòng chờ nhận hàng và xác nhận hoàn tất đơn hàng để có thể đánh giá sản phẩm.");
+                    return actResponse;
+                }    
+            }    
+
             if (!_productRepository.IsExisted(request.ProductId))
             {
                 actResponse.AddError("Sản phẩm không tồn tại.");

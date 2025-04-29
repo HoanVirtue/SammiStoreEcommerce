@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
 using Azure;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Products;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
@@ -27,6 +30,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             _productElasticService = productElasticService;
         }
 
+        [AuthorizePermission(PermissionEnum.ProductView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -37,12 +41,14 @@ namespace SAMMI.ECOM.API.Controllers.Products
             return Ok(await _productQueries.GetList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.ProductView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             return Ok(await _productQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.ProductCreate)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CreateProductCommand request)
         {
@@ -55,13 +61,11 @@ namespace SAMMI.ECOM.API.Controllers.Products
             {
                 return BadRequest(response);
             }
-            //if(_productElasticService != null && await _productElasticService.IsConnected())
-            //{
-            //    _productElasticService.AddOrUpdateProduct(await _productQueries.GetById(response.Result.Id));
-            //}
+
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.ProductUpdate)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] UpdateProductCommand request)
         {
@@ -79,13 +83,11 @@ namespace SAMMI.ECOM.API.Controllers.Products
             {
                 return BadRequest(response);
             }
-            //if (_productElasticService != null && await _productElasticService.IsConnected())
-            //{
-            //    _productElasticService.AddOrUpdateProduct(await _productQueries.GetById(response.Result.Id));
-            //}
+
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.ProductDelete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
@@ -100,6 +102,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             return Ok(_productRepository.DeleteAndSave(id));
         }
 
+        [AuthorizePermission(PermissionEnum.ProductDelete)]
         [HttpDelete]
         public async Task<IActionResult> DeleteRange([FromBody] List<int> ids)
         {
@@ -124,18 +127,21 @@ namespace SAMMI.ECOM.API.Controllers.Products
             return Ok(await _productQueries.GetCodeByLastId());
         }
 
+        [AllowAnonymous]
         [HttpGet("get-suggest")]
         public async Task<IActionResult> GetDataSuggest([FromQuery]string keyWord, [FromQuery] int size = 5)
         {
             return Ok(await _productElasticService.SuggestProducts(keyWord, size));
         }
 
+        [AllowAnonymous]
         [HttpGet("get-related-products")]
         public async Task<IActionResult> GetRelatedProductsAsync(int productId, int numberTop = 5)
         {
             return Ok(await _productQueries.GetRelated(productId, numberTop));
         }
 
+        [AuthorizePermission(PermissionEnum.ProductCreate)]
         [HttpPost("push-product-elastic")]
         public async Task<IActionResult> PushProductInElasticAsync()
         {

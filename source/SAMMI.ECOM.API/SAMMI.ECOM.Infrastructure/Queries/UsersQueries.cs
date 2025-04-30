@@ -14,26 +14,38 @@ namespace SAMMI.ECOM.Infrastructure.Queries
     public interface IUsersQueries : IQueryRepository
     {
         Task<IEnumerable<EmployeeDTO>> GetEmployeeAll(RequestFilterModel? filterModel = null);
+
         Task<IPagedList<EmployeeDTO>> GetEmployeeList(RequestFilterModel filterModel);
+
         Task<EmployeeDTO> GetEmployeeById(int id);
+
         EmployeeDTO FindByUsername(string username);
+
         EmployeeDTO FindById(int id);
+
         CustomerDTO FindCustomerByUsername(string username);
+
         CustomerDTO FindCustomerById(int id);
+
         Task<IEnumerable<PermissionDTO>> GetPermissionOfRole(int roleId);
 
         Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null);
+
         Task<IPagedList<CustomerDTO>> GetCustomerList(RequestFilterModel filterModel);
+
         Task<CustomerDTO> GetCustomerById(int id);
 
         Task<IEnumerable<SupplierDTO>> GetSupplierAll(RequestFilterModel? filterModel = null);
+
         Task<IPagedList<SupplierDTO>> GetSupplierList(RequestFilterModel filterModel);
+
         Task<SupplierDTO> GetSupplierById(int id);
 
         Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Employee);
 
         Task<UserDTO> GetDataByIdV2(int id);
     }
+
     public class UsersQueries : QueryRepository<User>, IUsersQueries
     {
         public UsersQueries(SammiEcommerceContext context) : base(context)
@@ -153,7 +165,6 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                     sqlBuilder.Select("t4.Id AS ProvinceId");
                     sqlBuilder.Select("t4.Name AS ProvinceName");
 
-
                     sqlBuilder.Where("t1.Type = @type", new { type = type.ToString() });
                     sqlBuilder.Where("t1.Id = @id", new { id = id });
                     return conn.QueryFirstOrDefaultAsync<T>(sqlTemplate.RawSql, sqlTemplate.Parameters);
@@ -189,9 +200,9 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                 t1.Id AS RoleId, t1.Name AS RoleName,
                 t2.Allow,
                 t3.Id AS PermissionId, t3.Name AS PermissionName
-                FROM role t1
-                LEFT JOIN rolepermission t2 ON t1.Id = t2.RoleId AND t2.IsDeleted != 1
-                LEFT JOIN permission t3 on t2.PermissionId = t3.Id AND t3.IsDeleted != 1
+                FROM Role t1
+                LEFT JOIN RolePermission t2 ON t1.Id = t2.RoleId AND t2.IsDeleted != 1
+                LEFT JOIN Permission t3 on t2.PermissionId = t3.Id AND t3.IsDeleted != 1
                 WHERE t1.IsDeleted != 1
                 AND t1.Id = @roleId
             ",
@@ -283,7 +294,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                     sqlBuilder.LeftJoin("Province t4 ON t3.ProvinceId = t4.Id AND t4.IsDeleted != 1");
                     sqlBuilder.LeftJoin("Image t5 ON t1.AvatarId = t5.Id AND t5.IsDeleted != 1");
 
-                    sqlBuilder.Where("t1.Id = @id", new {id});
+                    sqlBuilder.Where("t1.Id = @id", new { id });
                     return conn.QueryFirstOrDefaultAsync<UserDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 });
         }

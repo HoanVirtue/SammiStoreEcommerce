@@ -593,6 +593,7 @@ namespace SAMMI.ECOM.Infrastructure
                     {
                         Code = "CUSTOMER",
                         Name = "Khách hàng",
+                        IsLock = true,
                         IsActive = true,
                         IsDeleted = false,
                         CreatedDate = DateTime.Now,

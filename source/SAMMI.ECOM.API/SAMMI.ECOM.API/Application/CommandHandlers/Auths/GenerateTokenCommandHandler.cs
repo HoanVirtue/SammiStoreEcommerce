@@ -98,8 +98,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
             var userPermissions = await _userQueries.GetPermissionOfRole(roleId);
             if (userPermissions != null && userPermissions.Any())
             {
-                var permissionIds = string.Join(',', userPermissions.Select(p => p.PermissionId.ToString()));
-                claimsIdentity.AddClaim(new Claim(GlobalClaimsTypes.Permissions, permissionIds.Compress()));
+                var permissionCodes = string.Join(',', userPermissions.Select(p => p.PermissionCode.ToString()));
+                claimsIdentity.AddClaim(new Claim(GlobalClaimsTypes.Permissions, permissionCodes.Compress()));
             }
 
             var userRoleIds = userPermissions?.DistinctBy(x => x.RoleId).Select(x => x.RoleId).ToArray();

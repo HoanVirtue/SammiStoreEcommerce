@@ -668,6 +668,54 @@ namespace SAMMI.ECOM.Domain.Enums
             PermissionEnum.CustomerDeliveryAddressManagement
         };
 
+        public static readonly PermissionEnum[] PERMISSION_DEFAULT_CODES = new[]
+        {
+            // Quyền tài khoản
+            PermissionEnum.AccountView,
+            PermissionEnum.AccountUpdate,
+            PermissionEnum.AccountChangePassword,
+            PermissionEnum.AccountLogout,
+
+            // Quyền quản lý sản phẩm (admin)
+            PermissionEnum.ProductView,
+            PermissionEnum.ProductSearch,
+
+
+            // Quyền quản lý danh mục sản phẩm (admin)
+            PermissionEnum.ProductCategoryView,
+
+            // Quyền quản lý thương hiệu (admin)
+            PermissionEnum.BrandView,
+
+            // Quyền quản lý thông báo (admin)
+            PermissionEnum.NotificationView,
+            PermissionEnum.NotificationUpdate,
+
+            // Quyền quản lý trò chuyện (admin)
+            PermissionEnum.ChatManager,
+
+            // Quyền quản lý tỉnh/thành phố
+            PermissionEnum.ProvinceView,
+
+            // Quyền quản lý quận/huyện
+            PermissionEnum.DistrictView,
+
+            // Quyền quản lý phường/xã
+            PermissionEnum.WardView,
+
+            // Quyền quản lý phương thức thanh toán
+            PermissionEnum.PaymentMethodView,
+
+            // Quyền quản lý banner
+            PermissionEnum.BannerView,
+
+            // Quyền quản lý event
+            PermissionEnum.EventView,
+
+            // quyền quản lý voucher
+            PermissionEnum.VoucherView,
+        };
+
         public static readonly PermissionEnum[] AllPermissionCodes = Enum.GetValues(typeof(PermissionEnum))
             .Cast<PermissionEnum>()
             .ToArray();

@@ -188,7 +188,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                 SELECT
                 t1.Id AS RoleId, t1.Name AS RoleName,
                 t2.Allow,
-                t3.Id AS PermissionId, t3.Name AS PermissionName
+                t3.Id AS PermissionId, t3.Name AS PermissionName, t3.Code AS PermissionCode
                 FROM role t1
                 LEFT JOIN rolepermission t2 ON t1.Id = t2.RoleId AND t2.IsDeleted != 1
                 LEFT JOIN permission t3 on t2.PermissionId = t3.Id AND t3.IsDeleted != 1

@@ -401,114 +401,114 @@ namespace SAMMI.ECOM.Infrastructure
                 List<Permission> permissions = new List<Permission>()
                 {
                     // Nhân viên
-                    new Permission { Code = PermissionEnum.EmployeeCreate.ToPolicyName(), Name = "Thêm mới nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.EmployeeUpdate.ToPolicyName(), Name = "Cập nhật thông tin nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.EmployeeDelete.ToPolicyName(), Name = "Xóa nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.EmployeeView.ToPolicyName(), Name = "Xem danh sách nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.EmployeeCreate.ToPolicyName(), Name = "Thêm mới nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.EmployeeUpdate.ToPolicyName(), Name = "Cập nhật thông tin nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.EmployeeDelete.ToPolicyName(), Name = "Xóa nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.EmployeeView.ToPolicyName(), Name = "Xem danh sách nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Nhà cung cấp
-                    new Permission { Code = PermissionEnum.SupplierCreate.ToPolicyName(), Name = "Thêm mới nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.SupplierUpdate.ToPolicyName(), Name = "Cập nhật thông tin nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.SupplierDelete.ToPolicyName(), Name = "Xóa nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.SupplierView.ToPolicyName(), Name = "Xem danh sách nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                     new Permission { Code = PermissionEnum.SupplierCreate.ToPolicyName(), Name = "Thêm mới nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.SupplierUpdate.ToPolicyName(), Name = "Cập nhật thông tin nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.SupplierDelete.ToPolicyName(), Name = "Xóa nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.SupplierView.ToPolicyName(), Name = "Xem danh sách nhà cung cấp", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
-                    // Quản lý tỉnh/thành phố
-                    //new Permission { Code = PermissionEnum.ProvinceCreate.ToPolicyName(), Name = "Thêm mới tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ProvinceUpdate.ToPolicyName(), Name = "Cập nhật thông tin tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    //new Permission { Code = PermissionEnum.ProvinceDelete.ToPolicyName(), Name = "Xóa tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                             // Quản lý tỉnh/thành phố
+                    //new Permission { Code = PermissionEnum.ProvinceCreate.ToPolicyName(), Name = "Thêm mới tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ProvinceUpdate.ToPolicyName(), Name = "Cập nhật thông tin tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    //new Permission { Code = PermissionEnum.ProvinceDelete.ToPolicyName(), Name = "Xóa tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
                     new Permission { Code = PermissionEnum.ProvinceView.ToPolicyName(), Name = "Xem danh sách tỉnh/thành phố", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
 
                     // Quản lý quận/huyện
-                    //new Permission { Code = PermissionEnum.DistrictCreate.ToPolicyName(), Name = "Thêm mới quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    //new Permission { Code = PermissionEnum.DistrictUpdate.ToPolicyName(), Name = "Cập nhật thông tin quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    //new Permission { Code = PermissionEnum.DistrictDelete.ToPolicyName(), Name = "Xóa quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    //new Permission { Code = PermissionEnum.DistrictCreate.ToPolicyName(), Name = "Thêm mới quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    //new Permission { Code = PermissionEnum.DistrictUpdate.ToPolicyName(), Name = "Cập nhật thông tin quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    //new Permission { Code = PermissionEnum.DistrictDelete.ToPolicyName(), Name = "Xóa quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
                     new Permission { Code = PermissionEnum.DistrictView.ToPolicyName(), Name = "Xem danh sách quận/huyện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
 
                     // Quản lý phường/xã
-                    //new Permission { Code = PermissionEnum.WardCreate.ToPolicyName(), Name = "Thêm mới phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    //new Permission { Code = PermissionEnum.WardUpdate.ToPolicyName(), Name = "Cập nhật thông tin phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    //new Permission { Code = PermissionEnum.WardDelete.ToPolicyName(), Name = "Xóa phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    //new Permission { Code = PermissionEnum.WardCreate.ToPolicyName(), Name = "Thêm mới phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    //new Permission { Code = PermissionEnum.WardUpdate.ToPolicyName(), Name = "Cập nhật thông tin phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    //new Permission { Code = PermissionEnum.WardDelete.ToPolicyName(), Name = "Xóa phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
                     new Permission { Code = PermissionEnum.WardView.ToPolicyName(), Name = "Xem danh sách phường/xã", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
 
                     // Danh mục phương thức thanh toán
-                    new Permission { Code = PermissionEnum.PaymentMethodCreate.ToPolicyName(), Name = "Thêm mới phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    //new Permission { Code = PermissionEnum.PaymentMethodUpdate.ToPolicyName(), Name = "Cập nhật thông tin phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    //new Permission { Code = PermissionEnum.PaymentMethodDelete.ToPolicyName(), Name = "Xóa phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.PaymentMethodView.ToPolicyName(), Name = "Xem danh sách phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.PaymentMethodCreate.ToPolicyName(), Name = "Thêm mới phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    //new Permission { Code = PermissionEnum.PaymentMethodUpdate.ToPolicyName(), Name = "Cập nhật thông tin phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    //new Permission { Code = PermissionEnum.PaymentMethodDelete.ToPolicyName(), Name = "Xóa phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.PaymentMethodView.ToPolicyName(), Name = "Xem danh sách phương thức thanh toán", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System"},
 
                     // Danh mục banner
-                    new Permission { Code = PermissionEnum.BannerCreate.ToPolicyName(), Name = "Thêm mới banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.BannerUpdate.ToPolicyName(), Name = "Cập nhật thông tin banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.BannerDelete.ToPolicyName(), Name = "Xóa banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.BannerView.ToPolicyName(), Name = "Xem danh sách banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.BannerCreate.ToPolicyName(), Name = "Thêm mới banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.BannerUpdate.ToPolicyName(), Name = "Cập nhật thông tin banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.BannerDelete.ToPolicyName(), Name = "Xóa banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.BannerView.ToPolicyName(), Name = "Xem danh sách banner", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Vai trò & quyền
-                    new Permission { Code = PermissionEnum.RoleCreate.ToPolicyName(), Name = "Thêm mới vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.RoleUpdate.ToPolicyName(), Name = "Cập nhật thông tin vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.RoleDelete.ToPolicyName(), Name = "Xóa vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.RoleView.ToPolicyName(), Name = "Xem danh sách vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.RoleAssignPermission.ToPolicyName(), Name = "Gán quyền cho vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.RoleCreate.ToPolicyName(), Name = "Thêm mới vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.RoleUpdate.ToPolicyName(), Name = "Cập nhật thông tin vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.RoleDelete.ToPolicyName(), Name = "Xóa vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.RoleView.ToPolicyName(), Name = "Xem danh sách vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.RoleAssignPermission.ToPolicyName(), Name = "Gán quyền cho vai trò", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Phiếu nhập hàng
-                    new Permission { Code = PermissionEnum.ImportCreate.ToPolicyName(), Name = "Tạo phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ImportUpdate.ToPolicyName(), Name = "Cập nhật thông tin phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ImportUpdateStatus.ToPolicyName(), Name = "Cập nhật trạng thái phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ImportDelete.ToPolicyName(), Name = "Xóa phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ImportView.ToPolicyName(), Name = "Xem danh sách phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.ImportCreate.ToPolicyName(), Name = "Tạo phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ImportUpdate.ToPolicyName(), Name = "Cập nhật thông tin phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ImportUpdateStatus.ToPolicyName(), Name = "Cập nhật trạng thái phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ImportDelete.ToPolicyName(), Name = "Xóa phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ImportView.ToPolicyName(), Name = "Xem danh sách phiếu nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Đơn hàng
-                    new Permission { Code = PermissionEnum.OrderView.ToPolicyName(), Name = "Xem danh sách đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    //new Permission { Code = PermissionEnum.OrderDetail.ToPolicyName(), Name = "Xem chi tiết đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.OrderUpdateStatus.ToPolicyName(), Name = "Cập nhật trạng thái đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.OrderView.ToPolicyName(), Name = "Xem danh sách đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    //new Permission { Code = PermissionEnum.OrderDetail.ToPolicyName(), Name = "Xem chi tiết đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.OrderUpdateStatus.ToPolicyName(), Name = "Cập nhật trạng thái đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Quản lý danh mục loại sản phẩm
-                    new Permission { Code = PermissionEnum.ProductCategoryCreate.ToPolicyName(), Name = "Thêm mới danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ProductCategoryUpdate.ToPolicyName(), Name = "Cập nhật thông tin danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ProductCategoryDelete.ToPolicyName(), Name = "Xóa danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ProductCategoryView.ToPolicyName(), Name = "Xem danh sách danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.ProductCategoryCreate.ToPolicyName(), Name = "Thêm mới danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ProductCategoryUpdate.ToPolicyName(), Name = "Cập nhật thông tin danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ProductCategoryDelete.ToPolicyName(), Name = "Xóa danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ProductCategoryView.ToPolicyName(), Name = "Xem danh sách danh mục loại sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Quản lý thương hiệu
-                    new Permission { Code = PermissionEnum.BrandCreate.ToPolicyName(), Name = "Thêm mới thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.BrandUpdate.ToPolicyName(), Name = "Cập nhật thông tin thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.BrandDelete.ToPolicyName(), Name = "Xóa thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.BrandView.ToPolicyName(), Name = "Xem danh sách thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.BrandCreate.ToPolicyName(), Name = "Thêm mới thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.BrandUpdate.ToPolicyName(), Name = "Cập nhật thông tin thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.BrandDelete.ToPolicyName(), Name = "Xóa thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.BrandView.ToPolicyName(), Name = "Xem danh sách thương hiệu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Sản phẩm
-                    new Permission { Code = PermissionEnum.ProductCreate.ToPolicyName(), Name = "Thêm mới sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ProductUpdate.ToPolicyName(), Name = "Cập nhật thông tin sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ProductDelete.ToPolicyName(), Name = "Xóa sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ProductView.ToPolicyName(), Name = "Xem danh sách sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ProductSearch.ToPolicyName(), Name = "Tìm kiếm sản phẩm sử dụng Elasticsearch", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.ProductCreate.ToPolicyName(), Name = "Thêm mới sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ProductUpdate.ToPolicyName(), Name = "Cập nhật thông tin sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ProductDelete.ToPolicyName(), Name = "Xóa sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ProductView.ToPolicyName(), Name = "Xem danh sách sản phẩm", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ProductSearch.ToPolicyName(), Name = "Tìm kiếm sản phẩm sử dụng Elasticsearch", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Quản lý thông báo hệ thống
-                    new Permission { Code = PermissionEnum.NotificationView.ToPolicyName(), Name = "Xem thông báo từ hệ thống", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.NotificationUpdate.ToPolicyName(), Name = "Cập nhật trạng thái thông báo", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.NotificationView.ToPolicyName(), Name = "Xem thông báo từ hệ thống", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.NotificationUpdate.ToPolicyName(), Name = "Cập nhật trạng thái thông báo", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Quản lý chat trực tuyến
-                    new Permission { Code = PermissionEnum.ChatManager.ToPolicyName(), Name = "Quản lý cuộc trò chuyện trực tuyến", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.ChatManager.ToPolicyName(), Name = "Quản lý cuộc trò chuyện trực tuyến", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Thống kê
-                    new Permission { Code = PermissionEnum.ReportRevenue.ToPolicyName(), Name = "Thống kê doanh thu đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ReportStock.ToPolicyName(), Name = "Thống kê số lượng tồn kho", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.ReportImport.ToPolicyName(), Name = "Thống kê nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.ReportRevenue.ToPolicyName(), Name = "Thống kê doanh thu đơn hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ReportStock.ToPolicyName(), Name = "Thống kê số lượng tồn kho", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.ReportImport.ToPolicyName(), Name = "Thống kê nhập hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Tài khoản & bảo mật (người dùng)
-                    new Permission { Code = PermissionEnum.AccountView.ToPolicyName(), Name = "Xem thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.AccountUpdate.ToPolicyName(), Name = "Cập nhật thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.AccountView.ToPolicyName(), Name = "Xem thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System"},
+                    new Permission { Code = PermissionEnum.AccountUpdate.ToPolicyName(), Name = "Cập nhật thông tin tài khoản", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System"},
                     new Permission { Code = PermissionEnum.AccountChangePassword.ToPolicyName(), Name = "Đổi mật khẩu", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
                     new Permission { Code = PermissionEnum.AccountLogout.ToPolicyName(), Name = "Đăng xuất", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
 
                     // Danh mục sự kiện
-                    new Permission { Code = PermissionEnum.EventCreate.ToPolicyName(), Name = "Thêm mới sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.EventUpdate.ToPolicyName(), Name = "Cập nhật thông tin sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.EventDelete.ToPolicyName(), Name = "Xóa sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.EventView.ToPolicyName(), Name = "Xem danh sách sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.EventCreate.ToPolicyName(), Name = "Thêm mới sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.EventUpdate.ToPolicyName(), Name = "Cập nhật thông tin sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.EventDelete.ToPolicyName(), Name = "Xóa sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.EventView.ToPolicyName(), Name = "Xem danh sách sự kiện", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Danh mục voucher
-                    new Permission { Code = PermissionEnum.VoucherCreate.ToPolicyName(), Name = "Thêm mới voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.VoucherUpdate.ToPolicyName(), Name = "Cập nhật thông tin voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.VoucherDelete.ToPolicyName(), Name = "Xóa voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
-                    new Permission { Code = PermissionEnum.VoucherView.ToPolicyName(), Name = "Xem danh sách voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+                    new Permission { Code = PermissionEnum.VoucherCreate.ToPolicyName(), Name = "Thêm mới voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.VoucherUpdate.ToPolicyName(), Name = "Cập nhật thông tin voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.VoucherDelete.ToPolicyName(), Name = "Xóa voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.VoucherView.ToPolicyName(), Name = "Xem danh sách voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
 
                     // Role khách hàng
                     // Sản phẩm

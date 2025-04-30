@@ -64,6 +64,14 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<MyVoucher, MyVoucherDTO>();
 
             CreateMap<FavouriteProduct, FavouriteProductDTO>();
+
+            CreateMap<CURoleCommand, Role>();
+            CreateMap<Role, RoleDTO>();
+
+            CreateMap<CURolePermissionCommand, RolePermission>();
+            CreateMap<RolePermission, RolePermissionDTO>();
+
+            CreateMap<Permission, PermissionDTO>();
             //CreateMap<>();
         }
     }

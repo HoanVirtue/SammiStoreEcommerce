@@ -1,6 +1,6 @@
 ﻿namespace SAMMI.ECOM.Domain.DomainModels.Auth
 {
-    public class PermissionDTO
+    public class RolePermissionDTO
     {
         public int PermissionId { get; set; }
         public string PermissionCode { get; set; }

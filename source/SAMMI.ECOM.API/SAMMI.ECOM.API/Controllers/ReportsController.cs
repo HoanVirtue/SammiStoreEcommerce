@@ -2,8 +2,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
 using SAMMI.ECOM.Domain.DomainModels.Reports;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Queries.Products;
@@ -44,6 +46,7 @@ namespace SAMMI.ECOM.API.Controllers
             _orderRepository = orderRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.ReportRevenue)]
         [HttpGet("sales-revenue")]
         public async Task<IActionResult> SalesRevenueAsync([FromQuery]SaleRevenueFilterModel request)
         {
@@ -54,6 +57,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(await _orderQueries.RevenueOrder(request));
         }
 
+        [AuthorizePermission(PermissionEnum.ReportImport)]
         [HttpGet("get-import-statistics")]
         public async Task<IActionResult> ImportStatisticsAsync([FromQuery] ImportStatisticFilterModel request)
         {
@@ -73,6 +77,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(await _purchaseQueries.GetImportStatistic(request));
         }
 
+        [AuthorizePermission(PermissionEnum.ReportStock)]
         [HttpGet("inventory-statistics")]
         public async Task<IActionResult> InventoryStatistics([FromQuery]InventoryFilterModel request)
         {

@@ -41,7 +41,7 @@ namespace SAMMI.ECOM.API.Controllers
             _imageRepository = imageRepository;
         }
 
-
+        [AuthorizePermission(PermissionEnum.EmployeeView)]
         [HttpGet("employee")]
         public async Task<IActionResult> GetEmployee([FromQuery] RequestFilterModel request)
         {
@@ -52,12 +52,14 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(await _usersQueries.GetEmployeeAll(request));
         }
 
+        [AuthorizePermission(PermissionEnum.EmployeeView)]
         [HttpGet("employee/{id}")]
         public async Task<IActionResult> GetEmployeeById(int id)
         {
             return Ok(await _usersQueries.GetEmployeeById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.EmployeeCreate)]
         [HttpPost("employee")]
         public async Task<IActionResult> PostEmployee([FromBody] CreateEmployeeCommand request)
         {
@@ -73,6 +75,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.EmployeeUpdate)]
         [HttpPut("employee/{id}")]
         public async Task<IActionResult> PutEmployee(int id, [FromBody] UpdateEmployeeCommand request)
         {
@@ -103,12 +106,14 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(await _usersQueries.GetCustomerList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerView)]
         [HttpGet("customer/{id}")]
         public async Task<IActionResult> GetCustomerById(int id)
         {
             return Ok(await _usersQueries.GetCustomerById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerCreate)]
         [HttpPost("customer")]
         public async Task<IActionResult> PostCustomer([FromBody] CUCustomerCommand request)
         {
@@ -124,6 +129,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerUpdate)]
         [HttpPut("customer/{id}")]
         public async Task<IActionResult> PutCustomer(int id, [FromBody] CUCustomerCommand request)
         {
@@ -144,6 +150,7 @@ namespace SAMMI.ECOM.API.Controllers
         }
 
         // supplier
+        [AuthorizePermission(PermissionEnum.SupplierView)]
         [HttpGet("supplier")]
         public async Task<IActionResult> GetSupplier([FromQuery] RequestFilterModel request)
         {
@@ -152,12 +159,14 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(await _usersQueries.GetSupplierList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.SupplierView)]
         [HttpGet("supplier/{id}")]
         public async Task<IActionResult> GetSupplierById(int id)
         {
             return Ok(await _usersQueries.GetSupplierById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.SupplierCreate)]
         [HttpPost("supplier")]
         public async Task<IActionResult> PostSupplier([FromBody] CUSupplierCommand request)
         {
@@ -173,6 +182,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.SupplierUpdate)]
         [HttpPut("supplier/{id}")]
         public async Task<IActionResult> PutSupplier(int id, [FromBody] CUSupplierCommand request)
         {
@@ -192,6 +202,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.SupplierDelete)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserAsync(int id)
         {
@@ -213,6 +224,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(_userRepository.DeleteAndSave(id));
         }
 
+        [AuthorizePermission(PermissionEnum.SupplierDelete)]
         [HttpDelete]
         public async Task<IActionResult> DeleteRangeAsync([FromBody] List<int> ids)
         {
@@ -253,12 +265,15 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(await _usersQueries.GetCodeByLastId(type));
         }
 
+        [AuthorizePermission(PermissionEnum.AccountView)]
         [HttpGet("get-current-user")]
         public async Task<IActionResult> GetCurrentUser()
         {
             return Ok(await _usersQueries.GetDataByIdV2(UserIdentity.Id));
         }
 
+
+        [AuthorizePermission(PermissionEnum.AccountUpdate)]
         [HttpPost("update-customer-info")]
         public async Task<IActionResult> UpdateCustomerInfo([FromBody]UpdateCustomerInfoRequest request)
         {
@@ -270,6 +285,7 @@ namespace SAMMI.ECOM.API.Controllers
             return BadRequest(updateRes);
         }
 
+        [AuthorizePermission(PermissionEnum.AccountUpdate)]
         [HttpPost("update-employee-info")]
         public async Task<IActionResult> UpdateEmployeeInfo([FromBody] UpdateEmployeeInfoRequest request)
         {
@@ -281,12 +297,14 @@ namespace SAMMI.ECOM.API.Controllers
             return BadRequest(updateRes);
         }
 
+        [AuthorizePermission(PermissionEnum.AccountView)]
         [HttpGet("get-avatars")]
         public async Task<IActionResult> GetListAvatarAsync()
         {
             return Ok(await _imageRepository.GetDataByUserId(UserIdentity.Id));
         }
 
+        [AuthorizePermission(PermissionEnum.AccountUpdate)]
         [HttpPost("update-avatar")]
         public async Task<IActionResult> UpdateAvatarAsync([FromBody]string ImageBase64)
         {
@@ -323,6 +341,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(actionRes);
         }
 
+        [AuthorizePermission(PermissionEnum.AccountUpdate)]
         [HttpPost("update-avatar-byid")]
         public async Task<IActionResult> UpdateAvatarAsync([FromBody] int imageId)
         {

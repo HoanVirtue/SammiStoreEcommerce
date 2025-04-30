@@ -11,6 +11,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         Task<List<ImageDTO>> GetDataByProductId(int productId);
         Task<List<ImageDTO>> GetDataByUserId(int userId);
         Task<Image> GetDataByUserIdAndImageId(int userId, int imageId);
+        Task<ImageDTO> GetAvatarProduct(int productId);
     }
 
     public class ImageRepository : CrudRepository<Image>, IImageRepository, IDisposable
@@ -65,6 +66,16 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         public Task<Image> GetDataByUserIdAndImageId(int userId, int imageId)
         {
             return DbSet.SingleOrDefaultAsync(x => x.Id == imageId && ConvertToUserId(x.PublicId) == userId && x.IsDeleted != true);
+        }
+
+        public async Task<ImageDTO> GetAvatarProduct(int productId)
+        {
+            var query = from i in DbSet
+                        join pi in _context.ProductImages on i.Id equals pi.ImageId
+                        where pi.ProductId == productId && i.IsDeleted != true && pi.IsDeleted != true
+                        orderby pi.DisplayOrder descending
+                        select i;
+            return _mapper.Map<ImageDTO>(await query.FirstOrDefaultAsync());
         }
     }
 }

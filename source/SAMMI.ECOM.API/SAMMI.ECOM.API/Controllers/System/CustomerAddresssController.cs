@@ -1,8 +1,10 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Domain.Commands;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.CategoryAddress;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
@@ -27,18 +29,21 @@ namespace SAMMI.ECOM.API.Controllers.System
             UserIdentity = currentUser;
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerDeliveryAddressManagement)]
         [HttpGet("get-current-address")]
         public async Task<IActionResult> GetCurrentAddressAsync()
         {
             return Ok(await _addressQueries.GetCurrentAddress(UserIdentity.Id));
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerDeliveryAddressManagement)]
         [HttpGet("get-all-current-address")]
         public async Task<IActionResult> GetAllCurrentAddressAsync()
         {
             return Ok(await _addressQueries.GetAllByUserId(UserIdentity.Id));
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerDeliveryAddressManagement)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUCustomerAddressCommand request)
         {
@@ -54,6 +59,7 @@ namespace SAMMI.ECOM.API.Controllers.System
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerDeliveryAddressManagement)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CUCustomerAddressCommand request)
         {
@@ -74,6 +80,7 @@ namespace SAMMI.ECOM.API.Controllers.System
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerDeliveryAddressManagement)]
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {

@@ -42,7 +42,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _config = config;
         }
 
-        //[AuthorizePermission(PermissionEnum.CustomerCartView)]
+        [AuthorizePermission(PermissionEnum.CustomerCartView)]
         [HttpGet("get-cart")]
         public async Task<IActionResult> GetCart()
         {
@@ -65,7 +65,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         }
 
         //customer
-        //[AuthorizePermission(PermissionEnum.CustomerCartAdd)]
+        [AuthorizePermission(PermissionEnum.CustomerCartAdd)]
         [HttpPost("add-to-cart")]
         public async Task<IActionResult> AddToCart([FromBody] CreateCartDetailCommand request)
         {
@@ -82,7 +82,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
-        //[AuthorizePermission(PermissionEnum.CustomerCartRemove)]
+        [AuthorizePermission(PermissionEnum.CustomerCartRemove)]
         [HttpDelete("{productId}")]
         public async Task<IActionResult> DeleteProductFromCart(int productId)
         {

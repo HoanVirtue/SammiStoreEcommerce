@@ -107,6 +107,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     string query = $@"
                         SELECT 
                             COUNT(*) AS TotalRating,
+                            AVG(rating) AS AverageRating,
                             SUM(CASE WHEN rating = 5 THEN 1 ELSE 0 END) AS TotalRating5,
                             SUM(CASE WHEN rating = 4 THEN 1 ELSE 0 END) AS TotalRating4,
                             SUM(CASE WHEN rating = 3 THEN 1 ELSE 0 END) AS TotalRating3,

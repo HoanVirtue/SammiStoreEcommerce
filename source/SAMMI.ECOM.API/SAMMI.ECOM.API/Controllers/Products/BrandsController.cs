@@ -1,7 +1,10 @@
-﻿using MediatR;
+﻿using System.Threading.Tasks;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Brands;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
@@ -21,6 +24,7 @@ namespace SAMMI.ECOM.API.Controllers.Brands
             _brandRepository = brandRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.BrandView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -35,12 +39,14 @@ namespace SAMMI.ECOM.API.Controllers.Brands
             return Ok(await _brandQueries.GetList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.BrandView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
             return Ok(await _brandQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.BrandCreate)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUBrandCommand request)
         {
@@ -56,6 +62,7 @@ namespace SAMMI.ECOM.API.Controllers.Brands
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.BrandUpdate)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CUBrandCommand request)
         {
@@ -75,29 +82,47 @@ namespace SAMMI.ECOM.API.Controllers.Brands
             return Ok(response);
         }
 
+        [AuthorizePermission(PermissionEnum.BrandDelete)]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             if (!_brandRepository.IsExisted(id))
             {
                 return BadRequest("Thương hiệu không tồn tại.");
             }
+            var checkRes = await _brandRepository.IsExistAnotherTbl(id);
+            if (!checkRes.IsSuccess)
+            {
+                return BadRequest(checkRes);
+            }
             return Ok(_brandRepository.DeleteAndSave(id));
         }
 
+        [AuthorizePermission(PermissionEnum.BrandDelete)]
         [HttpDelete]
-        public IActionResult DeleteRange([FromBody] List<int> ids)
+        public async Task<IActionResult> DeleteRangeAsync([FromBody] List<int> ids)
         {
             var actErrorResponse = new ActionResponse();
             if (ids == null || ids.Count == 0)
             {
                 return BadRequest();
             }
-            if (!ids.All(id => _brandRepository.IsExisted(id)))
+
+            foreach (var id in ids)
             {
-                actErrorResponse.AddError("Một số thương hiệu không tồn tại.");
-                return BadRequest(actErrorResponse);
+                if (!_brandRepository.IsExisted(id))
+                {
+                    actErrorResponse.AddError($"Thương hiệu có id {id} không tồn tại.");
+                    return BadRequest(actErrorResponse);
+                }
+
+                var checkRes = await _brandRepository.IsExistAnotherTbl(id);
+                if (!checkRes.IsSuccess)
+                {
+                    return BadRequest(checkRes);
+                }
             }
+
             return Ok(_brandRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }
 

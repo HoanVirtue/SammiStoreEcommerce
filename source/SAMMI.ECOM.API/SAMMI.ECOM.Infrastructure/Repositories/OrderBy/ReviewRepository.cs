@@ -7,6 +7,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface IReviewRepository : ICrudRepository<Review>
     {
         Task<bool> IsExisted(int orderId, int productId, int userId);
+        Task<bool> IsExisted(int userId, int reviewId);
     }
     public class ReviewRepository : CrudRepository<Review>, IReviewRepository, IDisposable
     {
@@ -31,6 +32,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                         where r.ProductId == productId && o.CustomerId == userId && o.Id == orderId
                         select r.Id;
             return query.AnyAsync();
+        }
+
+        public Task<bool> IsExisted(int userId, int reviewId)
+        {
+            return DbSet.Where(r => r.Id == reviewId && r.UserId == userId).AnyAsync();
         }
     }
 }

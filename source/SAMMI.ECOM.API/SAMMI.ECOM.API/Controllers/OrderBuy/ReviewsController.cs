@@ -1,10 +1,13 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 
@@ -26,24 +29,32 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _reviewRepository = reviewRepository;
         }
 
+        [AllowAnonymous]
         [HttpGet("get-reviews-product")]
         public async Task<IActionResult> GetReviewsOfProductAsync([FromQuery]ReviewFilterModel request)
         {
+            if(request.ProductId == null)
+            {
+                return BadRequest("Mã sản phẩm không được bỏ trống.");
+            }    
             return Ok(await _reviewQueries.GetList(request));
         }
 
+        [AllowAnonymous]
         [HttpGet("get-overall-rating/{productId}")]
         public async Task<IActionResult> GetOverallRating(int productId)
         {
             return Ok(await _reviewQueries.GetTotalOverall(productId));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetReviewAsync(int reviewId)
         {
             return Ok(await _reviewQueries.GetById(reviewId));
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerProductReview)]
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody]CUReviewCommand request)
         {
@@ -59,6 +70,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerProductReview)]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAsync(int id, [FromBody] CUReviewCommand request)
         {
@@ -78,12 +90,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.CustomerProductReview)]
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
-            if (!_reviewRepository.IsExisted(id))
+            if (!await _reviewRepository.IsExisted(UserIdentity.Id, id))
             {
-                return BadRequest("Đánh giá không tồn tại.");
+                return BadRequest("Đánh giá không tồn tại hoặc bạn không có quyền xóa đánh giá này.");
             }
             return Ok(_reviewRepository.DeleteAndSave(id));
         }

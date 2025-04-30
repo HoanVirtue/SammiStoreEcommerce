@@ -28,7 +28,27 @@ namespace SAMMI.ECOM.Infrastructure.Queries.FavouriteProducts
             return WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    sqlBuilder.Select("t2.Name AS ProductName, t2.StockQuantity, t2.Price");
+                    sqlBuilder.Select($@"CASE
+                                            WHEN t2.StartDate IS NOT NULL
+                                            AND t2.EndDate IS NOT NULL
+                                            AND NOW() >= t2.StartDate
+                                            AND NOW() <= t2.EndDate
+                                            THEN t2.Price * (1 - t2.Discount)
+                                            ELSE t2.Price
+                                        END AS NewPrice");
+
+                    sqlBuilder.LeftJoin(@"(SELECT pi.ProductId,
+                                          i.ImageUrl
+                                    FROM ProductImage pi
+                                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                    WHERE pi.IsDeleted != 1
+                                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                                    ) t3 ON t2.Id = t3.ProductId");
+                    sqlBuilder.InnerJoin("Product t2 ON t1.ProductId = t2.Id AND t2.IsDeleted != 1");
+
                     sqlBuilder.Where("t1.CustomerId = @customerId", new {customerId});
+
                     return conn.QueryAsync<FavouriteProductDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, filterModel
             );

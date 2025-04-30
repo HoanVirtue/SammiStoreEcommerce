@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.System;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.System;
 using SAMMI.ECOM.Infrastructure.Repositories.System;
 
@@ -23,6 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.System
             _bannerRepository = bannerRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.BannerView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -33,14 +36,15 @@ namespace SAMMI.ECOM.API.Controllers.System
             return Ok(await _bannerceQueries.GetList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.BannerView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             return Ok(await _bannerceQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.BannerCreate)]
         [HttpPost]
-        // PROVINCE_CREATE
         public async Task<IActionResult> Post([FromBody] CUBannerCommand request)
         {
             if (request.Id != 0)
@@ -55,6 +59,7 @@ namespace SAMMI.ECOM.API.Controllers.System
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.BannerUpdate)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromBody] CUBannerCommand request)
         {
@@ -74,6 +79,7 @@ namespace SAMMI.ECOM.API.Controllers.System
             return BadRequest(response);
         }
 
+        [AuthorizePermission(PermissionEnum.BannerDelete)]
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
@@ -84,6 +90,7 @@ namespace SAMMI.ECOM.API.Controllers.System
             return Ok(_bannerRepository.DeleteAndSave(id));
         }
 
+        [AuthorizePermission(PermissionEnum.BannerDelete)]
         [HttpDelete]
         public IActionResult DeleteRange([FromBody] List<int> ids)
         {

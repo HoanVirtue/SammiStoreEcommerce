@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 
@@ -23,6 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _methodRepository = methodRepository;
         }
 
+        [AuthorizePermission(PermissionEnum.PaymentMethodView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -33,12 +36,14 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _methodQueries.GetList(request));
         }
 
+        [AuthorizePermission(PermissionEnum.PaymentMethodView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
             return Ok(await _methodQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.PaymentMethodCreate)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUPaymentMethodCommand request)
         {

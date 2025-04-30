@@ -137,7 +137,9 @@ namespace SAMMI.ECOM.Domain.Enums
         CustomerProductReview,
         CustomerFavoriteProductsManage,
         // Voucher (Customer)
-        CustomerVoucherManage
+        CustomerVoucherManage,
+        // customer address
+        CustomerDeliveryAddressManagement
     }
 
     public static class PermissionCodes
@@ -289,6 +291,8 @@ namespace SAMMI.ECOM.Domain.Enums
                 PermissionEnum.CustomerFavoriteProductsManage => "CUSTOMER_FAVORITE_PRODUCTS_MANAGE", // Cho phép khách hàng quản lý sản phẩm yêu thích
                 PermissionEnum.CustomerVoucherManage => "CUSTOMER_VOUCHER_MANAGE", // Cho phép khách hàng quản lý voucher
 
+                // quyền quản lý địa chỉ
+                PermissionEnum.CustomerDeliveryAddressManagement => "CUSTOMER_DELIVERY_ADDRESS_MANAGE",
                 // Xử lý trường hợp quyền không xác định
                 _ => throw new ArgumentException($"Quyền không xác định: {permission}")
             };
@@ -435,7 +439,233 @@ namespace SAMMI.ECOM.Domain.Enums
             // Quyền đánh giá và quản lý sản phẩm yêu thích (khách hàng)
             PermissionEnum.CustomerProductReview,
             PermissionEnum.CustomerFavoriteProductsManage,
-            PermissionEnum.CustomerVoucherManage
+            PermissionEnum.CustomerVoucherManage,
+
+            // quyền quản lý địa chỉ nhận
+            PermissionEnum.CustomerDeliveryAddressManagement
+        };
+
+        public static readonly PermissionEnum[] PERMISSION_ADMIN_CODES = new[]
+        {
+            // Quyền tài khoản
+            PermissionEnum.AccountView,
+            PermissionEnum.AccountUpdate,
+            PermissionEnum.AccountChangePassword,
+            PermissionEnum.AccountLogout,
+
+            // Quyền quản lý khách hàng (admin)
+            PermissionEnum.CustomerCreate,
+            PermissionEnum.CustomerUpdate,
+            PermissionEnum.CustomerDelete,
+            PermissionEnum.CustomerView,
+
+            // Quyền quản lý nhân viên (admin)
+            PermissionEnum.EmployeeCreate,
+            PermissionEnum.EmployeeUpdate,
+            PermissionEnum.EmployeeDelete,
+            PermissionEnum.EmployeeView,
+
+            // Quyền quản lý nhà cung cấp (admin)
+            PermissionEnum.SupplierCreate,
+            PermissionEnum.SupplierUpdate,
+            PermissionEnum.SupplierDelete,
+            PermissionEnum.SupplierView,
+
+            // Quyền quản lý sản phẩm (admin)
+            PermissionEnum.ProductCreate,
+            PermissionEnum.ProductUpdate,
+            PermissionEnum.ProductDelete,
+            PermissionEnum.ProductView,
+            PermissionEnum.ProductSearch,
+
+
+            // Quyền quản lý danh mục sản phẩm (admin)
+            PermissionEnum.ProductCategoryCreate,
+            PermissionEnum.ProductCategoryUpdate,
+            PermissionEnum.ProductCategoryDelete,
+            PermissionEnum.ProductCategoryView,
+
+            // Quyền quản lý thương hiệu (admin)
+            PermissionEnum.BrandCreate,
+            PermissionEnum.BrandUpdate,
+            PermissionEnum.BrandDelete,
+            PermissionEnum.BrandView,
+
+            // Quyền quản lý nhập hàng (admin)
+            PermissionEnum.ImportCreate,
+            PermissionEnum.ImportUpdateStatus,
+            PermissionEnum.ImportDelete,
+            PermissionEnum.ImportView,
+
+            // Quyền quản lý đơn hàng (admin)
+            PermissionEnum.OrderView,
+            PermissionEnum.OrderUpdateStatus,
+
+            // Quyền quản lý thông báo (admin)
+            PermissionEnum.NotificationView,
+            PermissionEnum.NotificationUpdate,
+
+            // Quyền quản lý trò chuyện (admin)
+            PermissionEnum.ChatManager,
+
+            // Quyền quản lý tỉnh/thành phố
+            PermissionEnum.ProvinceView,
+
+            // Quyền quản lý quận/huyện
+            PermissionEnum.DistrictView,
+
+            // Quyền quản lý phường/xã
+            PermissionEnum.WardView,
+
+            // Quyền quản lý phương thức thanh toán
+            PermissionEnum.PaymentMethodCreate,
+            PermissionEnum.PaymentMethodView,
+
+            // Quyền quản lý banner
+            PermissionEnum.BannerCreate,
+            PermissionEnum.BannerUpdate,
+            PermissionEnum.BannerDelete,
+            PermissionEnum.BannerView,
+
+            // Quyền quản lý vai trò và quyền
+            PermissionEnum.RoleCreate,
+            PermissionEnum.RoleUpdate,
+            PermissionEnum.RoleDelete,
+            PermissionEnum.RoleView,
+            PermissionEnum.RoleAssignPermission,
+
+             // Quyền thống kê
+            PermissionEnum.ReportRevenue,
+            PermissionEnum.ReportStock,
+            PermissionEnum.ReportImport,
+
+            // Quyền quản lý event
+            PermissionEnum.EventCreate,
+            PermissionEnum.EventUpdate,
+            PermissionEnum.EventDelete,
+            PermissionEnum.EventView,
+
+            // quyền quản lý voucher
+            PermissionEnum.VoucherCreate,
+            PermissionEnum.VoucherUpdate,
+            PermissionEnum.VoucherDelete,
+            PermissionEnum.VoucherView,
+        };
+
+        public static readonly PermissionEnum[] PERMISSION_EMPLOYEE_CODES = new[]
+        {
+            // Quyền tài khoản
+            PermissionEnum.AccountView,
+            PermissionEnum.AccountUpdate,
+            PermissionEnum.AccountChangePassword,
+            PermissionEnum.AccountLogout,
+
+            // Quyền quản lý sản phẩm (admin)
+            PermissionEnum.ProductView,
+            PermissionEnum.ProductSearch,
+
+
+            // Quyền quản lý danh mục sản phẩm (admin)
+            PermissionEnum.ProductCategoryView,
+
+            // Quyền quản lý thương hiệu (admin)
+            PermissionEnum.BrandView,
+
+            // Quyền quản lý nhập hàng (admin)
+            PermissionEnum.ImportUpdateStatus,
+            PermissionEnum.ImportView,
+
+            // Quyền quản lý đơn hàng (admin)
+            PermissionEnum.OrderView,
+            PermissionEnum.OrderUpdateStatus,
+
+            // Quyền quản lý thông báo (admin)
+            PermissionEnum.NotificationView,
+            PermissionEnum.NotificationUpdate,
+
+            // Quyền quản lý trò chuyện (admin)
+            PermissionEnum.ChatManager,
+
+            // Quyền quản lý tỉnh/thành phố
+            PermissionEnum.ProvinceView,
+
+            // Quyền quản lý quận/huyện
+            PermissionEnum.DistrictView,
+
+            // Quyền quản lý phường/xã
+            PermissionEnum.WardView,
+
+            // Quyền quản lý phương thức thanh toán
+            PermissionEnum.PaymentMethodView,
+
+            // Quyền quản lý banner
+            PermissionEnum.BannerView,
+
+            // Quyền quản lý vai trò và quyền
+            PermissionEnum.RoleView,
+
+            // Quyền quản lý event
+            PermissionEnum.EventView,
+
+            // quyền quản lý voucher
+            PermissionEnum.VoucherView,
+        };
+
+        public static readonly PermissionEnum[] PERMISSION_CUSTOMER_CODES = new[]
+        {
+            // Quyền tài khoản
+            PermissionEnum.AccountView,
+            PermissionEnum.AccountUpdate,
+            PermissionEnum.AccountChangePassword,
+            PermissionEnum.AccountLogout,
+
+            PermissionEnum.NotificationView,
+            PermissionEnum.NotificationUpdate,
+
+            //  tỉnh/thành phố
+            PermissionEnum.ProvinceView,
+
+            // Quyền quận/huyện
+            PermissionEnum.DistrictView,
+
+            // Quyền phường/xã
+            PermissionEnum.WardView,
+
+            PermissionEnum.ProductCategoryView,
+
+            PermissionEnum.BrandView,
+
+            PermissionEnum.PaymentMethodView,
+
+            PermissionEnum.BannerView,
+
+            // Quyền xem và tìm kiếm sản phẩm (khách hàng)
+            PermissionEnum.CustomerProductView,
+            PermissionEnum.CustomerProductSearch,
+            PermissionEnum.CustomerProductAdvancedSearch,
+
+            // Quyền quản lý giỏ hàng  (khách hàng)
+            PermissionEnum.CustomerCartView,
+            PermissionEnum.CustomerCartAdd,
+            PermissionEnum.CustomerCartRemove,
+
+            // Quyền quản lý đơn hàng
+            PermissionEnum.CustomerOrderPlace,
+            PermissionEnum.CustomerOrderPayment,
+            PermissionEnum.CustomerOrderTrack,
+            PermissionEnum.CustomerOrderCancel,
+
+            // Quyền quản lý thông báo và thông tin giao hàng (khách hàng)
+            PermissionEnum.CustomerNotificationManage,
+            PermissionEnum.CustomerShippingInfoManage,
+
+            // Quyền đánh giá và quản lý sản phẩm yêu thích (khách hàng)
+            PermissionEnum.CustomerProductReview,
+            PermissionEnum.CustomerFavoriteProductsManage,
+            PermissionEnum.CustomerVoucherManage,
+
+            // quyền quản lý địa chỉ nhận
+            PermissionEnum.CustomerDeliveryAddressManagement
         };
 
         public static readonly PermissionEnum[] AllPermissionCodes = Enum.GetValues(typeof(PermissionEnum))
@@ -444,79 +674,5 @@ namespace SAMMI.ECOM.Domain.Enums
 
         public static IEnumerable<string> AllPermissions => AllPermissionCodes
             .Select(p => p.ToPolicyName());
-
-        //public static readonly string[] PERMISSION_CODES = new[]
-        //{
-        //    // Quản lý tài khoản
-        //    "ACCOUNT_VIEW",
-        //    "ACCOUNT_UPDATE",
-        //    "ACCOUNT_CHANGE_PASSWORD",
-        //    "ACCOUNT_LOGOUT",
-        //    // Quản lý khách hàng
-        //    "CUSTOMER_CREATE",
-        //    "CUSTOMER_UPDATE",
-        //    "CUSTOMER_DELETE",
-        //    "CUSTOMER_VIEW",
-        //    // Quản lý sản phẩm
-        //    "PRODUCT_CREATE",
-        //    "PRODUCT_UPDATE",
-        //    "PRODUCT_DELETE",
-        //    "PRODUCT_VIEW",
-        //    // danh mục loại sản phẩm
-        //    "PRODUCT_CATEGORY_CREATE",
-        //    "PRODUCT_CATEGORY_UPDATE",
-        //    "PRODUCT_CATEGORY_DELETE",
-        //    "PRODUCT_CATEGORY_VIEW",
-        //    // danh mục thương hiệu
-        //    "BRAND_CREATE",
-        //    "BRAND_UPDATE",
-        //    "BRAND_DELETE",
-        //    "BRAND_VIEW",
-        //    // Quản lý nhập hàng
-        //    "IMPORT_CREATE",
-        //    "IMPORT_UPDATE_STATUS",
-        //    "IMPORT_DELETE",
-        //    "IMPORT_VIEW",
-        //    // Quản lý đơn hàng
-        //    "ORDER_VIEW",
-        //    "ORDER_DETAIL",
-        //    "ORDER_UPDATE_STATUS",
-        //    // thông báo
-        //    "NOTIFICATION_VIEW",
-        //    "NOTIFICATION_UPDATE",
-        //    // chat
-        //    "CHAT_MANAGER",
-
-        //    // Tài khoản & bảo mật
-        //    "CUSTOMER_ACCOUNT_VIEW",
-        //    "CUSTOMER_ACCOUNT_UPDATE",
-        //    "CUSTOMER_ACCOUNT_CHANGE_PASSWORD",
-        //    "CUSTOMER_ACCOUNT_LOGOUT",
-
-        //    // Sản phẩm
-        //    "CUSTOMER_PRODUCT_VIEW",
-        //    "CUSTOMER_PRODUCT_SEARCH",
-        //    "CUSTOMER_PRODUCT_ADVANCED_SEARCH",
-
-        //    // Giỏ hàng & Đơn hàng
-        //    "CUSTOMER_CART_MANAGE",
-        //    "CUSTOMER_ORDER_PLACE",
-        //    "CUSTOMER_ORDER_PAYMENT",
-
-        //    // Theo dõi đơn hàng
-        //    "CUSTOMER_ORDER_TRACK",
-        //    "CUSTOMER_ORDER_CANCEL",
-
-        //    // Thông báo & Thông tin nhận hàng
-        //    "CUSTOMER_NOTIFICATION_MANAGE",
-        //    "CUSTOMER_SHIPPING_INFO_MANAGE",
-
-        //    // Đánh giá & Sản phẩm yêu thích
-        //    "CUSTOMER_PRODUCT_REVIEW",
-        //    "CUSTOMER_FAVORITE_PRODUCTS_MANAGE",
-
-        //    // Voucher
-        //    "CUSTOMER_VOUCHER_MANAGE"
-        //};
     }
 }

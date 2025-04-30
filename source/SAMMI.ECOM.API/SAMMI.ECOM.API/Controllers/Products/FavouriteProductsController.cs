@@ -50,7 +50,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         }
 
 
-        //[AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
+        [AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
         [HttpGet]
         public async Task<IActionResult> GetAsync([FromQuery]RequestFilterModel request)
         {
@@ -79,7 +79,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             return Ok();
         }
 
-        //[AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
+        [AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
         [HttpPost("{productId}")]
         public async Task<IActionResult> PostAsync(int productId)
         {
@@ -129,7 +129,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             return BadRequest(actionRes);
         }
 
-        //[AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
+        [AuthorizePermission(PermissionEnum.CustomerFavoriteProductsManage)]
         [HttpDelete("{productId}")]
         public async Task<IActionResult> DeleteAsync(int productId)
         {

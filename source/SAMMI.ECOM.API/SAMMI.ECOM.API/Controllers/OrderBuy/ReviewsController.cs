@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
@@ -28,6 +29,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _reviewRepository = reviewRepository;
         }
 
+        [AllowAnonymous]
         [HttpGet("get-reviews-product")]
         public async Task<IActionResult> GetReviewsOfProductAsync([FromQuery]ReviewFilterModel request)
         {
@@ -38,19 +40,21 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _reviewQueries.GetList(request));
         }
 
+        [AllowAnonymous]
         [HttpGet("get-overall-rating/{productId}")]
         public async Task<IActionResult> GetOverallRating(int productId)
         {
             return Ok(await _reviewQueries.GetTotalOverall(productId));
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetReviewAsync(int reviewId)
         {
             return Ok(await _reviewQueries.GetById(reviewId));
         }
 
-        //[AuthorizePermission(PermissionEnum.CustomerProductReview)]
+        [AuthorizePermission(PermissionEnum.CustomerProductReview)]
         [HttpPost]
         public async Task<IActionResult> PostAsync([FromBody]CUReviewCommand request)
         {

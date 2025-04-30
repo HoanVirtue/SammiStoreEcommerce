@@ -538,7 +538,10 @@ namespace SAMMI.ECOM.Infrastructure
                     new Permission { Code = PermissionEnum.CustomerFavoriteProductsManage.ToPolicyName(), Name = "Khách hàng quản lý sản phẩm yêu thích", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
 
                     // Voucher
-                    new Permission { Code = PermissionEnum.CustomerVoucherManage.ToPolicyName(), Name = "Khách hàng quản lý voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" }
+                    new Permission { Code = PermissionEnum.CustomerVoucherManage.ToPolicyName(), Name = "Khách hàng quản lý voucher", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" },
+
+                    // Địa chỉ giao hàng
+                    new Permission { Code = PermissionEnum.CustomerDeliveryAddressManagement.ToPolicyName(), Name = "Khách hàng quản lý địa chỉ giao hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System" }
                 };
                 try
                 {
@@ -618,24 +621,28 @@ namespace SAMMI.ECOM.Infrastructure
                 var roles = await _context.Roles.ToListAsync();
                 foreach (var r in roles)
                 {
-                    if (r.Code == "ADMIN")
-                    {
-                        rolePermissions.AddRange(permissions.Select(per => new RolePermission()
-                        {
-                            RoleId = r.Id,
-                            PermissionId = per.Id,
-                            Allow = true,
-                            IsActive = true,
-                            IsDeleted = false,
-                            CreatedDate = DateTime.Now,
-                            CreatedBy = "N/A"
-                        }));
-                    }
-                    else if (r.Code == "MANAGER")
+                    if (r.Code == RoleTypeEnum.ADMIN.ToString())
                     {
                         rolePermissions.AddRange(
                             permissions
-                            .Where(per => MANAGER_PERMISSION_CODE.Contains(per.Code))
+                            .Where(p => PermissionCodes.PERMISSION_ADMIN_CODES.Select(x => x.ToPolicyName()).Contains(p.Code))
+                            .Select(per => new RolePermission()
+                            {
+                                RoleId = r.Id,
+                                PermissionId = per.Id,
+                                Allow = true,
+                                IsActive = true,
+                                IsDeleted = false,
+                                CreatedDate = DateTime.Now,
+                                CreatedBy = "N/A"
+                            })
+                        );
+                    }
+                    else if (r.Code == RoleTypeEnum.MANAGER.ToString())
+                    {
+                        rolePermissions.AddRange(
+                            permissions
+                            .Where(per => PermissionCodes.PERMISSION_EMPLOYEE_CODES.Select(x => x.ToPolicyName()).Contains(per.Code))
                             .Select(per => new RolePermission()
                             {
                                 RoleId = r.Id,
@@ -647,11 +654,27 @@ namespace SAMMI.ECOM.Infrastructure
                                 CreatedBy = "N/A"
                             }));
                     }
-                    else if (r.Code == "CUSTOMER")
+                    else if(r.Code == RoleTypeEnum.EMPLOYEE.ToString())
                     {
                         rolePermissions.AddRange(
                             permissions
-                            .Where(per => CUSTOMER_PERMISSION_CODE.Contains(per.Code))
+                            .Where(per => PermissionCodes.PERMISSION_EMPLOYEE_CODES.Select(x => x.ToPolicyName()).Contains(per.Code))
+                            .Select(per => new RolePermission()
+                            {
+                                RoleId = r.Id,
+                                PermissionId = per.Id,
+                                Allow = true,
+                                IsActive = true,
+                                IsDeleted = false,
+                                CreatedDate = DateTime.Now,
+                                CreatedBy = "N/A"
+                            }));
+                    }
+                    else if (r.Code == RoleTypeEnum.CUSTOMER.ToString())
+                    {
+                        rolePermissions.AddRange(
+                            permissions
+                            .Where(per => PermissionCodes.PERMISSION_CUSTOMER_CODES.Select(x => x.ToPolicyName()).Contains(per.Code))
                             .Select(per => new RolePermission()
                             {
                                 RoleId = r.Id,

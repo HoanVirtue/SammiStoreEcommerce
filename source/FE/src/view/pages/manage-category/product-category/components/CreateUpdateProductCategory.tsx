@@ -175,14 +175,18 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
     useEffect(() => {
         if (!open) {
             reset({
-                ...defaultValues
+                name: '',
+                code: productCategoryCode,
+                parentId: 0,
+                parentName: '',
+                level: 0
             })
         } else {
             if (id && open) {
                 fetchDetailProductCategory(id)
             }
         }
-    }, [open, id, reset, defaultValues, fetchDetailProductCategory])
+    }, [open, id, reset, productCategoryCode, fetchDetailProductCategory])
 
     return (
         <>

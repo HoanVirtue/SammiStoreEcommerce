@@ -1,173 +1,333 @@
-// ** React
-import { useEffect, useState, Suspense } from 'react'
-import dynamic from 'next/dynamic'
-
-// ** Components
-import Spinner from 'src/components/spinner'
-
-// ** Mui
-import { Box, Grid } from '@mui/material'
-
-// ** Services
+"use client";
+import { useEffect, useState } from 'react';
+import ClientBody from "./ClientBody";
+import { Card } from "src/view/pages/dashboard/components/ui/card";
 import {
-  getCountAllRecords,
-  getCountOrderStatus,
-  getCountProductTypes,
-  getCountRevenueYear,
-  getCountUserType
-} from 'src/services/report'
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  LabelList,
+  Cell,
+  PieChart,
+  Pie,
+  Legend,
+} from "recharts";
+import { User, Box, FileText, Star, DollarSign, MessageCircle } from "lucide-react";
+import axios from 'axios';
 
-
-// Dynamic imports
-const CardCountRecords = dynamic(() => import('src/view/pages/dashboard/components/CardCountRecords'), { ssr: false })
-const CardProductType = dynamic(() => import('src/view/pages/dashboard/components/CardProductType'), { ssr: false })
-const CardCountRevenue = dynamic(() => import('src/view/pages/dashboard/components/CardCountRevenue'), { ssr: false })
-const CardCountUserType = dynamic(() => import('src/view/pages/dashboard/components/CardCountUserType'), { ssr: false })
-const CardCountOrderStatus = dynamic(() => import('src/view/pages/dashboard/components/CardCountStatusOrder'), { ssr: false })
-const CardProductPopular = dynamic(() => import('src/view/pages/dashboard/components/CardProductPopular'), { ssr: false })
-
-export interface TCountProductType {
-  typeName: string
-  total: number
+// Define interfaces for API responses
+interface GeneralStatistics {
+  totalRevenue: number;
+  totalCustomer: number;
+  numberOrder: number | null;
 }
 
-export interface TCountRevenue {
-  year: string
-  month: string
-  total: number
+interface BestSellingProduct {
+  code: string;
+  name: string;
+  price: number;
+  images: { imageUrl: string }[];
 }
 
-export interface TProductPopular {
-  name: string
-  price: string
-  image: string
-  slug: string
-  _id: string
-  type: {
-    name: string
-  }
+interface InventoryItem {
+  name: string;
+  stockQuantity: number;
 }
 
-const DashboardPage = () => {
-  const [loading, setLoading] = useState(false)
-  const [countRecords, setCountRecords] = useState<Record<string, number>>({})
-  const [countProductTypes, setCountProductTypes] = useState<TCountProductType[]>([])
-  const [countRevenues, setCountRevenues] = useState<TCountRevenue[]>([])
-  const [countUserType, setCountUserType] = useState<Record<number, number>>({} as any)
-  const [countOrderStatus, setCountOrderStatus] = useState<Record<number, number>>({} as any)
-  const [listProductPopular, setListProductPopular] = useState<TProductPopular[]>([])
+interface ChartDataEntry {
+  name: string;
+  value: number;
+  fill: string;
+}
 
-  // ** Fetch API
-  const fetchAllCountRecords = async () => {
-    setLoading(true)
-    await getCountAllRecords()
-      .then(res => {
-        const data = res?.data
-        setLoading(false)
-        setCountRecords(data)
-      })
-      .catch(e => {
-        setLoading(false)
-      })
+const mainStats = [
+  { label: "Người dùng", value: 4, icon: <User size={36} className="text-gray-400" />, color: "bg-violet-50" },
+  { label: "Sản phẩm", value: 11, icon: <Box size={36} className="text-red-300" />, color: "bg-red-50" },
+  { label: "Đơn hàng", value: 15, icon: <FileText size={36} className="text-green-400" />, color: "bg-green-50" },
+  { label: "Đánh giá", value: 6, icon: <Star size={36} className="text-cyan-300" />, color: "bg-cyan-50" },
+  { 
+    label: "Doanh thu", 
+    value: new Intl.NumberFormat('vi-VN', { 
+      style: 'currency', 
+      currency: 'VND',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(105678000), 
+    icon: <DollarSign size={36} className="text-orange-300" />, 
+    color: "bg-orange-50" 
+  },
+  { label: "Bình luận", value: 0, icon: <MessageCircle size={36} className="text-gray-400" />, color: "bg-gray-100" },
+];
+
+const productChart = [
+  { name: "qqqq", value: 5, fill: "#7c3aed" },
+  { name: "son môi", value: 1, fill: "#06b6d4" },
+  { name: "mỹ phẩm1", value: 5, fill: "#22c55e" },
+  { name: "mỹ phẩm2", value: 50, fill: "#22c55e" },
+];
+
+const revenueChart = [
+  { name: "2/2025", value: 32000000, fill: "#f87171" },
+  { name: "3/2025", value: 75000000, fill: "#fb923c" },
+];
+
+const API_URL = process.env.NEXT_PUBLIC_API_HOST;
+
+// Thêm hàm để lấy token
+const getAccessToken = () => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('accessToken');
   }
+  return null;
+};
 
-  const fetchAllProductTypes = async () => {
-    setLoading(true)
-    await getCountProductTypes()
-      .then(res => {
-        const data = res?.data
-        setLoading(false)
-        setCountProductTypes(data)
-      })
-      .catch(e => {
-        setLoading(false)
-      })
-  }
+export default function DashboardClient() {
+  // State management
+  const [generalStats, setGeneralStats] = useState<GeneralStatistics | null>(null);
+  const [bestSellingProducts, setBestSellingProducts] = useState<BestSellingProduct[]>([]);
+  const [inventoryStats, setInventoryStats] = useState<any>(null);
+  const [salesRevenue, setSalesRevenue] = useState<any>(null);
+  const [importStats, setImportStats] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const fetchAllTotalRevenues = async () => {
-    setLoading(true)
-    await getCountRevenueYear()
-      .then(res => {
-        const data = res?.data
-        setLoading(false)
-        setCountRevenues(data)
-      })
-      .catch(e => {
-        setLoading(false)
-      })
-  }
-
-  const fetchAllCountUserType = async () => {
-    setLoading(true)
-    await getCountUserType()
-      .then(res => {
-        const data = res?.data
-        setLoading(false)
-        setCountUserType(data?.data)
-      })
-      .catch(e => {
-        setLoading(false)
-      })
-  }
-
-  const fetchAllCountStatusOrder = async () => {
-    setLoading(true)
-    await getCountOrderStatus()
-      .then(res => {
-        const data = res?.data
-        setLoading(false)
-        setCountOrderStatus(data?.data)
-      })
-      .catch(e => {
-        setLoading(false)
-      })
-  }
-
-
+  // Fetch data from APIs
   useEffect(() => {
-    // fetchAllCountRecords()
-    // fetchAllProductTypes()
-    // fetchAllTotalRevenues()
-    // fetchAllCountUserType()
-    // fetchAllCountStatusOrder()
-    // fetchListProductPopular()
-  }, [])
+    const fetchDashboardData = async () => {
+      try {
+        const token = getAccessToken();
+        const headers = {
+          Authorization: `Bearer ${token}`
+        };
+
+        const [generalStats, bestSelling, inventory, sales, imports] = await Promise.all([
+          axios.get(`${API_URL}/api/reports/general-statistics`, { headers }),
+          axios.get(`${API_URL}/api/reports/best-selling-product?numberTop=5`, { headers }),
+          axios.get(`${API_URL}/api/reports/inventory-statistics`, { headers }),
+          axios.get(`${API_URL}/api/reports/sales-revenue`, { headers }),
+          axios.get(`${API_URL}/api/reports/get-import-statistics`, { headers })
+        ]);
+
+        setGeneralStats(generalStats.data.result);
+        setBestSellingProducts(bestSelling.data.result);
+        setInventoryStats(inventory.data.result);
+        setSalesRevenue(sales.data.result);
+        setImportStats(imports.data.result);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          // Xử lý khi token hết hạn hoặc không hợp lệ
+          // Ví dụ: redirect to login
+          window.location.href = '/login';
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  // Xử lý dữ liệu cho biểu đồ sản phẩm theo loại
+  const productChartData = inventoryStats?.inventoryDetails?.subset.map((item: InventoryItem) => ({
+    name: item.name,
+    value: item.stockQuantity,
+    fill: `#${Math.floor(Math.random()*16777215).toString(16)}`
+  })) || [];
+
+  // Xử lý dữ liệu cho biểu đồ doanh số
+  const revenueChartData = salesRevenue?.revenueDetails?.subset.map((item: any) => ({
+    name: item.date || item.month,
+    value: item.amount || item.total,
+    fill: "#f87171"
+  })) || [];
+
+  // Xử lý dữ liệu cho biểu đồ pie chart người dùng
+  const userPieChartData = [
+    { 
+      name: "Người dùng", 
+      value: generalStats?.totalCustomer || 0, 
+      fill: "#4ade80" 
+    }
+  ];
+
+  // Xử lý dữ liệu cho biểu đồ pie chart đơn hàng
+  const orderPieChartData = [
+    { name: "Đơn hàng", value: generalStats?.numberOrder || 0, fill: "#818cf8" }
+  ];
+
+  // Thêm dữ liệu nhập hàng vào biểu đồ hoặc tạo biểu đồ mới
+  const importChartData = importStats?.imports?.subset.map((item: any) => ({
+    name: item.date || item.month,
+    value: item.amount || item.total,
+    fill: "#818cf8"
+  })) || [];
+
+  // Update the products list with real best-selling products
+  const popularProducts = bestSellingProducts.map(product => ({
+    img: product.images[0]?.imageUrl || "default-image-url",
+    name: product.name,
+    type: product.code,
+    price: new Intl.NumberFormat('vi-VN', { 
+      style: 'currency', 
+      currency: 'VND',
+      minimumFractionDigits: 0,
+    }).format(product.price)
+  }));
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
-    <Box>
-      {loading && <Spinner />}
-      <Suspense fallback={<Spinner />}>
-        <CardCountRecords data={countRecords} />
-        <Grid container spacing={6}>
-          <Grid item md={6} xs={12}>
-            <Suspense fallback={<Spinner />}>
-              <CardProductType data={countProductTypes} />
-            </Suspense>
-          </Grid>
-          <Grid item md={6} xs={12}>
-            <Suspense fallback={<Spinner />}>
-              <CardCountRevenue data={countRevenues} />
-            </Suspense>
-          </Grid>
-          <Grid item md={4} xs={12}>
-            <Suspense fallback={<Spinner />}>
-              <CardProductPopular data={listProductPopular} />
-            </Suspense>
-          </Grid>
-          <Grid item md={4} xs={12}>
-            <Suspense fallback={<Spinner />}>
-              <CardCountUserType data={countUserType} />
-            </Suspense>
-          </Grid>
-          <Grid item md={4} xs={12}>
-            <Suspense fallback={<Spinner />}>
-              <CardCountOrderStatus data={countOrderStatus} />
-            </Suspense>
-          </Grid>
-        </Grid>
-      </Suspense>
-    </Box>
-  )
-}
+    <ClientBody>
+      <main className="bg-gray-100 p-4 min-h-screen">
+        <div className="max-w-[95%] mx-auto">
+          {/* Card statistics */}
+          <Card className="mb-4 p-6 rounded-2xl shadow-md bg-white">
+            <h2 className="text-2xl font-bold mb-8 text-gray-800">Tổng quan thống kê</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+              {mainStats.map((item) => (
+                <div key={item.label} className="transform transition-all duration-200 hover:scale-105">
+                  <div className="bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-lg">
+                    <div className={`flex items-center justify-center rounded-full w-12 h-12 ${item.color} mb-3 mx-auto`}>
+                      {item.icon}
+                    </div>
+                    <div className="text-center">
+                      <div className={`text-xl font-bold mb-1 text-gray-800 ${item.label === "Doanh thu" ? "text-lg" : "text-2xl"}`}>
+                        {item.value}
+                      </div>
+                      <div className="text-sm text-gray-500 font-medium">{item.label}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Card>
+          {/* Charts */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Card className="p-4 shadow-md rounded-2xl">
+              <h3 className="font-semibold text-center mb-2 text-gray-700 text-base">
+                Số lượng sản phẩm theo từng loại
+              </h3>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={productChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value">
+                    <LabelList dataKey="value" position="top" />
+                    {productChartData.map((entry: ChartDataEntry) => (
+                      <Cell key={`cell-${entry.name}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+            <Card className="p-4 shadow-md rounded-2xl">
+              <h3 className="font-semibold text-center mb-2 text-gray-700 text-base">
+                Doanh số năm nay
+              </h3>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={revenueChartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis 
+                    tickFormatter={(value) => `${(value/1000000).toFixed(0)}M`} 
+                    width={80}
+                  />
+                  <Tooltip 
+                    formatter={(value: number) => new Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    }).format(value)}
+                  />
+                  <Bar dataKey="value">
+                    <LabelList 
+                      dataKey="value" 
+                      position="top" 
+                      formatter={(value: number) => `${(value/1000000).toFixed(0)}M`}
+                    />
+                    {revenueChartData.map((entry: ChartDataEntry) => (
+                      <Cell key={`cell-r-${entry.name}`} fill={entry.fill} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </Card>
+          </div>
 
-export default DashboardPage
+          {/* Section hàng dưới - 3 cột */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+            {/* Sản phẩm phổ biến */}
+            <Card className="p-5 rounded-2xl shadow-md min-h-[370px]">
+              <h3 className="font-semibold text-lg mb-4">Sản phẩm phổ biến</h3>
+              <div className="space-y-4">
+                {popularProducts.map((p, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <img src={p.img} alt={p.name} className="rounded-md object-cover w-12 h-12 bg-gray-200" />
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium truncate">{p.name}</div>
+                      <div className="text-gray-400 text-sm truncate">{p.type}</div>
+                    </div>
+                    <div className="font-semibold whitespace-nowrap text-right text-sm">{p.price}</div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+
+            {/* PieChart user */}
+            <Card className="p-5 rounded-2xl shadow-md flex flex-col items-center justify-center min-h-[370px]">
+              <h3 className="font-semibold text-base text-center mb-2">
+                Thống kê số lượng người dùng
+              </h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={userPieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label
+                  />
+                  <Tooltip formatter={(v: number) => `${v} người dùng`} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+
+            {/* PieChart order */}
+            <Card className="p-5 rounded-2xl shadow-md flex flex-col items-center justify-center min-h-[370px]">
+              <h3 className="font-semibold text-base text-center mb-2">
+                Thống kê số lượng đơn hàng
+              </h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={orderPieChartData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label
+                  />
+                  <Tooltip formatter={(v: number) => `${v} đơn hàng`} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+          </div>
+        </div>
+      </main>
+    </ClientBody>
+  );
+}

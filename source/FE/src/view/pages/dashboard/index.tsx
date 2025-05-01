@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import ClientBody from "./ClientBody";
 import { Card } from "src/view/pages/dashboard/components/ui/card";
 import {
@@ -44,37 +44,6 @@ interface ChartDataEntry {
   fill: string;
 }
 
-const mainStats = [
-  { label: "Người dùng", value: 4, icon: <User size={36} className="text-gray-400" />, color: "bg-violet-50" },
-  { label: "Sản phẩm", value: 11, icon: <Box size={36} className="text-red-300" />, color: "bg-red-50" },
-  { label: "Đơn hàng", value: 15, icon: <FileText size={36} className="text-green-400" />, color: "bg-green-50" },
-  { label: "Đánh giá", value: 6, icon: <Star size={36} className="text-cyan-300" />, color: "bg-cyan-50" },
-  { 
-    label: "Doanh thu", 
-    value: new Intl.NumberFormat('vi-VN', { 
-      style: 'currency', 
-      currency: 'VND',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(105678000), 
-    icon: <DollarSign size={36} className="text-orange-300" />, 
-    color: "bg-orange-50" 
-  },
-  { label: "Bình luận", value: 0, icon: <MessageCircle size={36} className="text-gray-400" />, color: "bg-gray-100" },
-];
-
-const productChart = [
-  { name: "qqqq", value: 5, fill: "#7c3aed" },
-  { name: "son môi", value: 1, fill: "#06b6d4" },
-  { name: "mỹ phẩm1", value: 5, fill: "#22c55e" },
-  { name: "mỹ phẩm2", value: 50, fill: "#22c55e" },
-];
-
-const revenueChart = [
-  { name: "2/2025", value: 32000000, fill: "#f87171" },
-  { name: "3/2025", value: 75000000, fill: "#fb923c" },
-];
-
 const API_URL = process.env.NEXT_PUBLIC_API_HOST;
 
 // Thêm hàm để lấy token
@@ -94,89 +63,116 @@ export default function DashboardClient() {
   const [importStats, setImportStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch data from APIs
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        const token = getAccessToken();
-        const headers = {
-          Authorization: `Bearer ${token}`
-        };
+  // Memoize API calls
+  const fetchDashboardData = useCallback(async () => {
+    try {
+      const token = getAccessToken();
+      const headers = {
+        Authorization: `Bearer ${token}`
+      };
 
-        const [generalStats, bestSelling, inventory, sales, imports] = await Promise.all([
-          axios.get(`${API_URL}/api/reports/general-statistics`, { headers }),
-          axios.get(`${API_URL}/api/reports/best-selling-product?numberTop=5`, { headers }),
-          axios.get(`${API_URL}/api/reports/inventory-statistics`, { headers }),
-          axios.get(`${API_URL}/api/reports/sales-revenue`, { headers }),
-          axios.get(`${API_URL}/api/reports/get-import-statistics`, { headers })
-        ]);
+      const [generalStats, bestSelling, inventory, sales, imports] = await Promise.all([
+        axios.get(`${API_URL}/api/reports/general-statistics`, { headers }),
+        axios.get(`${API_URL}/api/reports/best-selling-product?numberTop=5`, { headers }),
+        axios.get(`${API_URL}/api/reports/inventory-statistics`, { headers }),
+        axios.get(`${API_URL}/api/reports/sales-revenue`, { headers }),
+        axios.get(`${API_URL}/api/reports/get-import-statistics`, { headers })
+      ]);
 
-        setGeneralStats(generalStats.data.result);
-        setBestSellingProducts(bestSelling.data.result);
-        setInventoryStats(inventory.data.result);
-        setSalesRevenue(sales.data.result);
-        setImportStats(imports.data.result);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        if (axios.isAxiosError(error) && error.response?.status === 401) {
-          // Xử lý khi token hết hạn hoặc không hợp lệ
-          // Ví dụ: redirect to login
-          window.location.href = '/login';
-        }
-      } finally {
-        setLoading(false);
+      setGeneralStats(generalStats.data.result);
+      setBestSellingProducts(bestSelling.data.result);
+      setInventoryStats(inventory.data.result);
+      setSalesRevenue(sales.data.result);
+      setImportStats(imports.data.result);
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        window.location.href = '/login';
       }
-    };
-
-    fetchDashboardData();
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // Xử lý dữ liệu cho biểu đồ sản phẩm theo loại
-  const productChartData = inventoryStats?.inventoryDetails?.subset.map((item: InventoryItem) => ({
-    name: item.name,
-    value: item.stockQuantity,
-    fill: `#${Math.floor(Math.random()*16777215).toString(16)}`
-  })) || [];
+  // Fetch data on mount
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
-  // Xử lý dữ liệu cho biểu đồ doanh số
-  const revenueChartData = salesRevenue?.revenueDetails?.subset.map((item: any) => ({
-    name: item.date || item.month,
-    value: item.amount || item.total,
-    fill: "#f87171"
-  })) || [];
+  // Memoize chart data
+  const productChartData = useMemo(() => 
+    inventoryStats?.inventoryDetails?.subset.map((item: InventoryItem) => ({
+      name: item.name,
+      value: item.stockQuantity,
+      fill: `#${Math.floor(Math.random()*16777215).toString(16)}`
+    })) || [], 
+    [inventoryStats]
+  );
 
-  // Xử lý dữ liệu cho biểu đồ pie chart người dùng
-  const userPieChartData = [
+  const revenueChartData = useMemo(() => 
+    salesRevenue?.revenueDetails?.subset.map((item: any) => ({
+      name: item.date || item.month,
+      value: item.amount || item.total,
+      fill: "#f87171"
+    })) || [], 
+    [salesRevenue]
+  );
+
+  const userPieChartData = useMemo(() => [
     { 
       name: "Người dùng", 
       value: generalStats?.totalCustomer || 0, 
       fill: "#4ade80" 
     }
-  ];
+  ], [generalStats]);
 
-  // Xử lý dữ liệu cho biểu đồ pie chart đơn hàng
-  const orderPieChartData = [
+  const orderPieChartData = useMemo(() => [
     { name: "Đơn hàng", value: generalStats?.numberOrder || 0, fill: "#818cf8" }
-  ];
+  ], [generalStats]);
 
-  // Thêm dữ liệu nhập hàng vào biểu đồ hoặc tạo biểu đồ mới
-  const importChartData = importStats?.imports?.subset.map((item: any) => ({
-    name: item.date || item.month,
-    value: item.amount || item.total,
-    fill: "#818cf8"
-  })) || [];
+  const importChartData = useMemo(() => 
+    importStats?.imports?.subset.map((item: any) => ({
+      name: item.date || item.month,
+      value: item.amount || item.total,
+      fill: "#818cf8"
+    })) || [], 
+    [importStats]
+  );
 
-  // Update the products list with real best-selling products
-  const popularProducts = bestSellingProducts.map(product => ({
-    img: product.images[0]?.imageUrl || "default-image-url",
-    name: product.name,
-    type: product.code,
-    price: new Intl.NumberFormat('vi-VN', { 
-      style: 'currency', 
-      currency: 'VND',
-      minimumFractionDigits: 0,
-    }).format(product.price)
-  }));
+  // Memoize main stats
+  const mainStats = useMemo(() => [
+    { label: "Người dùng", value: generalStats?.totalCustomer || 0, icon: <User size={36} className="text-gray-400" />, color: "bg-violet-50" },
+    { label: "Sản phẩm", value: inventoryStats?.totalProducts || 0, icon: <Box size={36} className="text-red-300" />, color: "bg-red-50" },
+    { label: "Đơn hàng", value: generalStats?.numberOrder || 0, icon: <FileText size={36} className="text-green-400" />, color: "bg-green-50" },
+    { label: "Đánh giá", value: 6, icon: <Star size={36} className="text-cyan-300" />, color: "bg-cyan-50" },
+    { 
+      label: "Doanh thu", 
+      value: new Intl.NumberFormat('vi-VN', { 
+        style: 'currency', 
+        currency: 'VND',
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }).format(generalStats?.totalRevenue || 0), 
+      icon: <DollarSign size={36} className="text-orange-300" />, 
+      color: "bg-orange-50" 
+    },
+    { label: "Bình luận", value: 0, icon: <MessageCircle size={36} className="text-gray-400" />, color: "bg-gray-100" },
+  ], [generalStats, inventoryStats]);
+
+  // Memoize popular products
+  const popularProducts = useMemo(() => 
+    bestSellingProducts.map(product => ({
+      img: product.images[0]?.imageUrl || "default-image-url",
+      name: product.name,
+      type: product.code,
+      price: new Intl.NumberFormat('vi-VN', { 
+        style: 'currency', 
+        currency: 'VND',
+        minimumFractionDigits: 0,
+      }).format(product.price)
+    })),
+    [bestSellingProducts]
+  );
 
   if (loading) {
     return <div>Loading...</div>;
@@ -200,7 +196,7 @@ export default function DashboardClient() {
                       <div className={`text-xl font-bold mb-1 text-gray-800 ${item.label === "Doanh thu" ? "text-lg" : "text-2xl"}`}>
                         {item.value}
                       </div>
-                      <div className="text-sm text-gray-500 font-medium">{item.label}</div>
+                      <div className="text-sm text-gray-500">{item.label}</div>
                     </div>
                   </div>
                 </div>

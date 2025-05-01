@@ -175,5 +175,16 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         {
             return Ok(await _eventQueries.GetCodeByLastId());
         }
+
+        [AllowAnonymous]
+        [HttpGet("get-events")]
+        public async Task<IActionResult> GetEventsAsync(int numberTop = 20)
+        {
+            RequestFilterModel filterModel = new RequestFilterModel()
+            {
+                Take = numberTop
+            };
+            return Ok(await _eventQueries.GetAll(filterModel));
+        }
     }
 }

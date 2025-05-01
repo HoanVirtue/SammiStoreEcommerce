@@ -75,11 +75,7 @@ const MyCartPage: NextPage<TProps> = () => {
 
     const memoSubtotal = useMemo(() => {
         return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
-            const price = current?.price || 0;
-            const discount = current?.discount || 0;
-            const quantity = current?.quantity || 1;
-            const currentPrice = discount > 0 ? (price * (100 - discount)) / 100 : price;
-            return result + currentPrice * quantity;
+            return result + (current.newPrice * current.quantity);
         }, 0);
     }, [memoSelectedProduct]);
 
@@ -87,16 +83,12 @@ const MyCartPage: NextPage<TProps> = () => {
 
     const memoSave = useMemo(() => {
         return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
-            const price = originalPrice || 0;
-            const discount = discountValue * 100 || 0;
-            const quantity = current?.quantity || 1;
-            if (discount > 0) {
-                const savedPrice = (price * discount) / 100 * quantity;
-                return result + savedPrice;
+            if (current.price !== current.newPrice) {
+                return result + ((current.price - current.newPrice) * current.quantity);
             }
             return result;
         }, 0);
-    }, [memoSelectedProduct, discountValue, originalPrice]);
+    }, [memoSelectedProduct]);
 
     useEffect(() => {
         if (user?.id) {
@@ -115,24 +107,6 @@ const MyCartPage: NextPage<TProps> = () => {
             );
         }
     }, [dispatch, user?.id]);
-
-    useEffect(() => {
-        const fetchDiscounts = async () => {
-            for (const productId of selectedRow) {
-                const res = await getProductDetail(productId);
-                const data = res?.result;
-                if (data) {
-                    const discount = data.startDate && data.endDate && isExpired(data?.startDate, data.endDate) ? data.discount : 0;
-                    setDiscountValue(discount);
-                    setOriginalPrice(data.price);
-                }
-            }
-        };
-
-        if (selectedRow.length > 0) {
-            fetchDiscounts();
-        }
-    }, [selectedRow]);
 
     useEffect(() => {
         const selectedProduct = router.query.selected;

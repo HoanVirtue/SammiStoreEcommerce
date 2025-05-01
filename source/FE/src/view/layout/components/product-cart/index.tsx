@@ -50,18 +50,27 @@ const StyledMenuItem = styled(MenuItem)<MenuItemProps>(({ theme }) => ({
 }))
 
 interface CartItem {
+    cartId: number;
     productId: number;
+    productName: string;
+    price: number;
+    newPrice: number;
     quantity: number;
-    productName?: string;
-    price?: number;
-    discount?: number;
-    images?: any[];
+    productImage: string;
+    stockQuantity: number;
+    id: number;
+    createdDate: string;
+    updatedDate: string | null;
+    createdBy: string;
+    updatedBy: string | null;
+    isActive: boolean;
+    isDeleted: boolean;
+    displayOrder: number | null;
 }
 
 const ProductCart = (props: TProps) => {
     const { user } = useAuth()
 
-    const [productImages, setProductImages] = useState<Record<string, string>>({})
     const { carts } = useSelector((state: RootState) => state.cart)
     const dispatch: AppDispatch = useDispatch()
 
@@ -84,7 +93,6 @@ const ProductCart = (props: TProps) => {
     const handleNavigateProductDetail = (id: number) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${id}`)
     }
-
 
     const totalItemsCart = useMemo(() => {
         if (!carts?.data) return 0;
@@ -111,36 +119,6 @@ const ProductCart = (props: TProps) => {
         }
     }, [dispatch, user?.id]);
 
-    useEffect(() => {
-        const fetchImages = async () => {
-            if (!carts?.data?.length) return;
-            
-            const imageMap: Record<string, string> = {};
-            const cartItems = carts?.data as CartItem[] || [];
-            
-            // Use Promise.all for parallel requests
-            await Promise.all(
-                cartItems.map(async (item) => {
-                    try {
-                        const res = await getProductDetail(item.productId);
-                        const data = res?.result;
-                        if (data) {
-                            const image = data.images?.[0]?.imageUrl;
-                            imageMap[item.productId] = image;
-                        }
-                    } catch (error) {
-                        console.error(`Error fetching image for product ${item.productId}:`, error);
-                    }
-                })
-            );
-            
-            setProductImages(imageMap);
-        };
-
-        fetchImages();
-    }, [carts?.data]);
-
-    // Memoize cart items rendering to prevent unnecessary re-renders
     const renderCartItems = useMemo(() => {
         if (!carts?.data?.length) {
             return (
@@ -162,7 +140,7 @@ const ProductCart = (props: TProps) => {
                         key={item.productId} 
                         onClick={() => handleNavigateProductDetail(item.productId)}
                     >
-                        <Avatar src={productImages[item.productId]} />
+                        <Avatar src={item.productImage} />
                         <Box sx={{ ml: 1 }}>
                             <Typography sx={{ textWrap: "wrap", fontSize: "13px" }}>{item?.productName}</Typography>
                             <Box sx={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -171,13 +149,9 @@ const ProductCart = (props: TProps) => {
                                     fontWeight: "bold",
                                     fontSize: "12px"
                                 }}>
-                                    {item?.discount && item?.discount > 0 && item?.price ? (
-                                        formatPrice(item.price * (100 - item.discount * 100) / 100)
-                                    ) : item?.price ? (
-                                        formatPrice(item.price)
-                                    ) : null}
+                                    {formatPrice(item.newPrice)}
                                 </Typography>
-                                {(item?.discount && item?.discount > 0 && item?.price) ? (
+                                {item.price !== item.newPrice && (
                                     <Typography variant="h6" sx={{
                                         color: theme.palette.error.main,
                                         fontWeight: "bold",
@@ -186,7 +160,7 @@ const ProductCart = (props: TProps) => {
                                     }}>
                                         {formatPrice(item.price)}
                                     </Typography>
-                                ) : null}
+                                )}
                             </Box>
                         </Box>
                         <Typography sx={{ textWrap: "wrap", fontSize: "13px", fontWeight: 600, ml: 2 }}>
@@ -208,7 +182,7 @@ const ProductCart = (props: TProps) => {
                 </Box>
             </Box>
         );
-    }, [carts?.data, productImages, theme, t, handleNavigateProductDetail]);
+    }, [carts?.data, theme, t, handleNavigateProductDetail]);
 
     return (
         <React.Fragment>

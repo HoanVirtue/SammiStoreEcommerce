@@ -22,3 +22,8 @@ export type TParamsDeleteCart = {
     productId: number,
 }
 
+export type TParamsGetCartData = {
+    productIds: string,
+}
+
+

@@ -26,11 +26,11 @@ import 'src/styles/globals.scss'
 
 // ** Configure NProgress
 NProgress.configure({ 
-  minimum: 0.3,
+  minimum: 0.1,
   easing: 'ease',
-  speed: 200,
+  speed: 500,
   showSpinner: false,
-  trickleSpeed: 100
+  trickleSpeed: 200
 })
 
 import { store } from 'src/stores'

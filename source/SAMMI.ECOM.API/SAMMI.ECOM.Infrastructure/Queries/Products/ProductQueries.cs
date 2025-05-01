@@ -22,6 +22,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
         Task<InventoryStatistic> GetListInventory(InventoryFilterModel filterModel);
         Task<IEnumerable<ProductDTO>> GetListBetSellingProduct(int numberTop);
         Task<IEnumerable<ProductDTO>> GetRelated(int productId, int numberTop);
+        Task<IEnumerable<ProductDTO>> GetDataNew(int numberTop);
     }
     public class ProductQueries : QueryRepository<Product>, IProductQueries
     {
@@ -617,6 +618,58 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                         sqlTemplate.Parameters,
                         splitOn: "ProductId"
                         );
+                });
+        }
+
+        public Task<IEnumerable<ProductDTO>> GetDataNew(int numberTop)
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    string query = @$"
+                        SELECT
+                        DISTINCT t1.Id,
+                        t1.Code AS Code,
+                        t1.Name AS Name,
+                        t1.StockQuantity AS StockQuantity,
+                        t1.Price AS Price,
+                        t1.Discount AS Discount,
+                        t1.Ingredient AS Ingredient,
+                        t1.Uses AS Uses,
+                        t1.UsageGuide AS UsageGuide,
+                        t1.BrandId AS BrandId,
+                        t1.Status AS Status,
+                        t1.CategoryId AS CategoryId,
+                        t1.StartDate AS StartDate,
+                        t1.EndDate AS EndDate,
+                        t1.CreatedDate AS CreatedDate,
+                        t1.UpdatedDate AS UpdatedDate,
+                        t1.CreatedBy AS CreatedBy,
+                        t1.UpdatedBy AS UpdatedBy,
+                        t1.IsActive AS IsActive,
+                        t1.IsDeleted AS IsDeleted,
+                        t1.DisplayOrder AS DisplayOrder,
+                        t4.*
+                        FROM Product t1 
+                        LEFT JOIN (SELECT pi.ProductId,
+                                          pi.DisplayOrder,
+                                          i.Id,
+                                          i.ImageUrl,
+                                          i.PublicId,
+                                          i.TypeImage
+                                    FROM ProductImage pi
+                                    INNER JOIN Image i ON pi.ImageId = i.Id AND i.IsDeleted != 1
+                                    WHERE pi.IsDeleted != 1
+                                    AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
+                                    ) t2 ON t1.Id = t2.ProductId
+                        WHERE t1.ISDELETED = 0 AND t1.Status = 1
+
+                        ORDER BY CreatedDate DESC
+
+                        LIMIT {numberTop}";
+
+                    
+                    return conn.QueryAsync<ProductDTO>(query, sqlTemplate.Parameters);
                 });
         }
     }

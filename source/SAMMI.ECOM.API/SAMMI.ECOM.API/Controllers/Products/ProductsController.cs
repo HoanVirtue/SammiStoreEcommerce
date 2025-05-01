@@ -131,7 +131,10 @@ namespace SAMMI.ECOM.API.Controllers.Products
         [HttpGet("get-suggest")]
         public async Task<IActionResult> GetDataSuggest([FromQuery]string keyWord, [FromQuery] int size = 5)
         {
-            return Ok(await _productElasticService.SuggestProducts(keyWord, size));
+            var product = (await _productQueries.GetAll()).Where(x => x.Name.Contains(keyWord));
+            
+            return Ok(product);
+            //return Ok(await _productElasticService.SuggestProducts(keyWord, size));
         }
 
         [AllowAnonymous]
@@ -147,6 +150,20 @@ namespace SAMMI.ECOM.API.Controllers.Products
         {
             _productElasticService.BulkImportProducts();
             return Ok();
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-product-new")]
+        public async Task<IActionResult> GetProductNewAsync([FromQuery]int numberTop = 20)
+        {
+            return Ok(await _productQueries.GetDataNew(numberTop));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-product-best-selling")]
+        public async Task<IActionResult> GetProductBestSellingAsync([FromQuery]int numberTop = 40)
+        {
+            return Ok(await _productQueries.GetListBetSellingProduct(numberTop));
         }
     }
 }

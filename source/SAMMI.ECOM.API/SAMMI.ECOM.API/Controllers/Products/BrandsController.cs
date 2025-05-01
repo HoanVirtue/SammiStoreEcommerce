@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
@@ -130,6 +131,17 @@ namespace SAMMI.ECOM.API.Controllers.Brands
         public async Task<IActionResult> GetCodeByLastId()
         {
             return Ok(await _brandQueries.GetCodeByLastId());
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-brands")]
+        public async Task<IActionResult> GetBrandsAsync(int numberTop = 20)
+        {
+            RequestFilterModel filterModel = new RequestFilterModel()
+            {
+                Take = numberTop
+            };
+            return Ok(await _brandQueries.GetAll(filterModel));
         }
     }
 }

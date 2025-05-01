@@ -72,7 +72,7 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
 
             builder.RegisterType<EmailHelper>().As<EmailHelper>().SingleInstance();
 
-            builder.RegisterType<PermissionAuthorizationHandler>().As<IAuthorizationHandler>().SingleInstance();
+            builder.RegisterType<PermissionAuthorizationHandler>().As<IAuthorizationHandler>().InstancePerLifetimeScope();
 
 
             // Register all the Repository classes (they implement CrudRepository) in assembly holding the Repositories

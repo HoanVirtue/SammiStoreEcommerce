@@ -28,7 +28,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
 
         CustomerDTO FindCustomerById(int id);
 
-        Task<IEnumerable<PermissionDTO>> GetPermissionOfRole(int roleId);
+        Task<IEnumerable<RolePermissionDTO>> GetPermissionOfRole(int roleId);
 
         Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null);
 

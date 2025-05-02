@@ -23,6 +23,7 @@ import { createVNPayPaymentUrl } from '@/services/payment';
 import { getCaculatedFee } from '@/services/delivery-method';
 import { getCurrentAddress } from '@/services/address';
 import { getAllPaymentMethods } from '@/services/payment-method';
+import { getCartData } from '@/services/cart';
 import { formatPrice } from '@/utils';
 import { Truck, Wallet, Ticket } from 'lucide-react-native';
 import { useLocalSearchParams } from 'expo-router';
@@ -31,6 +32,7 @@ import { TParamsAddresses } from '@/types/address';
 import AddressModal from './address';
 import { getProductDetail } from '@/services/product';
 import VoucherModal from './voucher';
+import { colors } from '@/constants/colors';
 
 // Types và Interfaces
 type TItemOrderProduct = {
@@ -80,7 +82,7 @@ const CheckoutScreen = () => {
   const [selectedVoucherId, setSelectedVoucherId] = useState<number>(0);
   const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
   const params = useLocalSearchParams();
-  const [productDetails, setProductDetails] = useState<{ [key: number]: TProduct }>({});
+  const [cartItems, setCartItems] = useState<any[]>([]);
 
   const { user } = useAuth();
   const navigation = useNavigation();
@@ -347,26 +349,44 @@ const CheckoutScreen = () => {
     getShippingFee();
   }, [myCurrentAddress, memoQueryProduct.totalPrice]);
 
+  // Fetch cart data based on selected products
+  const productIdsString = useMemo(() => {
+    return memoQueryProduct.selectedProducts.map((p) => p.productId).join(',');
+  }, [memoQueryProduct.selectedProducts]);
+
   useEffect(() => {
-    const fetchProductDetails = async () => {
-      const details: { [key: number]: TProduct } = {};
-      for (const item of memoQueryProduct.selectedProducts) {
+    const fetchCartData = async () => {
+      if (memoQueryProduct.selectedProducts.length > 0) {
+        setLoading(true);
         try {
-          const res = await getProductDetail(item.productId);
-          if (res?.result) {
-            details[item.productId] = res.result;
+          const response = await getCartData({ 
+              params: { productIds: productIdsString } 
+          });
+          if (response?.isSuccess && response?.result) {
+            // Map response to include quantity from original selection
+            const itemsWithQuantity = response.result.map((item: any) => {
+              const originalProduct = memoQueryProduct.selectedProducts.find(p => p.productId === item.productId);
+              return {
+                ...item,
+                quantity: originalProduct?.quantity || 0 // Add quantity back
+              };
+            });
+            setCartItems(itemsWithQuantity);
           }
         } catch (error) {
-          console.error('Error fetching product details:', error);
+          console.error('Error fetching cart data:', error);
+          Toast.show({
+            type: 'error',
+            text1: 'Lỗi khi tải dữ liệu giỏ hàng',
+          });
+        } finally {
+          setLoading(false);
         }
       }
-      setProductDetails(details);
     };
 
-    if (memoQueryProduct.selectedProducts.length > 0) {
-      fetchProductDetails();
-    }
-  }, []);
+    fetchCartData();
+  }, [productIdsString]);
 
   if (loading) {
     return (
@@ -466,17 +486,16 @@ const CheckoutScreen = () => {
 
           {/* Product List */}
           <View style={styles.productList}>
-            {memoQueryProduct.selectedProducts.length === 0 ? (
+            {cartItems.length === 0 ? (
               <Text style={styles.emptyText}>Không có sản phẩm nào được chọn</Text>
             ) : (
-              memoQueryProduct.selectedProducts.map((item: TItemOrderProduct) => {
-                const productDetail = productDetails[item.productId];
+              cartItems.map((item: any) => {
                 return (
                   <View key={`${item.productId}-${item.quantity}`} style={styles.productItem}>
                     <View style={styles.productImageContainer}>
-                      {productDetail?.images?.[0]?.imageUrl ? (
+                      {item.productImage ? (
                         <Image
-                          source={{ uri: productDetail.images[0].imageUrl }}
+                          source={{ uri: item.productImage }}
                           style={styles.productImage}
                           resizeMode="cover"
                         />
@@ -487,13 +506,11 @@ const CheckoutScreen = () => {
                       )}
                     </View>
                     <View style={styles.productInfo}>
-                      <Text style={styles.productName}>{productDetail?.name || item.product.name}</Text>
+                      <Text style={styles.productName}>{item.productName}</Text>
                       <Text style={styles.productQuantity}>Số lượng: {item.quantity}</Text>
                       <Text style={styles.productPrice}>
                         {formatPrice(
-                          (productDetail?.price || item.product.price) *
-                          (productDetail?.discount ? (100 - productDetail.discount) / 100 : 1) *
-                          item.quantity
+                          item.newPrice * item.quantity
                         )}
                       </Text>
                     </View>
@@ -534,10 +551,8 @@ const CheckoutScreen = () => {
           <TouchableOpacity
             style={[
               styles.placeOrderButton,
-              (!selectedPayment || !selectedDelivery) && styles.disabledButton
             ]}
             onPress={handlePlaceOrder}
-            disabled={!selectedPayment || !selectedDelivery}
           >
             <Text style={styles.placeOrderButtonText}>Đặt hàng</Text>
           </TouchableOpacity>
@@ -598,13 +613,12 @@ const styles = StyleSheet.create({
   button: {
     padding: 12,
     borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ddd',
+    backgroundColor: colors.primary,
     alignItems: 'center',
   },
   buttonText: {
     fontSize: 16,
-    color: '#333',
+    color: '#fff',
   },
   deliveryOption: {
     padding: 16,
@@ -614,7 +628,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   selectedOption: {
-    borderColor: '#000',
+    borderColor: colors.primary,
     borderWidth: 2,
   },
   deliveryInfo: {
@@ -741,7 +755,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   placeOrderButton: {
-    backgroundColor: '#000',
+    backgroundColor: colors.primary,
     padding: 16,
     borderRadius: 8,
     marginTop: 16,
@@ -766,9 +780,6 @@ const styles = StyleSheet.create({
   placeholderText: {
     fontSize: 14,
     color: '#666',
-  },
-  disabledButton: {
-    backgroundColor: '#ccc',
   },
   discountValue: {
     color: '#4CAF50',

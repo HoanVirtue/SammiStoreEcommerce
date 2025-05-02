@@ -13,7 +13,7 @@ export const getAllReceipts = async (data: { params: TParamsGetAllReceipts }) =>
 
 export const getReceiptCode = async () => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}`)
+        const res = await instance.get(`${API_ENDPOINT.GOODS_RECEIPT.INDEX}/get-code-by-last-id`)
         return res.data
     } catch (error) {
         return error

@@ -16,14 +16,24 @@ export type TParamsPayback = {
     orderCode: string;
 }
 
-export type TItemOrderProduct = {
+export interface TItemOrderProduct {
+    cartId: number;
     productId: number;
-    name: string;
-    quantity: number;
+    productName: string;
     price: number;
-    discount?: number;
-    images: ProductImage[];
-}
+    newPrice: number;
+    quantity: number;
+    productImage: string;
+    stockQuantity: number;
+    id: number;
+    createdDate: string;
+    updatedDate: string | null;
+    createdBy: string;
+    updatedBy: string | null;
+    isActive: boolean;
+    isDeleted: boolean;
+    displayOrder: number | null;
+} 
 
 export type TItemCart = {
     productId: number;

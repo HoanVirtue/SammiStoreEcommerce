@@ -144,14 +144,14 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
             {isLoading && <Spinner />}
             <WriteReviewModal
                 open={openReview.open}
-                productId={openReview.productId}
                 orderId={orderId}
+                orderDetails={orderData?.details || []}
                 onClose={() => setOpenReview({ open: false, userId: 0, productId: 0 })}
             />
             <Container maxWidth="lg">
                 <Stack spacing={3}>
                     {/* Order Status Stepper */}
-                    <OrderStatusStepper 
+                    <OrderStatusStepper
                         orderStatus={orderData?.orderStatus}
                     />
                     <Box
@@ -303,42 +303,46 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                     </Box>
 
                     <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-                        {(orderData.orderStatus === OrderStatus.Pending.label
-                        || orderData.orderStatus === OrderStatus.WaitingForPayment.label) &&
-                        orderData.paymentStatus !== PaymentStatus.Paid.label
-                        && orderData.paymentMethod === 'VNPay' && (
-                            <Button
-                                variant="contained"
-                                color='error'
-                                onClick={() => handlePaymentMethod(orderData.paymentMethod)}
-                                startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
-                            >
-                                {t('go_to_payment')}
-                            </Button>
-                        )}
-                        {(orderData.orderStatus === OrderStatus.WaitingForPayment.label || orderData.orderStatus === OrderStatus.Pending.label) &&
-                        orderData.paymentMethod !== 'VNPay' && (
-                            <Button
-                                variant="contained"
-                                color='error'
-                                onClick={() => setOpenCancelDialog(true)}
-                                startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
-                            >
-                                {t('cancel_order')}
-                            </Button>
-                        )}
-                        <Button
-                            variant="contained"
-                            color='primary'
-                            startIcon={<IconifyIcon icon="fluent:stack-star-16-regular" />}
-                            onClick={() => setOpenReview({ 
-                                open: true, 
-                                userId: user?.id || 0,
-                                productId: orderData?.details?.[0]?.productId || 0
-                            })}
-                        >
-                            {t('rate_product')}
-                        </Button>
+                        {(orderData?.orderStatus === OrderStatus.Pending.label
+                            || orderData?.orderStatus === OrderStatus.WaitingForPayment.label) &&
+                            orderData?.paymentStatus !== PaymentStatus.Paid.label
+                            && orderData?.paymentMethod === 'VNPay' && (
+                                <Button
+                                    variant="contained"
+                                    color='error'
+                                    onClick={() => handlePaymentMethod(orderData.paymentMethod)}
+                                    startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                                >
+                                    {t('go_to_payment')}
+                                </Button>
+                            )}
+                        {(orderData?.orderStatus === OrderStatus.WaitingForPayment.label || orderData?.orderStatus === OrderStatus.Pending.label) &&
+                            orderData?.paymentMethod !== 'VNPay' && (
+                                <Button
+                                    variant="contained"
+                                    color='error'
+                                    onClick={() => setOpenCancelDialog(true)}
+                                    startIcon={<IconifyIcon icon="tabler:device-ipad-cancel" />}
+                                >
+                                    {t('cancel_order')}
+                                </Button>
+                            )}
+                        {orderData?.orderStatus === OrderStatus.Completed.label &&
+                            (
+                                <Button
+                                    variant="contained"
+                                    color='primary'
+                                    startIcon={<IconifyIcon icon="fluent:stack-star-16-regular" />}
+                                    onClick={() => setOpenReview({
+                                        open: true,
+                                        userId: user?.id || 0,
+                                        productId: orderData?.details?.[0]?.productId || 0
+                                    })}
+                                >
+                                    {t('rate_product')}
+                                </Button>
+                            )
+                        }
                     </Box>
                 </Stack>
             </Container>

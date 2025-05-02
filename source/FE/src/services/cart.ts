@@ -1,7 +1,7 @@
 import axios from "axios"
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateCart, TParamsGetAllCarts } from "src/types/cart"
+import { TParamsCreateCart, TParamsGetAllCarts, TParamsGetCartData } from "src/types/cart"
 
 export const getCarts = async (data: {params: TParamsGetAllCarts}) => {
     try {
@@ -32,3 +32,12 @@ export const deleteCart = async (id: number) => {
     }
 }
 
+
+export const getCartData = async (data: { params: { productIds: string } }) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.CART.INDEX}/get-order-select-products`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}

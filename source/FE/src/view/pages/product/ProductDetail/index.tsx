@@ -49,6 +49,8 @@ import { useAuth } from 'src/hooks/useAuth'
 import { hexToRGBA } from 'src/utils/hex-to-rgba'
 import { formatPrice, isExpired } from 'src/utils'
 import { ROUTE_CONFIG } from 'src/configs/route'
+import RelatedProduct from './RelatedProduct'
+import ProductReview from './ProductReview'
 
 // Constants
 const INITIAL_PRODUCT_STATE: TProduct = {
@@ -86,7 +88,6 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
     const [productData, setProductData] = useState<TProduct>(INITIAL_PRODUCT_STATE)
     const [listRelatedProduct, setListRelatedProduct] = useState<TProduct[]>([])
     const [productAmount, setProductAmount] = useState<number>(1)
-    const [listReview, setListReview] = useState<TReviewItem[]>([])
     const [activeTab, setActiveTab] = useState(0)
     const [selectedImage, setSelectedImage] = useState(0)
     const [showZoom, setShowZoom] = useState(false)
@@ -419,7 +420,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
                                         sx={{ color: theme.palette.warning.main }}
                                     />
                                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                        ({listReview.length} {t('reviews')})
+                                        ({listRelatedProduct.length} {t('reviews')})
                                     </Typography>
                                 </Box>
                                 <Box sx={{
@@ -662,28 +663,11 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
 
                 {/* Reviews Section */}
                 <Grid xs={12} sx={{ mt: 4 }}>
-                    <Box sx={{
-                        backgroundColor: theme.palette.background.paper,
-                        borderRadius: "15px",
-                        py: 5,
-                        px: 4
-                    }}>
-                        <Typography variant="h6" sx={{
-                            color: theme.palette.customColors.main,
-                            fontWeight: "bold",
-                            fontSize: "18px",
-                            mb: 3
-                        }}>
-                            {t('review_product')} <b style={{ color: theme.palette.primary.main }}>{listReview.length}</b> {t('rating')}
-                        </Typography>
-                        <Grid container spacing={3}>
-                            {listReview?.map((review: TReviewItem) => (
-                                <Grid item key={review.id} xs={12}>
-                                    <ReviewCard item={review} />
-                                </Grid>
-                            ))}
-                        </Grid>
-                    </Box>
+                    <ProductReview productId={productId} />
+                </Grid>
+
+                <Grid xs={12} sx={{ mt: 4 }}>
+                    <RelatedProduct productId={productId} />
                 </Grid>
             </Grid>
         </Box>

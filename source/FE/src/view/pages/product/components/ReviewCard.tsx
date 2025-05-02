@@ -1,33 +1,41 @@
-import { Avatar, Box, IconButton, Rating, Tooltip, Typography } from "@mui/material";
+import { Avatar, Box, IconButton, Rating, Tooltip, Typography, ImageList, ImageListItem, Divider } from "@mui/material";
 import { Card, styled } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import IconifyIcon from "src/components/Icon";
 import { useAuth } from "src/hooks/useAuth";
 import { TReviewItem } from "src/types/review";
-import { toFullName } from "src/utils";
 import { getTimePast } from "src/utils/date";
 import UpdateReview from "./UpdateReview";
 import ConfirmDialog from "src/components/confirm-dialog";
 import { deleteMyReviewAsync } from "src/stores/review/action";
 import { AppDispatch, RootState } from "src/stores";
 import { useDispatch, useSelector } from "react-redux";
+import Image from "src/components/image";
+import { formatDate } from "src/utils";
 
 interface TReviewCard {
-    item: TReviewItem
+    item: TReviewItem;
+    onReviewUpdated?: () => void;
 }
 
 const StyledCard = styled(Card)(({ theme }) => ({
     position: "relative",
-    boxShadow: theme.shadows[8],
-    padding: 20,
+    boxShadow: 'none',
+    padding: theme.spacing(3),
+    borderRadius: 0,
+    backgroundColor: theme.palette.background.paper,
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    '&:last-child': {
+        borderBottom: 'none'
+    },
     ".MuiCardMedia-root.MuiCardMedia-media": {
         objectFit: "contain"
     }
 }));
 
 const ReviewCard = (props: TReviewCard) => {
-
+    const { item, onReviewUpdated } = props;
     const [openUpdateReview, setOpenUpdateReview] = useState({
         open: false,
         id: 0
@@ -38,48 +46,38 @@ const ReviewCard = (props: TReviewCard) => {
         id: 0
     });
 
-    const { item } = props
-    const { i18n, t } = useTranslation()
-    const { user } = useAuth()
+    const { i18n, t } = useTranslation();
+    const { user } = useAuth();
     const dispatch: AppDispatch = useDispatch();
-    const { reviews, isSuccessUpdate, isErrorUpdate, isLoading,
-        errorMessageUpdate, isSuccessDelete, isErrorDelete, errorMessageDelete, typeError } = useSelector((state: RootState) => state.review)
-
-    const updatedAt = item?.updatedAt ? new Date(item.updatedAt) : new Date();
-    const content = item?.content || t('no_content');
+    const { isSuccessUpdate, isErrorUpdate, isSuccessDelete, isErrorDelete } = useSelector((state: RootState) => state.review);
 
     const handleCloseUpdateReview = () => {
         setOpenUpdateReview({
             open: false,
             id: 0
-        })
-    }
+        });
+    };
 
     const handleCloseDeleteDialog = () => {
         setOpenDeleteReview({
             open: false,
             id: 0
-        })
-    }
+        });
+    };
 
     const handleDeleteReview = () => {
-        dispatch(deleteMyReviewAsync(openDeleteReview.id))
-    }
+        dispatch(deleteMyReviewAsync(openDeleteReview.id));
+    };
 
-    /// update Review
     useEffect(() => {
-        if (isSuccessUpdate) {
-            handleCloseUpdateReview()
+        if (isSuccessUpdate || isSuccessDelete) {
+            handleCloseUpdateReview();
+            handleCloseDeleteDialog();
+            if (onReviewUpdated) {
+                onReviewUpdated();
+            }
         }
-    }, [isSuccessUpdate, isErrorUpdate, errorMessageUpdate, typeError])
-
-
-    //delete Review
-    useEffect(() => {
-        if (isSuccessDelete) {
-            handleCloseDeleteDialog()
-        }
-    }, [isSuccessDelete, isErrorDelete, errorMessageDelete])
+    }, [isSuccessUpdate, isSuccessDelete, onReviewUpdated]);
 
     return (
         <>
@@ -93,42 +91,80 @@ const ReviewCard = (props: TReviewCard) => {
                 onClose={handleCloseDeleteDialog}
                 handleCancel={handleCloseDeleteDialog}
                 handleConfirm={handleDeleteReview}
-                title={"Xác nhận xóa đánh giá"}
-                description={"Bạn có chắc xóa đánh giá này không?"}
+                title={t("confirm_delete_review")}
+                description={t("confirm_delete_review_description")}
             />
-            <StyledCard sx={{ width: "100%" }}>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <Avatar src={item?.user?.avatar} />
-                    <Box sx={{ width: "100%", flexDirection: "column" }}>
-                        <Typography>
-                            {toFullName(item?.user?.lastName || "", item?.user?.middleName || "", item?.user?.firstName || "", i18n.language)}
-                        </Typography>
-                        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                            <Rating name="read-only" defaultValue={item?.star} precision={0.1} readOnly sx={{ fontSize: '1rem', mt: 1 }} />
-                            <Typography>{getTimePast(updatedAt, t)}</Typography>
+            <StyledCard>
+                <Box sx={{ display: "flex", gap: 2, width: '100%' }}>
+                    <Avatar 
+                        src={item.customerImage} 
+                        alt={item.customerName}
+                        sx={{ width: 40, height: 40 }}
+                    />
+                    <Box sx={{ flex: 1 }}>
+                        <Box sx={{ 
+                            display: "flex",
+                            flexDirection: "column",
+                        }}>
+                            <Box>
+                                <Typography variant="subtitle1" sx={{ fontWeight: 600, mb: 1 }}>
+                                    {item.customerName}
+                                </Typography>
+                                <Rating 
+                                    value={item.rating} 
+                                    readOnly 
+                                    size="small"
+                                    sx={{ color: theme => theme.palette.primary.main }}
+                                />
+                            </Box>
+                            <Typography variant="body2" color="text.secondary">
+                                {formatDate(item.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+                            </Typography>
                         </Box>
+                        <Typography sx={{ mt: 2, color: 'text.primary' }}>
+                            {item.comment}
+                        </Typography>
+                        {item.imageUrl && (
+                            <Box sx={{ mt: 2 }}>
+                                <Image
+                                    src={item.imageUrl}
+                                    alt="Review image"
+                                    sx={{
+                                        width: '100%',
+                                        maxWidth: 200,
+                                        maxHeight: 200,
+                                        borderRadius: 1,
+                                        cursor: 'pointer',
+                                        objectFit: 'cover'
+                                    }}
+                                />
+                            </Box>
+                        )}
+                        {user?.id === item.userId && (
+                            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 2 }}>
+                                <Tooltip title={t("edit")}>
+                                    <IconButton 
+                                        size="small"
+                                        onClick={() => setOpenUpdateReview({ open: true, id: item.id })}
+                                    >
+                                        <IconifyIcon icon="tabler:edit" fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip title={t("delete")}>
+                                    <IconButton 
+                                        size="small"
+                                        onClick={() => setOpenDeleteReview({ open: true, id: item.id })}
+                                    >
+                                        <IconifyIcon icon="mdi:delete-outline" fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
+                            </Box>
+                        )}
                     </Box>
                 </Box>
-                <Box mt={1}>
-                    <Typography>{content}</Typography>
-                </Box>
-                {user?.id === item?.user?.id && (
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2, mt: 1 }}>
-                        <Tooltip title={t("edit")}>
-                            <IconButton onClick={() => setOpenUpdateReview({ open: true, id: item.id })}>
-                                <IconifyIcon icon='tabler:edit' />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip title={t("delete")}>
-                            <IconButton onClick={() => setOpenDeleteReview({ open: true, id: item.id })}>
-                                <IconifyIcon icon='mdi:delete-outline' />
-                            </IconButton>
-                        </Tooltip>
-                    </Box>
-                )}
             </StyledCard>
         </>
-    )
-}
+    );
+};
 
-export default ReviewCard
+export default ReviewCard;

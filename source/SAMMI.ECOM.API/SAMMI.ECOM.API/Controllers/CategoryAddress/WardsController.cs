@@ -25,7 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             _wardRepository = wardRepository;
         }
 
-        [AuthorizePermission(PermissionEnum.WardView)]
+        //[AuthorizePermission(PermissionEnum.WardView)]
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -41,7 +41,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             return Ok();
         }
 
-        [AuthorizePermission(PermissionEnum.WardView)]
+        //[AuthorizePermission(PermissionEnum.WardView)]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {

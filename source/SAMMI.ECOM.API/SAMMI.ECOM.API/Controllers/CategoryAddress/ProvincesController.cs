@@ -25,7 +25,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             _provinRepository = provinRepository;
         }
 
-        [AuthorizePermission(PermissionEnum.ProvinceView)]
+        //[AuthorizePermission(PermissionEnum.ProvinceView)]
         [HttpGet]
         // đây là quyền xem: Xem tỉnh/thành phố, mã code: PROVINCE_VIEW
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
@@ -42,7 +42,7 @@ namespace SAMMI.ECOM.API.Controllers.CategoryAddress
             return Ok();
         }
 
-        [AuthorizePermission(PermissionEnum.ProvinceView)]
+        //[AuthorizePermission(PermissionEnum.ProvinceView)]
         [HttpGet("{id}")]
         // PROVINCE_VIEW
         public async Task<IActionResult> Get(int id)

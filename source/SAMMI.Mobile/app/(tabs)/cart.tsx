@@ -65,12 +65,10 @@ export default function CartScreen() {
       .filter((item) => selectedItems.includes(item.productId))
       .reduce((total, item) => {
         const price = item.price || 0;
-        const discount = item.discount || 0;
         const quantity = item.quantity || 1;
-        const currentPrice = discount > 0 ? (price * (100 - discount)) / 100 : price;
-        return total + currentPrice * quantity;
+        return total + price * quantity;
       }, 0);
-  }, [cart?.data, selectedItems, discountValue, originalPrice]);
+  }, [cart?.data, selectedItems]);
 
   const handleUpdateQuantity = useCallback(
     async (productId: number, quantity: number) => {
@@ -169,9 +167,8 @@ export default function CartScreen() {
             productId: item.productId,
             quantity: item.quantity,
             price: item.price || 0,
-            discount: item.discount || 0,
-            name: item.name || 'Không có tên sản phẩm',
-            images: item.images || [],
+            productName: item.productName || 'Không có tên sản phẩm',
+            productImage: item.productImage || '/public/svgs/placeholder.svg',
           }))
         ),
         totalPrice: subtotal.toString(),
@@ -274,14 +271,15 @@ export default function CartScreen() {
                 />
               )}
             </View>
-            {cartItems.map((item: TItemOrderProduct) => (
+            {cartItems.map((item: TItemOrderProduct, index: number) => (
               <CartItem
                 key={`cart-item-${item.productId}-${item.quantity}`}
+                index={index}
                 item={item}
                 onUpdateQuantity={handleUpdateQuantity}
                 onRemove={handleRemoveItem}
-                onCheckboxChange={handleCheckboxChange}
-                isChecked={selectedItems.includes(item.productId)}
+                handleChangeCheckBox={handleCheckboxChange}
+                selectedRow={selectedItems}
               />
             ))}
           </ScrollView>

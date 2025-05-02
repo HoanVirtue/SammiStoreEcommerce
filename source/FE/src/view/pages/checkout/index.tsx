@@ -66,6 +66,7 @@ import { PAYMENT_METHOD } from 'src/configs/payment';
 import { getVoucherDetail } from 'src/services/voucher';
 import StepLabel from 'src/components/step-label';
 import { toast } from 'react-toastify';
+import { getCartDataAsync } from 'src/stores/cart/action';
 
 // ----------------------------------------------------------------------
 
@@ -142,19 +143,8 @@ const CheckoutPage: NextPage<TProps> = () => {
     }], [t, shippingPrice, leadTime]);
 
     const handleFormatProductData = (items: any) => {
-        const objectMap: Record<string, TItemOrderProduct> = {};
-        carts?.data?.forEach((cart: CartItem) => {
-            objectMap[cart.productId] = {
-                productId: cart.productId,
-                quantity: cart.quantity,
-                name: cart.productName || '',
-                price: cart.price || 0,
-                discount: cart.discount,
-                images: cart.images || [],
-            };
-        });
         return items.map((item: any) => ({
-            ...objectMap[+item.productId],
+            productId: item.productId,
             quantity: item.quantity,
         }));
     };
@@ -213,6 +203,18 @@ const CheckoutPage: NextPage<TProps> = () => {
         }
     }, [selectedVoucherId, memoQueryProduct.totalPrice, shippingPrice, t]);
 
+    useEffect(() => {
+        if (user?.id && memoQueryProduct.selectedProduct.length > 0) {
+            dispatch(
+                getCartDataAsync({
+                    params: {
+                        productIds: memoQueryProduct.selectedProduct.map((item: TItemOrderProduct) => item.productId).join(',')
+                    }
+                })
+            );
+        }
+    }, [dispatch, user?.id, memoQueryProduct.selectedProduct]);
+
     // ============= Handlers =============
     const handlePlaceOrder = () => {
         const subtotal = Number(memoQueryProduct.totalPrice);
@@ -225,7 +227,7 @@ const CheckoutPage: NextPage<TProps> = () => {
             quantity: item.quantity,
             tax: 0,
             id: 0,
-            amount: item.price * item.quantity * (item.discount ? (100 - item.discount) / 100 : 1),
+            amount: item.price * item.quantity,
         }));
 
         dispatch(
@@ -589,7 +591,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 totalPrice={memoQueryProduct.totalPrice}
                                 shippingPrice={memoShippingPrice}
                                 voucherDiscount={voucherDiscount}
-                                selectedProduct={memoQueryProduct.selectedProduct}
+                                selectedProduct={carts?.data}
                                 onSubmit={handlePlaceOrder}
                             />
                         </Suspense>

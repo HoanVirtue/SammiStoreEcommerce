@@ -1,11 +1,8 @@
-﻿using System.Security.Claims;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Nest;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Utillity;
@@ -14,9 +11,9 @@ using SAMMI.ECOM.Domain.Commands.Auth;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.ModelViews;
 using SAMMI.ECOM.I18N.Auths;
-using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Repositories;
 using SAMMI.ECOM.Infrastructure.Services.Auth;
+using System.Security.Claims;
 
 namespace SAMMI.ECOM.API.Controllers
 {
@@ -29,6 +26,7 @@ namespace SAMMI.ECOM.API.Controllers
         private readonly EmailHelper emailHelper;
         private readonly IConfiguration _config;
         private readonly SignInManager<User> _signInManager;
+
         public AuthController(
             IUsersRepository userRepository,
             IAuthenticationService<User> authService,
@@ -49,50 +47,57 @@ namespace SAMMI.ECOM.API.Controllers
         [Route("login")]
         public async Task<IActionResult> Login(LoginViewModel request)
         {
-            if (string.IsNullOrEmpty(request.Username))
+            try
             {
-                return BadRequest(string.Format(SignInError.UserNameEmpty, request.Username));
-            }
-
-            if (string.IsNullOrEmpty(request.Password))
-            {
-                return BadRequest(string.Format(SignInError.PaswordEmpty, request.Username));
-            }
-
-            var signInRes = await _authService.PasswordSignInAsync(request.Username,
-                request.Password,
-                request.RememberMe,
-                false);
-            if (signInRes.Succeeded)
-            {
-                var genrateTokenResult = await _mediator.Send(new GenerateTokenCommand
+                if (string.IsNullOrEmpty(request.Username))
                 {
-                    Username = request.Username,
-                    TypeUser = request.IsEmployee == true ? TypeUserEnum.Employee : TypeUserEnum.Customer,
-                });
-
-                if (genrateTokenResult.IsSuccess)
-                {
-                    return Ok(genrateTokenResult);
+                    return BadRequest(string.Format(SignInError.UserNameEmpty, request.Username));
                 }
 
-                return BadRequest(genrateTokenResult);
-            }
+                if (string.IsNullOrEmpty(request.Password))
+                {
+                    return BadRequest(string.Format(SignInError.PaswordEmpty, request.Username));
+                }
 
-            if (signInRes.IsNotExisted)
-            {
-                return BadRequest(string.Format(SignInError.UserNotExisted, request.Username));
+                var signInRes = await _authService.PasswordSignInAsync(request.Username,
+                    request.Password,
+                    request.RememberMe,
+                    false);
+                if (signInRes.Succeeded)
+                {
+                    var genrateTokenResult = await _mediator.Send(new GenerateTokenCommand
+                    {
+                        Username = request.Username,
+                        TypeUser = request.IsEmployee == true ? TypeUserEnum.Employee : TypeUserEnum.Customer,
+                    });
+
+                    if (genrateTokenResult.IsSuccess)
+                    {
+                        return Ok(genrateTokenResult);
+                    }
+
+                    return BadRequest(genrateTokenResult);
+                }
+
+                if (signInRes.IsNotExisted)
+                {
+                    return BadRequest(string.Format(SignInError.UserNotExisted, request.Username));
+                }
+                if (signInRes.IsNotVerify)
+                {
+                    return BadRequest(SignInError.UserNotVerify);
+                }
+                if (signInRes.IsLockedOut)
+                {
+                    return BadRequest(string.Format(SignInError.UserIsLocked, request.Username));
+                }
+
+                return BadRequest(SignInError.PasswordMismatch);
             }
-            if(signInRes.IsNotVerify)
+            catch (Exception ex)
             {
-                return BadRequest(SignInError.UserNotVerify);
+                return BadRequest(ex.Message);
             }
-            if (signInRes.IsLockedOut)
-            {
-                return BadRequest(string.Format(SignInError.UserIsLocked, request.Username));
-            }
-            
-            return BadRequest(SignInError.PasswordMismatch);
         }
 
         [AllowAnonymous]
@@ -136,7 +141,7 @@ namespace SAMMI.ECOM.API.Controllers
         public async Task<IActionResult> GoogleLogin()
         {
             var authenticationResult = await HttpContext.AuthenticateAsync("Google");
-            if(!authenticationResult.Succeeded)
+            if (!authenticationResult.Succeeded)
             {
                 return Unauthorized("Không thể xác thực người dùng từ Google.");
             }
@@ -148,7 +153,7 @@ namespace SAMMI.ECOM.API.Controllers
                 return Unauthorized("Không tìm thấy thông tin đăng nhập từ Google. Vui lòng thử lại.");
             }
 
-            if(string.IsNullOrEmpty(UserIdentity.UserName))
+            if (string.IsNullOrEmpty(UserIdentity.UserName))
             {
                 return BadRequest("Thông tin người dùng không hợp lệ. Vui lòng thử lại sau");
             }
@@ -170,10 +175,10 @@ namespace SAMMI.ECOM.API.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("register")]
-        public async Task<IActionResult> RegisterAsync([FromBody]RegisterCommand request)
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterCommand request)
         {
             var registerRes = await _mediator.Send(request);
-            if(!registerRes.IsSuccess)
+            if (!registerRes.IsSuccess)
             {
                 return BadRequest(registerRes);
             }
@@ -182,12 +187,12 @@ namespace SAMMI.ECOM.API.Controllers
 
         [AllowAnonymous]
         [HttpGet("verify-email")]
-        public async Task<IActionResult> VerifyEmail([FromQuery]string token)
+        public async Task<IActionResult> VerifyEmail([FromQuery] string token)
         {
-            if(string.IsNullOrEmpty(token))
+            if (string.IsNullOrEmpty(token))
             {
                 return Redirect($"{_config["EmailSettings:ErrorUrl"]}?message={Uri.EscapeUriString("Liên kết xác nhận không hợp lệ.")}");
-            }    
+            }
             var verifyRes = await _userRepository.VerifyToken(token);
             if (!verifyRes.IsSuccess)
             {
@@ -199,7 +204,7 @@ namespace SAMMI.ECOM.API.Controllers
 
         [AllowAnonymous]
         [HttpGet("resend-verify-code")]
-        public async Task<IActionResult> ResendVerifyEmailAsync([FromQuery]string email)
+        public async Task<IActionResult> ResendVerifyEmailAsync([FromQuery] string email)
         {
             var actionRes = new ActionResponse();
             if (string.IsNullOrEmpty(email))
@@ -220,11 +225,11 @@ namespace SAMMI.ECOM.API.Controllers
                 return BadRequest(actionRes);
             }
 
-            if(user.VerifiedAt.Value.AddMinutes(1) > DateTime.Now)
+            if (user.VerifiedAt.Value.AddMinutes(1) > DateTime.Now)
             {
                 actionRes.AddError("Vui lòng quay lại xác thực sau 1 phút.");
                 return BadRequest(actionRes);
-            }    
+            }
 
             user.VerifyToken = _authService.CreateVerifyToken();
             user.VerifiedAt = DateTime.Now;

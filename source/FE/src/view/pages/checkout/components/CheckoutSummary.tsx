@@ -9,8 +9,8 @@ import { formatPrice } from 'src/utils';
 import Image from 'src/components/image';
 import TextMaxLine from 'src/components/text-max-line';
 import { useEffect, useState } from 'react';
-import { getProductDetail } from 'src/services/product';
-import { TProduct } from 'src/types/product';
+import { getCartData } from 'src/services/cart';
+import { TItemOrderProduct } from 'src/types/order';
 
 type Props = {
     totalPrice: number;
@@ -31,29 +31,27 @@ export default function CheckoutSummary({
 }: Props) {
     const { t } = useTranslation();
     const theme = useTheme();
-    const [productDetails, setProductDetails] = useState<Record<number, TProduct>>({});
+    const [cartItems, setCartItems] = useState<any[]>([]);
 
     useEffect(() => {
-        const fetchProductDetails = async () => {
-            const details: Record<number, TProduct> = {};
-            for (const product of selectedProduct) {
-                try {
-                    const response = await getProductDetail(product.productId);
-            
-                    if (response?.result) {
-                        details[product.productId] = response.result;
-                    }
-                } catch (error) {
-                    console.error('Error fetching product details:', error);
+        const fetchCartData = async () => {
+            try {
+                const response = await getCartData({ 
+                    params: { 
+                        productIds: selectedProduct.map((p: TItemOrderProduct) => p.productId).join(',')
+                    } 
+                });
+                if (response?.isSuccess && response?.result) {
+                    setCartItems(response.result);
                 }
+            } catch (error) {
+                console.error('Error fetching cart data:', error);
             }
-            setProductDetails(details);
         };
 
-        if (selectedProduct?.length > 0) {
-            fetchProductDetails();
-        }
+        fetchCartData();
     }, [selectedProduct]);
+
     return (
         <Stack
             spacing={3}
@@ -65,38 +63,35 @@ export default function CheckoutSummary({
         >
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{t('order_summary')}</Typography>
 
-            {selectedProduct?.length > 0 && (
+            {cartItems?.length > 0 && (
                 <>
-                    {selectedProduct.map((product) => {
-                        const productDetail = productDetails[product.productId];
-                        return (
-                            <Stack key={product.productId} direction="row" alignItems="flex-start">
-                                <Image
-                                    src={productDetail?.images?.[0]?.imageUrl || product.images?.[0]?.imageUrl}
-                                    sx={{
-                                        mr: 2,
-                                        width: 64,
-                                        height: 64,
-                                        flexShrink: 0,
-                                        borderRadius: 1.5,
-                                        bgcolor: 'background.neutral',
-                                    }}
-                                />
-                                <Stack flexGrow={1}>
-                                    <TextMaxLine variant="body2" line={1} sx={{ fontWeight: 'fontWeightMedium' }}>
-                                        {product.name}
-                                    </TextMaxLine>
+                    {cartItems.map((item) => (
+                        <Stack key={item.cartId} direction="row" alignItems="flex-start">
+                            <Image
+                                src={item.productImage}
+                                sx={{
+                                    mr: 2,
+                                    width: 64,
+                                    height: 64,
+                                    flexShrink: 0,
+                                    borderRadius: 1.5,
+                                    bgcolor: 'background.neutral',
+                                }}
+                            />
+                            <Stack flexGrow={1}>
+                                <TextMaxLine variant="body2" line={1} sx={{ fontWeight: 'fontWeightMedium' }}>
+                                    {item.productName}
+                                </TextMaxLine>
 
-                                    <Typography variant="subtitle2" sx={{ mt: 0.5, mb: 1.5 }}>
-                                        {formatPrice(product.price)}
-                                    </Typography>
-                                </Stack>
                                 <Typography variant="subtitle2" sx={{ mt: 0.5, mb: 1.5 }}>
-                                    x{product.quantity}
+                                    {formatPrice(item.newPrice)}
                                 </Typography>
                             </Stack>
-                        );
-                    })}
+                            <Typography variant="subtitle2" sx={{ mt: 0.5, mb: 1.5 }}>
+                                x{item.quantity}
+                            </Typography>
+                        </Stack>
+                    ))}
 
                     <Divider sx={{ borderStyle: 'dashed' }} />
                 </>

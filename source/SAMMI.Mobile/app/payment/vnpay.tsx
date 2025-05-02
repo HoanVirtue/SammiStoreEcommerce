@@ -12,29 +12,28 @@ import { ROUTE_CONFIG } from '@/configs/route';
 import { useLocalSearchParams } from 'expo-router';
 import { formatPrice } from '@/utils';
 import { CheckCircle } from 'lucide-react-native';
+import { colors } from '@/constants/colors';
 
-const PaymentSuccessScreen = () => {
+const VnPayScreen = () => {
     const navigation = useNavigation();
     const theme = useTheme();
     const params = useLocalSearchParams();
 
-    const orderId = params.orderId as string;
-    const totalPrice = Number(params.totalPrice) || 0;
     const paymentMethod = params.paymentMethod as string;
 
     const handleGoToHome = () => {
-        navigation.navigate(ROUTE_CONFIG.HOME as never);
+        navigation.navigate('(tabs)' as never);
     };
 
     const handleGoToOrders = () => {
-        navigation.navigate(ROUTE_CONFIG.ACCOUNT.MY_ORDER as never);
+        navigation.navigate('(tabs)/account/my-order' as never);
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
                 <View style={styles.iconContainer}>
-                    <CheckCircle size={80} color={theme.colors.primary} />
+                    <CheckCircle size={80} color={colors.primary} />
                 </View>
 
                 <Text style={[styles.title, { color: theme.colors.text }]}>
@@ -45,43 +44,17 @@ const PaymentSuccessScreen = () => {
                     Chúc mừng quý khách hàng đã đặt hàng tại Sammi Stores. Nhân viên của chúng tôi sẽ liên hệ lại quý khách hàng khi đơn hàng được xác nhận. Quý khách hàng có thể theo dõi bằng cách đăng nhập và theo dõi đơn hàng trên ứng dụng của chúng tôi.
                 </Text>
 
-                <View style={styles.orderInfo}>
-                    <Text style={[styles.orderLabel, { color: theme.colors.text }]}>
-                        Mã đơn hàng:
-                    </Text>
-                    <Text style={[styles.orderValue, { color: theme.colors.text }]}>
-                        {orderId}
-                    </Text>
-                </View>
-
-                <View style={styles.orderInfo}>
-                    <Text style={[styles.orderLabel, { color: theme.colors.text }]}>
-                        Tổng tiền:
-                    </Text>
-                    <Text style={[styles.orderValue, { color: theme.colors.text }]}>
-                        {formatPrice(totalPrice)}
-                    </Text>
-                </View>
-
-                <View style={styles.orderInfo}>
-                    <Text style={[styles.orderLabel, { color: theme.colors.text }]}>
-                        Phương thức thanh toán:
-                    </Text>
-                    <Text style={[styles.orderValue, { color: theme.colors.text }]}>
-                        {paymentMethod === 'vnpay' ? 'VNPay' : 'Thanh toán khi nhận hàng'}
-                    </Text>
-                </View>
 
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.colors.primary }]}
+                        style={[styles.button, { backgroundColor: colors.primary }]}
                         onPress={handleGoToHome}
                     >
                         <Text style={styles.buttonText}>Trang chủ</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
-                        style={[styles.button, { backgroundColor: theme.colors.primary }]}
+                        style={[styles.button, { backgroundColor: colors.primary }]}
                         onPress={handleGoToOrders}
                     >
                         <Text style={styles.buttonText}>Đơn mua</Text>
@@ -153,4 +126,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default PaymentSuccessScreen; 
+export default VnPayScreen; 

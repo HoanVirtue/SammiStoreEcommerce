@@ -1,6 +1,6 @@
 ﻿
 -- nhân viên
-INSERT INTO `users` (
+INSERT INTO `Users` (
   `Id`, `Code`, `IdentityGuid`, `Type`, `FirstName`, `LastName`, `FullName`, 
   `Email`, `Phone`, `StreetAddress`, `WardId`, `IsAdmin`, `Username`, 
   `Password`, `Gender`, `IsLock`, `SecurityStamp`, `AvatarId`, 
@@ -22,7 +22,7 @@ VALUES
 (20, 'KH000015', UUID(), 'Employee', 'Lan', 'Le', 'Le Lan', 'lelan@example.com', '0912345682', '707 Nguyen Thi Minh Khai, Quan 3', 10, 0, 'customer15', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 1, 0, 'security-stamp-707', NULL, '9876543215', 3, 'vn', '2025-04-28 10:00:00.000000', NULL, 'N/A', NULL, 1, 0, 10, 1);
 
 -- khách hàng
-INSERT INTO `users` (
+INSERT INTO `Users` (
   `Id`, `Code`, `IdentityGuid`, `Type`, `FirstName`, `LastName`, `FullName`, 
   `Email`, `Phone`, `StreetAddress`, `WardId`, `IsAdmin`, `Username`, 
   `Password`, `Gender`, `IsLock`, `SecurityStamp`, `AvatarId`, 
@@ -54,7 +54,7 @@ VALUES
 (41, 'KH000041', UUID(), 'Customer', 'Phong', 'Le', 'Le Phong', 'phong.le@example.com', '0912345697', NULL, NULL, 0, 'phongle', 'AQAAAAEAACcQAAAAEL8NlQ45auZ/l+/y+AhBHLsmK7bUfDYcfMmEDpny1MOfSfZHVvy0lxvqPIQind8TCg==', 0, 0, NULL, NULL, NULL, 4, 'vn', '2025-03-15 02:40:49.715074', NULL, 'N/A', NULL, 1, 0, NULL, 1);
 
 -- nhà cung cấp
-INSERT INTO `users` (
+INSERT INTO `Users` (
   `Id`, `Code`, `IdentityGuid`, `Type`, `FullName`, 
   `Email`, `Phone`, `StreetAddress`, `WardId`, `Culture`, `CreatedDate`, `UpdatedDate`, 
   `CreatedBy`, `UpdatedBy`, `IsActive`, `IsDeleted`, `DisplayOrder`, `IsLock`
@@ -72,7 +72,7 @@ VALUES
 (52, 'NCC000052', UUID(), 'Supplier', 'Công ty TNHH Ohui Việt Nam', 'support@ohui.vn', '0932922992', '89 Cách Mạng Tháng 8, Quận 3', 12, 'vn', '2025-03-31 10:03:23.138063', '2025-03-31 02:40:24.781000', 'employee', '', 1, 0, 0, 0);
 
 -- brand
-INSERT INTO `image`
+INSERT INTO `Image`
 VALUES
 (50,'https://res.cloudinary.com/duqduitnd/image/upload/v1744538678/uploads/brands/Who.jpg','uploads/brands/Who','Brand','vn',NOW(), NULL,'N/A','',1,0,1),
 (51,'https://res.cloudinary.com/duqduitnd/image/upload/v1744538675/uploads/brands/DoctorG.png','uploads/brands/DoctorG','Brand','vn',NOW(), NULL,'N/A','',1,0,1),
@@ -96,7 +96,7 @@ VALUES
 (69,'https://res.cloudinary.com/duqduitnd/image/upload/v1744539539/uploads/brands/M.O.ICosmetics.jpg','uploads/brands/M.O.ICosmetics','Brand','vn',NOW(), NULL,'N/A','',1,0,1);
 
 -- thương hiệu
-INSERT INTO `brand` VALUES 
+INSERT INTO `Brand` VALUES 
 (50, 'TH000050', 'WHOO', 50, 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, NULL),
 (51, 'TH000051', 'Doctor G', 51, 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, NULL),
 (52, 'TH000052', 'Cosrx', 52, 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, NULL),
@@ -121,7 +121,7 @@ INSERT INTO `brand` VALUES
 
 
 -- loại sản phẩm
-INSERT INTO `productcategory` VALUES 
+INSERT INTO `ProductCategory` VALUES 
 (50, 'PC000050', 'Trang điểm', NULL, 1, 'vn', NOW(), NULL, 'Unknown', NULL, 1, 0, NULL),
 (51, 'PC000051', 'Chăm sóc da mặt', NULL, 1, 'vn', NOW(), NULL, 'Unknown', NULL, 1, 0, NULL),
 (52, 'PC000052', 'Mặt nạ dưỡng da', 51, 2, 'vn', NOW(), NULL, 'Unknown', NULL, 1, 0, NULL),
@@ -145,7 +145,7 @@ INSERT INTO `productcategory` VALUES
 
 
 -- product
-INSERT INTO `image`
+INSERT INTO `Image`
 VALUES
 (70,'https://res.cloudinary.com/duqduitnd/image/upload/v1744544412/uploads/products/SP0000050.jpg','uploads/products/SP0000050','Product','vn',NOW(),NULL,'N/A','',1,0,1),
 (71,'https://res.cloudinary.com/duqduitnd/image/upload/v1744544412/uploads/products/SP0000051.jpg','uploads/products/SP0000051','Product','vn',NOW(),NULL,'N/A','',1,0,1),
@@ -171,7 +171,7 @@ VALUES
 
 -- sản phẩm
 
-INSERT INTO `product` (
+INSERT INTO `Product` (
     `id`,
     `Code`, 
     `Name`, 
@@ -217,7 +217,7 @@ INSERT INTO `product` (
 (68, 'SP0000068', 'Kem dưỡng thể Vedette Hoa Sen', 66, 200000.00, 0.10, 'Chiết xuất hoa sen', 'Dưỡng ẩm, làm mềm da', 'Thoa đều lên cơ thể', 1, 50, 63, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 160000),
 (69, 'SP0000069', 'Dầu gội Sao Thai Duong Thảo Dược', 67, 130000.00, 0.05, 'Thảo dược thiên nhiên', 'Làm sạch, giảm rụng tóc', 'Gội đều và xả sạch', 1, 50, 58, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 104000);
 
-INSERT INTO `productimage`
+INSERT INTO `ProductImage`
 VALUES
 (50,50,70,'vn',NOW(),NULL,'System',NULL,1,0,1),
 (51,51,71,'vn',NOW(),NULL,'System',NULL,1,0,1),
@@ -242,7 +242,7 @@ VALUES
 
 
 -- product 2
-INSERT INTO `image`
+INSERT INTO `Image`
 VALUES
 (90,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692644/uploads/products/SP0000070.jpg','uploads/products/SP0000070','Product','vn',NOW(),NULL,'N/A','',1,0,1),
 (91,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692645/uploads/products/SP0000071.webp','uploads/products/SP0000071','Product','vn',NOW(),NULL,'N/A','',1,0,1),
@@ -266,7 +266,7 @@ VALUES
 (109,'https://res.cloudinary.com/duqduitnd/image/upload/v1744692665/uploads/products/SP0000089.jpg','uploads/products/SP0000089','Product','vn',NOW(),NULL,'N/A','',1,0,1);
 
 
-INSERT INTO `product`(
+INSERT INTO `Product`(
     `id`,
     `Code`, 
     `Name`, 
@@ -313,7 +313,7 @@ VALUES
 (88, 'SP0000088', 'Sữa dưỡng thể Vedette Hương Nước Hoa', 66, 220000.00, 0.10, 'Chiết xuất hoa tự nhiên', 'Dưỡng ẩm, lưu hương', 'Thoa đều lên cơ thể', 1, 50, 63, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 176000),
 (89, 'SP0000089', 'Dầu xả Sao Thái Dương Dừa', 67, 140000.00, 0.05, 'Dầu dừa tự nhiên', 'Dưỡng tóc mềm mượt', 'Xả sau khi gội', 1, 50, 58, '2025-04-15 09:00:00.000000', '2025-04-25 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', 'N/A', 1, 0, 0, 112000);
 
-INSERT INTO `productimage`
+INSERT INTO `ProductImage`
 VALUES
 (70,70,90,'vn',NOW(),NULL,'System',NULL,1,0,1),
 (71,71,91,'vn',NOW(),NULL,'System',NULL,1,0,1),
@@ -338,7 +338,7 @@ VALUES
 
 
 -- event
-INSERT INTO `image`
+INSERT INTO `Image`
 VALUES
 (110,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541562/uploads/events/EVE000050.jpg','uploads/events/EVE000050','Event','vn',NOW(),NULL,'N/A','',1,0,1),
 (111,'https://res.cloudinary.com/duqduitnd/image/upload/v1744541565/uploads/events/EVE000051.jpg','uploads/events/EVE000051','Event','vn',NOW(),NULL,'N/A','',1,0,1),
@@ -365,7 +365,7 @@ VALUES
 -- chưa nhập  id img vào into event
 
 -- sự kiện
-INSERT INTO `event` VALUES 
+INSERT INTO `Event` VALUES 
 (50, 'EVE000050', 'Chương trình giảm giá mùa xuân', '2025-04-15 09:00:00.000000', '2025-04-22 23:59:59.999999', 'SpecialOccasion', NULL, NULL, 'vn', NOW(), NULL, 'N/A', 'string', 1, 0, 0),
 (51, 'EVE000051', 'Flash Sale mỹ phẩm Hàn Quốc', '2025-04-20 10:00:00.000000', '2025-04-21 23:59:59.999999', 'FlashSale', NULL, NULL, 'vn', NOW(), NULL, 'N/A', 'string', 1, 0, 0),
 (52, 'EVE000052', 'Khuyến mãi sinh nhật SammiShop', '2025-05-01 00:00:00.000000', '2025-05-07 23:59:59.999999', 'SpecialOccasion', NULL, NULL, 'vn', NOW(), NULL, 'N/A', 'string', 1, 0, 0),
@@ -417,7 +417,7 @@ VALUES
 */
 
 -- phiếu giảm giá
-INSERT INTO `voucher` VALUES
+INSERT INTO `Voucher` VALUES
 (50, 'SAMMI000050', 'Giảm giá mùa xuân 12%', 50, 1, 12.00, 100, 0, '2025-04-15 09:00:00.000000', '2025-04-22 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, 0),
 (51, 'SAMMI000051', 'Flash Sale giảm 50K', 51, 2, 50000.00, 50, 0, '2025-04-20 10:00:00.000000', '2025-04-21 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, 0),
 (52, 'SAMMI000052', 'Miễn phí vận chuyển sinh nhật', 52, 3, 0.00, 200, 0, '2025-05-01 00:00:00.000000', '2025-05-07 23:59:59.999999', 'vn', NOW(), NULL, 'N/A', NULL, 1, 0, 0),
@@ -442,16 +442,15 @@ INSERT INTO `voucher` VALUES
 
 
 -- điều kiện giảm giá
-INSERT INTO `vouchercondition` VALUES
+INSERT INTO `VoucherCondition` VALUES
 (50, 50, 'MinOrderValue', '200000', 'vn', '2025-04-15 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 200K cho voucher 50
 (51, 50, 'MaxDiscountAmount', '300000', 'vn', '2025-04-15 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Giảm tối đa 300K cho voucher 50
 (52, 51, 'MinOrderValue', '150000', 'vn', '2025-04-20 10:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 150K cho voucher 51
 (53, 52, 'MinOrderValue', '300000', 'vn', '2025-05-01 00:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 300K cho voucher 52
 (54, 53, 'RequiredQuantity', '2', 'vn', '2025-05-10 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Mua ít nhất 2 sản phẩm cho voucher 53
 (55, 54, 'MinOrderValue', '500000', 'vn', '2025-05-20 08:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 500K cho voucher 54
-(56, 55, 'AllowedRegions', 'HCM,HN', 'vn', '2025-06-01 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Chỉ áp dụng HCM, HN cho voucher 55
+(56, 55, 'AllowedRegions', '8,4', 'vn', '2025-06-01 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Chỉ áp dụng HCM, HN cho voucher 55
 (57, 56, 'MinOrderValue', '250000', 'vn', '2025-06-20 10:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 250K cho voucher 56
-(58, 58, 'RequiredProducts', '50,51', 'vn', '2025-07-10 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Chỉ áp dụng sản phẩm ID 50, 51 cho voucher 58
+(58, 58, 'RequiredProducts', 'SP0000050,SP0000051', 'vn', '2025-07-10 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Chỉ áp dụng sản phẩm ID 50, 51 cho voucher 58
 (59, 60, 'MinOrderValue', '400000', 'vn', '2025-08-01 09:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0), -- Đơn tối thiểu 400K cho voucher 60
 (60, 68, 'MaxDiscountAmount', '500000', 'vn', '2025-11-28 00:00:00.000000', NULL, 'N/A', 'string', 1, 0, 0); -- Giảm tối đa 500K cho voucher 68
-

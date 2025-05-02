@@ -18,16 +18,19 @@ namespace SAMMI.ECOM.API.Controllers.Products
         private readonly IProductQueries _productQueries;
         private readonly IProductRepository _productRepository;
         private readonly IProductElasticService _productElasticService;
+        private readonly IProductCategoryRepository _categoryRepository;
         public ProductsController(
             IProductQueries productQueries,
             IProductRepository productRepository,
             IProductElasticService productElasticService,
+            IProductCategoryRepository categoryRepository,
             IMediator mediator,
             ILogger<ProductsController> logger) : base(mediator, logger)
         {
             _productQueries = productQueries;
             _productRepository = productRepository;
             _productElasticService = productElasticService;
+            _categoryRepository = categoryRepository;
         }
 
         [AuthorizePermission(PermissionEnum.ProductView)]
@@ -164,6 +167,31 @@ namespace SAMMI.ECOM.API.Controllers.Products
         public async Task<IActionResult> GetProductBestSellingAsync([FromQuery]int numberTop = 40)
         {
             return Ok(await _productQueries.GetListBetSellingProduct(numberTop));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-product-by-category")]
+        public async Task<IActionResult> GetProductByCategoryAsync(int categoryId, int numberTop = 20)
+        {
+            if(!_categoryRepository.IsExisted(categoryId))
+            {
+                return BadRequest("Loại sản phẩm không tồn tại");
+            }
+            return Ok(await _productQueries.GetListByCategory(categoryId, numberTop));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-product/{id}")]
+        public async Task<IActionResult> GetProdutById(int id)
+        {
+            return Ok(await _productQueries.GetByIdV2(id));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-products-endow")]
+        public async Task<IActionResult> GetProductEndowAsync(int numberTop)
+        {
+            return Ok(await _productQueries.GetDataInVoucherCondition(numberTop));
         }
     }
 }

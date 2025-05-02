@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.Core.Models;
@@ -106,6 +107,17 @@ namespace SAMMI.ECOM.API.Controllers.System
             }
             
             return Ok(_bannerRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-banners")]
+        public async Task<IActionResult> GetBannersAsync(int numberTop = 3)
+        {
+            var filterModel = new RequestFilterModel()
+            {
+                Take = numberTop
+            };
+            return Ok(await _bannerceQueries.GetBanners(filterModel));
         }
     }
 }

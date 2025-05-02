@@ -400,6 +400,12 @@ namespace SAMMI.ECOM.Infrastructure
 
                 List<Permission> permissions = new List<Permission>()
                 {
+                    // Khách hàng
+                    new Permission { Code = PermissionEnum.CustomerCreate.ToPolicyName(), Name = "Thêm mới khách hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.CustomerUpdate.ToPolicyName(), Name = "Cập nhật thông tin khách hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.CustomerDelete.ToPolicyName(), Name = "Xóa khách hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+                    new Permission { Code = PermissionEnum.CustomerView.ToPolicyName(), Name = "Xem danh sách khách hàng", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
+
                     // Nhân viên
                     new Permission { Code = PermissionEnum.EmployeeCreate.ToPolicyName(), Name = "Thêm mới nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },
                     new Permission { Code = PermissionEnum.EmployeeUpdate.ToPolicyName(), Name = "Cập nhật thông tin nhân viên", IsActive = true, IsDeleted = false, CreatedDate = DateTime.Now, CreatedBy = "System", IsShow = true },

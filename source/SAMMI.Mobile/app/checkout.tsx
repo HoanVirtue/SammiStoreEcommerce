@@ -33,6 +33,7 @@ import AddressModal from './address';
 import { getProductDetail } from '@/services/product';
 import VoucherModal from './voucher';
 import { colors } from '@/constants/colors';
+import * as WebBrowser from 'expo-web-browser';
 
 // Types và Interfaces
 type TItemOrderProduct = {
@@ -128,7 +129,6 @@ const CheckoutScreen = () => {
               images: item.images || [],
             };
           });
-          console.log('Final formatted products:', result.selectedProducts);
         }
       }
     } catch (error) {
@@ -160,22 +160,6 @@ const CheckoutScreen = () => {
   }, [selectedVoucherId, memoQueryProduct.totalPrice]);
 
   const handlePlaceOrder = () => {
-    if (!selectedPayment) {
-      Toast.show({
-        type: 'error',
-        text1: 'Vui lòng chọn phương thức thanh toán',
-      });
-      return;
-    }
-
-    if (!selectedDelivery) {
-      Toast.show({
-        type: 'error',
-        text1: 'Vui lòng chọn phương thức vận chuyển',
-      });
-      return;
-    }
-
     const shipping = selectedDelivery ? shippingPrice : 0;
     const subtotal = memoQueryProduct.totalPrice;
     const totalPrice = Number(subtotal) + Number(shipping) - Number(voucherDiscount);
@@ -212,18 +196,40 @@ const CheckoutScreen = () => {
         isBuyNow: false,
         paymentMethodId: Number(selectedPayment),
       })
-    ).then((res) => {
+    ).then(async (res) => {
       if (res?.payload?.isSuccess) {
-        const returnUrl = res?.payload?.result?.returnUrl;
-        if (returnUrl) {
+        console.log('res payment', res);
+        const resultData = res.payload.result;
+        const orderId = resultData?.orderId;
+        const returnUrl = resultData?.returnUrl;
+        const totalPriceFromApi = resultData?.totalAmount;
+        const finalTotalPrice = totalPriceFromApi !== undefined
+          ? totalPriceFromApi
+          : (memoQueryProduct.totalPrice + shippingPrice - voucherDiscount);
 
+        const paymentMethodInfo = paymentOptions.find(p => p.id === Number(selectedPayment));
+        const paymentMethodLabel = paymentMethodInfo?.label || 'Không xác định';
+
+        if (returnUrl) {
+          Toast.show({ type: 'info', text1: 'Đang chuyển đến cổng thanh toán VNPay...' });
+          try {
+            await WebBrowser.openBrowserAsync(returnUrl);
+          } catch (error) {
+            console.error("Error opening VNPay URL:", error);
+            Toast.show({ type: 'error', text1: 'Không thể mở trang thanh toán VNPay.' });
+          }
         } else {
-          navigation.navigate(ROUTE_CONFIG.PAYMENT as never);
+          (navigation.navigate as any)('payment/vnpay', {
+            orderId: orderId,
+            totalPrice: finalTotalPrice,
+            paymentStatus: 'pending',
+          });
         }
       } else {
         Toast.show({
           type: 'error',
-          text1: res?.payload?.message,
+          text1: res?.payload?.message || 'Đặt hàng thất bại',
+          text2: 'Vui lòng thử lại sau.'
         });
       }
     });
@@ -359,8 +365,8 @@ const CheckoutScreen = () => {
       if (memoQueryProduct.selectedProducts.length > 0) {
         setLoading(true);
         try {
-          const response = await getCartData({ 
-              params: { productIds: productIdsString } 
+          const response = await getCartData({
+            params: { productIds: productIdsString }
           });
           if (response?.isSuccess && response?.result) {
             // Map response to include quantity from original selection

@@ -280,6 +280,8 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 (PaymentStatusEnum.Paid, ShippingStatusEnum.Delivered) => OrderStatusEnum.Completed.ToString(),
                 (PaymentStatusEnum.Paid, ShippingStatusEnum.Lost) => OrderStatusEnum.Cancelled.ToString(),
                 (PaymentStatusEnum.Unpaid, ShippingStatusEnum.Processing) => OrderStatusEnum.Processing.ToString(),
+                (PaymentStatusEnum.Unpaid, ShippingStatusEnum.Lost) => OrderStatusEnum.Cancelled.ToString(),
+                (PaymentStatusEnum.Failed, ShippingStatusEnum.Lost) => OrderStatusEnum.Cancelled.ToString(),
                 _ => null
             };
 

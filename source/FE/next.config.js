@@ -10,7 +10,7 @@ const nextConfig = {
   },
   experimental: {
     largePageDataBytes: 128 * 100000,
-    optimizeCss: true,
+    optimizeCss: false,
     scrollRestoration: true,
   },
   compiler: {

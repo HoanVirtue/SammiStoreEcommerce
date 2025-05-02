@@ -18,6 +18,7 @@ import { store } from '@/stores';
 import { AuthProvider } from '@/contexts/AuthContext';
 import { AxiosInterceptor } from '@/helpers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from '@/hooks/useAuth';
 
 
 // Initialize AsyncStorage
@@ -32,6 +33,16 @@ export const unstable_settings = {
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
+
+function AppContent() {
+  const { setUser, user } = useAuth();
+  
+  return (
+    <AxiosInterceptor onAuthStateChange={setUser} currentUser={user}>
+      <RootLayoutNav />
+    </AxiosInterceptor>
+  );
+}
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -58,29 +69,25 @@ export default function RootLayout() {
   return (
     <Provider store={store}>
       <AuthProvider>
-        <AxiosInterceptor>
-          <RootLayoutNav />
-        </AxiosInterceptor>
+        <AppContent />
       </AuthProvider>
     </Provider>
   );
 }
 
 function RootLayoutNav() {
+  const { setUser, user } = useAuth();
+  
   return (
-    <Provider store={store}>
-      <AuthProvider>
-        <AxiosInterceptor>
-          <Stack>
-            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-            <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />
-            <Stack.Screen name="article/[id]" options={{ presentation: 'card' }} />
-            <Stack.Screen name="checkout" options={{ presentation: 'card' }} />
-          </Stack>
-        </AxiosInterceptor>
-      </AuthProvider>
-    </Provider>
+    <AxiosInterceptor onAuthStateChange={setUser} currentUser={user}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />
+        <Stack.Screen name="article/[id]" options={{ presentation: 'card' }} />
+        <Stack.Screen name="checkout" options={{ presentation: 'card' }} />
+      </Stack>
+    </AxiosInterceptor>
   );
 }

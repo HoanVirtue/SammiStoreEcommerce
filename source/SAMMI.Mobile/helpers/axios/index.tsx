@@ -1,19 +1,20 @@
 import React from "react";
 import axios from "axios";
 import { BASE_URL, API_ENDPOINT } from '../../configs/api';
-import { getLocalUserData, getTemporaryToken, removeLocalUserData, removeTemporaryToken, setLocalUserData, setTemporaryToken } from "../storage";
+import { getLocalUserData, getTemporaryToken, removeLocalUserData, removeTemporaryToken, setLocalUserData } from "../storage";
 import { jwtDecode } from 'jwt-decode'
 import { useRouter, usePathname } from "expo-router";
 import { UserDataType } from "@/contexts/types";
-import { useAuth } from "@/hooks/useAuth";
 
 type TAxiosInterceptor = {
-    children: React.ReactNode
+    children: React.ReactNode;
+    onAuthStateChange: (user: UserDataType | null) => void;
+    currentUser: UserDataType | null;
 }
 
 const instance = axios.create({ baseURL: BASE_URL })
 
-const handleRedirectToLogin = (router: ReturnType<typeof useRouter>, pathname: string, setUser: (data: UserDataType | null) => void) => {
+const handleRedirectToLogin = (router: ReturnType<typeof useRouter>, pathname: string, onAuthStateChange: (user: UserDataType | null) => void) => {
     if (pathname !== '/') {
         // router.push({
         //     pathname: '/(tabs)/login' as const,
@@ -24,15 +25,14 @@ const handleRedirectToLogin = (router: ReturnType<typeof useRouter>, pathname: s
     } else {
         // router.push('/(tabs)/login' as const)
     }
-    setUser(null)
+    onAuthStateChange(null)
     removeLocalUserData()
     removeTemporaryToken()
 }
 
-const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
+const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children, onAuthStateChange, currentUser }) => {
     const router = useRouter()
     const pathname = usePathname()
-    const { setUser, user } = useAuth()
     
     instance.interceptors.request.use(async (config) => {
         const { accessToken, refreshToken } = await getLocalUserData()
@@ -64,23 +64,23 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
                             if (newAccessToken) {
                                 config.headers.Authorization = `Bearer ${newAccessToken}`
                                 if (accessToken) {
-                                    setLocalUserData(JSON.stringify(user), newAccessToken, refreshToken)
+                                    setLocalUserData(JSON.stringify(currentUser), newAccessToken, refreshToken)
                                 }
                             } else {
-                                handleRedirectToLogin(router, pathname, setUser)
+                                handleRedirectToLogin(router, pathname, onAuthStateChange)
                             }
                         } catch (error) {
-                            handleRedirectToLogin(router, pathname, setUser)
+                            handleRedirectToLogin(router, pathname, onAuthStateChange)
                         }
                     } else {
-                        handleRedirectToLogin(router, pathname, setUser)
+                        handleRedirectToLogin(router, pathname, onAuthStateChange)
                     }
                 } else {
-                    handleRedirectToLogin(router, pathname, setUser)
+                    handleRedirectToLogin(router, pathname, onAuthStateChange)
                 }
             }
         } else if (!isPublicApi) {
-            handleRedirectToLogin(router, pathname, setUser)
+            handleRedirectToLogin(router, pathname, onAuthStateChange)
         }
         return config
     })
@@ -89,7 +89,7 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
         return response
     }, (error) => {
         if (error.response?.status === 401) {
-            handleRedirectToLogin(router, pathname, setUser)
+            handleRedirectToLogin(router, pathname, onAuthStateChange)
         }
         return Promise.reject(error)
     })

@@ -11,6 +11,15 @@ export const getCarts = async (data: {params: TParamsGetAllCarts}) => {
     }
 }
 
+export const getCartData = async (data: { params: { productIds: string } }) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.CART.INDEX}/get-order-select-products`, data)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 
 export const createCart = async (data: TParamsCreateCart) => {
     try {

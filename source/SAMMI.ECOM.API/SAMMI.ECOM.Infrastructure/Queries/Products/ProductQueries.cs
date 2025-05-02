@@ -931,9 +931,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                         t1.IsActive,
                         t1.IsDeleted,
                         t1.DisplayOrder,
-                        t4.Code, t4.Name,
-                        t5.Code, t5.Name,
-                        t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t2.DisplayOrder");
+                        t2.Id, t2.PublicId, t2.TypeImage, t2.ImageUrl, t2.DisplayOrder");
 
                     var productDirectory = new Dictionary<int, ProductDTO>();
                     return conn.QueryAsync<ProductDTO, ImageDTO, ProductDTO>(sqlTemplate.RawSql,

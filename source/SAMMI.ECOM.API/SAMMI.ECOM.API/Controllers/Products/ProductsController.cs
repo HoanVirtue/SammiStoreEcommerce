@@ -189,7 +189,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
 
         [AllowAnonymous]
         [HttpGet("get-products-endow")]
-        public async Task<IActionResult> GetProductEndowAsync(int numberTop)
+        public async Task<IActionResult> GetProductEndowAsync(int numberTop = 30)
         {
             return Ok(await _productQueries.GetDataInVoucherCondition(numberTop));
         }

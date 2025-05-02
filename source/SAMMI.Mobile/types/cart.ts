@@ -1,11 +1,20 @@
 export interface TItemOrderProduct {
+  cartId: number;
   productId: number;
-  name: string;
+  productName: string;
   price: number;
+  newPrice: number;
   quantity: number;
-  images?: { imageUrl: string }[];
-  discount?: number;
-  stockQuantity?: number;
+  productImage: string;
+  stockQuantity: number;
+  id: number;
+  createdDate: string;
+  updatedDate: string | null;
+  createdBy: string;
+  updatedBy: string | null;
+  isActive: boolean;
+  isDeleted: boolean;
+  displayOrder: number | null;
 }
 
 export interface TParamsGetAllCarts {

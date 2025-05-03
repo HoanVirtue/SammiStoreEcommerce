@@ -212,7 +212,10 @@ namespace SAMMI.ECOM.API.Services.ElasticSearch
                 return new List<SuggestProductDTO>();
             }
             string suggestName = CompletionElasticEnum.SuggestProduct.GetDescription();
-            var response = await _elasticClient.SearchAsync<ProductDTO>(s => s
+
+            try
+            {
+                var response = await _elasticClient.SearchAsync<ProductDTO>(s => s
                 .Index(_indexName)
                 .Query(q => q.Bool(b => b
                     .Must(
@@ -240,21 +243,27 @@ namespace SAMMI.ECOM.API.Services.ElasticSearch
                     )
                 );
 
-            return response.Hits.Select(h => h.Source)
-                .Select(x => new SuggestProductDTO()
-                {
-                    Id = x.Id,
-                    Code = x.Code,
-                    Name = x.Name,
-                    Price = x.Price,
-                    Discount = x.Discount,
-                    NewPrice = Math.Round(
-                        (x.StartDate <= DateTime.Now && x.EndDate >= DateTime.Now)
-                            ? (decimal)(x.Price * (1 - (x.Discount ?? 0)))
-                            : x.Price ?? 0,
-                        2),
-                    ProductImage = x.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault().ImageUrl ?? null
-                }).ToList();
+                return response.Hits.Select(h => h.Source)
+                    .Select(x => new SuggestProductDTO()
+                    {
+                        Id = x.Id,
+                        Code = x.Code,
+                        Name = x.Name,
+                        Price = x.Price,
+                        Discount = x.Discount,
+                        NewPrice = Math.Round(
+                            (x.StartDate <= DateTime.Now && x.EndDate >= DateTime.Now)
+                                ? (decimal)(x.Price * (1 - (x.Discount ?? 0)))
+                                : x.Price ?? 0,
+                            2),
+                        ProductImage = x.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault().ImageUrl ?? null
+                    }).ToList();
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine($"Error during suggest: {ex.Message}");
+                return new List<SuggestProductDTO>();
+            }
         }
     }
 }

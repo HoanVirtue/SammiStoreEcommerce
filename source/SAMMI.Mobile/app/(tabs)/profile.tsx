@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Pressable, ScrollView, Switch, Image } from 'react-native';
+import { StyleSheet, Text, View, Pressable, ScrollView, Switch, Image, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
 import { useRouter } from 'expo-router';
@@ -37,8 +37,11 @@ export default function ProfileScreen() {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem(ACCESS_TOKEN);
       setHasToken(!!token);
-      if(token) {
-        router.replace('/(tabs)');
+      if (!token) {
+        router.replace('/(auth)/login' as any);
+        while (router.canGoBack()) {
+          router.back();
+        }
       }
     };
     checkAuth();
@@ -56,12 +59,33 @@ export default function ProfileScreen() {
   const toggleNotifications = () => setNotifications(prev => !prev);
 
   const handleSignOut = async () => {
-    await logout();
-    router.replace('/(auth)/login' as any);
+    try {
+      await logout();
+      await AsyncStorage.removeItem(ACCESS_TOKEN);
+      // Reset navigation stack và chuyển về login
+      router.replace('/(auth)/login' as any);
+      // Xóa toàn bộ navigation stack
+      while (router.canGoBack()) {
+        router.back();
+      }
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Nếu có lỗi khi gọi API, vẫn xóa token và chuyển về login
+      await AsyncStorage.removeItem(ACCESS_TOKEN);
+      router.replace('/(auth)/login' as any);
+      while (router.canGoBack()) {
+        router.back();
+      }
+    }
   };
 
+  const handleProfile = () => {
+    router.replace('/update-info' as any);
+  }
+
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <StatusBar barStyle="dark-content" />
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
@@ -71,19 +95,19 @@ export default function ProfileScreen() {
             <User size={40} color={colors.primary} />
           )} */}
           </View>
-          <Text style={styles.username}>{'Guest User'}</Text>
-          <Text style={styles.email}>{'Sign in to sync your preferences'}</Text>
+          <Text style={styles.username}>{user?.fullName}</Text>
+          <Text style={styles.email}>{user?.email}</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>My Account</Text>
+          <Text style={styles.sectionTitle}>Tài khoản của tôi</Text>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleProfile}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: colors.primaryLight }]}>
                 <User size={18} color={colors.primary} />
               </View>
-              <Text style={styles.menuItemText}>Edit Profile</Text>
+              <Text style={styles.menuItemText}>Chỉnh sửa thông tin</Text>
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
@@ -93,7 +117,7 @@ export default function ProfileScreen() {
               <View style={[styles.iconContainer, { backgroundColor: colors.secondaryLight }]}>
                 <Heart size={18} color={colors.secondary} />
               </View>
-              <Text style={styles.menuItemText}>Wishlist</Text>
+              <Text style={styles.menuItemText}>Sản phẩm yêu thích</Text>
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
@@ -103,17 +127,7 @@ export default function ProfileScreen() {
               <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
                 <ShoppingBag size={18} color="#4CAF50" />
               </View>
-              <Text style={styles.menuItemText}>Orders</Text>
-            </View>
-            <ChevronRight size={16} color={colors.textSecondary} />
-          </Pressable>
-
-          <Pressable style={styles.menuItem}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
-                <CreditCard size={18} color="#FF9800" />
-              </View>
-              <Text style={styles.menuItemText}>Payment Methods</Text>
+              <Text style={styles.menuItemText}>Đơn hàng của tôi</Text>
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
@@ -123,21 +137,21 @@ export default function ProfileScreen() {
               <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                 <MapPin size={18} color="#2196F3" />
               </View>
-              <Text style={styles.menuItemText}>Addresses</Text>
+              <Text style={styles.menuItemText}>Quản lý địa chỉ nhận</Text>
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Preferences</Text>
+          <Text style={styles.sectionTitle}>Sở thích</Text>
 
           <View style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#EDE7F6' }]}>
                 <Moon size={18} color="#673AB7" />
               </View>
-              <Text style={styles.menuItemText}>Dark Mode</Text>
+              <Text style={styles.menuItemText}>Chế độ tối</Text>
             </View>
             <Switch
               value={darkMode}
@@ -152,7 +166,7 @@ export default function ProfileScreen() {
               <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
                 <Bell size={18} color={colors.primary} />
               </View>
-              <Text style={styles.menuItemText}>Notifications</Text>
+              <Text style={styles.menuItemText}>Thông báo</Text>
             </View>
             <Switch
               value={notifications}
@@ -167,21 +181,21 @@ export default function ProfileScreen() {
               <View style={[styles.iconContainer, { backgroundColor: '#E0F7FA' }]}>
                 <Settings size={18} color="#00BCD4" />
               </View>
-              <Text style={styles.menuItemText}>App Settings</Text>
+              <Text style={styles.menuItemText}>Cài đặt</Text>
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support</Text>
+          <Text style={styles.sectionTitle}>Hỗ trợ</Text>
 
           <Pressable style={styles.menuItem}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#F1F8E9' }]}>
                 <HelpCircle size={18} color="#8BC34A" />
               </View>
-              <Text style={styles.menuItemText}>Help & Support</Text>
+              <Text style={styles.menuItemText}>Trợ giúp & Hỗ trợ</Text>
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
@@ -191,7 +205,7 @@ export default function ProfileScreen() {
               <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>
                 <LogOut size={18} color={colors.error} />
               </View>
-              <Text style={[styles.menuItemText, { color: colors.error }]}>Sign Out</Text>
+              <Text style={[styles.menuItemText, { color: colors.error }]}>Đăng xuất</Text>
             </View>
           </Pressable>
         </View>

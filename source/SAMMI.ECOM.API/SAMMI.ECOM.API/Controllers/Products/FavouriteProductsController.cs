@@ -28,6 +28,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         private readonly IMapper _mapper;
         private readonly IImageRepository _imageRepository;
         private readonly ICookieService _cookieService;
+        private readonly IMemoryCacheService _memoryCacheService;
         public FavouriteProductsController(
             IFavouriteProductQueries favouriteQueries,
             IProductRepository productRepository,
@@ -39,6 +40,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             IMediator mediator,
             IImageRepository imageRepository,
             ICookieService cookieService,
+            IMemoryCacheService memoryCacheService,
             ILogger<FavouriteProductsController> logger) : base(mediator, logger)
         {
             _favouriteQueries = favouriteQueries;
@@ -51,6 +53,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             _mapper = mapper;
             _imageRepository = imageRepository;
             _cookieService = cookieService;
+            _memoryCacheService = memoryCacheService;
         }
 
 
@@ -80,22 +83,32 @@ namespace SAMMI.ECOM.API.Controllers.Products
                 }
 
                 // set cookie
-                var productFavouriteId = _cookieService.GetFavouriteProduct();
-                if (productFavouriteId == null)
+                //var productFavouriteId = _cookieService.GetFavouriteProduct();
+                //if (productFavouriteId == null)
+                //{
+                //    productFavouriteId = new List<int>();
+                //}
+                //foreach(var id in favouriteList.Select(x => x.ProductId))
+                //{
+                //    if (!productFavouriteId.Contains(id))
+                //    {
+                //        productFavouriteId.Add(id);
+                //    }
+                //}
+                //if (productFavouriteId != null)
+                //{
+                //    _cookieService.SaveFavouriteProduct(productFavouriteId);
+                //}
+
+                var favouriteProductIds = _memoryCacheService.GetFavouriteProduct();
+                if(favouriteProductIds == null || !favouriteProductIds.Any())
                 {
-                    productFavouriteId = new List<int>();
-                }
-                foreach(var id in favouriteList.Select(x => x.ProductId))
-                {
-                    if (!productFavouriteId.Contains(id))
+                    var productIds = await _favouriteRepository.GetProductInFavourite(UserIdentity.Id);
+                    if (productIds != null && productIds.Any())
                     {
-                        productFavouriteId.Add(id);
+                        _memoryCacheService.SetFavouriteProduct(productIds);
                     }
-                }
-                if (productFavouriteId != null)
-                {
-                    _cookieService.SaveFavouriteProduct(productFavouriteId);
-                }
+                }    
                 return Ok(favouriteList);
             }
             return Ok();
@@ -148,16 +161,23 @@ namespace SAMMI.ECOM.API.Controllers.Products
                 actionRes.SetResult(favouriteDTO);
 
                 // save cookie
-                var productFavouriteId = _cookieService.GetFavouriteProduct();
-                if (productFavouriteId == null)
+                //var productFavouriteId = _cookieService.GetFavouriteProduct();
+                //if (productFavouriteId == null)
+                //{
+                //    productFavouriteId = new List<int>();
+                //}
+                //if (!productFavouriteId.Contains(favouriteDTO.ProductId))
+                //{
+                //    productFavouriteId.Add(favouriteDTO.ProductId);
+                //    _cookieService.SaveFavouriteProduct(productFavouriteId);
+                //}
+
+                //save memory
+                var productIds = await _favouriteRepository.GetProductInFavourite(UserIdentity.Id);
+                if(productIds != null && productIds.Any())
                 {
-                    productFavouriteId = new List<int>();
-                }
-                if (!productFavouriteId.Contains(favouriteDTO.ProductId))
-                {
-                    productFavouriteId.Add(favouriteDTO.ProductId);
-                    _cookieService.SaveFavouriteProduct(productFavouriteId);
-                }
+                    _memoryCacheService.SetFavouriteProduct(productIds);
+                }  
 
                 return Ok(actionRes);
             }

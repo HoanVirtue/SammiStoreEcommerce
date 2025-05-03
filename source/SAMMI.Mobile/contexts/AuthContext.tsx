@@ -190,7 +190,6 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
 
   const handleLogout = async () => {
     try {
-      await logoutAuth();
       setUser(null);
       await removeLocalUserData();
       delete instance.defaults.headers.common['Authorization'];

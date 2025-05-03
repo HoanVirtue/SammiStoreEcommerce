@@ -11,6 +11,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
     {
         Task<FavouriteProductDTO> GetByCustomerAndProduct(int customerId, int productId);
         Task<bool> IsExisted(int customerId, int productId);
+        Task<List<int>> GetProductInFavourite(int customerId);
     }
 
     public class FavouriteProductRepository : CrudRepository<FavouriteProduct>, IFavouriteProductRepository, IDisposable
@@ -37,6 +38,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         public Task<bool> IsExisted(int customerId, int productId)
         {
             return DbSet.AnyAsync(x => x.CustomerId == customerId && x.ProductId == productId && x.IsDeleted != true);
+        }
+
+        public Task<List<int>> GetProductInFavourite(int customerId)
+        {
+            return DbSet.Where(x => x.CustomerId == customerId && x.IsDeleted != true).Select(x => x.ProductId).ToListAsync();
         }
     }
 }

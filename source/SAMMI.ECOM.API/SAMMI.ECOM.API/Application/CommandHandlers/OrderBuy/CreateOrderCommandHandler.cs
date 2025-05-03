@@ -200,7 +200,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 PaymentStatus = paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString()
                     ? PaymentStatusEnum.Pending.ToString()
                     : PaymentStatusEnum.Unpaid.ToString(),
-                PaymentMethodId = request.PaymentMethodId
+                PaymentMethodId = request.PaymentMethodId,
+                PlatForm = request.PlatForm
             };
 
             var paymentReponse = await _mediator.Send(paymentRequest);

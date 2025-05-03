@@ -35,7 +35,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             _categoryRepository = categoryRepository;
         }
 
-        [AuthorizePermission(PermissionEnum.ProductView)]
+        [AuthorizePermission(PermissionEnum.ProductView)] 
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery] RequestFilterModel request)
         {
@@ -136,18 +136,18 @@ namespace SAMMI.ECOM.API.Controllers.Products
         [HttpGet("get-suggest")]
         public async Task<IActionResult> GetDataSuggest([FromQuery]string keyWord, [FromQuery] int size = 5)
         {
-            var product = (await _productQueries.GetAll()).Where(x => x.Name.Contains(keyWord))
-                .Select(x => new SuggestProductDTO
-                {
-                    Id = x.Id,
-                    Name = x.Name,
-                    Code = x.Code,
-                    ProductImage = x.Images.FirstOrDefault()?.ImageUrl,
-                    Price = x.Price
-                }).ToList();
+            //var product = (await _productQueries.GetAll()).Where(x => x.Name.Contains(keyWord))
+            //    .Select(x => new SuggestProductDTO
+            //    {
+            //        Id = x.Id,
+            //        Name = x.Name,
+            //        Code = x.Code,
+            //        ProductImage = x.Images.FirstOrDefault()?.ImageUrl,
+            //        Price = x.Price
+            //    }).ToList();
             
-            return Ok(product);
-            //return Ok(await _productElasticService.SuggestProducts(keyWord, size));
+            //return Ok(product);
+            return Ok(await _productElasticService.SuggestProducts(keyWord, size));
         }
 
         [AllowAnonymous]

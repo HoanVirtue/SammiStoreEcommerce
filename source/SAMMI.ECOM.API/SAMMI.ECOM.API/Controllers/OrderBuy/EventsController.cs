@@ -78,7 +78,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 actRes.AddError("Chương trình khuyến mãi không tồn tại.");
                 return BadRequest(actRes);
             }
-            if (DateTime.Now >= eventEntity.StartDate && DateTime.Now <= eventEntity.EndDate)
+            if (eventEntity.IsActive == true && DateTime.Now >= eventEntity.StartDate && DateTime.Now <= eventEntity.EndDate)
             {
                 actRes.AddError("Chương trình khuyến mãi đang diễn ra không thể cập nhật.");
                 return BadRequest(actRes);
@@ -89,6 +89,27 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 return Ok(response);
             }
             return BadRequest(response);
+        }
+
+        [AuthorizePermission(PermissionEnum.EventUpdate)]
+        [HttpPut("change-active/{id}")]
+        public async Task<IActionResult> ChangeActiveAsync(int id, [FromQuery]bool IsActive)
+        {
+            var actRes = new ActionResponse();
+            var eventEntity = await _eventRepository.FindById(id);
+            if (eventEntity == null)
+            {
+                actRes.AddError("Chương trình khuyến mãi không tồn tại.");
+                return BadRequest(actRes);
+            }
+
+            eventEntity.IsActive = IsActive;
+            actRes.Combine(await _eventRepository.UpdateAndSave(eventEntity));
+            if (actRes.IsSuccess)
+            {
+                return Ok(eventEntity);
+            }
+            return BadRequest(actRes);
         }
 
         [AuthorizePermission(PermissionEnum.EventDelete)]

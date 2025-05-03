@@ -113,7 +113,9 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization(options =>
+builder.Services.AddMemoryCache();
+
+builder.Services.AddAuthorization(options => 
 {
     foreach (var per in PermissionCodes.AllPermissionCodes)
     {

@@ -26,6 +26,7 @@ namespace SAMMI.ECOM.API.Controllers
         private readonly EmailHelper emailHelper;
         private readonly IConfiguration _config;
         private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<AuthController> _logger;
 
         public AuthController(
             IUsersRepository userRepository,
@@ -33,13 +34,14 @@ namespace SAMMI.ECOM.API.Controllers
             IConfiguration config,
             UserIdentity currentUser,
             IMediator mediator,
-            ILogger<UsersController> logger) : base(mediator, logger)
+            ILogger<AuthController> logger) : base(mediator, logger)
         {
             UserIdentity = currentUser;
             _userRepository = userRepository;
             _authService = authService;
             emailHelper = new EmailHelper(config);
             _config = config;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -49,6 +51,7 @@ namespace SAMMI.ECOM.API.Controllers
         {
             try
             {
+                _logger.LogError("Login request: test login", request);
                 if (string.IsNullOrEmpty(request.Username))
                 {
                     return BadRequest(string.Format(SignInError.UserNameEmpty, request.Username));

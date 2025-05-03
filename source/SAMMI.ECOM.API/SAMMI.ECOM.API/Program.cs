@@ -3,20 +3,14 @@ using Autofac.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
 using SAMMI.ECOM.API.Infrastructure.Configuration;
-using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
-using SAMMI.ECOM.Domain.AggregateModels.Others;
-using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure;
-using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
 using StackExchange.Redis;
@@ -25,6 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
 // Add services to the container.
+
+// Configure Serilog for structured logging.
+builder.UseSerialLog();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -64,7 +61,6 @@ builder.Services.Configure<RouteOptions>(options =>
 var tokenOptionSettingsSection = builder.Configuration.GetSection("TokenProvideOptions");
 var tokenOptionSettings = tokenOptionSettingsSection.Get<AccessTokenProvideOptions>();
 
-
 builder.Services
     .AddAuthentication(options =>
     {
@@ -93,7 +89,6 @@ builder.Services
         //        await googleHandler.HandleOnCreatingTicket(context);
         //    }
         //};
-
     })
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, x =>
     {
@@ -111,9 +106,9 @@ builder.Services
         };
     });
 
-builder.Services.AddAuthorization(options => 
+builder.Services.AddAuthorization(options =>
 {
-    foreach(var per in PermissionCodes.AllPermissionCodes)
+    foreach (var per in PermissionCodes.AllPermissionCodes)
     {
         options.AddPolicy(per.ToPolicyName(), policy =>
         {

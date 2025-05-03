@@ -86,7 +86,6 @@ const ListOrderPage: NextPage<TProps> = () => {
         setCurrentTab(3)
     }
 
-
     return (
         <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
             <AdminPageComponent

@@ -22,7 +22,6 @@ import { AppDispatch, RootState } from 'src/stores'
 
 // ========== Service Imports ==========
 import { getAllProducts } from 'src/services/product'
-import { getAllProductCategories } from 'src/services/product-category'
 import { resetInitialState } from 'src/stores/product'
 
 // ========== Component Imports ==========

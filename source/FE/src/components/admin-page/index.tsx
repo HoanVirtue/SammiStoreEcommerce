@@ -18,12 +18,11 @@ const GridDetail = dynamic(() => import("../grid-detail"), { ssr: false });
 const GridUpdate = dynamic(() => import("src/components/grid-update"), { ssr: false });
 const GridDelete = dynamic(() => import("src/components/grid-delete"), { ssr: false });
 
-// Import components directly
-import AdminTabs from './components/AdminTabs';
-import AdminHeader from './components/AdminHeader';
-import AdminDataGrid from './components/AdminDataGrid';
-import AdminDialogs from './components/AdminDialogs';
-import TabContents from './components/TabContents';
+const AdminTabs = dynamic(() => import('./components/AdminTabs'));
+ const AdminHeader = dynamic(() => import('./components/AdminHeader'));
+ const AdminDataGrid = dynamic(() => import('./components/AdminDataGrid'));
+ const AdminDialogs = dynamic(() => import('./components/AdminDialogs'));
+ const TabContents = dynamic(() => import('./components/TabContents'));
 
 // Custom hooks
 import useAdminData from './hooks/useAdminData';
@@ -199,6 +198,9 @@ const AdminPage: NextPage<AdminPageProps> = ({
             onClick={() => {
               if (onUpdateClick) {
                 onUpdateClick();
+                setOpenCreateUpdate({ open: true, id: params.row.id });
+              } else {
+                setOpenCreateUpdate({ open: true, id: params.row.id });
               }
             }}
           />

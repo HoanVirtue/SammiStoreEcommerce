@@ -161,8 +161,11 @@ const OrderCard: NextPage<TProps> = (props) => {
     }, [dispatch, orderData.details, isSuccessCreateCart, errorMessageCreateCart, router])
 
     const handleNavigateDetail = useCallback(() => {
-        router.push(`${ROUTE_CONFIG.ACCOUNT.MY_ORDER}/${orderData.id}`)
-    }, [router, orderData.id])
+        router.push({
+            pathname: `${ROUTE_CONFIG.ACCOUNT.MY_ORDER}/${orderData.code}`,
+            query: { orderId: orderData.id }
+        })
+    }, [router, orderData.code, orderData.id])
 
     const handlePayment = useCallback(async () => {
         setLoading(true);

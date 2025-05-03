@@ -156,7 +156,7 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
     const statusText = useMemo(() => {
         if (item.stockQuantity === 0) return t('out_of_stock');
         if (item.stockQuantity <= 10) return t('selling_fast');
-        return t('product_sold', { count: item.sold || 0 });
+        return t('product_sold', { count: item.totalSold || 0 });
     }, [item, t]);
 
     if (isLoading) {
@@ -165,21 +165,51 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
 
     return (
         <StyledCard sx={{ width: "100%", boxShadow: "none" }}>
-            <CardMedia
-                className="card-media"
-                component="img"
-                image={item?.images[0]?.imageUrl}
-                alt="product image"
-                sx={{
-                    height: { xs: '180px', sm: '220px', md: '260px', lg: '300px' },
-                    width: '100%',
-                    objectFit: 'contain',
-                    transition: "transform 0.3s ease",
-                    "&:hover": {
-                        transform: "scale(0.95)",
-                    },
-                }}
-            />
+            <Box sx={{ position: 'relative' }}>
+                <CardMedia
+                    className="card-media"
+                    component="img"
+                    image={item?.images[0]?.imageUrl}
+                    alt="product image"
+                    sx={{
+                        height: { xs: '180px', sm: '220px', md: '260px', lg: '300px' },
+                        width: '100%',
+                        objectFit: 'contain',
+                        transition: "transform 0.3s ease",
+                        "&:hover": {
+                            transform: "scale(0.95)",
+                        },
+                    }}
+                />
+                {item?.discount > 0 && memoCheckExpire && (
+                    <Box sx={{
+                        position: "absolute",
+                        top: 10,
+                        left: 10,
+                        backgroundColor: 'yellow',
+                        width: { xs: "40px", sm: "45px" },
+                        height: { xs: "40px", sm: "45px" },
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        borderRadius: "50%",
+                        zIndex: 1
+                    }}>
+                        <Typography variant="h6" sx={{
+                            color: theme.palette.error.main,
+                            fontWeight: 600,
+                            fontSize: { xs: "12px", sm: "14px" },
+                            lineHeight: "1",
+                            whiteSpace: "nowrap",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                        }}>
+                            {Math.ceil(-(item?.discount * 100))}%
+                        </Typography>
+                    </Box>
+                )}
+            </Box>
             <ButtonGroupWrapper className="button-group">
                 <ButtonGroup orientation="vertical" aria-label="Vertical button group"
                     sx={{
@@ -261,7 +291,7 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                     }}>
                         {item?.discount > 0 && memoCheckExpire ? (
                             <>
-                                {formatPrice(item?.price * (100 - item?.discount * 100) / 100)}
+                                {formatPrice(item?.newPrice)}
                             </>
                         ) : (
                             <>
@@ -278,31 +308,6 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                         }}>
                             {formatPrice(item?.price)}
                         </Typography>
-                    )}
-                    {item?.discount > 0 && memoCheckExpire && (
-                        <Box sx={{
-                            backgroundColor: hexToRGBA(theme.palette.error.main, 0.99),
-                            width: "fit-content",
-                            padding: "10px 10px",
-                            height: "16px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            borderRadius: "12px"
-                        }}>
-                            <Typography variant="h6" sx={{
-                                color: theme.palette.common.white,
-                                fontWeight: "bold",
-                                fontSize: "10px",
-                                lineHeight: "1.3",
-                                whiteSpace: "nowrap",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                            }}>
-                                {Math.ceil(-(item?.discount * 100))}%
-                            </Typography>
-                        </Box>
                     )}
                 </Box>
                 {

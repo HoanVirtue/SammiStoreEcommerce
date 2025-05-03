@@ -121,7 +121,6 @@ const MyProductPage: NextPage<TProps> = () => {
                         onChangePagination={handleOnChangePagination}
                         page={page}
                         rowLength={0}
-                        isHidden
                     />
                 </Box>
             </Box>

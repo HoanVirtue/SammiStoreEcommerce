@@ -46,8 +46,7 @@ interface FormValues {
     roleId: number;
     code: string;
     type: string;
-    firstName: string;
-    lastName: string;
+    fullName: string;
     email: string;
     phone: string;
     streetAddress: string;
@@ -87,8 +86,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         roleId: yup.number().required(t("required_role_id")),
         code: yup.string().required(t("required_supplier_code")),
         type: yup.string().default(""),
-        firstName: yup.string().required(t("required_first_name")),
-        lastName: yup.string().required(t("required_last_name")),
+        fullName: yup.string().required(t("required_full_name")),
         email: yup.string().required(t("required_email")).email().matches(EMAIL_REG, t("incorrect_email_format")),
         phone: yup.string().required(t("required_phone")).min(10, t("incorrect_phone_format")),
         streetAddress: yup.string().required(t("required_address")),
@@ -104,8 +102,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         roleId: 0,
         code: "",
         type: "",
-        firstName: "",
-        lastName: "",
+        fullName: "",
         email: "",
         phone: "",
         streetAddress: "",
@@ -114,7 +111,6 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
         isLock: false,
         isActive: true,
         isDeleted: false,
-        
     };
 
     // Form control
@@ -143,9 +139,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                 code: data.code,
                 identityGuid: "",
                 type: "",
-                firstName: data.firstName,
-                lastName: data.lastName,
-                fullName: "",
+                fullName: data.fullName,
                 email: data.email || "",
                 phone: data.phone,
                 streetAddress: data.streetAddress,
@@ -352,8 +346,7 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
                     roleId: data.roleId || 0,
                     code: data.code || "",
                     type: "",
-                    firstName: data.firstName || "",
-                    lastName: data.lastName || "",
+                    fullName: data.fullName || `${data.firstName || ''} ${data.lastName || ''}`.trim(),
                     email: data.email || "",
                     phone: data.phone || "",
                     streetAddress: data.streetAddress || "",
@@ -570,35 +563,17 @@ const CreateUpdateSupplier = (props: TCreateUpdateSupplier) => {
 
                                             <Controller
                                                 control={control}
-                                                name="firstName"
+                                                name="fullName"
                                                 render={({ field: { onChange, onBlur, value } }) => (
                                                     <CustomTextField
                                                         fullWidth
-                                                        label={t("first_name")}
+                                                        label={t("full_name")}
                                                         onChange={onChange}
                                                         onBlur={onBlur}
                                                         value={value}
-                                                        placeholder={t("enter_first_name")}
-                                                        error={!!errors.firstName}
-                                                        helperText={errors.firstName?.message}
-                                                        sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
-                                                    />
-                                                )}
-                                            />
-
-                                            <Controller
-                                                control={control}
-                                                name="lastName"
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <CustomTextField
-                                                        fullWidth
-                                                        label={t("last_name")}
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        value={value}
-                                                        placeholder={t("enter_last_name")}
-                                                        error={!!errors.lastName}
-                                                        helperText={errors.lastName?.message}
+                                                        placeholder={t("enter_full_name")}
+                                                        error={!!errors.fullName}
+                                                        helperText={errors.fullName?.message}
                                                         sx={{ "& .MuiOutlinedInput-root": { borderRadius: "8px" } }}
                                                     />
                                                 )}

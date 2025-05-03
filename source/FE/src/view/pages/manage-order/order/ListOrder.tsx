@@ -72,33 +72,27 @@ const ListOrderPage: NextPage<TProps> = () => {
     // Memoize columns
     const columns = useMemo(() => getOrderColumns(), [])
     
-    // Use the memoized selector
-    const orderSelector = useCallback((state: RootState) => createOrderSelector(state), [])
 
-    const handleTabChange = useCallback((newTab: number) => {
+    const handleTabChange = (newTab: number) => {
         setCurrentTab(newTab)
         if (newTab === 0) {
             setSelectedOrderId(0)
         }
-    }, [])
+    }
 
-    const handleDetailClick = useCallback((id: number) => {
+    const handleDetailClick = (id: number) => {
         setSelectedOrderId(id)
         setShowDetailTab(true)
         setCurrentTab(3)
-    }, [])
+    }
 
-    const handleAddClick = useCallback(() => {
-        setCurrentTab(1)
-        setShowCreateTab(true)
-    }, [])
 
     return (
         <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
             <AdminPageComponent
                 entityName="order"
                 columns={columns}
-                reduxSelector={orderSelector}
+                reduxSelector={createOrderSelector}
                 fields={getOrderFields()}
                 fetchAction={getAllManageOrderAsync}
                 deleteAction={deleteOrderAsync}

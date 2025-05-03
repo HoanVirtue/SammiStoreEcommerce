@@ -11,6 +11,7 @@ import CustomPagination from 'src/components/custom-pagination'
 
 interface ProductReviewProps {
     productId: number;
+    onRatingDataChange: (data: { averageRating: number; totalRating: number }) => void;
 }
 
 interface OverallReview {
@@ -25,7 +26,7 @@ interface OverallReview {
     totalImage: number;
 }
 
-const ProductReview = ({ productId }: ProductReviewProps) => {
+const ProductReview = ({ productId, onRatingDataChange }: ProductReviewProps) => {
     const [listReview, setListReview] = useState<TReviewItem[]>([])
     const [overallReview, setOverallReview] = useState<OverallReview | null>(null)
     const [loading, setLoading] = useState<boolean>(false)
@@ -69,6 +70,10 @@ const ProductReview = ({ productId }: ProductReviewProps) => {
             const response = await getOverallReview(productId)
             if (response?.result) {
                 setOverallReview(response.result)
+                onRatingDataChange({
+                    averageRating: response.result.averageRating || 0,
+                    totalRating: response.result.totalRating || 0
+                });
             }
         } catch (error) {
             console.error('Error fetching overall review:', error)
@@ -86,8 +91,6 @@ const ProductReview = ({ productId }: ProductReviewProps) => {
             fetchOverallReview()
         }
     }, [productId])
-
-    const averageRating = overallReview?.totalRating || 0
 
     const handleOnChangePagination = (newPage: number, newPageSize: number) => {
         setPage(newPage)

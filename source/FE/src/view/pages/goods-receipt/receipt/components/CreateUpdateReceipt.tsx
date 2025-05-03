@@ -37,7 +37,6 @@ import { createReceiptAsync, updateReceiptAsync } from 'src/stores/receipt/actio
 import { AppDispatch } from 'src/stores';
 import { getReceiptCode, getReceiptDetail } from 'src/services/receipt';
 import { toast } from 'react-toastify';
-import { GOODS_RECEIPT_STATUS } from 'src/configs/receipt';
 
 interface ReceiptItem {
   id: number;
@@ -83,7 +82,21 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
   >([]);
   const [isEditMode, setIsEditMode] = useState(false);
   const [receiptCode, setReceiptCode] = useState('');
-  const statusOptions = GOODS_RECEIPT_STATUS();
+  
+  // Construct statusOptions directly using the t function from useTranslation
+  const statusOptions = {
+    "0": {
+        label: t("draft"),
+        value: "0",
+        originalValue: "Draft",
+    },
+    "1": {
+        label: t("pending_approval"),
+        value: "1",
+        originalValue: "PendingApproval",
+    },
+    // Add other statuses here if they exist in GOODS_RECEIPT_STATUS
+  };
 
   const schema = yup.object().shape({
     receiptCode: yup.string().required(t('receipt_code_required')),
@@ -410,275 +423,277 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
-      <Box sx={{ p: 3, width: '100%' }}>
-        {loading && <Spinner />}
-        <Paper sx={{ p: 2 }}>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-              <Typography variant="h5">{isEditMode ? t('update_receipt') : t('create_receipt')}</Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
-                <Button variant="outlined" onClick={onClose}>
-                  {t('cancel')}
-                </Button>
-                <Button type="submit" variant="contained" color="primary">
-                  {isEditMode ? t('update') : t('create')}
+      {loading && <Spinner />}
+      {!loading && (
+        <Box sx={{ p: 3, width: '100%' }}>
+          <Paper sx={{ p: 2 }}>
+            <form onSubmit={handleSubmit(onSubmit)}>
+              {/* Header */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h5">{isEditMode ? t('update_receipt') : t('create_receipt')}</Typography>
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  <Button variant="outlined" onClick={onClose}>
+                    {t('cancel')}
+                  </Button>
+                  <Button type="submit" variant="contained" color="primary">
+                    {isEditMode ? t('update') : t('create')}
+                  </Button>
+                </Box>
+              </Box>
+
+              {/* Form Fields */}
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
+                  <Controller
+                    name="receiptCode"
+                    control={control}
+                    render={({ field: { onChange, onBlur, value } }) => (
+                      <CustomTextField
+                        fullWidth 
+                        required
+                        label={t('receipt_code')}
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        value={value}
+                        placeholder={receiptCode}
+                        error={!!errors.receiptCode}
+                        helperText={errors.receiptCode?.message}
+                        disabled={isEditMode}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Controller
+                    name="receiptDate"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <DateTimePicker
+                        value={value}
+                        onChange={(newValue) => onChange(newValue)}
+                        slotProps={{
+                          textField: {
+                            fullWidth: true,
+                            size: 'small',
+                            label: t('receipt_date'),
+                            placeholder: t('select_receipt_date'),
+                            error: !!errors.receiptDate,
+                            helperText: errors.receiptDate?.message,
+                          },
+                        }}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <Controller
+                    name="supplierId"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <CustomAutocomplete
+                        options={supplierOptions}
+                        value={supplierOptions.find((option) => option.value === value) || null}
+                        onChange={(newValue) => {
+                          onChange(newValue?.value || '');
+                        }}
+                        label={t('supplier_name')}
+                        error={!!errors.supplierId}
+                        helperText={errors.supplierId?.message}
+                        placeholder={t('enter_supplier_name')}
+                      />
+                    )}
+                  />
+                </Grid>
+
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="employeeId"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <CustomAutocomplete
+                        options={employeeOptions}
+                        value={employeeOptions.find((option) => option.value === value) || null}
+                        onChange={(newValue) => {
+                          onChange(newValue?.value || '');
+                        }}
+                        label={t('employee_name')}
+                        error={!!errors.employeeId}
+                        helperText={errors.employeeId?.message}
+                        placeholder={t('enter_employee_name')}
+                      />
+                    )}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Controller
+                    name="status"
+                    control={control}
+                    render={({ field: { onChange, value } }) => (
+                      <CustomAutocomplete
+                        options={Object.values(statusOptions)}
+                        value={Object.values(statusOptions).find((option) => option.value === value) || null}
+                        onChange={(newValue) => {
+                          onChange(newValue?.value || '');
+                        }}
+                        label={t('status')}
+                        error={!!errors.status}
+                        helperText={errors.status?.message}
+                        placeholder={t('select_status')}
+                      />
+                    )}
+                  />
+                </Grid>
+              </Grid>
+
+              {/* Items Table Header */}
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, mb: 2 }}>
+                <Typography variant="h6">{t('product_list')}</Typography>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  startIcon={<AddIcon />}
+                  onClick={() => {
+                    onCreateNew();
+                  }}
+                >
+                  {t('create_new_product')}
                 </Button>
               </Box>
-            </Box>
 
-            {/* Form Fields */}
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={4}>
-                <Controller
-                  name="receiptCode"
-                  control={control}
-                  render={({ field: { onChange, onBlur, value } }) => (
-                    <CustomTextField
-                      fullWidth
-                      required
-                      label={t('receipt_code')}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                      value={value}
-                      placeholder={receiptCode}
-                      error={!!errors.receiptCode}
-                      helperText={errors.receiptCode?.message}
-                      disabled={isEditMode}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Controller
-                  name="receiptDate"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <DateTimePicker
-                      value={value}
-                      onChange={(newValue) => onChange(newValue)}
-                      slotProps={{
-                        textField: {
-                          fullWidth: true,
-                          size: 'small',
-                          label: t('receipt_date'),
-                          placeholder: t('select_receipt_date'),
-                          error: !!errors.receiptDate,
-                          helperText: errors.receiptDate?.message,
-                        },
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={4}>
-                <Controller
-                  name="supplierId"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <CustomAutocomplete
-                      options={supplierOptions}
-                      value={supplierOptions.find((option) => option.value === value) || null}
-                      onChange={(newValue) => {
-                        onChange(newValue?.value || '');
-                      }}
-                      label={t('supplier_name')}
-                      error={!!errors.supplierId}
-                      helperText={errors.supplierId?.message}
-                      placeholder={t('enter_supplier_name')}
-                    />
-                  )}
-                />
-              </Grid>
+              {/* Items Table */}
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell width="5%">#</TableCell>
+                      <TableCell width="35%">{t('product_name')}</TableCell>
+                      <TableCell width="15%">{t('quantity')}</TableCell>
+                      <TableCell width="20%">{t('unit_price')}</TableCell>
+                      <TableCell width="20%">{t('total_product_price')}</TableCell>
+                      <TableCell width="5%">
+                        <IconButton color="primary" onClick={handleAddItem}>
+                          <AddIcon />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {items.map((item, index) => (
+                      <TableRow key={item.id}>
+                        <StyledTableCell width="5%">{index + 1}</StyledTableCell>
+                        <StyledTableCell width="35%">
+                          <Controller
+                            name={`items.${index}.productId`}
+                            control={control}
+                            render={({ field: { onChange, value } }) => (
+                              <CustomAutocomplete
+                                options={productOptions}
+                                value={productOptions.find((option) => option.id === value) || null}
+                                onChange={(newValue) => {
+                                  if (newValue && newValue.id !== undefined) {
+                                    onChange(newValue.id);
+                                    handleProductChange(index, newValue.id);
+                                  } else {
+                                    onChange(0);
+                                  }
+                                }}
+                                error={!!errors.items?.[index]?.productId}
+                                helperText={errors.items?.[index]?.productId?.message}
+                                placeholder={t('enter_product_name')}
+                                required
+                              />
+                            )}
+                          />
+                        </StyledTableCell>
 
-              <Grid item xs={12} sm={6}>
-                <Controller
-                  name="employeeId"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <CustomAutocomplete
-                      options={employeeOptions}
-                      value={employeeOptions.find((option) => option.value === value) || null}
-                      onChange={(newValue) => {
-                        onChange(newValue?.value || '');
-                      }}
-                      label={t('employee_name')}
-                      error={!!errors.employeeId}
-                      helperText={errors.employeeId?.message}
-                      placeholder={t('enter_employee_name')}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <Controller
-                  name="status"
-                  control={control}
-                  render={({ field: { onChange, value } }) => (
-                    <CustomAutocomplete
-                      options={Object.values(statusOptions)}
-                      value={Object.values(statusOptions).find((option) => option.value === value) || null}
-                      onChange={(newValue) => {
-                        onChange(newValue?.value || '');
-                      }}
-                      label={t('status')}
-                      error={!!errors.status}
-                      helperText={errors.status?.message}
-                      placeholder={t('select_status')}
-                    />
-                  )}
-                />
-              </Grid>
-            </Grid>
+                        <StyledTableCell width="15%">
+                          <Controller
+                            name={`items.${index}.quantity`}
+                            control={control}
+                            render={({ field: { onChange, onBlur, value } }) => (
+                              <CustomTextField
+                                fullWidth
+                                type="number"
+                                onChange={(e) => {
+                                  const newQuantity = parseInt(e.target.value) || 0;
+                                  onChange(newQuantity);
+                                  handleQuantityChange(index, newQuantity);
+                                }}
+                                onBlur={onBlur}
+                                value={value}
+                                error={!!errors.items?.[index]?.quantity}
+                                helperText={errors.items?.[index]?.quantity?.message}
+                              />
+                            )}
+                          />
+                        </StyledTableCell>
 
-            {/* Items Table Header */}
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mt: 3, mb: 2 }}>
-              <Typography variant="h6">{t('product_list')}</Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                startIcon={<AddIcon />}
-                onClick={() => {
-                  onCreateNew();
+                        <StyledTableCell width="20%">
+                          <Controller
+                            name={`items.${index}.unitPrice`}
+                            control={control}
+                            render={({ field: { onChange, onBlur, value } }) => (
+                              <CustomTextField
+                                fullWidth
+                                type="number"
+                                onChange={(e) => {
+                                  const newUnitPrice = parseFloat(e.target.value) || 0;
+                                  onChange(newUnitPrice);
+                                  handleUnitPriceChange(index, newUnitPrice);
+                                }}
+                                onBlur={onBlur}
+                                value={value}
+                                error={!!errors.items?.[index]?.unitPrice}
+                                helperText={errors.items?.[index]?.unitPrice?.message}
+                              />
+                            )}
+                          />
+                        </StyledTableCell>
+
+                        <StyledTableCell width="20%">
+                          <CustomTextField fullWidth type="number" value={item.total} disabled />
+                        </StyledTableCell>
+                        <StyledTableCell width="5%" sx={{ padding: '6px 24px 6px 16px' }}>
+                          <IconButton
+                            color="error"
+                            onClick={() => handleRemoveItem(index)}
+                            disabled={items.length <= 1}
+                          >
+                            <RemoveIcon />
+                          </IconButton>
+                        </StyledTableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+
+              {/* Footer */}
+              <Box
+                sx={{
+                  mt: 2,
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  flexWrap: 'wrap',
+                  gap: 2,
                 }}
               >
-                {t('create_new_product')}
-              </Button>
-            </Box>
-
-            {/* Items Table */}
-            <TableContainer>
-              <Table size="small">
-                <TableHead>
-                  <TableRow>
-                    <TableCell width="5%">#</TableCell>
-                    <TableCell width="35%">{t('product_name')}</TableCell>
-                    <TableCell width="15%">{t('quantity')}</TableCell>
-                    <TableCell width="20%">{t('unit_price')}</TableCell>
-                    <TableCell width="20%">{t('total_product_price')}</TableCell>
-                    <TableCell width="5%">
-                      <IconButton color="primary" onClick={handleAddItem}>
-                        <AddIcon />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {items.map((item, index) => (
-                    <TableRow key={item.id}>
-                      <StyledTableCell width="5%">{index + 1}</StyledTableCell>
-                      <StyledTableCell width="35%">
-                        <Controller
-                          name={`items.${index}.productId`}
-                          control={control}
-                          render={({ field: { onChange, value } }) => (
-                            <CustomAutocomplete
-                              options={productOptions}
-                              value={productOptions.find((option) => option.id === value) || null}
-                              onChange={(newValue) => {
-                                if (newValue && newValue.id !== undefined) {
-                                  onChange(newValue.id);
-                                  handleProductChange(index, newValue.id);
-                                } else {
-                                  onChange(0);
-                                }
-                              }}
-                              error={!!errors.items?.[index]?.productId}
-                              helperText={errors.items?.[index]?.productId?.message}
-                              placeholder={t('enter_product_name')}
-                              required
-                            />
-                          )}
-                        />
-                      </StyledTableCell>
-
-                      <StyledTableCell width="15%">
-                        <Controller
-                          name={`items.${index}.quantity`}
-                          control={control}
-                          render={({ field: { onChange, onBlur, value } }) => (
-                            <CustomTextField
-                              fullWidth
-                              type="number"
-                              onChange={(e) => {
-                                const newQuantity = parseInt(e.target.value) || 0;
-                                onChange(newQuantity);
-                                handleQuantityChange(index, newQuantity);
-                              }}
-                              onBlur={onBlur}
-                              value={value}
-                              error={!!errors.items?.[index]?.quantity}
-                              helperText={errors.items?.[index]?.quantity?.message}
-                            />
-                          )}
-                        />
-                      </StyledTableCell>
-
-                      <StyledTableCell width="20%">
-                        <Controller
-                          name={`items.${index}.unitPrice`}
-                          control={control}
-                          render={({ field: { onChange, onBlur, value } }) => (
-                            <CustomTextField
-                              fullWidth
-                              type="number"
-                              onChange={(e) => {
-                                const newUnitPrice = parseFloat(e.target.value) || 0;
-                                onChange(newUnitPrice);
-                                handleUnitPriceChange(index, newUnitPrice);
-                              }}
-                              onBlur={onBlur}
-                              value={value}
-                              error={!!errors.items?.[index]?.unitPrice}
-                              helperText={errors.items?.[index]?.unitPrice?.message}
-                            />
-                          )}
-                        />
-                      </StyledTableCell>
-
-                      <StyledTableCell width="20%">
-                        <CustomTextField fullWidth type="number" value={item.total} disabled />
-                      </StyledTableCell>
-                      <StyledTableCell width="5%" sx={{ padding: '6px 24px 6px 16px' }}>
-                        <IconButton
-                          color="error"
-                          onClick={() => handleRemoveItem(index)}
-                          disabled={items.length <= 1}
-                        >
-                          <RemoveIcon />
-                        </IconButton>
-                      </StyledTableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-
-            {/* Footer */}
-            <Box
-              sx={{
-                mt: 2,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: 2,
-              }}
-            >
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography variant="subtitle1" fontWeight="bold">
-                  {t('total')}:
-                </Typography>
-                <Typography variant="h6" color="primary">
-                  {items
-                    .reduce((sum, item) => sum + item.total, 0)
-                    .toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Typography variant="subtitle1" fontWeight="bold">
+                    {t('total')}:
+                  </Typography>
+                  <Typography variant="h6" color="primary">
+                    {items
+                      .reduce((sum, item) => sum + item.total, 0)
+                      .toLocaleString('vi-VN', { style: 'currency', currency: 'VND' })}
+                  </Typography>
+                </Box>
               </Box>
-            </Box>
-          </form>
-        </Paper>
-      </Box>
+            </form>
+          </Paper>
+        </Box>
+      )}
     </LocalizationProvider>
   );
 };

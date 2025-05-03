@@ -71,6 +71,11 @@ const useProductState = () => {
         setShowCreateTab(true);
     }, []);
 
+    const handleUpdateClick = useCallback(() => {
+        setCurrentTab(2);
+        setShowUpdateTab(true);
+    }, []);
+
     const handleCloseCreateTab = useCallback(() => setShowCreateTab(false), []);
     const handleCloseUpdateTab = useCallback(() => setShowUpdateTab(false), []);
     const handleCloseDetailTab = useCallback(() => setShowDetailTab(false), []);
@@ -84,6 +89,7 @@ const useProductState = () => {
         handleTabChange,
         handleDetailClick,
         handleAddClick,
+        handleUpdateClick,
         handleCloseCreateTab,
         handleCloseUpdateTab,
         handleCloseDetailTab
@@ -100,6 +106,7 @@ const ListProductPage: NextPage = () => {
         handleTabChange,
         handleDetailClick,
         handleAddClick,
+        handleUpdateClick,
         handleCloseCreateTab,
         handleCloseUpdateTab,
         handleCloseDetailTab
@@ -143,6 +150,8 @@ const ListProductPage: NextPage = () => {
                     currentTab={currentTab}
                     onTabChange={handleTabChange}
                     onAddClick={handleAddClick}
+                    onUpdateClick={handleUpdateClick}
+
                     onDetailClick={handleDetailClick}
                     onCloseCreateTab={handleCloseCreateTab}
                     onCloseUpdateTab={handleCloseUpdateTab}

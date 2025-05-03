@@ -44,55 +44,54 @@ const ListReceiptPage: NextPage = () => {
   // Memoize columns
   const columns = useMemo(() => getReceiptColumns(), []);
   
-  // Use the memoized selector
-  const receiptSelector = useCallback((state: RootState) => createReceiptSelector(state), []);
-
   // Memoize handlers
-  const handleTabChange = useCallback((newTab: number) => {
+  const handleTabChange = (newTab: number) => {
     setCurrentTab(newTab);
     if (newTab === 0) {
       setSelectedReceiptId(0);
     }
-  }, [setCurrentTab, setSelectedReceiptId]);
+  }
 
-  const handleDetailClick = useCallback((id: number) => {
+  const handleDetailClick = (id: number) => {
     setSelectedReceiptId(id);
     setShowDetailTab(true);
     setCurrentTab(3);
-  }, [setSelectedReceiptId, setShowDetailTab, setCurrentTab]);
+  };
 
-  const handleAddClick = useCallback(() => {
+  const handleAddClick = () => {
     setCurrentTab(1);
     setShowCreateTab(true);
-  }, [setCurrentTab, setShowCreateTab]);
+  };
 
-  const handleUpdateClick = useCallback(() => {
+  const handleUpdateClick = () => {
     setCurrentTab(2);
     setShowUpdateTab(true);
-  }, [setCurrentTab, setShowUpdateTab]);
+  }
 
-  const handleCreateNewClick = useCallback(() => {
+  const handleCreateNewClick = () => {
     setCurrentTab(4);
     setShowCreateNewTab(true);
-  }, [setCurrentTab, setShowCreateNewTab]);
+  }
 
-  const handleCloseCreateNewTab = useCallback(() => {
+  const handleCloseCreateNewTab = () => {
     setCurrentTab(1);
     setShowCreateNewTab(false);
-  }, [setCurrentTab, setShowCreateNewTab]);
+  }
 
-  const handleCloseUpdateTab = useCallback(() => {
+  const handleCloseUpdateTab = () => {
     setCurrentTab(0);
     setShowUpdateTab(false);
-  }, [setCurrentTab, setShowUpdateTab]);
+  }
 
-  const handleCloseCreateTab = useCallback(() => {
+  const handleCloseCreateTab = () => {
     setShowCreateTab(false);
-  }, [setShowCreateTab]);
+    setCurrentTab(0);
+  }
 
-  const handleCloseDetailTab = useCallback(() => {
+  const handleCloseDetailTab = () => {
     setShowDetailTab(false);
-  }, [setShowDetailTab]);
+    setCurrentTab(0);
+  }
 
   return (
     <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
@@ -100,7 +99,7 @@ const ListReceiptPage: NextPage = () => {
         entityName="receipt"
         columns={columns}
         fields={getReceiptFields()}
-        reduxSelector={receiptSelector}
+        reduxSelector={createReceiptSelector}
         fetchAction={getAllReceiptsAsync}
         deleteAction={deleteReceiptAsync}
         deleteMultipleAction={deleteMultipleReceiptsAsync as unknown as (ids: { [key: number]: number[] }) => any}

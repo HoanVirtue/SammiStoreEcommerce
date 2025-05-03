@@ -836,6 +836,12 @@
     "reviews_product": "Đánh giá sản phẩm",
     "no_reviews_found": "Không có đánh giá nào",
     "outstanding_brands": "Thương hiệu nổi bật",
+    "discount_price": "Giá sau khi giảm",
+    "import_price": "Giá nhập",
+    "enter_id_card_number": "Nhập số CMND",
+    "enter_full_name": "Nhập họ và tên",
+    "required_full_name": "Họ và tên không được để trống",
+    "create_event_failed": "Đã xảy ra lỗi khi tạo sự kiện, vui lòng thử lại!",
 
 
     "province_id": "Mã Tỉnh/Thành phố",

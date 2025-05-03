@@ -120,10 +120,26 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
 
     const handleToggleFavoriteProduct = async (id: number, isLiked: boolean) => {
         if (user?.id) {
-            if (isLiked) {
-                await unlikeProduct(id)
-            } else {
-                await likeProduct(id)
+            try {
+                let response;
+                if (isLiked) {
+                    response = await unlikeProduct(id);
+                    if (response?.isSuccess) {
+                        toast.success(response.message || t('remove_from_wishlist_success'));
+                    } else {
+                        toast.error(response?.message || t('remove_from_wishlist_error'));
+                    }
+                } else {
+                    response = await likeProduct(id);
+                    if (response?.isSuccess) {
+                        toast.success(response.message || t('add_to_wishlist_success'));
+                    } else {
+                        toast.error(response?.message || t('add_to_wishlist_error'));
+                    }
+                }
+            } catch (error) {
+                console.error("Error toggling product like status:", error);
+                toast.error(t('common_error_message') || 'An unexpected error occurred.');
             }
         } else {
             router.replace({

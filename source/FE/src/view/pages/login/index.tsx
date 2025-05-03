@@ -8,10 +8,11 @@ import { NextPage } from 'next'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 
 //MUI
 import { IconButton, InputAdornment, useTheme } from '@mui/material'
-import { Box, Button, Checkbox, CssBaseline, FormControlLabel, Typography } from '@mui/material'
+import { Box, Button, Checkbox, CssBaseline, FormControlLabel, Typography, CircularProgress } from '@mui/material'
 
 //Form
 import { Controller, useForm } from 'react-hook-form'
@@ -59,7 +60,19 @@ const LoginPage: NextPage<TProps> = () => {
     //translation
     const { t } = useTranslation()
 
+    // Get search params
+    const searchParams = useSearchParams()
+
     const [isLoading, setIsLoading] = useState(false);
+
+    // Effect to show toast message from URL
+    useEffect(() => {
+        const message = searchParams.get('message')
+        if (message) {
+            // Decode the message from URL encoding and show toast
+            toast.success(decodeURIComponent(message))
+        }
+    }, [searchParams])
 
     const schema = yup.object().shape({
         username: yup
@@ -216,8 +229,18 @@ const LoginPage: NextPage<TProps> = () => {
                                 label={t("remember_me")} />
                             <Link href="#">{t("forgot_password")}</Link>
                         </Box>
-                        <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }} >
-                            {t("login")}
+                        <Button 
+                            type="submit" 
+                            fullWidth 
+                            variant="contained" 
+                            sx={{ mt: 3, mb: 2, py: 1.5 }} 
+                            disabled={isLoading}
+                        >
+                            {isLoading ? (
+                                <CircularProgress size={24} color="inherit" />
+                            ) : (
+                                t("login")
+                            )}
                         </Button>
                         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: "4px" }}>
                             <Typography>

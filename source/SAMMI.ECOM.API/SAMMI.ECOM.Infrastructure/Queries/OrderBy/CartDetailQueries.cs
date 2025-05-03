@@ -46,7 +46,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             var cartItems = (await GetMyCart()).ToList();
             if (cartItems != null && cartItems.Count() > 0)
             {
-                await _redisService.SetCache(GetCartKey(userId), cartItems);
+                await _redisService.SetCache(GetCartKey(userId), cartItems, TimeSpan.FromDays(10));
             }
         }
 

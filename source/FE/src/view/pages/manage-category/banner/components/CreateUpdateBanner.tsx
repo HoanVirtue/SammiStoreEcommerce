@@ -255,9 +255,9 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
                                                 {bannerImage ? t("change_banner_image") : t("upload_banner_image")}
                                             </Button>
                                         </FileUploadWrapper>
-                                        {errors.imageCommand && (
+                                        {errors.imageCommand?.imageBase64 && (
                                             <FormHelperText sx={{ color: theme.palette.error.main }}>
-                                                {errors.imageCommand?.message}
+                                                {errors.imageCommand?.imageBase64?.message}
                                             </FormHelperText>
                                         )}
                                     </Box>

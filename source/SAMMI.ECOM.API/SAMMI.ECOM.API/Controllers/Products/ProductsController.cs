@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using Azure;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -7,6 +8,7 @@ using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
+using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Products;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
@@ -134,7 +136,15 @@ namespace SAMMI.ECOM.API.Controllers.Products
         [HttpGet("get-suggest")]
         public async Task<IActionResult> GetDataSuggest([FromQuery]string keyWord, [FromQuery] int size = 5)
         {
-            var product = (await _productQueries.GetAll()).Where(x => x.Name.Contains(keyWord));
+            var product = (await _productQueries.GetAll()).Where(x => x.Name.Contains(keyWord))
+                .Select(x => new SuggestProductDTO
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Code = x.Code,
+                    ProductImage = x.Images.FirstOrDefault()?.ImageUrl,
+                    Price = x.Price
+                }).ToList();
             
             return Ok(product);
             //return Ok(await _productElasticService.SuggestProducts(keyWord, size));

@@ -85,11 +85,6 @@ const ListOrderPage: NextPage<TProps> = () => {
         setCurrentTab(3);
     };
 
-    const handleAddClick = () => {
-        setCurrentTab(1);
-        setShowCreateTab(true);
-    };
-
     return (
         <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
             <AdminPage

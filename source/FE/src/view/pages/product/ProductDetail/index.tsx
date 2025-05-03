@@ -91,6 +91,8 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
     const [selectedImage, setSelectedImage] = useState(0)
     const [showZoom, setShowZoom] = useState(false)
     const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 })
+    const [averageRating, setAverageRating] = useState<number>(0)
+    const [totalRatings, setTotalRatings] = useState<number>(0)
 
     // Hooks & Context
     const router = useRouter()
@@ -200,6 +202,12 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
             }
         }, ROUTE_CONFIG.MY_CART)
     }
+
+    // Handler to receive rating data from ProductReview
+    const handleRatingDataChange = (data: { averageRating: number; totalRating: number }) => {
+        setAverageRating(data.averageRating);
+        setTotalRatings(data.totalRating);
+    };
 
     useEffect(() => {
         if (productId) {
@@ -416,12 +424,13 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
                                     mt: 2
                                 }}>
                                     <Rating
-                                        name="half-rating"
+                                        value={averageRating || 0}
+                                        readOnly
                                         precision={0.1}
                                         sx={{ color: theme.palette.warning.main }}
                                     />
                                     <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                                        ({listRelatedProduct.length} {t('reviews')})
+                                        ({totalRatings} {t('reviews')})
                                     </Typography>
                                 </Box>
                                 <Box sx={{
@@ -664,7 +673,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
 
                 {/* Reviews Section */}
                 <Grid xs={12} sx={{ mt: 4 }}>
-                    <ProductReview productId={productId} />
+                    <ProductReview productId={productId} onRatingDataChange={handleRatingDataChange} />
                 </Grid>
 
                 <Grid xs={12} sx={{ mt: 4 }}>

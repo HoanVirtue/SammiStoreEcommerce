@@ -22,7 +22,6 @@ import {
 } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
 import LoginScreen from '../(auth)/login';
-import HomeScreen from '.';
 
 export default function ProfileScreen() {
 

@@ -8,12 +8,18 @@ import dynamic from 'next/dynamic';
 import { useTranslation } from 'react-i18next';
 import { usePathname } from 'next/navigation';
 import Spinner from 'src/components/spinner';
-import IconifyIcon from 'src/components/Icon';
-import CustomBreadcrumbs from 'src/components/custom-breadcrum';
-
 // Dynamic imports
 const Nav = dynamic(() => import('./nav'), {
+  ssr: false,
   loading: () => <Box sx={{ width: { xs: '100%', md: '280px' } }} />
+});
+
+const CustomBreadcrumbs = dynamic(() => import('src/components/custom-breadcrum'), {
+  ssr: true
+});
+
+const IconifyIcon = dynamic(() => import('src/components/Icon'), {
+  ssr: true
 });
 
 // ----------------------------------------------------------------------
@@ -34,6 +40,7 @@ export default function AccountLayout({ children }: Props) {
         { label: t(pathname?.split('/').pop()?.replace(/-/g, '_') || ''), href: pathname },
     ];
 
+
     return (
         <Container
             sx={{
@@ -47,7 +54,9 @@ export default function AccountLayout({ children }: Props) {
                 mb: '1rem',
                 backgroundColor: theme.palette.grey[100],
             }}>
-                <CustomBreadcrumbs items={breadcrumbItems} />
+                <Suspense fallback={<Spinner />}>
+                    <CustomBreadcrumbs items={breadcrumbItems} />
+                </Suspense>
             </Box>
             <Stack
                 direction={{ xs: 'column', md: 'row' }}

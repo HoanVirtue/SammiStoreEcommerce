@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react'
 //Next
 import { NextPage } from 'next'
 import dynamic from 'next/dynamic'
+import { useDebounce } from 'src/hooks/useDebounce'
 
 //MUI
 import { Box, Stack, useTheme } from '@mui/material'
@@ -17,10 +18,8 @@ import { Grid } from '@mui/material'
 import { t } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
-//Redux
-import { AppDispatch, RootState } from 'src/stores'
-import { useDispatch, useSelector } from 'react-redux'
-import { resetInitialState } from 'src/stores/product'
+// ** Import API service instead
+import { getMyLikedProduct } from 'src/services/product'
 
 //Other
 import { toast } from 'react-toastify'
@@ -31,6 +30,10 @@ const Spinner = dynamic(() => import('src/components/spinner'), { ssr: false })
 const SearchField = dynamic(() => import('src/components/search-field'), { ssr: false })
 const NoData = dynamic(() => import('src/components/no-data'), { ssr: false })
 const CustomPagination = dynamic(() => import('src/components/custom-pagination'), { ssr: false })
+const MyProductCard = dynamic(() => import('src/view/pages/account/my-product/MyProductCard'), { ssr: false })
+
+// Import the new type
+import { TMyLikedProduct } from './MyProductCard'
 
 type TProps = {}
 
@@ -43,13 +46,50 @@ const MyProductPage: NextPage<TProps> = () => {
     const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
     const [loading, setLoading] = useState<boolean>(false)
     const [searchBy, setSearchBy] = useState("");
+    const [myLikedProducts, setMyLikedProducts] = useState<TMyLikedProduct[]>([]);
+    const [totalItems, setTotalItems] = useState(0);
 
     //Theme
     const theme = useTheme();
+    //Debounce Search
+    const searchByDebounce = useDebounce(searchBy, 500)
 
-    //Dispatch
-    const dispatch: AppDispatch = useDispatch();
-    const { isLoading, isSuccessLike, isErrorLike, errorMessageLike, typeError, isSuccessUnlike, isErrorUnlike, errorMessageUnlike } = useSelector((state: RootState) => state.product)
+    // ** Fetch My Liked Products using API service
+    const fetchMyLikedProduct = async () => {
+        setLoading(true);
+        try {
+            const response = await getMyLikedProduct({
+                params: {
+                    take: -1,
+                    skip: 0,
+                    paging: false,
+                    orderBy: "name",
+                    dir: "asc",
+                    keywords: "''",
+                    type: 4,
+                    filters: ""
+                }
+            });
+            if (response?.isSuccess) {
+                const data = response?.result;
+                const total = response?.result?.totalItemCount;
+                setMyLikedProducts(data as TMyLikedProduct[] || []);
+                setTotalItems(total || 0);
+            }
+        } catch (error) {
+            // Handle error appropriately, maybe show a toast
+            console.error("Error fetching liked products:", error);
+            setMyLikedProducts([]);
+            setTotalItems(0);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        fetchMyLikedProduct();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, pageSize, searchByDebounce]);
 
     //Handler
     const handleOnChangePagination = (page: number, pageSize: number) => {
@@ -58,29 +98,9 @@ const MyProductPage: NextPage<TProps> = () => {
         setSearchBy("")
     }
 
-    useEffect(() => {
-        if (isSuccessLike) {
-            toast.success(t("like_product_success"))
-            dispatch(resetInitialState())
-        } else if (isErrorLike && errorMessageLike && typeError) {
-            toast.error(t("like_product_error"))
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessLike, isErrorLike, errorMessageLike, typeError])
-
-    useEffect(() => {
-        if (isSuccessUnlike) {
-            toast.success(t("unlike_product_success"))
-            dispatch(resetInitialState())
-        } else if (isErrorUnlike && errorMessageUnlike && typeError) {
-            toast.error(t("unlike_product_error"))
-            dispatch(resetInitialState())
-        }
-    }, [isSuccessUnlike, isErrorUnlike, errorMessageUnlike, typeError])
-
     return (
         <>
-            {loading || isLoading && <Spinner />}
+            {loading && <Spinner />}
             <Box sx={{
                 backgroundColor: theme.palette.background.paper,
                 p: 4,
@@ -110,7 +130,17 @@ const MyProductPage: NextPage<TProps> = () => {
                             justifyContent: "center",
                             alignItems: "center",
                         }}>
-                            <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
+                            {myLikedProducts.length > 0 ? (
+                                <Grid container spacing={4}>
+                                    {myLikedProducts.map((product) => (
+                                        <Grid item key={product.id} md={3} sm={6} xs={12}>
+                                            <MyProductCard item={product} />
+                                        </Grid>
+                                    ))}
+                                </Grid>
+                            ) : (
+                                <NoData imageWidth="60px" imageHeight="60px" textNodata={t("no_data")} />
+                            )}
                         </Stack>
                     </Box>
                 </Grid>
@@ -120,8 +150,7 @@ const MyProductPage: NextPage<TProps> = () => {
                         pageSizeOptions={PAGE_SIZE_OPTIONS}
                         onChangePagination={handleOnChangePagination}
                         page={page}
-                        rowLength={0}
-                        isHidden
+                        rowLength={totalItems}
                     />
                 </Box>
             </Box>

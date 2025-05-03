@@ -49,6 +49,8 @@ const MemoizedCustomTextField = React.memo(CustomTextField);
 const MemoizedCustomAutocomplete = React.memo(CustomAutocomplete);
 const MemoizedCustomEditor = React.memo(CustomEditor);
 
+
+
 interface TCreateUpdateProduct {
     id?: number;
     onClose: () => void;
@@ -98,6 +100,12 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     const { t } = useTranslation();
     const theme = useTheme();
     const dispatch: AppDispatch = useDispatch();
+
+    const statusOptions = [
+        { label: t('private'), value: 0 },
+        { label: t('public'), value: 1 },
+        { label: t('pending'), value: 2 },
+    ];
 
     // Schema validation cho form
     const schema = yup.object().shape({
@@ -373,7 +381,6 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                         sx={{
                             p: 2,
                             maxHeight: '90vh',
-                            overflow: 'auto',
                             '&::-webkit-scrollbar': {
                                 width: '8px',
                             },
@@ -549,28 +556,15 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                 name="status"
                                                 control={control}
                                                 render={({ field: { onChange, value } }) => (
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                        <InputLabel>{t("status")}</InputLabel>
-                                                        <FormControlLabel
-                                                            control={
-                                                                <Switch
-                                                                    checked={Boolean(value)}
-                                                                    onChange={(e) => onChange(e.target.checked ? 1 : 0)}
-                                                                    sx={{
-                                                                        '& .MuiSwitch-track': {
-                                                                            color: theme.palette.primary.main,
-                                                                            border: `1px solid ${theme.palette.primary.main}`,
-                                                                            backgroundColor: theme.palette.primary.main,
-                                                                            '&:hover': {
-                                                                                backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                                                                            },
-                                                                        },
-                                                                    }}
-                                                                />
-                                                            }
-                                                            label={Boolean(value) ? t("public") : t("private")}
-                                                        />
-                                                    </Box>
+                                                    <MemoizedCustomAutocomplete
+                                                        options={statusOptions}
+                                                        value={statusOptions.find(option => option.value === value) || null}
+                                                        onChange={(newValue) => onChange(newValue?.value ?? 0)}
+                                                        label={t("status")}
+                                                        error={!!errors.status}
+                                                        helperText={errors.status?.message}
+                                                        placeholder={t("select_product_status")}
+                                                    />
                                                 )}
                                             />
                                         </Grid>
@@ -700,63 +694,63 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                     </Grid>
 
                                 </Grid>
-                                    {/* Tabs Section */}
-                                    <Box sx={{ width: '100%', mt: 4 }}>
-                                        <Tabs value={tabValue} onChange={handleTabChange}>
-                                            <Tab label={t("ingredient")} />
-                                            <Tab label={t("uses")} />
-                                            <Tab label={t("usage_guide")} />
-                                        </Tabs>
-                                    </Box>
+                                {/* Tabs Section */}
+                                <Box sx={{ width: '100%', mt: 4 }}>
+                                    <Tabs value={tabValue} onChange={handleTabChange}>
+                                        <Tab label={t("ingredient")} />
+                                        <Tab label={t("uses")} />
+                                        <Tab label={t("usage_guide")} />
+                                    </Tabs>
+                                </Box>
 
-                                    {/* Tab Panels */}
-                                    <Box sx={{ mt: 2 }}>
-                                        {tabValue === 0 && (
-                                            <Controller
-                                                name="ingredient"
-                                                control={control}
-                                                render={({ field }) => (
-                                                    <MemoizedCustomEditor
-                                                        editorState={field.value}
-                                                        placeholder={t("enter_product_ingredient")}
-                                                        onEditorStateChange={(state) => field.onChange(state)}
-                                                        error={!!errors.ingredient}
-                                                        helperText={errors.ingredient?.message}
-                                                    />
-                                                )}
-                                            />
-                                        )}
-                                        {tabValue === 1 && (
-                                            <Controller
-                                                name="uses"
-                                                control={control}
-                                                render={({ field }) => (
-                                                    <MemoizedCustomEditor
-                                                        editorState={field.value}
-                                                        placeholder={t("enter_product_uses")}
-                                                        onEditorStateChange={(state) => field.onChange(state)}
-                                                        error={!!errors.uses}
-                                                        helperText={errors.uses?.message}
-                                                    />
-                                                )}
-                                            />
-                                        )}
-                                        {tabValue === 2 && (
-                                            <Controller
-                                                name="usageGuide"
-                                                control={control}
-                                                render={({ field }) => (
-                                                    <MemoizedCustomEditor
-                                                        editorState={field.value}
-                                                        placeholder={t("enter_product_usage_guide")}
-                                                        onEditorStateChange={(state) => field.onChange(state)}
-                                                        error={!!errors.usageGuide}
-                                                        helperText={errors.usageGuide?.message}
-                                                    />
-                                                )}
-                                            />
-                                        )}
-                                    </Box>
+                                {/* Tab Panels */}
+                                <Box sx={{ mt: 2 }}>
+                                    {tabValue === 0 && (
+                                        <Controller
+                                            name="ingredient"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <MemoizedCustomEditor
+                                                    editorState={field.value}
+                                                    placeholder={t("enter_product_ingredient")}
+                                                    onEditorStateChange={(state) => field.onChange(state)}
+                                                    error={!!errors.ingredient}
+                                                    helperText={errors.ingredient?.message}
+                                                />
+                                            )}
+                                        />
+                                    )}
+                                    {tabValue === 1 && (
+                                        <Controller
+                                            name="uses"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <MemoizedCustomEditor
+                                                    editorState={field.value}
+                                                    placeholder={t("enter_product_uses")}
+                                                    onEditorStateChange={(state) => field.onChange(state)}
+                                                    error={!!errors.uses}
+                                                    helperText={errors.uses?.message}
+                                                />
+                                            )}
+                                        />
+                                    )}
+                                    {tabValue === 2 && (
+                                        <Controller
+                                            name="usageGuide"
+                                            control={control}
+                                            render={({ field }) => (
+                                                <MemoizedCustomEditor
+                                                    editorState={field.value}
+                                                    placeholder={t("enter_product_usage_guide")}
+                                                    onEditorStateChange={(state) => field.onChange(state)}
+                                                    error={!!errors.usageGuide}
+                                                    helperText={errors.usageGuide?.message}
+                                                />
+                                            )}
+                                        />
+                                    )}
+                                </Box>
                             </Grid>
                         </form>
                     </Paper>

@@ -25,13 +25,13 @@ import { AuthProvider } from 'src/contexts/AuthContext'
 import 'src/styles/globals.scss'
 
 // ** Configure NProgress
-NProgress.configure({ 
-  minimum: 0.1,
-  easing: 'ease',
-  speed: 500,
-  showSpinner: false,
-  trickleSpeed: 200
-})
+// NProgress.configure({ 
+//   minimum: 0.3,
+//   easing: 'ease',
+//   speed: 200,
+//   showSpinner: false,
+//   trickleSpeed: 100
+// })
 
 import { store } from 'src/stores'
 import GuestGuard from 'src/components/auth/GuestGuard'

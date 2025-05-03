@@ -24,6 +24,14 @@ const StyledPrivateProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   fontWeight: 600
 }))
 
+const StyledPendingProduct = styled(Chip)<ChipProps>(({ theme }) => ({
+  backgroundColor: "#ff980029",
+  color: "#ff9800",
+  fontSize: "14px",
+  padding: "8px 4px",
+  fontWeight: 600
+}))
+
 interface TStatusChip extends ChipProps {
   background: string
 }
@@ -450,10 +458,11 @@ export const getProductColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: 'product_name',
+      field: 'productName',
       headerName: t('product_name'),
       flex: 1,
-      minWidth: 300,
+      minWidth: 350,
+      maxWidth: 350,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
@@ -482,7 +491,7 @@ export const getProductColumns = (): GridColDef[] => {
       }
     },
     {
-      field: 'product_category',
+      field: 'productCategory',
       headerName: t('product_category'),
       minWidth: 200,
       maxWidth: 200,
@@ -490,6 +499,18 @@ export const getProductColumns = (): GridColDef[] => {
         const { row } = params
         return (
           <Typography>{row?.categoryName}</Typography>
+        )
+      }
+    },
+    {
+      field: 'importPrice',
+      headerName: t('import_price'),
+      minWidth: 150,
+      maxWidth: 150,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>{`${formatPrice(row?.importPrice)}`}</Typography>
         )
       }
     },
@@ -502,6 +523,18 @@ export const getProductColumns = (): GridColDef[] => {
         const { row } = params
         return (
           <Typography>{`${formatPrice(row?.price)}`}</Typography>
+        )
+      }
+    },
+    {
+      field: 'discountPrice',
+      headerName: t('discount_price'),
+      minWidth: 150,
+      maxWidth: 150,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>{`${formatPrice(row?.newPrice)}`}</Typography>
         )
       }
     },
@@ -541,10 +574,11 @@ export const getProductColumns = (): GridColDef[] => {
           <>
             {row?.status === 1 ? (
               <StyledPublicProduct label={t('public')} />
-            ) : (
+            ) : row?.status === 0 ? (
               <StyledPrivateProduct label={t('private')} />
-            )
-            }
+            ) : (
+              <StyledPendingProduct label={t('pending')} />
+            )}
           </>
         )
       }

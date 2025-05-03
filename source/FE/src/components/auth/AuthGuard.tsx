@@ -56,9 +56,9 @@ const AuthGuard = (props: AuthGuardProps) => {
     }
   }, [])
 
-  if (authContext.loading || authContext.user === null) {
-    return fallback
-  }
+  // if (authContext.loading || authContext.user === null) {
+  //   return fallback
+  // }
 
   return <>{children}</>
 }

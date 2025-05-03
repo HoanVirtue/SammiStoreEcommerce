@@ -12,6 +12,7 @@ import { ProductCard } from '@/presentation/components/ProductCard';
 import { getAllProducts } from '@/services/product';
 import { TProduct } from '@/types/product';
 import { useAuth } from '@/hooks/useAuth';
+import HotSale from '@/presentation/components/HotSale';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -20,38 +21,7 @@ export default function HomeScreen() {
   const [publicProducts, setPublicProducts] = useState<TProduct[]>([]);
   const { user } = useAuth();
 
-  const handleGetListProduct = async () => {
-    setLoading(true);
-    setError(null);
 
-    try {
-      const response = await getAllProducts({
-        params: {
-          take: -1,
-          skip: 0,
-          paging: false,
-          orderBy: "name",
-          dir: "asc",
-          keywords: "''",
-          filters: "''"
-        }
-      });
-      if (response?.result?.subset) {
-        setPublicProducts(response.result.subset);
-      } else {
-        setError('Không có dữ liệu về sản phẩm');
-      }
-    } catch (error) {
-      setError('Lỗi khi lấy dữ liệu sản phẩm');
-      console.error('Error fetching products:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    handleGetListProduct();
-  }, []);
 
   const handleCategoryPress = (category: Category) => {
     // router.push(`/search?category=${category.id}`);
@@ -75,10 +45,6 @@ export default function HomeScreen() {
     return <LoadingIndicator fullScreen />;
   }
 
-  if (error && publicProducts.length === 0) {
-    return <ErrorView message={error} onRetry={handleGetListProduct} />;
-  }
-
  
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -96,20 +62,6 @@ export default function HomeScreen() {
         />
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Tất cả sản phẩm</Text>
-          <View style={styles.productsGrid}>
-            {publicProducts?.map((product: TProduct) => (
-              <View key={product?.id} style={styles.productItem}>
-                <ProductCard
-                  product={product}
-                  onPress={() => handleProductPress(product)}
-                />
-              </View>
-            ))}
-          </View>
-        </View>
-
-        <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Sản phẩm bán chạy</Text>
             <Pressable style={styles.viewAllButton} onPress={handleViewAll}>
@@ -117,18 +69,10 @@ export default function HomeScreen() {
               <ChevronRight size={16} color={colors.primary} />
             </Pressable>
           </View>
-
-          {/* <View style={styles.productsGrid}>
-            {featuredProducts.map((product) => (
-              <View key={product.id} style={styles.productItem}>
-                <ProductCard
-                  product={product}
-                  onPress={handleProductPress}
-                />
-              </View>
-            ))}
-          </View> */}
         </View>
+          <View style={styles.hotSaleContainer}>
+            <HotSale />
+          </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -191,5 +135,8 @@ const styles = StyleSheet.create({
   productItem: {
     width: '48%',
     marginBottom: 16,
+  },
+  hotSaleContainer: {
+    marginTop: 16,
   },
 });

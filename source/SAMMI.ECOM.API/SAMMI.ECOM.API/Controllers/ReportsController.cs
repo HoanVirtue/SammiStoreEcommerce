@@ -47,6 +47,7 @@ namespace SAMMI.ECOM.API.Controllers
             _paymentRepository = paymentRepository;
         }
 
+        // doanh thu
         [AuthorizePermission(PermissionEnum.ReportRevenue)]
         [HttpGet("sales-revenue")]
         public async Task<IActionResult> SalesRevenueAsync([FromQuery] SaleRevenueFilterModel request)
@@ -58,10 +59,23 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(await _orderQueries.RevenueOrder(request));
         }
 
+        // nhập hàng
         [AuthorizePermission(PermissionEnum.ReportImport)]
         [HttpGet("get-import-statistics")]
         public async Task<IActionResult> ImportStatisticsAsync([FromQuery] ImportStatisticFilterModel request)
         {
+            try
+            {
+                if (request.DateFrom > request.DateTo)
+                {
+                    return BadRequest("Ngày bắt đầu không được lớn hơn ngày kết thúc.");
+                }
+            }
+            catch
+            (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
             if (request.EmployeeId != null
                 && request.EmployeeId != 0
                 && !await _userRepository.IsExistedType(request.EmployeeId ?? 0, Domain.Enums.TypeUserEnum.Employee))
@@ -78,6 +92,7 @@ namespace SAMMI.ECOM.API.Controllers
             return Ok(await _purchaseQueries.GetImportStatistic(request));
         }
 
+        // tồn kho
         [AuthorizePermission(PermissionEnum.ReportStock)]
         [HttpGet("inventory-statistics")]
         public async Task<IActionResult> InventoryStatistics([FromQuery] InventoryFilterModel request)

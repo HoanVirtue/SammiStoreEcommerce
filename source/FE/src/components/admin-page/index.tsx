@@ -217,7 +217,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
   }), [showDetailButton, hideUpdateButton, hideDeleteButton, onDetailClick, onUpdateClick]);
 
   // Memoize all columns
-  const memoizedColumns = useMemo(() => [...columns, actionColumn], [columns, actionColumn]);
+  const memoizedColumns = useMemo(() => [actionColumn, ...columns], [ actionColumn, columns]);
 
   // Memoize PaginationComponent
   const PaginationComponent = useMemo(() => (

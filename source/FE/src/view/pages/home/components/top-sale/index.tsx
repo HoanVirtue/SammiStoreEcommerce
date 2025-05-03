@@ -1,7 +1,7 @@
 import { Grid, Typography, useTheme } from '@mui/material';
 import { Box } from '@mui/material'
 import React, { useEffect, useState } from 'react'
-import { getAllProducts } from 'src/services/product';
+import { getBestSellingProducts } from 'src/services/product';
 import ProductCard from 'src/view/pages/product/components/ProductCard';
 import { TProduct } from 'src/types/product';
 import NoData from 'src/components/no-data';
@@ -24,23 +24,12 @@ const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
 
     const handleGetListProduct = async () => {
         setLoading(true)
-        const query = {
-            params: {
-                take: 10,
-                skip: 0,
-                paging: true,
-                orderBy: "name",
-                dir: "asc",
-                keywords: "''",
-                filters: ""
-            },
-        };
-        await getAllProducts(query).then((res) => {
+        await getBestSellingProducts({numberTop: 20}).then((res) => {
             if (res?.result) {
                 setLoading(false)
                 setPublicProducts({
-                    data: res?.result?.subset,
-                    total: res?.result?.totalItemCount
+                    data: res?.result,
+                    total: res?.result?.length
                 })
             }
         })
@@ -54,7 +43,7 @@ const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
         <Box sx={{ backgroundColor: theme.palette.background.paper, width: '100%', height: '100%', padding: '10px', marginTop: '20px', maxWidth: '1440px !important', margin: '0 auto' }}>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', padding: '20px' }}>
-                    <Typography sx={{ textTransform: 'uppercase', cursor: 'pointer' }} variant="h3">Make up xịn - Bật mood xinh</Typography>
+                    <Typography sx={{ textTransform: 'uppercase', cursor: 'pointer' }} variant="h3">Top 20 sản phẩm bán chạy</Typography>
                 </Box>
             </Box>
             <Box>

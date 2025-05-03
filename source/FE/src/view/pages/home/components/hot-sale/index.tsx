@@ -2,7 +2,7 @@ import { Grid, Typography, useTheme } from '@mui/material';
 import { Box } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CountdownTimer from './CountdownTimer';
-import { getAllProducts } from 'src/services/product';
+import { getAllProducts, getEndowProducts } from 'src/services/product';
 import ProductCard from 'src/view/pages/product/components/ProductCard';
 import { TProduct } from 'src/types/product';
 import NoData from 'src/components/no-data';
@@ -189,23 +189,12 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
 
     const handleGetListProduct = async () => {
         setLoading(true)
-        const query = {
-            params: {
-                take: 10,
-                skip: 0,
-                paging: true,
-                orderBy: "name",
-                dir: "asc",
-                keywords: "''",
-                filters: ""
-            },
-        };
-        await getAllProducts(query).then((res) => {
+        await getEndowProducts({numberTop: 20}).then((res) => {
             if (res?.result) {
                 setLoading(false)
                 setPublicProducts({
-                    data: res?.result?.subset?.filter((item: TProduct) => item.status === 1),
-                    total: res?.result?.totalItemCount
+                    data: res?.result,
+                    total: res?.result?.length
                 })
             }
         })

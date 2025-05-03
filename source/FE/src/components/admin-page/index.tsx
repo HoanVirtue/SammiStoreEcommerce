@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useCallback } from "react";
+import React, { useEffect, useMemo } from "react";
 import { NextPage } from "next";
 import { Box, Grid, useTheme } from "@mui/material";
 import { GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
@@ -18,16 +18,16 @@ const GridDetail = dynamic(() => import("../grid-detail"), { ssr: false });
 const GridUpdate = dynamic(() => import("src/components/grid-update"), { ssr: false });
 const GridDelete = dynamic(() => import("src/components/grid-delete"), { ssr: false });
 
-// Import components directly
-import AdminTabs from './components/AdminTabs';
-import AdminHeader from './components/AdminHeader';
-import AdminDataGrid from './components/AdminDataGrid';
-import AdminDialogs from './components/AdminDialogs';
-import TabContents from './components/TabContents';
-
 // Custom hooks
 import useAdminData from './hooks/useAdminData';
 import useAdminActions from './hooks/useAdminActions';
+
+// Modular components
+const AdminTabs = dynamic(() => import('./components/AdminTabs'), { ssr: false });
+const AdminHeader = dynamic(() => import('./components/AdminHeader'), { ssr: false });
+const AdminDataGrid = dynamic(() => import('./components/AdminDataGrid'), { ssr: false });
+const AdminDialogs = dynamic(() => import('./components/AdminDialogs'), { ssr: false });
+const TabContents = dynamic(() => import('./components/TabContents'), { ssr: false });
 
 type AdminPageProps = {
   entityName: string;
@@ -128,14 +128,12 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const router = useRouter();
   const [newEntityName, setNewEntityName] = React.useState<string>("");
 
-  // Memoize router pathname check
-  const isReceiptPath = useMemo(() => router.pathname.includes("receipt"), [router.pathname]);
 
   useEffect(() => {
-    if (isReceiptPath) {
+    if (router.pathname.includes("receipt")) {
       setNewEntityName("product");
     }
-  }, [isReceiptPath]);
+  }, [router.pathname]);
 
   // Permissions
   const { VIEW, CREATE, UPDATE, DELETE } = usePermission(permissionKey, ["CREATE", "UPDATE", "DELETE", "VIEW"]);
@@ -184,6 +182,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
     sortable: false,
     align: "left",
     renderCell: (params: GridRenderCellParams) => (
+
       <>
         {showDetailButton && (
           <GridDetail
@@ -196,28 +195,28 @@ const AdminPage: NextPage<AdminPageProps> = ({
 
         {!hideUpdateButton && (
           <GridUpdate
-            onClick={() => {
+            onClick={() =>{
               if (onUpdateClick) {
                 onUpdateClick();
+                setOpenCreateUpdate({ open: true, id: params.row.id });
+              } else {
+                setOpenCreateUpdate({ open: true, id: params.row.id });
               }
             }}
           />
-        )}
-
+        )
+        }
         {!hideDeleteButton && (
           <GridDelete
-            onClick={() => {
-              setSelectedRow(params.row);
-              setOpenDelete({ open: true, id: params.row.id });
-            }}
+            onClick={() => setOpenDelete({ open: true, id: params.row.id })}
           />
-        )}
+        )
+        }
       </>
     ),
-  }), [showDetailButton, hideUpdateButton, hideDeleteButton, onDetailClick, onUpdateClick]);
+  }), [showDetailButton, hideUpdateButton, hideDeleteButton, t, onDetailClick, setOpenCreateUpdate, setOpenDelete, setSelectedDetailId]);
 
-  // Memoize all columns
-  const memoizedColumns = useMemo(() => [actionColumn, ...columns], [ actionColumn, columns]);
+  const allColumns = useMemo(() => [actionColumn, ...columns], [actionColumn, columns]);
 
   // Memoize PaginationComponent
   const PaginationComponent = useMemo(() => (
@@ -316,7 +315,7 @@ const AdminPage: NextPage<AdminPageProps> = ({
               <Box width="100%">
                 <AdminDataGrid
                   data={data}
-                  columns={memoizedColumns as GridColDef[]}
+                  columns={allColumns as GridColDef[]}
                   PaginationComponent={PaginationComponent}
                   handleSort={handleSort}
                   selectedRow={selectedRow}

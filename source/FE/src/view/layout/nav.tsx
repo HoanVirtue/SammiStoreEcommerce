@@ -8,7 +8,6 @@ import ListItemText from '@mui/material/ListItemText';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemButton from '@mui/material/ListItemButton';
 import { usePathname } from 'next/navigation';
-import LinkNext from 'next/link';
 
 import { useResponsive } from 'src/hooks/use-responsive';
 
@@ -168,12 +167,13 @@ function NavItem({ item }: NavItemProps) {
     const theme = useTheme();
 
     return (
-        <LinkNext
+        <Link
+            component={'a'}
+            key={item.title}
             href={item.path}
-            passHref
+            underline="none"
         >
             <ListItemButton
-                component="a"
                 sx={{
                     px: 1,
                     height: 44,
@@ -198,6 +198,6 @@ function NavItem({ item }: NavItemProps) {
                     }}
                 />
             </ListItemButton>
-        </LinkNext>
+        </Link>
     );
 } 

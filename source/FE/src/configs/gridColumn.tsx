@@ -24,6 +24,14 @@ const StyledPrivateProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   fontWeight: 600
 }))
 
+const StyledPendingProduct = styled(Chip)<ChipProps>(({ theme }) => ({
+  backgroundColor: "#ff980029",
+  color: "#ff9800",
+  fontSize: "14px",
+  padding: "8px 4px",
+  fontWeight: 600
+}))
+
 interface TStatusChip extends ChipProps {
   background: string
 }
@@ -566,10 +574,11 @@ export const getProductColumns = (): GridColDef[] => {
           <>
             {row?.status === 1 ? (
               <StyledPublicProduct label={t('public')} />
-            ) : (
+            ) : row?.status === 0 ? (
               <StyledPrivateProduct label={t('private')} />
-            )
-            }
+            ) : (
+              <StyledPendingProduct label={t('pending')} />
+            )}
           </>
         )
       }

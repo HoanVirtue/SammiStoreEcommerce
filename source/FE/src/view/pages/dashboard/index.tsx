@@ -23,6 +23,10 @@ import axios from 'axios';
 interface GeneralStatistics {
   totalRevenue: number;
   totalCustomer: number;
+  totalProducts: number;
+  totalOders: number;
+  totalReviews: number;
+  totalComments: number;
   numberOrder: number | null;
 }
 
@@ -44,6 +48,13 @@ interface ChartDataEntry {
   fill: string;
 }
 
+interface OrderStatusSummary {
+  processing: number;
+  pending: number;
+  cancelled: number;
+  completed: number;
+}
+
 const API_URL = process.env.NEXT_PUBLIC_API_HOST;
 
 // Thêm hàm để lấy token
@@ -61,6 +72,7 @@ export default function DashboardClient() {
   const [inventoryStats, setInventoryStats] = useState<any>(null);
   const [salesRevenue, setSalesRevenue] = useState<any>(null);
   const [importStats, setImportStats] = useState<any>(null);
+  const [orderStatus, setOrderStatus] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   // Memoize API calls
@@ -71,19 +83,21 @@ export default function DashboardClient() {
         Authorization: `Bearer ${token}`
       };
 
-      const [generalStats, bestSelling, inventory, sales, imports] = await Promise.all([
+      const [generalStats, bestSelling, inventory, sales, imports, orderStatus] = await Promise.all([
         axios.get(`${API_URL}/api/reports/general-statistics`, { headers }),
         axios.get(`${API_URL}/api/reports/best-selling-product?numberTop=5`, { headers }),
         axios.get(`${API_URL}/api/reports/inventory-statistics`, { headers }),
-        axios.get(`${API_URL}/api/reports/sales-revenue`, { headers }),
-        axios.get(`${API_URL}/api/reports/get-import-statistics`, { headers })
+        axios.get(`${API_URL}/api/reports/monthly-revenue`, { headers }),
+        axios.get(`${API_URL}/api/reports/get-import-statistics`, { headers }),
+        axios.get(`${API_URL}/api/reports/order-status-summary`, { headers })
       ]);
 
       setGeneralStats(generalStats.data.result);
       setBestSellingProducts(bestSelling.data.result);
       setInventoryStats(inventory.data.result);
-      setSalesRevenue(sales.data.result);
+      setSalesRevenue(sales.data);
       setImportStats(imports.data.result);
+      setOrderStatus(orderStatus.data.result);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       if (axios.isAxiosError(error) && error.response?.status === 401) {
@@ -109,14 +123,20 @@ export default function DashboardClient() {
     [inventoryStats]
   );
 
-  const revenueChartData = useMemo(() => 
-    salesRevenue?.revenueDetails?.subset.map((item: any) => ({
-      name: item.date || item.month,
-      value: item.amount || item.total,
+  const revenueChartData = useMemo(() => {
+    const months = [
+      "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5",
+      "Tháng 6", "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10",
+      "Tháng 11", "Tháng 12"
+    ];
+    
+    const data = salesRevenue?.result || {};
+    return months.map((monthName, index) => ({
+      name: monthName,
+      value: data[index + 1] || 0,
       fill: "#f87171"
-    })) || [], 
-    [salesRevenue]
-  );
+    }));
+  }, [salesRevenue]);
 
   const userPieChartData = useMemo(() => [
     { 
@@ -127,8 +147,11 @@ export default function DashboardClient() {
   ], [generalStats]);
 
   const orderPieChartData = useMemo(() => [
-    { name: "Đơn hàng", value: generalStats?.numberOrder || 0, fill: "#818cf8" }
-  ], [generalStats]);
+    { name: "Đang xử lý", value: orderStatus?.Processing || 123, fill: "#fbbf24" }, // Vàng cam
+    { name: "Đang chờ xử lý", value: orderStatus?.Pending || 234, fill: "#3b82f6" }, // Xanh dương
+    { name: "Đã hủy", value: orderStatus?.Cancelled || 345, fill: "#ef4444" }, // Đỏ
+    { name: "Đã hoàn tất", value: orderStatus?.Completed || 567, fill: "#10b981" }, // Xanh lá
+  ], [orderStatus]);
 
   const importChartData = useMemo(() => 
     importStats?.imports?.subset.map((item: any) => ({
@@ -142,9 +165,9 @@ export default function DashboardClient() {
   // Memoize main stats
   const mainStats = useMemo(() => [
     { label: "Người dùng", value: generalStats?.totalCustomer || 0, icon: <User size={36} className="text-gray-400" />, color: "bg-violet-50" },
-    { label: "Sản phẩm", value: inventoryStats?.totalProducts || 0, icon: <Box size={36} className="text-red-300" />, color: "bg-red-50" },
-    { label: "Đơn hàng", value: generalStats?.numberOrder || 0, icon: <FileText size={36} className="text-green-400" />, color: "bg-green-50" },
-    { label: "Đánh giá", value: 6, icon: <Star size={36} className="text-cyan-300" />, color: "bg-cyan-50" },
+    { label: "Sản phẩm", value: generalStats?.totalProducts || 0, icon: <Box size={36} className="text-red-300" />, color: "bg-red-50" },
+    { label: "Đơn hàng", value: generalStats?.totalOders || 0, icon: <FileText size={36} className="text-green-400" />, color: "bg-green-50" },
+    { label: "Đánh giá", value: generalStats?.totalReviews || 0 , icon: <Star size={36} className="text-cyan-300" />, color: "bg-cyan-50" },
     { 
       label: "Doanh thu", 
       value: new Intl.NumberFormat('vi-VN', { 
@@ -156,7 +179,7 @@ export default function DashboardClient() {
       icon: <DollarSign size={36} className="text-orange-300" />, 
       color: "bg-orange-50" 
     },
-    { label: "Bình luận", value: 0, icon: <MessageCircle size={36} className="text-gray-400" />, color: "bg-gray-100" },
+    { label: "Bình luận", value: generalStats?.totalComments || 0, icon: <MessageCircle size={36} className="text-gray-400" />, color: "bg-gray-100" },
   ], [generalStats, inventoryStats]);
 
   // Memoize popular products
@@ -233,8 +256,13 @@ export default function DashboardClient() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis 
-                    tickFormatter={(value) => `${(value/1000000).toFixed(0)}M`} 
-                    width={80}
+                    tickFormatter={(value) => new Intl.NumberFormat('vi-VN', {
+                      style: 'currency',
+                      currency: 'VND',
+                      minimumFractionDigits: 0,
+                      maximumFractionDigits: 0
+                    }).format(value)}
+                    width={100}
                   />
                   <Tooltip 
                     formatter={(value: number) => new Intl.NumberFormat('vi-VN', {
@@ -248,7 +276,12 @@ export default function DashboardClient() {
                     <LabelList 
                       dataKey="value" 
                       position="top" 
-                      formatter={(value: number) => `${(value/1000000).toFixed(0)}M`}
+                      formatter={(value: number) => new Intl.NumberFormat('vi-VN', {
+                        style: 'currency',
+                        currency: 'VND',
+                        minimumFractionDigits: 0,
+                        maximumFractionDigits: 0
+                      }).format(value)}
                     />
                     {revenueChartData.map((entry: ChartDataEntry) => (
                       <Cell key={`cell-r-${entry.name}`} fill={entry.fill} />

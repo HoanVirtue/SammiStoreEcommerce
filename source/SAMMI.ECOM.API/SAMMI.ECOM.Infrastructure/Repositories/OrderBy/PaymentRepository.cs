@@ -10,14 +10,22 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface IPaymentRepository : ICrudRepository<Payment>
     {
         Task<Payment> GetByOrderCode(string orderCode);
+
         Task<ActionResponse<Payment>> UpdateStatus(int id, PaymentStatusEnum status);
+
         bool IsValidPaymentStatus(PaymentStatusEnum currentStatus, PaymentStatusEnum newStatus);
+
+        Task<decimal> TotalRevenueAsync();
+
+        Task<Dictionary<int, decimal>> GetMonthlyRevenueAsync();
     }
+
     public class PaymentRepository : CrudRepository<Payment>, IPaymentRepository, IDisposable
     {
         private readonly SammiEcommerceContext _context;
         private bool _disposed;
         private IMapper _mapper;
+
         public PaymentRepository(SammiEcommerceContext context,
             IMapper mapper) : base(context)
         {
@@ -47,12 +55,16 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             {
                 case PaymentStatusEnum.Pending:
                     return newStatus == PaymentStatusEnum.Unpaid || newStatus == PaymentStatusEnum.Failed || newStatus == PaymentStatusEnum.Paid;
+
                 case PaymentStatusEnum.Unpaid:
                     return true;
+
                 case PaymentStatusEnum.Paid:
                     return false;
+
                 case PaymentStatusEnum.Failed:
                     return false;
+
                 default:
                     return false;
             }
@@ -94,6 +106,29 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 (PaymentStatusEnum.Failed, _) => false,
                 _ => false
             };
+        }
+
+        public async Task<decimal> TotalRevenueAsync()
+        {
+            return await _context.Payments
+                                 .Where(x => x.PaymentStatus == "Paid" && x.IsDeleted != true)
+                                 .SumAsync(x => x.PaymentAmount);
+        }
+
+        public async Task<Dictionary<int, decimal>> GetMonthlyRevenueAsync()
+        {
+            var currentYear = DateTime.Now.Year;
+
+            var revenueByMonth = await _context.Payments
+                .Where(p => p.PaymentStatus == "Paid" && p.IsDeleted != true && p.CreatedDate.Year == currentYear)
+                .GroupBy(p => p.CreatedDate.Month)
+                .Select(g => new { Month = g.Key, TotalRevenue = g.Sum(p => p.PaymentAmount) })
+                .ToDictionaryAsync(x => x.Month, x => x.TotalRevenue);
+
+            var result = Enumerable.Range(1, 12)
+                .ToDictionary(month => month, month => revenueByMonth.ContainsKey(month) ? revenueByMonth[month] : 0);
+
+            return result;
         }
     }
 }

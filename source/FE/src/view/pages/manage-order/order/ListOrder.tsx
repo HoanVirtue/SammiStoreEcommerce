@@ -26,8 +26,6 @@ import { getOrderFields } from 'src/configs/gridConfig'
 import { formatDate } from 'src/utils'
 import { getOrderColumns } from 'src/configs/gridColumn'
 import Spinner from 'src/components/spinner'
-import AdminPage from 'src/components/admin-page'
-
 type TProps = {}
 
 interface TStatusChip extends ChipProps {
@@ -55,7 +53,7 @@ const createOrderSelector = createSelector(
 );
 
 // Dynamic import for AdminPage
-const AdminPageComponent = dynamic(() => import("src/components/admin-page"), {
+const AdminPage = dynamic(() => import("src/components/admin-page"), {
     loading: () => <Spinner />,
     ssr: false
 });
@@ -65,30 +63,31 @@ const ListOrderPage: NextPage<TProps> = () => {
     const theme = useTheme()
     const [currentTab, setCurrentTab] = useState(0)
     const [selectedOrderId, setSelectedOrderId] = useState<number>(0)
-    const [showCreateTab, setShowCreateTab] = useState(false)
-    const [showUpdateTab, setShowUpdateTab] = useState(false)
-    const [showDetailTab, setShowDetailTab] = useState(false)
+    const [showCreateTab, setShowCreateTab] = React.useState(false);
+    const [showUpdateTab, setShowUpdateTab] = React.useState(false);
+    const [showDetailTab, setShowDetailTab] = React.useState(false);
 
-    // Memoize columns
-    const columns = useMemo(() => getOrderColumns(), [])
-    
+    const columns = getOrderColumns()
+
+    // Use the memoized selector
+    const orderSelector = useCallback((state: RootState) => createOrderSelector(state), []);
 
     const handleTabChange = (newTab: number) => {
-        setCurrentTab(newTab)
+        setCurrentTab(newTab);
         if (newTab === 0) {
             setSelectedOrderId(0)
         }
-    }
+    };
 
     const handleDetailClick = (id: number) => {
-        setSelectedOrderId(id)
-        setShowDetailTab(true)
-        setCurrentTab(3)
-    }
+        setSelectedOrderId(id);
+        setShowDetailTab(true);
+        setCurrentTab(3);
+    };
 
     return (
         <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
-            <AdminPageComponent
+            <AdminPage
                 entityName="order"
                 columns={columns}
                 reduxSelector={createOrderSelector}
@@ -109,10 +108,13 @@ const ListOrderPage: NextPage<TProps> = () => {
                 currentTab={currentTab}
                 onTabChange={handleTabChange}
                 onDetailClick={handleDetailClick}
+
                 onCloseDetailTab={() => setShowDetailTab(false)}
+
                 hideAddButton={true}
                 hideUpdateButton={true}
                 hideDeleteButton={true}
+
                 showDetailButton={true}
                 showOrderFilter={true}
                 hideTableHeader={true}

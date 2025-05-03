@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
@@ -8,7 +7,6 @@ using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.Reports;
 using SAMMI.ECOM.Domain.Enums;
-using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Repositories.Permission;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 using SAMMI.ECOM.Repository.GenericRepositories;
@@ -18,15 +16,27 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface IOrderRepository : ICrudRepository<Order>
     {
         Task<OrderDTO> GetByCode(int? id = 0, string? code = null);
+
         Task<ActionResponse<Order>> UpdateStatus(OrderStatusEnum status, int? id = 0, string? code = null);
+
         Task<decimal> CalculateTotalPrice(int orderId);
+
         Task<ActionResponse> UpdateOrderStatus(int id, OrderStatusEnum newStatus, TypeUserEnum type, string? code = null);
+
         Task<ActionResponse> UpdateOrderStatus(UpdateOrderStatusCommand orderStatus);
+
         Task<ActionResponse> CancelldOrder(int orderId);
+
         Task<Order> FindByCode(string code);
+
         Task<NumberOfOrders> GetNumberOrder();
+
         Task<bool> IsExisted(int orderId, int customerId);
+
+        Task<int> TotalOrderAsync();
+        Task<Dictionary<string, int>> GetOrderStatusSummaryAsync();
     }
+
     public class OrderRepository : CrudRepository<Order>, IOrderRepository, IDisposable
     {
         private readonly SammiEcommerceContext _context;
@@ -37,6 +47,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         private readonly Lazy<IRoleRepository> _roleRepository;
         private readonly Lazy<IProductRepository> _productRepository;
         private readonly UserIdentity _currentUser;
+
         public OrderRepository(
             SammiEcommerceContext context,
             Lazy<IVoucherRepository> voucherRepository,
@@ -177,16 +188,21 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             {
                 case OrderStatusEnum.Pending:
                     return newStatus == OrderStatusEnum.WaitingForPayment || newStatus == OrderStatusEnum.Cancelled;
+
                 case OrderStatusEnum.WaitingForPayment:
                     return newStatus == OrderStatusEnum.Processing || newStatus == OrderStatusEnum.Cancelled;
+
                 case OrderStatusEnum.Processing:
                     if (type == TypeUserEnum.Employee)
                         return newStatus == OrderStatusEnum.WaitingForPayment || newStatus == OrderStatusEnum.Cancelled;
                     return newStatus == OrderStatusEnum.WaitingForPayment;
+
                 case OrderStatusEnum.Completed:
                     return false;
+
                 case OrderStatusEnum.Cancelled:
                     return false;
+
                 default:
                     return false;
             }
@@ -226,14 +242,14 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 else if (newStatus == OrderStatusEnum.Cancelled)
                 {
                     actRes.Combine(await _productRepository.Value.RollbackProduct(order.Id));
-                    if(!actRes.IsSuccess)
+                    if (!actRes.IsSuccess)
                     {
                         return actRes;
                     }
-                    if(order.VoucherId != null)
+                    if (order.VoucherId != null)
                     {
-                        actRes.Combine(await _voucherRepository.Value.RollbackVoucher(order.VoucherId??0, order.CustomerId));
-                    }    
+                        actRes.Combine(await _voucherRepository.Value.RollbackVoucher(order.VoucherId ?? 0, order.CustomerId));
+                    }
                 }
             }
             else
@@ -259,7 +275,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         {
             var actRes = new ActionResponse();
             var order = await GetByIdAsync(orderStatus.OrderId);
-            if(Enum.TryParse<ShippingStatusEnum>(order.ShippingStatus, true, out ShippingStatusEnum currentShip)
+            if (Enum.TryParse<ShippingStatusEnum>(order.ShippingStatus, true, out ShippingStatusEnum currentShip)
                 && !IsValidShippingStatus(currentShip, orderStatus.ShippingStatus))
             {
                 actRes.AddError("Trạng thái vận chuyển không hợp lệ");
@@ -285,7 +301,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                 _ => null
             };
 
-            if(order.OrderStatus == null)
+            if (order.OrderStatus == null)
             {
                 actRes.AddError("Cập nhật trạng thái đơn hàng không hợp lệ.");
                 return actRes;
@@ -303,10 +319,10 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             payment.UpdatedDate = DateTime.Now;
             actRes.Combine(await _paymentRepository.Value.UpdateAndSave(payment));
 
-            if(order.OrderStatus == OrderStatusEnum.Cancelled.ToString())
+            if (order.OrderStatus == OrderStatusEnum.Cancelled.ToString())
             {
                 actRes.Combine(await _productRepository.Value.RollbackProduct(order.Id));
-                if(!actRes.IsSuccess)
+                if (!actRes.IsSuccess)
                 {
                     return actRes;
                 }
@@ -325,7 +341,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             var paymentStatus = await _paymentRepository.Value.GetByOrderCode(order.Code);
             var role = await _roleRepository.Value.GetByIdAsync(_currentUser.Roles.FirstOrDefault());
 
-            if(role.Code != RoleTypeEnum.MANAGER.ToString() &&
+            if (role.Code != RoleTypeEnum.MANAGER.ToString() &&
                 role.Code != RoleTypeEnum.ADMIN.ToString())
             {
                 if (paymentStatus.PaymentStatus == PaymentStatusEnum.Paid.ToString())
@@ -333,7 +349,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                     actResponse.AddError("Đơn hàng đã thanh toán không thể hủy.");
                     return actResponse;
                 }
-                if(order.ShippingStatus == ShippingStatusEnum.Processing.ToString() ||
+                if (order.ShippingStatus == ShippingStatusEnum.Processing.ToString() ||
                     order.ShippingStatus == ShippingStatusEnum.Delivered.ToString())
                 {
                     actResponse.AddError("Đơn hàng đang được xử lý hoặc đã giao không thể hủy.");
@@ -345,7 +361,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             order.UpdatedDate = DateTime.Now;
             order.UpdatedBy = _currentUser.UserName;
             actResponse.Combine(await UpdateAndSave(order));
-            if(!actResponse.IsSuccess)
+            if (!actResponse.IsSuccess)
             {
                 return actResponse;
             }
@@ -387,6 +403,19 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
         public Task<bool> IsExisted(int orderId, int customerId)
         {
             return DbSet.Where(x => x.Id == orderId && x.CustomerId == customerId && x.IsDeleted != true).AnyAsync();
+        }
+
+        public Task<int> TotalOrderAsync()
+        {
+            return DbSet.CountAsync(x => x.IsDeleted != true);
+        }
+
+        public async Task<Dictionary<string, int>> GetOrderStatusSummaryAsync()
+        {
+            return await _context.Orders
+                         .GroupBy(o => o.OrderStatus)
+                         .Select(g => new { Status = g.Key, Count = g.Count() })
+                         .ToDictionaryAsync(x => x.Status, x => x.Count);
         }
     }
 }

@@ -33,7 +33,7 @@ const ReviewCard = dynamic(() => import('../components/ReviewCard'), { ssr: fals
 const Image = dynamic(() => import('src/components/image'), { ssr: false })
 
 // Service & API Imports
-import { getListRelatedProductBySlug, getProductDetail } from 'src/services/product'
+import { getListRelatedProductBySlug, getPublicProductDetail } from 'src/services/product'
 
 // Type Imports
 import { TProduct } from 'src/types/product'
@@ -79,13 +79,12 @@ const INITIAL_PRODUCT_STATE: TProduct = {
 
 // Define or update the props interface
 interface ProductDetailPageProps {
-    initialData?: any;
 }
 
-const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) => {
+const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
     // State Management
     const [loading, setLoading] = useState<boolean>(false)
-    const [productData, setProductData] = useState<TProduct>(INITIAL_PRODUCT_STATE)
+    const [productData, setProductData] = useState<TProduct>({} as TProduct)
     const [listRelatedProduct, setListRelatedProduct] = useState<TProduct[]>([])
     const [productAmount, setProductAmount] = useState<number>(1)
     const [activeTab, setActiveTab] = useState(0)
@@ -123,7 +122,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
     //fetch api
     const fetchGetProductDetail = async (id: number) => {
         setLoading(true)
-        await getProductDetail(id)
+        await getPublicProductDetail(id)
             .then(async response => {
                 setLoading(false)
                 const data = response?.result
@@ -295,21 +294,23 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
                                         boxShadow: theme.shadows[2],
                                         mb: 2
                                     }}>
-                                        <Image
-                                            src={productData?.images[selectedImage]?.imageUrl}
-                                            alt={productData?.name}
-                                            sx={{
-                                                width: '100%',
-                                                height: '100%',
-                                                objectFit: 'contain',
-                                                cursor: 'crosshair'
-                                            }}
-                                            onMouseMove={handleMouseMove}
-                                            onMouseEnter={() => setShowZoom(true)}
-                                            onMouseLeave={() => setShowZoom(false)}
-                                        />
+                                        {productData?.images?.length > 0 && (
+                                            <Image
+                                                src={productData.images[selectedImage]?.imageUrl}
+                                                alt={productData?.name}
+                                                sx={{
+                                                    width: '100%',
+                                                    height: '100%',
+                                                    objectFit: 'contain',
+                                                    cursor: 'crosshair'
+                                                }}
+                                                onMouseMove={handleMouseMove}
+                                                onMouseEnter={() => setShowZoom(true)}
+                                                onMouseLeave={() => setShowZoom(false)}
+                                            />
+                                        )}
                                     </Stack>
-                                    {showZoom && (
+                                    {showZoom && productData?.images?.length > 0 && (
                                         <Box sx={{
                                             display: { xs: 'none', md: 'block' },
                                             position: 'absolute',
@@ -328,7 +329,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
                                                 position: 'absolute',
                                                 width: '100%',
                                                 height: '100%',
-                                                backgroundImage: `url(${productData?.images[selectedImage]?.imageUrl})`,
+                                                backgroundImage: `url(${productData.images[selectedImage]?.imageUrl})`,
                                                 backgroundSize: '200%',
                                                 backgroundPosition: `${zoomPosition.x}% ${zoomPosition.y}%`,
                                                 backgroundRepeat: 'no-repeat',
@@ -355,7 +356,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ initialData }) =>
                                         borderRadius: '4px',
                                     }
                                 }}>
-                                    {productData?.images?.map((image, index) => (
+                                    {productData?.images?.length > 0 && productData.images.map((image, index) => (
                                         <Box
                                             key={index}
                                             sx={{

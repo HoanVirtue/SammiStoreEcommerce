@@ -155,18 +155,21 @@ using (var scope = app.Services.CreateScope())
     var context = scope.ServiceProvider.GetRequiredService<SammiEcommerceContext>();
     var ghnService = scope.ServiceProvider.GetRequiredService<IGHNService>();
     var dataSeed = new DataSeeder(context, ghnService);
-    if (!context.Database.CanConnect())
+    try
     {
-        // Nếu DB chưa tồn tại, tạo DB và chạy migration
-        Console.WriteLine("Database does not exist. Creating and applying migrations...");
-        context.Database.EnsureCreated(); // Tạo DB nếu chưa có (không áp dụng migration)
-        context.Database.Migrate();       // Áp dụng các migration
+        Console.WriteLine("Applying migrations...");
+        await context.Database.MigrateAsync();
+
+        if (app.Environment.IsDevelopment())
+        {
+            Console.WriteLine("Seeding data...");
+            await dataSeed.SeedAsync();
+        }
     }
-    else
+    catch (Exception ex)
     {
-        // Nếu DB đã tồn tại, chỉ áp dụng migration nếu cần
-        Console.WriteLine("Database exists. Applying migrations if pending...");
-        context.Database.Migrate();
+        Console.WriteLine($"An error occurred during database initialization: {ex.Message}");
+        throw;
     }
     await dataSeed.SeedAsync();
 }

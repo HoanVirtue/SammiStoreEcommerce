@@ -1,4 +1,5 @@
 ﻿using Dapper;
+using Org.BouncyCastle.Crypto.Modes.Gcm;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.System;
@@ -14,6 +15,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.System
         Task<IEnumerable<SelectionItem>> GetSelectionList(RequestFilterModel? request);
         Task<IEnumerable<BannerDTO>> GetAll(RequestFilterModel? filterModel = null);
         Task<BannerDTO> GetById(int id);
+        Task<IEnumerable<BannerDTO>> GetBanners(RequestFilterModel filterModel = null);
     }
     public class BannerQueries : QueryRepository<Banner>, IBannerQueries
     {
@@ -29,6 +31,19 @@ namespace SAMMI.ECOM.Infrastructure.Queries.System
                     sqlBuilder.Select("t2.ImageUrl");
                     sqlBuilder.LeftJoin("Image t2 ON t1.ImageId = t2.Id AND t2.IsDeleted != 1");
 
+                    return conn.QueryAsync<BannerDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }, filterModel);
+        }
+
+        public Task<IEnumerable<BannerDTO>> GetBanners(RequestFilterModel filterModel = null)
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("t2.ImageUrl");
+                    sqlBuilder.LeftJoin("Image t2 ON t1.ImageId = t2.Id AND t2.IsDeleted != 1");
+
+                    sqlBuilder.Where("t1.IsActive = 1");
                     return conn.QueryAsync<BannerDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, filterModel);
         }

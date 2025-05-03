@@ -26,7 +26,7 @@ import { resetInitialState, updateProductToCart } from 'src/stores/order'
 import { resetInitialState as resetReview } from 'src/stores/review'
 import IconifyIcon from 'src/components/Icon'
 import { convertUpdateMultipleProductsCard, formatDate, formatPrice } from 'src/utils'
-import { getOrderDetail } from 'src/services/order'
+import { getMyOrderDetail, getOrderDetail } from 'src/services/order'
 import WriteReviewModal from './components/WriteReviewModal'
 import { createVNPayPaymentUrl } from 'src/services/payment'
 import { PAYMENT_METHOD } from 'src/configs/payment'
@@ -34,6 +34,7 @@ import { OrderStatus, PaymentStatus, ShippingStatus } from 'src/configs/order'
 import Image from 'src/components/image'
 import StepLabel from 'src/components/step-label'
 import OrderStatusStepper from './components/OrderStatusStepper'
+import Link from 'next/link'
 
 type TProps = {}
 
@@ -75,11 +76,12 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
     const { isSuccessCreate, isErrorCreate, errorMessageCreate, isLoading: reviewLoading } = useSelector((state: RootState) => state.review)
 
     const orderId = typeof router.query.orderId === 'string' ? +router.query.orderId : 0
+    const orderCode = typeof router.query.orderCode === 'string' ? router.query.orderCode : ''
 
     //Fetch API
     const handleGetOrderDetail = async () => {
         setIsLoading(true)
-        await getOrderDetail(orderId).then((res) => {
+        await getMyOrderDetail(orderCode).then((res) => {
             setIsLoading(false)
             setOrderData(res?.result)
         })
@@ -111,10 +113,10 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
     }
 
     useEffect(() => {
-        if (orderId) {
+        if (orderCode) {
             handleGetOrderDetail()
         }
-    }, [orderId])
+    }, [orderCode])
 
     useEffect(() => {
         if (isSuccessCancel) {
@@ -208,9 +210,20 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                                         sx={{ width: 64, height: 64, borderRadius: 1.5 }}
                                     />
                                     <Stack spacing={0.5} flexGrow={1}>
-                                        <Typography variant="subtitle2">
-                                            {item.productName}
-                                        </Typography>
+                                        <Link href={`/product/${item.productId}`} passHref style={{ textDecoration: 'none', color: 'inherit' }}>
+                                            <Typography
+                                                variant="subtitle2"
+                                                sx={{
+                                                    '&:hover': {
+                                                        color: 'primary.main',
+                                                        cursor: 'pointer'
+                                                    },
+                                                    transition: 'color 0.3s ease'
+                                                }}
+                                            >
+                                                {item.productName}
+                                            </Typography>
+                                        </Link>
                                         <Typography variant="body2">
                                             x{item.quantity}
                                         </Typography>

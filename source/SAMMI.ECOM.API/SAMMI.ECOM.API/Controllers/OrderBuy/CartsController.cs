@@ -59,7 +59,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var cartItems = (await _cartDetailQueries.GetMyCart()).ToList();
             if (cartItems != null && cartItems.Count > 0 && _redisService != null && _redisService.IsConnected())
             {
-                await _redisService.SetCache(cartKey, cartItems);
+                await _redisService.SetCache(cartKey, cartItems, TimeSpan.FromDays(10));
             }
             return Ok(cartItems);
         }
@@ -142,7 +142,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var cartItems = (await _cartDetailQueries.GetMyCart(ids)).ToList();
             if (cartItems != null && cartItems.Count > 0 && _redisService != null && _redisService.IsConnected())
             {
-                await _redisService.SetCache(cartKey, cartItems);
+                await _redisService.SetCache(cartKey, cartItems, TimeSpan.FromDays(10));
             }
             return Ok(cartItems);
         }

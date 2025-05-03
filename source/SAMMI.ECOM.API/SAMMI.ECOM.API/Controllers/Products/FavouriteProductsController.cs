@@ -10,6 +10,7 @@ using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.FavouriteProducts;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
+using SAMMI.ECOM.Infrastructure.Services;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 
 namespace SAMMI.ECOM.API.Controllers.Products
@@ -26,6 +27,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         private readonly IImageRepository _imageRepository;
+        private readonly ICookieService _cookieService;
         public FavouriteProductsController(
             IFavouriteProductQueries favouriteQueries,
             IProductRepository productRepository,
@@ -36,6 +38,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             IMapper mapper,
             IMediator mediator,
             IImageRepository imageRepository,
+            ICookieService cookieService,
             ILogger<FavouriteProductsController> logger) : base(mediator, logger)
         {
             _favouriteQueries = favouriteQueries;
@@ -47,6 +50,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             cacheKey = $"{_config["RedisOptions:favourite_key"]}{UserIdentity.Id}";
             _mapper = mapper;
             _imageRepository = imageRepository;
+            _cookieService = cookieService;
         }
 
 
@@ -121,9 +125,22 @@ namespace SAMMI.ECOM.API.Controllers.Products
                     if (cachedList != null)
                         cachedList = new List<FavouriteProductDTO>();
                     cachedList.Add(favouriteDTO);
-                    await _redisService.SetCache(cacheKey, cachedList);
+                    await _redisService.SetCache(cacheKey, cachedList, TimeSpan.FromDays(10));
                 }
                 actionRes.SetResult(favouriteDTO);
+
+                // save cookie
+                var productFavouriteId = _cookieService.GetFavouriteProduct();
+                if (productFavouriteId == null)
+                {
+                    productFavouriteId = new List<int>();
+                }
+                if (!productFavouriteId.Contains(favouriteDTO.ProductId))
+                {
+                    productFavouriteId.Add(favouriteDTO.ProductId);
+                    _cookieService.SaveFavouriteProduct(productFavouriteId);
+                }
+
                 return Ok(actionRes);
             }
             return BadRequest(actionRes);
@@ -147,8 +164,16 @@ namespace SAMMI.ECOM.API.Controllers.Products
                     if (cachedList != null)
                     {
                         cachedList.RemoveAll(x => x.CustomerId == UserIdentity.Id && x.ProductId == productId);
-                        await _redisService.SetCache(cacheKey, cachedList);
+                        await _redisService.SetCache(cacheKey, cachedList, TimeSpan.FromDays(10));
                     }
+                }
+
+                // remove cookie
+                var productFavouriteId = _cookieService.GetFavouriteProduct();
+                if (productFavouriteId != null && productFavouriteId.Contains(productId))
+                {
+                    productFavouriteId.Remove(productId);
+                    _cookieService.SaveFavouriteProduct(productFavouriteId);
                 }
                 return Ok(deleteRes);
             }

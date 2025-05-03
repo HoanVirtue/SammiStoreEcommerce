@@ -37,7 +37,9 @@ namespace SAMMI.ECOM.Infrastructure.Queries.FavouriteProducts
                                             THEN t2.Price * (1 - t2.Discount)
                                             ELSE t2.Price
                                         END AS NewPrice");
+                    sqlBuilder.Select("t3.ImageUrl AS ProductImage");
 
+                    sqlBuilder.InnerJoin("Product t2 ON t1.ProductId = t2.Id AND t2.IsDeleted != 1");
                     sqlBuilder.LeftJoin(@"(SELECT pi.ProductId,
                                           i.ImageUrl
                                     FROM ProductImage pi
@@ -45,7 +47,6 @@ namespace SAMMI.ECOM.Infrastructure.Queries.FavouriteProducts
                                     WHERE pi.IsDeleted != 1
                                     AND pi.DisplayOrder = (SELECT MIN(DisplayOrder) FROM ProductImage WHERE ProductId = pi.ProductId AND IsDeleted != 1)
                                     ) t3 ON t2.Id = t3.ProductId");
-                    sqlBuilder.InnerJoin("Product t2 ON t1.ProductId = t2.Id AND t2.IsDeleted != 1");
 
                     sqlBuilder.Where("t1.CustomerId = @customerId", new {customerId});
 

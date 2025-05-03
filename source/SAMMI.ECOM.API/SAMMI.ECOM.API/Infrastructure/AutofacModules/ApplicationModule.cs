@@ -12,6 +12,7 @@ using SAMMI.ECOM.Core.Utillity;
 using SAMMI.ECOM.Domain.AggregateModels.Others;
 using SAMMI.ECOM.Infrastructure.Queries;
 using SAMMI.ECOM.Infrastructure.Repositories;
+using SAMMI.ECOM.Infrastructure.Services;
 using SAMMI.ECOM.Infrastructure.Services.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Helpers.PasswordVerification;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
@@ -73,6 +74,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
             builder.RegisterType<EmailHelper>().As<EmailHelper>().SingleInstance();
 
             builder.RegisterType<PermissionAuthorizationHandler>().As<IAuthorizationHandler>().InstancePerLifetimeScope();
+
+            builder.RegisterType<CookieService>().As<ICookieService>().InstancePerLifetimeScope();
 
 
             // Register all the Repository classes (they implement CrudRepository) in assembly holding the Repositories

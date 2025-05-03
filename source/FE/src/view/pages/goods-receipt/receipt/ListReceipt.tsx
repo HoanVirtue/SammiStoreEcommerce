@@ -50,7 +50,7 @@ const ListReceiptPage: NextPage = () => {
   const [showCreateNewTab, setShowCreateNewTab] = React.useState(false);
 
   const columns = getReceiptColumns()
-  
+
   // Use the memoized selector
   const receiptSelector = useCallback((state: RootState) => createReceiptSelector(state), []);
 
@@ -98,7 +98,7 @@ const ListReceiptPage: NextPage = () => {
         entityName="receipt"
         columns={columns}
         fields={getReceiptFields()}
-        reduxSelector={receiptSelector}
+        reduxSelector={createReceiptSelector}
         fetchAction={getAllReceiptsAsync}
         deleteAction={deleteReceiptAsync}
         deleteMultipleAction={deleteMultipleReceiptsAsync as unknown as (ids: { [key: number]: number[] }) => any}
@@ -138,7 +138,7 @@ const ListReceiptPage: NextPage = () => {
 
         hideTableHeader={true}
         showUpdateReceiptStatusHeader={true}
-        
+
       />
     </Box>
   );

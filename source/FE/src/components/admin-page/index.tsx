@@ -128,7 +128,6 @@ const AdminPage: NextPage<AdminPageProps> = ({
   const router = useRouter();
   const [newEntityName, setNewEntityName] = React.useState<string>("");
 
-
   useEffect(() => {
     if (router.pathname.includes("receipt")) {
       setNewEntityName("product");
@@ -172,7 +171,6 @@ const AdminPage: NextPage<AdminPageProps> = ({
     handleDeleteMultiple,
     handleAction,
   } = useAdminActions(entityName, reduxSelector, deleteAction, deleteMultipleAction, resetAction, handleFetchData);
-  
 
   // Memoize columns with actions
   const actionColumn = useMemo(() => ({

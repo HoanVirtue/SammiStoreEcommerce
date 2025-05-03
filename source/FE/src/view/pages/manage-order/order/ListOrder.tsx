@@ -67,9 +67,8 @@ const ListOrderPage: NextPage<TProps> = () => {
     const [showUpdateTab, setShowUpdateTab] = React.useState(false);
     const [showDetailTab, setShowDetailTab] = React.useState(false);
 
-
     const columns = getOrderColumns()
-    
+
     // Use the memoized selector
     const orderSelector = useCallback((state: RootState) => createOrderSelector(state), []);
 
@@ -91,13 +90,12 @@ const ListOrderPage: NextPage<TProps> = () => {
         setShowCreateTab(true);
     };
 
-
     return (
         <Box sx={{ backgroundColor: 'background.paper', p: 3 }}>
             <AdminPage
                 entityName="order"
                 columns={columns}
-                reduxSelector={orderSelector}
+                reduxSelector={createOrderSelector}
                 fields={getOrderFields()}
                 fetchAction={getAllManageOrderAsync}
                 deleteAction={deleteOrderAsync}

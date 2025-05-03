@@ -450,10 +450,11 @@ export const getProductColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: 'product_name',
+      field: 'productName',
       headerName: t('product_name'),
       flex: 1,
-      minWidth: 300,
+      minWidth: 350,
+      maxWidth: 350,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
@@ -482,7 +483,7 @@ export const getProductColumns = (): GridColDef[] => {
       }
     },
     {
-      field: 'product_category',
+      field: 'productCategory',
       headerName: t('product_category'),
       minWidth: 200,
       maxWidth: 200,
@@ -490,6 +491,18 @@ export const getProductColumns = (): GridColDef[] => {
         const { row } = params
         return (
           <Typography>{row?.categoryName}</Typography>
+        )
+      }
+    },
+    {
+      field: 'importPrice',
+      headerName: t('import_price'),
+      minWidth: 150,
+      maxWidth: 150,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>{`${formatPrice(row?.importPrice)}`}</Typography>
         )
       }
     },
@@ -502,6 +515,18 @@ export const getProductColumns = (): GridColDef[] => {
         const { row } = params
         return (
           <Typography>{`${formatPrice(row?.price)}`}</Typography>
+        )
+      }
+    },
+    {
+      field: 'discountPrice',
+      headerName: t('discount_price'),
+      minWidth: 150,
+      maxWidth: 150,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>{`${formatPrice(row?.newPrice)}`}</Typography>
         )
       }
     },

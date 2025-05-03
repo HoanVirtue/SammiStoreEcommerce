@@ -230,7 +230,6 @@ const MyOrderPage: NextPage = () => {
                 onChangePagination={handleOnChangePagination}
                 page={page}
                 rowLength={myOrders.total}
-                isHidden
             />
         );
     }, [pageSize, page, myOrders?.total, handleOnChangePagination]);

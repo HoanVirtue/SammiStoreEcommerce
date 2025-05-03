@@ -37,6 +37,7 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
                 var paymentDate = DateTime.ParseExact(vnPay.GetResponseData("vnp_PayDate"), "yyyyMMddHHmmss", CultureInfo.InvariantCulture);
 
                 var checkSignature = vnPay.ValidateSignature(vnpSecureHash, hashSecret); //check Signature
+                var platForm = vnPay.GetResponseData("vnp_PlatForm");
 
                 if (!checkSignature)
                 {
@@ -44,7 +45,8 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
                     {
                         Success = false,
                         OrderDescription = orderInfo,
-                        PaymentDate = paymentDate
+                        PaymentDate = paymentDate,
+                        PlatForm = platForm
                     });
                 }
                 if (vnpResponseCode != "00")
@@ -53,7 +55,8 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
                     {
                         Success = false,
                         OrderDescription = orderInfo,
-                        PaymentDate = paymentDate
+                        PaymentDate = paymentDate,
+                        PlatForm = platForm
                     });
                 }
                 else
@@ -68,7 +71,8 @@ namespace SAMMI.ECOM.API.Infrastructure.VNPay
                         TransactionId = vnPayTranId.ToString(),
                         Token = vnpSecureHash,
                         VnPayResponseCode = vnpResponseCode,
-                        PaymentDate = paymentDate
+                        PaymentDate = paymentDate,
+                        PlatForm = platForm
                     });
                 }
             }

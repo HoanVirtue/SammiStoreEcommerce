@@ -13,6 +13,7 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public decimal PaymentAmount { get; set; }
         public string? PaymentStatus { get; set; }
         public string? TransactionId { get; set; }
+        public string? PlatForm { get; set; }
 
         public DateTime? CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }

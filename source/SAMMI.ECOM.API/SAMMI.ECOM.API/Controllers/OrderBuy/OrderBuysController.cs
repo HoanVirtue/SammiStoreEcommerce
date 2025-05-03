@@ -185,13 +185,15 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         [HttpGet("vnpay/payment-callback")]
         public async Task<IActionResult> PaymentCallback()
         {
-            string redirectUrl = _config.GetValue<string>("VNPAYOptions:RedirectUrl");
             var paymentResponse = _vnpayService.PaymentExecute(Request.Query);
+            
             if (!paymentResponse.IsSuccess)
             {
                 return BadRequest(paymentResponse);
             }
+
             var paymentResult = paymentResponse.Result;
+            var redirectUrl = paymentResult.PlatForm == "App" ? _config.GetValue<string>("VNPAYOptions:RedirectUrlApp") : _config.GetValue<string>("VNPAYOptions:RedirectUrl");
             string[] paymentInfos = paymentResult.OrderDescription.Split('#')[1].Split('_');
             string orderCode = paymentInfos[0];
             var payment = await _paymentRepository.GetByOrderCode(orderCode);

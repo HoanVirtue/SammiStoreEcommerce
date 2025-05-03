@@ -21,6 +21,7 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
         public int? ShippingCompanyId { get; set; }
         public List<OrderDetailCommand> Details { get; set; }
         public int? PaymentMethodId { get; set; }
+        public string? PlatForm { get; set; } = "Web";
 
 
         public int Id { get; set; }

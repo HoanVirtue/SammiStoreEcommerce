@@ -16,7 +16,7 @@ namespace SAMMI.ECOM.Infrastructure.Services.VNPay
     public class VNPayService : IVNPayService
     {
         private readonly IConfiguration _configuration;
-
+        private static readonly Dictionary<string, string> PlatformStorage = new Dictionary<string, string>(); // Lưu tạm platform
         public VNPayService(IConfiguration configuration)
         {
             _configuration = configuration.GetSection("VNPAYOptions");
@@ -40,6 +40,7 @@ namespace SAMMI.ECOM.Infrastructure.Services.VNPay
             pay.AddRequestData("vnp_OrderInfo", $"Thanh toán cho đơn hàng #{model.OrderCode}_{model.UserIdentity}");
             pay.AddRequestData("vnp_OrderType", "shopping");
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
+            pay.AddRequestData("vnp_PlatForm", model.PlatForm);
             //pay.AddRequestData("vnp_IPNUrl", _configuration["IPNUrl"]);
             pay.AddRequestData("vnp_TxnRef", tick);
 

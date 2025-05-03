@@ -22,7 +22,6 @@ export type TParamsCreateUser = {
 export type TParamsUpdateUser = {
     id: number,
     firstName?: string,
-    middleName?: string,
     lastName?: string,
     email: string,
     password?: string,
@@ -41,4 +40,27 @@ export type TParamsDeleteUser = {
 
 export type TParamsDeleteMultipleUsers = {
     userIds: number[],
+}
+
+export type TParamsUser = {
+    id: number;
+    code: string;
+    type?: string;
+    firstName?: string;
+    lastName?: string;
+    fullName?: string;
+    email?: string;
+    phone?: string;
+    streetAddress?: string;
+    wardId?: number;
+    wardName?: string;
+    districtId?: number;
+    districtName?: string;
+    provinceId?: number;
+    provinceName?: string;
+    username?: string;
+    avatar?: string;
+    birthday?: string; // ISO string (e.g., "2024-05-03T00:00:00")
+    idCardNumber?: string;
+    gender?: boolean;
 }

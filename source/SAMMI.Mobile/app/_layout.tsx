@@ -88,6 +88,12 @@ function RootLayoutNav() {
         <Stack.Screen name="article/[id]" options={{ presentation: 'card' }} />
         <Stack.Screen name="checkout" options={{ presentation: 'card' }} />
         <Stack.Screen name="payment/vnpay" options={{ presentation: 'card' }} />
+        <Stack.Screen
+          name="update-info"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </AxiosInterceptor>
   );

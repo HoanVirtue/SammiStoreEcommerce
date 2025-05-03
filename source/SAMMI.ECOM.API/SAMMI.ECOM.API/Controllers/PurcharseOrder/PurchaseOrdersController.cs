@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.Enums;
@@ -22,12 +23,14 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             IPurchaseOrderQueries purchaseQueries,
             IPurchaseOrderRepository purchaseOrderRepository,
             IRoleRepository roleRepository,
+            UserIdentity userIdentity,
             IMediator mediator,
             ILogger<PurchaseOrdersController> logger) : base(mediator, logger)
         {
             _purchaseQueries = purchaseQueries;
             _purchaseRepository = purchaseOrderRepository;
             _roleRepository = roleRepository;
+            UserIdentity = userIdentity;
         }
 
         [AuthorizePermission(PermissionEnum.ImportView)]
@@ -143,7 +146,7 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             {
                 return BadRequest("Đơn nhập hàng không tồn tại");
             }
-            var role = await _roleRepository.GetByIdAsync(UserIdentity.Roles.FirstOrDefault());
+            var role = await _roleRepository.GetByIdAsync(UserIdentity.Roles.Select(x => int.Parse(x)).FirstOrDefault());
             if (role != null && role.Code == RoleTypeEnum.ADMIN.ToString())
             {
                 if (purchase.Status != PurchaseOrderStatus.Draft.ToString() && purchase.Status != PurchaseOrderStatus.PendingApproval.ToString())

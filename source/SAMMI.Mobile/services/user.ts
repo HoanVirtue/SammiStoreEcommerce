@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from "@/configs/api"
 import instance from "@/helpers/axios"
-import { TParamsCreateUser, TParamsDeleteMultipleUsers, TParamsGetAllUsers, TParamsUpdateUser } from "@/types/user"
+import { TParamsCreateUser, TParamsDeleteMultipleUsers, TParamsGetAllUsers, TParamsUpdateUser, TParamsUser } from "@/types/user"
 
 export const getAllUsers = async (data: {params: TParamsGetAllUsers}) => {
     try {
@@ -42,10 +42,10 @@ export const deleteUser = async (id: number) => {
     }
 }
 
-export const getUserDetail = async (id: number) => {
+export const getUserDetail = async () => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.SYSTEM.USER.INDEX}/${id}`)
-        return res.data
+        const res = await instance.get<TParamsUser>(`${API_ENDPOINT.SYSTEM.USER.INDEX}/get-current-user`)
+        return res.data;
     } catch (error: any) {
         return error?.response?.data
     }

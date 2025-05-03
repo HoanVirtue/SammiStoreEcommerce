@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Reflection.PortableExecutable;
 using Dapper;
 using Microsoft.Extensions.Configuration;
 using Nest;
@@ -39,31 +40,34 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
         private readonly IRedisService<List<FavouriteProductDTO>>? _redisService;
         private readonly string cacheKey;
         private readonly ICookieService _cookieService;
+        private readonly IMemoryCacheService _memoryCacheService;
         public ProductQueries(
             SammiEcommerceContext context,
             IConfiguration config,
             UserIdentity userIdentity,
-            ICookieService cookieService
+            ICookieService cookieService,
+            IMemoryCacheService memoryCacheService
             ) : base(context)
         {
             ProductId = new List<int>();
             cacheKey = $"{config["RedisOptions:favourite_key"]}{userIdentity.Id}";
             _cookieService = cookieService;
+            UserIdentity = userIdentity;
+            _memoryCacheService = memoryCacheService;
         }
 
-        //private async Task<bool> IsLikedAsync(int productId)
-        //{
-
-        //    if (_redisService != null && _redisService.IsConnected())
-        //    {
-        //        var cachedList = await _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
-        //        if (cachedList != null && cachedList.Count > 0)
-        //        {
-        //            return Ok(cachedList);
-        //        }
-        //    }
-        //    return false;
-        //}
+        private bool IsLikedAsync(int productId)
+        {
+            if(!string.IsNullOrEmpty(UserIdentity.UserName))
+            {
+                var productIds = _memoryCacheService.GetFavouriteProduct();
+                if(productIds != null && productIds.Count > 0 && productIds.Contains(productId))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public Task<IEnumerable<ProductDTO>> GetAll(RequestFilterModel? filterModel = null)
         {
@@ -328,6 +332,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 t1.IsActive,
                                 t1.IsDeleted,
                                 t1.DisplayOrder
+
                         {((filterModel.DaysOfExistence != null) ? string.Format("HAVING DATEDIFF(NOW(), MAX(t3.CreatedDate)) > {0} OR MAX(t3.CreatedDate) IS NULL", filterModel.DaysOfExistence) : "")}
 
                         ORDER BY t1.Id DESC , t1.StockQuantity DESC
@@ -523,6 +528,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                     productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
                                 else
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
+                                productEntry.IsLiked = IsLikedAsync(productEntry.Id);
                                 productDirectory.Add(product.Id, productEntry);
                             }
 
@@ -640,6 +646,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                     productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
                                 else
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
+                                productEntry.IsLiked = IsLikedAsync(productEntry.Id);
                                 productDirectory.Add(product.Id, productEntry);
                             }
 
@@ -716,6 +723,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                     productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
                                 else
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
+                                productEntry.IsLiked = IsLikedAsync(productEntry.Id);
                                 productDirectory.Add(product.Id, productEntry);
                             }
 
@@ -792,6 +800,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                     productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
                                 else
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
+                                productEntry.IsLiked = IsLikedAsync(productEntry.Id);
                                 productDirectory.Add(product.Id, productEntry);
                             }
 
@@ -971,6 +980,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                             {
                                 productEntry = product;
                                 productEntry.Images = new List<ImageDTO>();
+                                productEntry.IsLiked = IsLikedAsync(productEntry.Id);
                                 productDirectory.Add(product.Id, productEntry);
                             }
                             if (image != null && productEntry.Images.All(i => i.Id != image.Id))

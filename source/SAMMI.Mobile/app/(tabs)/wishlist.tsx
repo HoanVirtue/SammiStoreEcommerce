@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View, Text, FlatList } from 'react-native';
+import { StyleSheet, View, Text, FlatList, ScrollView, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { colors } from '@/constants/colors';
@@ -43,9 +43,10 @@ export default function WishlistScreen() {
   // }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
-        <Text style={styles.title}>My Wishlist</Text>
+        <Text style={styles.title}>Sản phẩm yêu thích</Text>
         <Text style={styles.subtitle}>
           {wishlistProducts.length} {wishlistProducts.length === 1 ? 'item' : 'items'}
         </Text>
@@ -93,6 +94,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    backgroundColor: colors.white,
   },
   title: {
     fontSize: 20,

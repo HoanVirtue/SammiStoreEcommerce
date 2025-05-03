@@ -10,6 +10,7 @@ export const ROUTE_CONFIG = {
     MY_CART: "/my-cart",
     MY_ORDER: "/my-order",
     CHECKOUT: "/checkout",
+    UPDATEINFO: "/update-info",
     ACCOUNT: {
         MY_PROFILE: "/account/my-profile",
         MY_ORDER: "/account/my-order",

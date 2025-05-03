@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { StyleSheet, View, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, ActivityIndicator, TouchableOpacity, RefreshControl, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
@@ -21,6 +21,7 @@ export default function CartScreen() {
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [originalPrice, setOriginalPrice] = useState<number>(0);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchCart = useCallback(async () => {
     try {
@@ -46,6 +47,34 @@ export default function CartScreen() {
       setCart({ data: [] });
     } finally {
       setIsLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await getCarts({
+        params: {
+          take: -1,
+          skip: 0,
+          paging: false,
+          orderBy: 'name',
+          dir: 'asc',
+          keywords: "''",
+          filters: '',
+        },
+      });
+      setCart({ data: response?.result || [] });
+    } catch (error) {
+      console.error('Error refreshing cart:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi không thể load giỏ hàng! Vui lòng thử lại sau',
+      });
+    } finally {
+      setRefreshing(false);
     }
   }, []);
 
@@ -232,11 +261,8 @@ export default function CartScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Giỏ hàng của tôi</Text>
-      </View>
-
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <StatusBar barStyle="dark-content" />
       {cartItems.length === 0 ? (
         <View style={styles.emptyContainer}>
           <ShoppingBag size={64} color={colors.primaryLight} />
@@ -250,7 +276,17 @@ export default function CartScreen() {
         </View>
       ) : (
         <>
-          <ScrollView style={styles.itemsContainer}>
+          <ScrollView style={styles.itemsContainer}
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                colors={[colors.primary]}
+                tintColor={colors.primary}
+                progressViewOffset={100}
+                progressBackgroundColor={colors.background}
+              />
+            }>
             <View style={styles.cartHeader}>
               <View style={styles.checkboxContainer}>
                 <TouchableOpacity

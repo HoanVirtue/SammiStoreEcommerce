@@ -1,4 +1,4 @@
-import { Grid, Typography, useTheme } from '@mui/material';
+import { Grid, Skeleton, Typography, useTheme } from '@mui/material';
 import { Box } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { getBestSellingProducts } from 'src/services/product';
@@ -48,7 +48,15 @@ const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
             </Box>
             <Box>
                 <Grid container spacing={{ md: 4, sx: 2 }}>
-                    {publicProducts?.data?.length > 0 ? (
+                    {loading ? (
+                        Array.from(new Array(20)).map((_, index) => (
+                            <Grid item key={index} md={2.4} sm={6} xs={12}>
+                                <Skeleton variant="rectangular" height={200} />
+                                <Skeleton />
+                                <Skeleton width="60%" />
+                            </Grid>
+                        ))
+                    ) : publicProducts?.data?.length > 0 ? (
                         <>
                             {publicProducts?.data?.map((item: TProduct) => {
                                 return (

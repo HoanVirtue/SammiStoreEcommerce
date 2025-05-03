@@ -26,7 +26,7 @@ import { getAllProductCategories } from 'src/services/product-category'
 import { resetInitialState } from 'src/stores/product'
 
 // ========== Component Imports ==========
-
+import OutstandingBrand from './components/outstanding-brand'
 const Banner = dynamic(() => import('./components/banner'), {
     ssr: false,
     loading: () => <Box sx={{ height: 400, width: '100%', bgcolor: 'grey.100' }} />
@@ -263,6 +263,7 @@ const HomePage: NextPage<HomePageProps> = ({ initialData }) => {
             <ListVoucher initialData={initialData?.vouchers} />
             <HotSale initialData={initialData?.featuredProducts} />
             <TopSale initialData={initialData?.products} />
+            <OutstandingBrand />
         </Box>
     )
 }

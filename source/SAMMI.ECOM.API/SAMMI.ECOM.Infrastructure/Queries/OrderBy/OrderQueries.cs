@@ -1,11 +1,9 @@
 ﻿using Dapper;
-using Nest;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
-using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.DomainModels.Reports;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.GlobalModels.Common;
@@ -16,14 +14,22 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
     public interface IOrderQueries : IQueryRepository
     {
         Task<IPagedList<OrderDTO>> GetList(RequestFilterModel filterModel);
+
         Task<IEnumerable<SelectionItem>> GetSelectionList(RequestFilterModel? request);
+
         Task<IEnumerable<OrderDTO>> GetAll(RequestFilterModel? filterModel = null);
+
         Task<OrderDTO> GetById(int id);
+
         Task<IEnumerable<OrderDTO>> GetOrdersByCustomerId(int customerId, RequestFilterModel request);
+
         Task<IPagedList<OrderDTO>> GetListOrdersByCustomerId(int customerId, RequestFilterModel request);
+
         Task<SalesRevenue> RevenueOrder(SaleRevenueFilterModel filterModel);
+
         Task<decimal?> GetTotalRevenueInDay();
     }
+
     public class OrderQueries : QueryRepository<Order>, IOrderQueries
     {
         public OrderQueries(SammiEcommerceContext context) : base(context)
@@ -80,7 +86,6 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                 orderDictonary[order.Id] = orderEntry;
                             }
 
-
                             if (detail != null && orderEntry.Details.All(x => x.Id != detail.Id))
                             {
                                 orderEntry.Details ??= new();
@@ -95,7 +100,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     var orderDTO = orders.FirstOrDefault();
                     orderDTO.TotalQuantity = orderDTO.Details.Sum(x => x.Quantity);
                     orderDTO.TotalPrice = orderDTO.Details.Sum(x => x.Quantity * x.Price);
-                    
+
                     return orderDTO;
                 }
             );
@@ -183,7 +188,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     );
 
                     sqlBuilder.Where("t2.Id = @customerId", new { customerId });
-                    if(request.Any("PaymentStatus"))
+                    if (request.Any("PaymentStatus"))
                     {
                         sqlBuilder.Where("t8.PaymentStatus = @PaymentStatus", new { PaymentStatus = request.Get("PaymentStatus") });
                     }
@@ -198,7 +203,6 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                 orderEntry.Details = new List<OrderDetailDTO>();
                                 orderDictonary[order.Id] = orderEntry;
                             }
-
 
                             if (detail != null && orderEntry.Details.All(x => x.Id != detail.Id))
                             {
@@ -266,7 +270,6 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                 orderEntry.Details = new List<OrderDetailDTO>();
                                 orderDictonary[order.Id] = orderEntry;
                             }
-
 
                             if (detail != null && orderEntry.Details.All(x => x.Id != detail.Id))
                             {
@@ -430,9 +433,9 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
                     sqlBuilder.InnerJoin("Payment t3 ON t1.Id = t3.OrderId AND t3.IsDeleted != 1");
 
-                    sqlBuilder.Where($"t1.OrderStatus = @orderStatus", new { orderStatus = OrderStatusEnum.Completed.ToString()});
+                    sqlBuilder.Where($"t1.OrderStatus = @orderStatus", new { orderStatus = OrderStatusEnum.Completed.ToString() });
                     sqlBuilder.Where($"t1.CreatedDate >= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom)}' AND t1.CreatedDate <= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)}'");
-                    if(filterModel.PaymentMethodId != null && filterModel.PaymentMethodId != 0)
+                    if (filterModel.PaymentMethodId != null && filterModel.PaymentMethodId != 0)
                     {
                         sqlBuilder.Where($"t3.PaymentMethodId = {filterModel.PaymentMethodId}");
                     }

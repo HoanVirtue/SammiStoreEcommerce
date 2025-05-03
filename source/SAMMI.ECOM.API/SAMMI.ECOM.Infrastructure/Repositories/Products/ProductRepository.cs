@@ -12,6 +12,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         Task<decimal> CalAmount(int productId, int quantity);
         Task<decimal> GetPrice(int productId);
         Task<ActionResponse> RollbackProduct(int orderId);
+        Task<int> TotalProductAsync();
     }
 
     public class ProductRepository : CrudRepository<Product>, IProductRepository, IDisposable
@@ -61,7 +62,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         {
             var actRes = new ActionResponse();
             var details = await _orderDetailRepository.Value.GetByOrderId(orderId);
-            foreach(var de in details)
+            foreach (var de in details)
             {
                 var product = await FindById(de.ProductId);
                 product.StockQuantity += de.Quantity;
@@ -73,6 +74,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
             }
             await SaveChangeAsync();
             return actRes;
+        }
+
+        public async Task<int> TotalProductAsync()
+        {
+            return await DbSet.CountAsync(x => x.IsDeleted != true);
         }
     }
 }

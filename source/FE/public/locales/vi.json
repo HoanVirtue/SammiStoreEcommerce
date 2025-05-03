@@ -842,6 +842,10 @@
     "enter_full_name": "Nhập họ và tên",
     "required_full_name": "Họ và tên không được để trống",
     "create_event_failed": "Đã xảy ra lỗi khi tạo sự kiện, vui lòng thử lại!",
+    "add_to_wishlist_success": "Thêm vào danh sách yêu thích thành công",
+    "add_to_wishlist_error": "Đã xảy ra lỗi khi thêm vào danh sách yêu thích, vui lòng thử lại!",
+    "remove_from_wishlist_success": "Xóa khỏi danh sách yêu thích thành công",
+    "remove_from_wishlist_error": "Đã xảy ra lỗi khi xóa khỏi danh sách yêu thích, vui lòng thử lại!",
 
 
     "province_id": "Mã Tỉnh/Thành phố",

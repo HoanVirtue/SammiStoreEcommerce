@@ -125,14 +125,14 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                 if (isLiked) {
                     response = await unlikeProduct(id);
                     if (response?.isSuccess) {
-                        toast.success(response.message || t('remove_from_wishlist_success'));
+                        toast.success(t('remove_from_wishlist_success'));
                     } else {
                         toast.error(response?.message || t('remove_from_wishlist_error'));
                     }
                 } else {
                     response = await likeProduct(id);
                     if (response?.isSuccess) {
-                        toast.success(response.message || t('add_to_wishlist_success'));
+                        toast.success(t('add_to_wishlist_success'));
                     } else {
                         toast.error(response?.message || t('add_to_wishlist_error'));
                     }

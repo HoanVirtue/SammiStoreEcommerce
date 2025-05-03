@@ -97,7 +97,7 @@ export type TParamsDeleteProduct = {
 }
 
 export type TParamsDeleteMultipleProducts = {
-    productIds: number[],
+    ids: number[],
 }
 
 
@@ -107,4 +107,9 @@ export type TParamsGetRelatedProduct = {
     search?: string,
     order?: string
     slug: string
+}
+
+export type TParamsGetRelatedProducts = {
+    productId: number,
+    numberTop: number,
 }

@@ -1,6 +1,6 @@
 
 
-export const BASE_URL = `${process.env.EXPO_PUBLIC_API_HOST}/api`
+export const BASE_URL = `${process.env.NEXT_PUBLIC_API_HOST}/api`
 export const API_ENDPOINT = {
   AUTH: {
     INDEX: `${BASE_URL}/auth`,
@@ -32,6 +32,9 @@ export const API_ENDPOINT = {
   EVENT: {
     INDEX: `${BASE_URL}/events`,
   },
+  FAVOURITE_PRODUCT: {
+    INDEX: `${BASE_URL}/favourite-product`,
+  },
   SYSTEM: {
     ROLE: {
       INDEX: `${BASE_URL}/roles`,
@@ -41,6 +44,7 @@ export const API_ENDPOINT = {
     },
   },
   USER: {
+    INDEX: `${BASE_URL}/users`,
     ME: {
       INDEX: `${BASE_URL}/users/get-current-user`,
     },

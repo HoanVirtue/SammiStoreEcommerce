@@ -21,8 +21,6 @@ import { useDispatch } from 'react-redux'
 import { LoginParams } from '@/types/auth'
 import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { useNavigation } from '@react-navigation/native'
-import { NavigationProp, ParamListBase } from '@react-navigation/native'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -50,7 +48,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
   // ** Hooks
   const router = useRouter()
   const pathname = usePathname()
-  const navigation = useNavigation<NavigationProp<ParamListBase>>()
+
 
   //redux
   const dispatch: AppDispatch = useDispatch()
@@ -71,7 +69,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
           setUser(null);
           setLoading(false);
           if (!pathname?.includes('login')) {
-            router.replace('/login' as any);
+            router.replace('/(auth)/login' as any);
           }
         }
       } else {
@@ -79,7 +77,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
         // Redirect to login if not on a public page and not already on login page
         const isPublicPage = LIST_PUBLIC_PAGE.some(page => pathname?.startsWith(page));
         if (!isPublicPage && !pathname?.includes('login')) {
-          router.replace('/login' as any);
+          router.replace('/(auth)/login' as any);
         }
       }
     }
@@ -199,7 +197,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       dispatch(updateProductToCart({
         orderItems: []
       }));
-      navigation.navigate('Login' as never);
+      router.replace('/(auth)/login' as any);
     } catch (error) {
       console.error('Error during logout:', error);
       // Still try to clear local data even if logout API call fails
@@ -209,7 +207,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       dispatch(updateProductToCart({
         orderItems: []
       }));
-      navigation.navigate('login' as never);
+      router.replace('/(auth)/login' as any);
     }
   }
 

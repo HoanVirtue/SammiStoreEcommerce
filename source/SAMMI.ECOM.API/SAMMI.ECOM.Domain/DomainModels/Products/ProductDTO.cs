@@ -26,6 +26,7 @@ namespace SAMMI.ECOM.Domain.DomainModels.Products
         public List<ImageDTO>? Images { get; set; }
         public int? TotalSold { get; set; }
         public int? TotalLike { get; set; }
+        public bool? IsLiked { get; set; }
 
 
         public int Id { get; set; }

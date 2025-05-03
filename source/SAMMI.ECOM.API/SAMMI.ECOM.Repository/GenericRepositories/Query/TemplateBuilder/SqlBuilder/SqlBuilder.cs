@@ -261,6 +261,8 @@ namespace SAMMI.ECOM.Repository.GenericRepositories.Query.TemplateBuilder
 
         public SqlBuilder Where(string sql, dynamic parameters = null)
         {
+            if(sql.Contains(":"))
+                sql = sql.Replace(":", "@");
             return AddClause("where", sql, parameters, " AND ", "\nWHERE ", "\n", false);
         }
         public SqlBuilder OrWhere(string sql, dynamic parameters = null)

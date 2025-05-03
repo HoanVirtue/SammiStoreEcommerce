@@ -1,6 +1,8 @@
 ﻿using System.Data;
 using Dapper;
+using Microsoft.Extensions.Configuration;
 using Nest;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.RequestModels.QueryParams;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
@@ -9,6 +11,8 @@ using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.DomainModels.Reports;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Domain.GlobalModels.Common;
+using SAMMI.ECOM.Infrastructure.Services;
+using SAMMI.ECOM.Infrastructure.Services.Caching;
 using SAMMI.ECOM.Repository.GenericRepositories;
 using SAMMI.ECOM.Utility;
 
@@ -31,9 +35,35 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
     }
     public class ProductQueries : QueryRepository<Product>, IProductQueries
     {
-        public ProductQueries(SammiEcommerceContext context) : base(context)
+        private readonly List<int> ProductId;
+        private readonly IRedisService<List<FavouriteProductDTO>>? _redisService;
+        private readonly string cacheKey;
+        private readonly ICookieService _cookieService;
+        public ProductQueries(
+            SammiEcommerceContext context,
+            IConfiguration config,
+            UserIdentity userIdentity,
+            ICookieService cookieService
+            ) : base(context)
         {
+            ProductId = new List<int>();
+            cacheKey = $"{config["RedisOptions:favourite_key"]}{userIdentity.Id}";
+            _cookieService = cookieService;
         }
+
+        //private async Task<bool> IsLikedAsync(int productId)
+        //{
+
+        //    if (_redisService != null && _redisService.IsConnected())
+        //    {
+        //        var cachedList = await _redisService.GetCache<List<FavouriteProductDTO>>(cacheKey);
+        //        if (cachedList != null && cachedList.Count > 0)
+        //        {
+        //            return Ok(cachedList);
+        //        }
+        //    }
+        //    return false;
+        //}
 
         public Task<IEnumerable<ProductDTO>> GetAll(RequestFilterModel? filterModel = null)
         {

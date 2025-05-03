@@ -66,11 +66,12 @@ const MyProductPage: NextPage<TProps> = () => {
                     orderBy: "name",
                     dir: "asc",
                     keywords: "''",
+                    type: 4,
                     filters: ""
                 }
             });
             if (response?.isSuccess) {
-                const data = response?.result?.subset;
+                const data = response?.result;
                 const total = response?.result?.totalItemCount;
                 setMyLikedProducts(data as TMyLikedProduct[] || []);
                 setTotalItems(total || 0);

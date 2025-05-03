@@ -78,6 +78,24 @@ namespace SAMMI.ECOM.API.Controllers.Products
                 {
                     _redisService.SetCache(cacheKey, favouriteList);
                 }
+
+                // set cookie
+                var productFavouriteId = _cookieService.GetFavouriteProduct();
+                if (productFavouriteId == null)
+                {
+                    productFavouriteId = new List<int>();
+                }
+                foreach(var id in favouriteList.Select(x => x.ProductId))
+                {
+                    if (!productFavouriteId.Contains(id))
+                    {
+                        productFavouriteId.Add(id);
+                    }
+                }
+                if (productFavouriteId != null)
+                {
+                    _cookieService.SaveFavouriteProduct(productFavouriteId);
+                }
                 return Ok(favouriteList);
             }
             return Ok();

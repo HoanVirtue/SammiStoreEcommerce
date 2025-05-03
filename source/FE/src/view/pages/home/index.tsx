@@ -26,7 +26,7 @@ import { getAllProductCategories } from 'src/services/product-category'
 import { resetInitialState } from 'src/stores/product'
 
 // ========== Component Imports ==========
-
+import OutstandingBrand from './components/outstanding-brand'
 const Banner = dynamic(() => import('./components/banner'), {
     ssr: false,
     loading: () => <Box sx={{ height: 400, width: '100%', bgcolor: 'grey.100' }} />
@@ -150,75 +150,6 @@ const HomePage: NextPage<HomePageProps> = ({ initialData }) => {
         }
     }
 
-    const fetchAllCategories = async () => {
-        // Skip fetching if we already have categories from SSG/ISR
-        if (initialData?.categories && categoryOptions.length > 0) {
-            setSelectedProductCategory(initialData?.categories?.[0]?._id || '')
-            return;
-        }
-        
-        setLoading(true)
-        try {
-            const res = await getAllProductCategories({
-                params: {
-                    filters: "",
-                    take: pageSize,
-                    skip: (page - 1) * pageSize,
-                    orderBy: "createdDate",
-                    dir: "asc",
-                    paging: true,
-                    keywords: "''",
-                },
-            })
-            const data = res?.result?.subset
-            if (data) {
-                setCategoryOptions(data?.map((item: { name: string, _id: string }) => ({
-                    label: item.name,
-                    value: item._id
-                })))
-                setSelectedProductCategory(data?.[0]?._id)
-                firstRender.current = true
-            }
-        } catch (error) {
-            console.error('Error fetching categories:', error)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    // ========== Event Handlers ==========
-    const handleOnChangePagination = (page: number, pageSize: number) => {
-        setPage(page)
-        setPageSize(pageSize)
-        setSearchBy("")
-    }
-
-    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
-        setSelectedProductCategory(newValue)
-    }
-
-    const handleProductFilter = (value: string, type: string) => {
-        switch (type) {
-            case 'review': {
-                setSelectedReview(value)
-                break
-            }
-            case 'location': {
-                setSelectedLocation(value)
-                break
-            }
-        }
-    }
-
-    const handleResetFilter = () => {
-        setSelectedReview('')
-        setSelectedLocation('')
-    }
-
-    // ========== Effects ==========
-    useEffect(() => {
-        fetchAllCategories()
-    }, [])
 
     useEffect(() => {
         if (firstRender.current) {
@@ -263,6 +194,7 @@ const HomePage: NextPage<HomePageProps> = ({ initialData }) => {
             <ListVoucher initialData={initialData?.vouchers} />
             <HotSale initialData={initialData?.featuredProducts} />
             <TopSale initialData={initialData?.products} />
+            <OutstandingBrand />
         </Box>
     )
 }

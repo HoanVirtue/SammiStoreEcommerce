@@ -7,12 +7,15 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
     public interface IPaymentMethodRepository : ICrudRepository<PaymentMethod>
     {
         Task<bool> CheckExistName(string name, int? id = 0);
+
         Task<PaymentMethod> GetByCode(string code);
     }
+
     public class PaymentMethodRepository : CrudRepository<PaymentMethod>, IPaymentMethodRepository, IDisposable
     {
         private readonly SammiEcommerceContext _context;
         private bool _disposed;
+
         public PaymentMethodRepository(SammiEcommerceContext context) : base(context)
         {
             _context = context;

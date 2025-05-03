@@ -20,10 +20,15 @@ export const VerticalLayoutItems = () => {
     const { t } = useTranslation()
     return [
         {
-            title: t('dashboard'),
-            icon: 'mage:dashboard-bar-notification',
-            path: ROUTE_CONFIG.DASHBOARD,
-            // permission: PERMISSIONS.DASHBOARD
+            title: t('manage_system'),
+            icon: 'icon-park-outline:system',
+            children: [
+                {
+                    title: t('dashboard'),
+                    icon: 'mage:dashboard-bar-notification',
+                    path: ROUTE_CONFIG.DASHBOARD,
+                },
+            ]
         },
         {
             title: t('manage_order'),

@@ -2,7 +2,7 @@ import { Grid, Typography, useTheme } from '@mui/material';
 import { Box } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import CountdownTimer from './CountdownTimer';
-import { getAllProducts } from 'src/services/product';
+import { getAllProducts, getEndowProducts } from 'src/services/product';
 import ProductCard from 'src/view/pages/product/components/ProductCard';
 import { TProduct } from 'src/types/product';
 import NoData from 'src/components/no-data';
@@ -189,31 +189,29 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
 
     const handleGetListProduct = async () => {
         setLoading(true)
-        const query = {
-            params: {
-                take: 10,
-                skip: 0,
-                paging: true,
-                orderBy: "name",
-                dir: "asc",
-                keywords: "''",
-                filters: ""
-            },
-        };
-        await getAllProducts(query).then((res) => {
+        try {
+            const res = await getEndowProducts({ numberTop: 20 });
             if (res?.result) {
-                setLoading(false)
                 setPublicProducts({
-                    data: res?.result?.subset?.filter((item: TProduct) => item.status === 1),
-                    total: res?.result?.totalItemCount
+                    data: res.result,
+                    total: res.result.length
                 })
+            } else {
+                 setPublicProducts({ data: [], total: 0 })
             }
-        })
+        } catch (error) {
+            console.error("Failed to fetch endow products:", error);
+            setPublicProducts({ data: [], total: 0 }) // Reset on error
+        } finally {
+            setLoading(false) // Ensure loading is set to false in both success and error cases
+        }
     }
 
     useEffect(() => {
         handleGetListProduct()
     }, [])
+
+    const skeletonCount = 20; // Match the numberTop parameter in getEndowProducts
 
     return (
         <Box sx={{ backgroundColor: theme.palette.secondary.main, width: '100%', height: '100%', padding: '10px' }}>
@@ -229,7 +227,14 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
                 </Box>
                 <Box sx={{ padding: '10px' }}>
                     <Grid container spacing={{ md: 4, sm: 3, xs: 2 }}>
-                        {publicProducts?.data?.length > 0 ? (
+                        {loading ? (
+                             // Render skeletons based on the expected count
+                            Array.from(new Array(skeletonCount)).map((_, index) => (
+                                <Grid item key={index} md={2.4} sm={4} xs={12}>
+                                    <ProductCard item={{} as TProduct} isLoading={true} />
+                                </Grid>
+                            ))
+                        ) : publicProducts?.data?.length > 0 ? (
                             <>
                                 {publicProducts?.data?.map((item: TProduct) => {
                                     return (

@@ -22,6 +22,15 @@ export const getMyOrders = async (data: {params: TParamsGetAllOrders  }) => {
     }
 }
 
+export const getMyOrderDetail = async (code: string) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/customer/${code}`)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const getOrderDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/${id}`)

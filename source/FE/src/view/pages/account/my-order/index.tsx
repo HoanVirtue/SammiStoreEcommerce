@@ -157,8 +157,6 @@ const MyOrderPage: NextPage = () => {
     // Effects
     useEffect(() => {
         handleGetListOrder()
-
-        // Cleanup để tránh memory leaks
         return () => {
             dispatch(resetInitialState())
         }
@@ -213,7 +211,7 @@ const MyOrderPage: NextPage = () => {
         </Box>
     ), [searchBy, handleSearch, t])
 
-    // Chỉ render các orders khi cần thiết
+
     const renderOrdersList = useMemo(() => {
         if (!myOrders?.data?.length) return null;
 
@@ -222,7 +220,6 @@ const MyOrderPage: NextPage = () => {
         ));
     }, [myOrders?.data]);
 
-    // Pagination component memoized riêng
     const renderPagination = useMemo(() => {
         if (!myOrders?.data?.length) return null;
 
@@ -280,7 +277,7 @@ const MyOrderPage: NextPage = () => {
             backgroundColor: theme.palette.background.paper,
             borderRadius: "15px",
             py: 5,
-            px: { xs: 2, sm: 4 }, // Responsive padding
+            px: { xs: 2, sm: 4 },
             width: '100%',
             maxWidth: '100%',
             overflow: 'hidden', 

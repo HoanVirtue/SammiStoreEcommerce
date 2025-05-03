@@ -14,6 +14,7 @@ interface ProductReviewProps {
 }
 
 interface OverallReview {
+    averageRating: number;
     totalRating: number;
     totalRating5: number;
     totalRating4: number;
@@ -123,7 +124,7 @@ const ProductReview = ({ productId }: ProductReviewProps) => {
                                         lineHeight: 1,
                                     }}
                                 >
-                                    {averageRating.toFixed(1)}
+                                    {overallReview?.averageRating?.toFixed(1)}
                                 </Typography>
                                 <Typography
                                     sx={{
@@ -138,7 +139,7 @@ const ProductReview = ({ productId }: ProductReviewProps) => {
                                 </Typography>
                             </Stack>
                             <Rating
-                                value={averageRating}
+                                value={overallReview?.averageRating || 0}
                                 readOnly
                                 precision={0.1}
                                 sx={{

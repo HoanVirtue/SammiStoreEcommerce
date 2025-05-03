@@ -381,7 +381,6 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                         sx={{
                             p: 2,
                             maxHeight: '90vh',
-                            overflow: 'auto',
                             '&::-webkit-scrollbar': {
                                 width: '8px',
                             },

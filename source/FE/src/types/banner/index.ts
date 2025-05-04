@@ -29,6 +29,7 @@ export type TParamsCreateBanner = {
     name?: string;
     level?: number;
     imageCommand?: BannerImage;
+    isActive?: boolean;
 }
 
 export interface TParamsUpdateBanner extends TParamsCreateBanner {

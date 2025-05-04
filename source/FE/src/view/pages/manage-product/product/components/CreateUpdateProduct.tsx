@@ -35,6 +35,7 @@ import { TParamsGetAllProductCategories } from "src/types/product-category";
 import { getAllBrands } from "src/services/brand";
 import { TParamsGetAllBrands } from "src/types/brand";
 import { getProductCode, getProductDetail } from "src/services/product";
+import { toast } from "react-toastify";
 
 // Custom components - Lazy loaded
 const CustomTextField = lazy(() => import("src/components/text-field"));
@@ -61,6 +62,7 @@ type TDefaultValues = {
     name: string;
     stockQuantity: string;
     price: string;
+    importPrice: string;
     discount?: string | null;
     ingredient: EditorState;
     uses: EditorState;
@@ -143,6 +145,12 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                 const endDate = context?.parent?.endDate;
                 if (value && endDate && endDate.getTime() > value?.getTime()) clearErrors("endDate");
                 return !endDate || (endDate && value && endDate.getTime() > value?.getTime());
+            })
+            .test('start_date_future_or_today', t('start_date_must_be_future_or_today'), (value) => {
+                if (!value) return true;
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                return value.getTime() >= today.getTime();
             }),
         endDate: yup.date().notRequired()
             .test('required_end_discount', t('required_discount_end_date'), (value, context: any) => {
@@ -157,11 +165,13 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         status: yup.number().required(t('required_product_status')),
         price: yup.string().required(t("required_product_price"))
             .test('least_price', t('at_least_price_product'), (value) => Number(value) >= 1000),
+        importPrice: yup.string().required(t("required_product_import_price"))
+            .test('least_import_price', t('at_least_import_price_product'), (value) => Number(value) >= 1000),
         images: yup
             .array()
             .of(
                 yup.object().shape({
-                    imageBase64: yup.string().required(t("required_image")),
+                    imageBase64: yup.string().default(""),
                     imageUrl: yup.string().default(""),
                     publicId: yup.string().default(""),
                     typeImage: yup.string().default(""),
@@ -179,6 +189,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         name: "",
         stockQuantity: "",
         price: "",
+        importPrice: "",
         discount: "",
         ingredient: EditorState.createEmpty(),
         uses: EditorState.createEmpty(),
@@ -207,10 +218,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         resolver: yupResolver(schema)
     });
 
-    /**
-     * Xử lý upload hình ảnh sản phẩm
-     * @param file File hình ảnh được chọn
-     */
+
     const handleUploadProductImage = useCallback(async (file: File) => {
         try {
             const base64WithPrefix = await convertBase64(file);
@@ -236,12 +244,20 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         }
     }, [productImages, setValue]);
 
-    /**
-     * Xử lý submit form
-     * Chuyển đổi dữ liệu và gọi API tạo/cập nhật sản phẩm
-     */
-    const onSubmit: SubmitHandler<TDefaultValues> = useCallback((data) => {
-        // Kiểm tra và chuẩn bị dữ liệu hình ảnh
+    const onSubmit: SubmitHandler<TDefaultValues> = useCallback(async (data) => {
+        // Helper function to format Date to Vietnam Time string 'YYYY-MM-DD HH:MM:SS'
+        const formatToVietnamTime = (date: Date | null | undefined): string | undefined => {
+            if (!date) return undefined;
+            try {
+                // Return date in ISO 8601 format (UTC)
+                return date.toISOString();
+            } catch (error) {
+                console.error("Error formatting date to ISO string:", error);
+                // Fallback or re-throw if necessary
+                return undefined; // Or handle error appropriately
+            }
+        };
+
         const preparedImages = productImages.map((img, index) => ({
             ...img,
             displayOrder: index + 1,
@@ -253,6 +269,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             name: data.name,
             stockQuantity: Number(data.stockQuantity),
             price: Number(data.price),
+            importPrice: Number(data.importPrice),
             discount: data.discount ? Number(data.discount) : 0,
             ingredient: data?.ingredient ? draftToHtml(convertToRaw(data?.ingredient.getCurrentContent())) : "",
             uses: data?.uses ? draftToHtml(convertToRaw(data?.uses.getCurrentContent())) : "",
@@ -260,16 +277,26 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             brandId: Number(data.brandId),
             categoryId: Number(data.categoryId),
             status: data.status,
-            startDate: data.startDate ? data.startDate.toISOString() : new Date().toISOString(),
-            endDate: data.endDate ? data.endDate.toISOString() : new Date().toISOString(),
-            images: preparedImages, // Sử dụng dữ liệu hình ảnh đã được chuẩn bị
+            startDate: formatToVietnamTime(data.startDate), // Format date here
+            endDate: formatToVietnamTime(data.endDate),     // Format date here
+            images: preparedImages,
         };
 
         if (id) {
-            dispatch(updateProductAsync({ id: id, ...payload }));
+            const result = await dispatch(updateProductAsync({ id: id, ...payload }));
+            if (result?.payload?.result) {
+                toast.success(t('update_product_success'));
+                onClose();
+              }
         } else {
-            dispatch(createProductAsync(payload));
+
+            const result = await dispatch(createProductAsync(payload));
+            if (result?.payload?.result) {
+                toast.success(t('create_product_success'));
+                onClose();
+              }
         }
+
     }, [id, dispatch, productImages]);
 
     // Memoized handlers
@@ -329,12 +356,13 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                     name: data.name,
                     stockQuantity: data.stockQuantity.toString(),
                     price: data.price.toString(),
+                    importPrice: data.importPrice.toString(),
                     discount: data.discount ? (data.discount * 100).toString() : '',
                     ingredient: data?.ingredient ? convertHTMLToDraft(data?.ingredient) : EditorState.createEmpty(),
                     uses: data?.uses ? convertHTMLToDraft(data?.uses) : EditorState.createEmpty(),
                     usageGuide: data?.usageGuide ? convertHTMLToDraft(data?.usageGuide) : EditorState.createEmpty(),
-                    brandId: data.brandId.toString(),
-                    categoryId: data.categoryId.toString(),
+                    brandId: data.brandId,
+                    categoryId: data.categoryId,
                     status: data.status,
                     startDate: data.startDate ? new Date(data.startDate) : null,
                     endDate: data.endDate ? new Date(data.endDate) : null,
@@ -492,7 +520,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                 {/* Left Column */}
                                 <Grid item xs={12} md={6}>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12}>
+                                        <Grid item xs={6}>
                                             <Controller
                                                 name="code"
                                                 control={control}
@@ -503,11 +531,31 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                         label={t("product_code")}
                                                         onChange={onChange}
                                                         onBlur={onBlur}
-                                                        value={value || productCode}
-                                                        placeholder={t("enter_product_code")}
+                                                        value={value}
+                                                        placeholder={productCode}
                                                         error={!!errors.code}
                                                         helperText={errors.code?.message}
                                                         disabled={isEditMode}
+                                                    />
+                                                )}
+                                            />
+                                        </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <Controller
+                                                name="stockQuantity"
+                                                control={control}
+                                                render={({ field: { onChange, onBlur, value } }) => (
+                                                    <MemoizedCustomTextField
+                                                        fullWidth
+                                                        required
+                                                        type="number"
+                                                        label={t("stock_quantity")}
+                                                        onChange={onChange}
+                                                        onBlur={onBlur}
+                                                        value={value}
+                                                        placeholder={t("enter_product_stock_quantity")}
+                                                        error={!!errors.stockQuantity}
+                                                        helperText={errors.stockQuantity?.message}
                                                     />
                                                 )}
                                             />
@@ -533,26 +581,6 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                         </Grid>
                                         <Grid item xs={12} sm={6}>
                                             <Controller
-                                                name="stockQuantity"
-                                                control={control}
-                                                render={({ field: { onChange, onBlur, value } }) => (
-                                                    <MemoizedCustomTextField
-                                                        fullWidth
-                                                        required
-                                                        type="number"
-                                                        label={t("stock_quantity")}
-                                                        onChange={onChange}
-                                                        onBlur={onBlur}
-                                                        value={value}
-                                                        placeholder={t("enter_product_stock_quantity")}
-                                                        error={!!errors.stockQuantity}
-                                                        helperText={errors.stockQuantity?.message}
-                                                    />
-                                                )}
-                                            />
-                                        </Grid>
-                                        <Grid item xs={12} sm={6}>
-                                            <Controller
                                                 name="status"
                                                 control={control}
                                                 render={({ field: { onChange, value } }) => (
@@ -568,8 +596,29 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                 )}
                                             />
                                         </Grid>
+                                        <Grid item xs={12} sm={6}>
+                                            <Controller
+                                                name="discount"
+                                                control={control}
+                                                render={({ field: { onChange, onBlur, value } }) => (
+                                                    <MemoizedCustomTextField
+                                                        fullWidth
+                                                        type="number"
+                                                        label={t("discount")}
+                                                        onChange={onChange}
+                                                        onBlur={onBlur}
+                                                        value={value}
+                                                        placeholder={t("enter_product_discount")}
+                                                        error={!!errors.discount}
+                                                        helperText={errors.discount?.message}
+                                                    />
+                                                )}
+                                            />
+                                        </Grid>
                                     </Grid>
                                 </Grid>
+
+                            
 
                                 {/* Right Column */}
                                 <Grid item xs={12} md={6}>
@@ -594,25 +643,28 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                 )}
                                             />
                                         </Grid>
+
                                         <Grid item xs={12} sm={6}>
                                             <Controller
-                                                name="discount"
+                                                name="importPrice"
                                                 control={control}
                                                 render={({ field: { onChange, onBlur, value } }) => (
                                                     <MemoizedCustomTextField
                                                         fullWidth
+                                                        required
                                                         type="number"
-                                                        label={t("discount")}
+                                                        label={t("import_price")}
                                                         onChange={onChange}
                                                         onBlur={onBlur}
                                                         value={value}
-                                                        placeholder={t("enter_product_discount")}
-                                                        error={!!errors.discount}
-                                                        helperText={errors.discount?.message}
+                                                        placeholder={t("enter_product_import_price")}
+                                                        error={!!errors.importPrice}
+                                                        helperText={errors.importPrice?.message}
                                                     />
                                                 )}
                                             />
                                         </Grid>
+
                                         <Grid item xs={12} sm={6}>
                                             <Controller
                                                 name="categoryId"
@@ -664,7 +716,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 helperText: errors.startDate?.message
                                                             }
                                                         }}
-                                                        timezone="system"
+                                                        timezone="Asia/Ho_Chi_Minh"
                                                     />
                                                 )}
                                             />
@@ -686,7 +738,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 helperText: errors.endDate?.message
                                                             }
                                                         }}
-                                                        timezone="system"
+                                                        timezone="Asia/Ho_Chi_Minh"
                                                     />
                                                 )}
                                             />

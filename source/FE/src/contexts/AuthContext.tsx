@@ -19,6 +19,7 @@ import { useDispatch } from 'react-redux'
 import { LoginParams } from 'src/types/auth'
 import { useTranslation } from 'react-i18next'
 import { ROUTE_CONFIG } from 'src/configs/route'
+import { resetInitialState } from 'src/stores/cart'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -53,7 +54,7 @@ const AuthProvider = ({ children }: Props) => {
     const initAuth = async (): Promise<void> => {
       const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName);
       if (storedToken) {
-        setLoading(true);
+        // setLoading(true);
         try {
           instance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
           const response = await getLoginUser();
@@ -63,7 +64,7 @@ const AuthProvider = ({ children }: Props) => {
           removeLocalUserData();
           delete instance.defaults.headers.common['Authorization'];
           setUser(null);
-          setLoading(false);
+          // setLoading(false);
           if (!router.pathname.includes('login')) {
             router.replace('/login');
           }
@@ -77,7 +78,7 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    setLoading(true);
+    // setLoading(true);
     try {
       const response = await loginAuth({
         username: params.username,
@@ -96,7 +97,8 @@ const AuthProvider = ({ children }: Props) => {
       setUser({ ...userResponse.result });
 
       const userData = userResponse.result;
-      if (params.rememberMe) {
+      // if (params.rememberMe) {
+      if (true) {
         setLocalUserData(
           JSON.stringify(userData || {}),
           accessToken,
@@ -110,16 +112,16 @@ const AuthProvider = ({ children }: Props) => {
       const returnUrl = params.returnUrl || router.query.returnUrl || '/';
       const redirectURL = returnUrl !== '/' ? returnUrl : '/';
       router.replace(redirectURL as string);
-      setLoading(false);
+      // setLoading(false);
     } catch (err: any) {
-      setLoading(false);
+      // setLoading(false);
       if (errorCallback) errorCallback(err);
       toast.error(err?.response?.data?.message || t('login_error'));
     }
   };
 
   const handleAdminLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    setLoading(true);
+    // setLoading(true);
     try {
       const response = await loginAdminAuth({
         username: params.username,
@@ -192,21 +194,8 @@ const AuthProvider = ({ children }: Props) => {
     setUser(null)
     removeLocalUserData()
     delete instance.defaults.headers.common['Authorization'];
-    dispatch(updateProductToCart({
-      orderItems: []
-    }))
-    // if (!LIST_PUBLIC_PAGE?.some((item) => router.asPath.includes(item))) {
-    //   if (router.asPath !== '/') {
-    //     router.replace({
-    //       pathname: '/login',
-    //       query: {
-    //         returnUrl: router.asPath
-    //       }
-    //     })
-    //   } else {
-    //     router.replace('/login')
-    //   }
-    // }
+    dispatch(resetInitialState())
+
   }
 
   const values = {

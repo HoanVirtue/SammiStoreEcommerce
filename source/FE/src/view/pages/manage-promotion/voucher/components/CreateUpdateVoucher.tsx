@@ -467,7 +467,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                         loading={loadingProducts}
                         error={!!(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue}
                         helperText={(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue?.message}
-                        placeholder={t("select_products")}
+                        placeholder={t("select_product")}
                         size="small"
                     />
                 </Box>
@@ -478,7 +478,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                     fullWidth
                     required
                     type="number"
-                    value={condition.conditionValue}
+                    value={condition.conditionValue || 0}
                     onChange={(e) => handleConditionValueChange(index, e.target.value)}
                     error={!!(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue}
                     helperText={(errors.conditions as VoucherFormErrors)?.conditions?.conditionValue?.message}

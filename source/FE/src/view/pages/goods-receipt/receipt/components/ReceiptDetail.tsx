@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Spinner from 'src/components/spinner';
 import { getReceiptDetail, updateReceiptStatus } from 'src/services/receipt';
 import { formatDate, formatPrice } from 'src/utils';
-import { RECEIPT_STATUS } from 'src/configs/receipt';
+import { GOODS_RECEIPT_STATUS, RECEIPT_STATUS } from 'src/configs/receipt';
 import { toast } from 'react-toastify';
 
 interface ReceiptDetailProps {
@@ -21,6 +21,7 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
     const [updating, setUpdating] = useState(false);
 
     const statusOptions = Object.values(RECEIPT_STATUS());
+    const translatedStatus = Object.values(GOODS_RECEIPT_STATUS());
 
     const fetchReceiptDetail = async (id: number) => {
         setLoading(true);
@@ -28,8 +29,18 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
             const response = await getReceiptDetail(id);
             if (response?.result) {
                 setReceiptData(response.result);
-                // Set initial selected status
-                const currentStatus = statusOptions.find(option => option.value === response.result.status);
+
+                const statusValue = response.result.status;
+                let targetNumericStringValue: string | undefined;
+
+                if (typeof statusValue === 'number') {
+                    targetNumericStringValue = statusValue.toString();
+                } else if (typeof statusValue === 'string') {
+                    const foundTranslatedOption = translatedStatus.find(option => option.originalValue === statusValue);
+                    targetNumericStringValue = foundTranslatedOption?.value;
+                }
+
+                const currentStatus = statusOptions.find(option => option.value === targetNumericStringValue);
                 setSelectedStatus(currentStatus || null);
             }
         } catch (error) {
@@ -107,7 +118,15 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
                             </Grid>
                             <Grid item xs={12} md={6}>
                                 <Typography variant="subtitle1" fontWeight="bold">{t("status")}:</Typography>
-                                <Typography variant="body1">{receiptData.status}</Typography>
+                                <Typography variant="body1">
+                                    {(() => {
+                                        const statusValue = receiptData.status;
+                                        const foundOption = translatedStatus.find(option =>
+                                            (typeof statusValue === 'string' && option.originalValue === statusValue)
+                                        );
+                                        return foundOption?.label || statusValue;
+                                    })()}
+                                </Typography>
                             </Grid>
                         </Grid>
 

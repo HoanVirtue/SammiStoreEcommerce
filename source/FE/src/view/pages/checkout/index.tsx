@@ -66,7 +66,7 @@ import { PAYMENT_METHOD } from 'src/configs/payment';
 import { getVoucherDetail } from 'src/services/voucher';
 import StepLabel from 'src/components/step-label';
 import { toast } from 'react-toastify';
-import { getCartDataAsync } from 'src/stores/cart/action';
+import { getCartDataAsync, getCartsAsync } from 'src/stores/cart/action';
 
 // ----------------------------------------------------------------------
 
@@ -121,7 +121,7 @@ const CheckoutPage: NextPage<TProps> = () => {
 
 
     const { addresses } = useSelector((state: RootState) => state.address);
-    const { carts, isLoading } = useSelector((state: RootState) => state.cart);
+    const { cartData, isLoading } = useSelector((state: RootState) => state.cart);
 
     const breadcrumbItems = useMemo(() => [
         {
@@ -158,7 +158,7 @@ const CheckoutPage: NextPage<TProps> = () => {
             result.selectedProduct = data.selectedProduct ? handleFormatProductData(JSON.parse(data.selectedProduct)) : [];
         }
         return result;
-    }, [router.query, carts?.data]);
+    }, [router.query, cartData?.data]);
 
 
     const memoShippingPrice = useMemo(() => {
@@ -213,7 +213,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                 })
             );
         }
-    }, [dispatch, user?.id, memoQueryProduct.selectedProduct]);
+    }, []);
 
     // ============= Handlers =============
     const handlePlaceOrder = () => {
@@ -261,6 +261,19 @@ const CheckoutPage: NextPage<TProps> = () => {
                 } else {
                     router.push(ROUTE_CONFIG.PAYMENT)
                 }
+                dispatch(
+                    getCartsAsync({
+                        params: {
+                            take: -1,
+                            skip: 0,
+                            paging: false,
+                            orderBy: 'name',
+                            dir: 'asc',
+                            keywords: "''",
+                            filters: '',
+                        },
+                    })
+                );
             } else {
                 toast.error(res?.payload?.message);
             }
@@ -591,7 +604,7 @@ const CheckoutPage: NextPage<TProps> = () => {
                                 totalPrice={memoQueryProduct.totalPrice}
                                 shippingPrice={memoShippingPrice}
                                 voucherDiscount={voucherDiscount}
-                                selectedProduct={carts?.data}
+                                selectedProduct={cartData?.data}
                                 onSubmit={handlePlaceOrder}
                             />
                         </Suspense>

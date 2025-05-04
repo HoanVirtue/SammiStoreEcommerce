@@ -31,26 +31,7 @@ export default function CheckoutSummary({
 }: Props) {
     const { t } = useTranslation();
     const theme = useTheme();
-    const [cartItems, setCartItems] = useState<any[]>([]);
 
-    useEffect(() => {
-        const fetchCartData = async () => {
-            try {
-                const response = await getCartData({ 
-                    params: { 
-                        productIds: selectedProduct.map((p: TItemOrderProduct) => p.productId).join(',')
-                    } 
-                });
-                if (response?.isSuccess && response?.result) {
-                    setCartItems(response.result);
-                }
-            } catch (error) {
-                console.error('Error fetching cart data:', error);
-            }
-        };
-
-        fetchCartData();
-    }, [selectedProduct]);
 
     return (
         <Stack
@@ -63,9 +44,9 @@ export default function CheckoutSummary({
         >
             <Typography variant="h6" sx={{ fontWeight: 'bold' }}>{t('order_summary')}</Typography>
 
-            {cartItems?.length > 0 && (
+            {selectedProduct?.length > 0 && (
                 <>
-                    {cartItems.map((item) => (
+                    {selectedProduct.map((item) => (
                         <Stack key={item.cartId} direction="row" alignItems="flex-start">
                             <Image
                                 src={item.productImage}

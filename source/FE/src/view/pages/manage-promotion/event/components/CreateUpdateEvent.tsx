@@ -314,7 +314,25 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 setValue('name', data.name);
                 setValue('startDate', addHours(new Date(data.startDate), -7));
                 setValue('endDate', addHours(new Date(data.endDate), -7));
-                setValue('eventType', data.eventType);
+
+                let numericEventType: number = PromotionEventType.DirectDiscount;
+                switch (data.eventType) {
+                    case "DirectDiscount":
+                        numericEventType = PromotionEventType.DirectDiscount;
+                        break;
+                    case "OrderBasedPromotion":
+                        numericEventType = PromotionEventType.OrderBasedPromotion;
+                        break;
+                    case "FlashSale":
+                        numericEventType = PromotionEventType.FlashSale;
+                        break;
+                    case "SpecialOccasion":
+                        numericEventType = PromotionEventType.SpecialOccasion;
+                        break;
+                    default:
+                        console.warn("Unknown event type received from API:", data.eventType);
+                }
+                setValue('eventType', numericEventType);
 
                 if (data.imageCommand) {
                     const imageCommand = {
@@ -332,6 +350,16 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                         imageToPreview = imageCommand.imageUrl;
                     }
                     setPreviewImage(imageToPreview);
+                } else if (data.imageUrl) {
+                    setPreviewImage(data.imageUrl);
+                    setValue("imageCommand", {
+                        imageUrl: data.imageUrl,
+                        imageBase64: '',
+                        publicId: '',
+                        typeImage: '',
+                        value: '',
+                        displayOrder: 0,
+                    }, { shouldValidate: false }); 
                 }
 
                 setValue('description', data.description ? convertHTMLToDraft(data.description) : EditorState.createEmpty());

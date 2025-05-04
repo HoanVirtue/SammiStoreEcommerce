@@ -37,10 +37,10 @@ namespace SAMMI.ECOM.Infrastructure.Services.VNPay
             pay.AddRequestData("vnp_CurrCode", _configuration["CurrCode"]);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
             pay.AddRequestData("vnp_Locale", _configuration["Locale"]);
-            pay.AddRequestData("vnp_OrderInfo", $"Thanh toán cho đơn hàng #{model.OrderCode}_{model.UserIdentity}");
+            pay.AddRequestData("vnp_OrderInfo", $"Thanh toán cho đơn hàng #{model.OrderCode}_{model.UserIdentity}_{model.PlatForm}");
             pay.AddRequestData("vnp_OrderType", "shopping");
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            pay.AddRequestData("vnp_PlatForm", model.PlatForm);
+            //pay.AddRequestData("vnp_PlatForm", model.PlatForm);
             //pay.AddRequestData("vnp_IPNUrl", _configuration["IPNUrl"]);
             pay.AddRequestData("vnp_TxnRef", tick);
 

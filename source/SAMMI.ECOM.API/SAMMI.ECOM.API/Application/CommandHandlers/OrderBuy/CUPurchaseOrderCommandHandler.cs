@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using SAMMI.ECOM.API.Services.SeriaLog;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
@@ -83,6 +84,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             actRes.Combine(createPurchaseRes);
             if (!actRes.IsSuccess)
             {
+                AppLogger.LogError(_currentUser,
+                        PermissionEnum.ImportCreate.ToPolicyName(),
+                        actRes.Message,
+                        new Exception(),
+                        new {
+                            request.Code
+                        });
                 return actRes;
             }
             var purchaseCreated = createPurchaseRes.Result;
@@ -93,10 +101,22 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 actRes.Combine(createDetailRes);
                 if (!createPurchaseRes.IsSuccess)
                 {
+                    AppLogger.LogError(_currentUser,
+                        PermissionEnum.ImportCreate.ToPolicyName(),
+                        actRes.Message,
+                        new Exception());
                     return actRes;
                 }
             }
 
+            AppLogger.LogAction(_currentUser,
+                PermissionEnum.ImportCreate.ToPolicyName(),
+                $"User {_currentUser.FullName} tạo phiếu nhập thành công!",
+                new
+                {
+                    createPurchaseRes.Result.Code,
+                    createPurchaseRes.Result.Status
+                });
             actRes.SetResult(_mapper.Map<PurchaseOrderDTO>(purchaseCreated));
             return actRes;
         }

@@ -115,7 +115,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                             SUM(CASE WHEN rating = 1 THEN 1 ELSE 0 END) AS TotalRating1,
                             SUM(CASE WHEN comment IS NOT NULL AND comment != '' THEN 1 ELSE 0 END) AS TotalComment,
                             SUM(CASE WHEN ImageId IS NOT NULL THEN 1 ELSE 0 END) AS TotalImage
-                        FROM review
+                        FROM Review
                         WHERE ProductId = {productId}";
 
                     return conn.QueryFirstOrDefaultAsync<OverallRatingDTO>(query);

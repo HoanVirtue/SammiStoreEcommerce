@@ -27,5 +27,6 @@ namespace SAMMI.ECOM.Domain.Commands.OrderBuy
     public class CreatePayback
     {
         public string OrderCode { get; set; }
+        public string? PlatForm { get; set; } = "Web";
     }
 }

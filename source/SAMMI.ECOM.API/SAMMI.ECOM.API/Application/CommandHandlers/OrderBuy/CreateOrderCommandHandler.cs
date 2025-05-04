@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
+using Azure;
 using FluentValidation;
 using MediatR;
+using SAMMI.ECOM.API.Services.SeriaLog;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
@@ -213,6 +215,16 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             var orderResult = _mapper.Map<OrderDTO>(orderCreated);
             if (paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString())
                 orderResult.ReturnUrl = paymentReponse.Result.ReturnUrl;
+
+            AppLogger.LogAction(_currentUser,
+                    PermissionEnum.CustomerOrderPlace.ToPolicyName(),
+                    $"User {_currentUser.FullName} tạo đơn hàng #{orderResult.Code} thành công!",
+                    new
+                    {
+                        orderResult.Code,
+                        totalAmount,
+                        PaymentMethod = paymentMethod.Code.ToString()
+                    });
             actResponse.SetResult(orderResult);
 
             return actResponse;

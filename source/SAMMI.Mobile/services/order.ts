@@ -1,7 +1,7 @@
 import axios from "axios"
-import { API_ENDPOINT } from "@/configs/api"
+import { TParamsCreateOrder, TParamsGetAllOrders, TParamsPayback, TParamsUpdateOrder, TParamsUpdateOrderStatus } from "@/types/order"
 import instance from "@/helpers/axios"
-import { TParamsCreateOrder, TParamsGetAllOrders, TParamsUpdateOrder, TParamsUpdateOrderStatus } from "@/types/order"
+import { API_ENDPOINT } from "@/configs/api"
 
 
 export const getAllOrders = async (data: {params: TParamsGetAllOrders  }) => {
@@ -22,6 +22,15 @@ export const getMyOrders = async (data: {params: TParamsGetAllOrders  }) => {
     }
 }
 
+export const getMyOrderDetail = async (code: string) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/customer/${code}`)
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const getOrderDetail = async (id: number) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/${id}`)
@@ -30,6 +39,7 @@ export const getOrderDetail = async (id: number) => {
         return error
     }
 }
+
 
 
 export const createOrder = async (data: TParamsCreateOrder) => {
@@ -42,6 +52,15 @@ export const createOrder = async (data: TParamsCreateOrder) => {
     }
 }
 
+export const createPayBackOrder = async (data: TParamsPayback) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/pay-back`, data)
+        return res.data
+    }
+    catch (error: any) {
+        return error?.response?.data
+    }
+}
 
 export const cancelOrder = async (code: string) => {
     try {

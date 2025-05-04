@@ -94,6 +94,14 @@ function RootLayoutNav() {
             headerShown: false,
           }}
         />
+
+        <Stack.Screen
+          name="my-order"
+          options={{
+            headerShown: false,
+          }}
+        />
+
       </Stack>
     </AxiosInterceptor>
   );

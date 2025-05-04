@@ -77,6 +77,18 @@ export default function ProfileScreen() {
     router.replace('/update-info' as any);
   }
 
+  const handleFavorite = () => {
+    router.replace('/favorite' as any);
+  }
+
+  const handleOrder = () => {
+    router.replace('/my-order' as any);
+  }
+
+  const handleAddress = () => {
+    router.replace('/address' as any);
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" />
@@ -106,7 +118,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleFavorite}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: colors.secondaryLight }]}>
                 <Heart size={18} color={colors.secondary} />
@@ -116,7 +128,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleOrder}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
                 <ShoppingBag size={18} color="#4CAF50" />
@@ -126,7 +138,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleAddress}  >
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                 <MapPin size={18} color="#2196F3" />

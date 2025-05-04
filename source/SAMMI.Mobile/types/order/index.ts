@@ -12,14 +12,28 @@ export type TParamsGetAllOrders = {
     keywords?: string;
 }
 
-export type TItemOrderProduct = {
-    productId: number;
-    name: string;
-    quantity: number;
-    price: number;
-    discount?: number;
-    images: ProductImage[];
+export type TParamsPayback = {
+    orderCode: string;
 }
+
+export interface TItemOrderProduct {
+    cartId: number;
+    productId: number;
+    productName: string;
+    price: number;
+    newPrice: number;
+    quantity: number;
+    productImage: string;
+    stockQuantity: number;
+    id: number;
+    createdDate: string;
+    updatedDate: string | null;
+    createdBy: string;
+    updatedBy: string | null;
+    isActive: boolean;
+    isDeleted: boolean;
+    displayOrder: number | null;
+} 
 
 export type TItemCart = {
     productId: number;
@@ -107,5 +121,6 @@ export type TOrderItem = {
     details: TOrderDetail[],
     discount?: number,
     discountAmount?: number,
-    deliveryMethod?: string
+    deliveryMethod?: string,
+    createdDate?: Date,
 }

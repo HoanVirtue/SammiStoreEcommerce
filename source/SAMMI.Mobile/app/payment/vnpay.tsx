@@ -22,7 +22,7 @@ const VnPayScreen = () => {
     const paymentMethod = params.paymentMethod as string;
 
     const handleGoToHome = () => {
-        navigation.navigate('(tabs)' as never);
+        navigation.navigate('(tabs)/index' as never);
     };
 
     const handleGoToOrders = () => {

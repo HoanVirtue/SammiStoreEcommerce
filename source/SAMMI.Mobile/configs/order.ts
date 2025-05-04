@@ -48,27 +48,27 @@ export const ShippingStatus = {
 export const OrderStatus = {
     Pending: {
         value: 0,
-        title: 'pending',
+        title: 'Đang xử lý',
         label: 'Pending'
     },
     WaitingForPayment: {
         value: 1,
-        title: 'waiting_for_payment',
+        title: 'Chờ thanh toán',
         label: 'WaitingForPayment'
     },
     Processing: {
         value: 2,
-        title: 'processing',
+        title: 'Đã thanh toán',
         label: 'Processing'
     },
     Completed: {
         value: 3,
-        title: 'completed',
+        title: 'Đã hoàn thành',
         label: 'Completed'
     },
     Cancelled: {
         value: 4,
-        title: 'cancelled',
+        title: 'Đã hủy',
         label: 'Cancelled'
     }
 } as const;

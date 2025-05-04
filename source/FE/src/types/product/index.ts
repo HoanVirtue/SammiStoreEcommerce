@@ -60,6 +60,7 @@ export type TParamsCreateProduct = {
     name: string;
     stockQuantity: number;
     price: number;
+    importPrice: number;
     discount: number;
     ingredient: string;
     uses: string;
@@ -78,6 +79,7 @@ export interface TParamsUpdateProduct{
     name: string;
     stockQuantity: number;
     price: number;
+    importPrice: number;
     discount?: number;
     ingredient: string;
     uses: string;

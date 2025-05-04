@@ -39,7 +39,7 @@ export default function LoginScreen() {
         let isValid = true;
         // Username validation
         if (!username.trim()) {
-            setUsernameError('Username is required');
+            setUsernameError('Tên đăng nhập là bắt buộc');
             isValid = false;
         } else {
             setUsernameError('');
@@ -47,10 +47,10 @@ export default function LoginScreen() {
 
         // Password validation
         if (!password) {
-            setPasswordError('Password is required');
+            setPasswordError('Mật khẩu là bắt buộc');
             isValid = false;
         } else if (password.length < 6) {
-            setPasswordError('Password must be at least 6 characters');
+            setPasswordError('Mật khẩu phải có ít nhất 6 ký tự');
             isValid = false;
         } else {
             setPasswordError('');
@@ -64,11 +64,10 @@ export default function LoginScreen() {
         if (isValid) {
 
             login({ username, password, rememberMe: isRemember }, (err) => {
-                console.log("err", err);
                 if (err?.response?.errors !== "") {
                     Toast.show({
                         type: 'error',
-                        text1: err?.response?.message
+                        text1: err?.response?.message || 'Đã có lỗi xảy ra'
                     })
                 }
             })
@@ -78,7 +77,9 @@ export default function LoginScreen() {
     };
 
     const handleBack = () => {
-        router.back();
+        if (router.canGoBack()) {
+            router.back();
+        }
     };
 
     const handleRegister = () => {
@@ -106,10 +107,10 @@ export default function LoginScreen() {
 
                     <View style={styles.header}>
                         <Text style={[styles.title, { color: isDark ? palette.neutral[100] : palette.neutral[900] }]}>
-                            Welcome Back
+                            Chào mừng trở lại
                         </Text>
                         <Text style={[styles.subtitle, { color: isDark ? palette.neutral[400] : palette.neutral[500] }]}>
-                            Sign in to your account to continue
+                            Đăng nhập vào tài khoản của bạn để tiếp tục
                         </Text>
                     </View>
 
@@ -123,8 +124,8 @@ export default function LoginScreen() {
 
                     <View style={styles.form}>
                         <Input
-                            label="Username"
-                            placeholder="Enter your username"
+                            label="Tên đăng nhập"
+                            placeholder="Nhập tên đăng nhập của bạn"
                             value={username}
                             onChangeText={setUsername}
                             autoCapitalize="none"
@@ -133,8 +134,8 @@ export default function LoginScreen() {
                         />
 
                         <Input
-                            label="Password"
-                            placeholder="Enter your password"
+                            label="Mật khẩu"
+                            placeholder="Nhập mật khẩu của bạn"
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry={!showPassword}
@@ -156,12 +157,12 @@ export default function LoginScreen() {
                             onPress={handleForgotPassword}
                         >
                             <Text style={[styles.forgotPasswordText, { color: isDark ? palette.primary[400] : palette.primary[600] }]}>
-                                Forgot Password?
+                                Quên mật khẩu?
                             </Text>
                         </TouchableOpacity>
 
                         <Button
-                            title="Login"
+                            title="Đăng nhập"
                             onPress={handleLogin}
                             style={styles.loginButton}
                             loading={isLoading}
@@ -170,11 +171,11 @@ export default function LoginScreen() {
 
                     <View style={styles.footer}>
                         <Text style={[styles.footerText, { color: isDark ? palette.neutral[400] : palette.neutral[500] }]}>
-                            Don't have an account?
+                            Chưa có tài khoản?
                         </Text>
                         <TouchableOpacity onPress={handleRegister}>
                             <Text style={[styles.registerText, { color: isDark ? palette.primary[400] : palette.primary[600] }]}>
-                                Register
+                                Đăng ký
                             </Text>
                         </TouchableOpacity>
                     </View>

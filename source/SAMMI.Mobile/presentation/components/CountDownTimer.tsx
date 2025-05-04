@@ -1,3 +1,4 @@
+import { colors } from '@/constants/colors';
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
@@ -12,7 +13,7 @@ interface CountdownTimerProps {
 }
 
 // Placeholder colors - replace with your actual theme colors
-const primaryColor = '#6200EE'; // Example primary color
+const primaryColor = colors.primary // Example primary color
 const errorColor = '#B00020'; // Example error color
 const textColor = primaryColor; // Assuming text uses primary color based on original code
 const backgroundColor = 'white';

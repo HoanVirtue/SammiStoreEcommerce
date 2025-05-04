@@ -21,7 +21,7 @@ import {
   Settings
 } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
-import LoginScreen from '../(auth)/login';
+import LoginScreen from '../login';
 
 export default function ProfileScreen() {
 
@@ -37,12 +37,6 @@ export default function ProfileScreen() {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem(ACCESS_TOKEN);
       setHasToken(!!token);
-      if (!token) {
-        router.replace('/(auth)/login' as any);
-        while (router.canGoBack()) {
-          router.back();
-        }
-      }
     };
     checkAuth();
   }, [user]);
@@ -63,7 +57,7 @@ export default function ProfileScreen() {
       await logout();
       await AsyncStorage.removeItem(ACCESS_TOKEN);
       // Reset navigation stack và chuyển về login
-      router.replace('/(auth)/login' as any);
+      router.replace('/login' as any);
       // Xóa toàn bộ navigation stack
       while (router.canGoBack()) {
         router.back();
@@ -72,7 +66,7 @@ export default function ProfileScreen() {
       console.error('Error during logout:', error);
       // Nếu có lỗi khi gọi API, vẫn xóa token và chuyển về login
       await AsyncStorage.removeItem(ACCESS_TOKEN);
-      router.replace('/(auth)/login' as any);
+      router.replace('/login' as any);
       while (router.canGoBack()) {
         router.back();
       }
@@ -81,6 +75,18 @@ export default function ProfileScreen() {
 
   const handleProfile = () => {
     router.replace('/update-info' as any);
+  }
+
+  const handleFavorite = () => {
+    router.replace('/favorite' as any);
+  }
+
+  const handleOrder = () => {
+    router.replace('/my-order' as any);
+  }
+
+  const handleAddress = () => {
+    router.replace('/address' as any);
   }
 
   return (
@@ -112,7 +118,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleFavorite}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: colors.secondaryLight }]}>
                 <Heart size={18} color={colors.secondary} />
@@ -122,7 +128,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleOrder}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
                 <ShoppingBag size={18} color="#4CAF50" />
@@ -132,7 +138,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem}>
+          <Pressable style={styles.menuItem} onPress={handleAddress}  >
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                 <MapPin size={18} color="#2196F3" />

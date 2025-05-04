@@ -45,7 +45,7 @@ export default function HomeScreen() {
     return <LoadingIndicator fullScreen />;
   }
 
- 
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" />
@@ -70,9 +70,9 @@ export default function HomeScreen() {
             </Pressable>
           </View>
         </View>
-          <View style={styles.hotSaleContainer}>
-            <HotSale />
-          </View>
+        <View style={styles.hotSaleContainer}>
+          <HotSale />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

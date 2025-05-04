@@ -123,7 +123,7 @@ const OutstandingBrand: FC = () => {
         infinite: true,
         speed: 1000,
         slidesToShow: 6,
-        slidesToScroll: 6,
+        slidesToScroll: 1,
         autoplay: true,
         cssEase: 'linear',
         arrows: true,
@@ -136,21 +136,21 @@ const OutstandingBrand: FC = () => {
                 breakpoint: 1200,
                 settings: {
                     slidesToShow: 5,
-                    slidesToScroll: 5,
+                    slidesToScroll: 1,
                 },
             },
             {
                 breakpoint: 992,
                 settings: {
                     slidesToShow: 4,
-                    slidesToScroll: 4,
+                    slidesToScroll: 1,
                 },
             },
             {
                 breakpoint: 768,
                 settings: {
                     slidesToShow: 3,
-                    slidesToScroll: 3,
+                    slidesToScroll: 1,
                      arrows: false, // Hide arrows on smaller screens
                 },
             },
@@ -158,7 +158,7 @@ const OutstandingBrand: FC = () => {
                 breakpoint: 576,
                 settings: {
                     slidesToShow: 2,
-                    slidesToScroll: 2,
+                    slidesToScroll: 1,
                      arrows: false,
                 },
             },

@@ -1,0 +1,285 @@
+"use client"
+
+// React & Next
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux';
+
+// Redux
+import { AppDispatch, RootState } from '@/stores';
+
+// Services
+import { getMyOrdersAsync } from '@/stores/order/action';
+
+// Components
+import OrderCard from '@/presentation/components/OrderCard';
+import { useRouter } from 'expo-router';
+import { resetInitialState } from '@/stores/order';
+import Toast from 'react-native-toast-message';
+import { OrderStatus } from '@/configs/order';
+import { TouchableOpacity } from 'react-native';
+import { Text, View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { TOrderItem } from '@/types/order';
+import NoData from '@/components/NoData';
+import { colors } from '@/constants/colors';
+
+const ORDER_STATUS_VI = {
+    Pending: 'Chờ xác nhận',
+    WaitingForPayment: 'Chờ thanh toán',
+    Processing: 'Đang xử lý',
+    Completed: 'Hoàn thành',
+    Cancelled: 'Đã hủy',
+};
+
+// Debounce function for search
+const useDebounce = (value: string, delay: number) => {
+    const [debouncedValue, setDebouncedValue] = useState(value);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedValue(value);
+        }, delay);
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [value, delay]);
+
+    return debouncedValue;
+};
+
+// Custom Hooks
+const useOrderList = () => {
+    const [selectedStatus, setSelectedStatus] = useState<string>("all")
+    const [page, setPage] = useState(1)
+    const [pageSize, setPageSize] = useState(10)
+    const [searchBy, setSearchBy] = useState("")
+    const debouncedSearchTerm = useDebounce(searchBy, 500)
+
+    const dispatch: AppDispatch = useDispatch()
+    const { myOrders, isLoading, isErrorCancel, isSuccessCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)
+
+    const queryParams = useMemo(() => ({
+        params: {
+            take: pageSize,
+            skip: (page - 1) * pageSize,
+            paging: true,
+            orderBy: "createdDate",
+            dir: "desc",
+            keywords: debouncedSearchTerm || "''",
+            filters: selectedStatus === "all" ? "" : `orderStatus::${selectedStatus}::eq`
+        }
+    }), [pageSize, page, debouncedSearchTerm, selectedStatus]);
+
+    const handleGetListOrder = useCallback(() => {
+        dispatch(getMyOrdersAsync(queryParams))
+    }, [queryParams, dispatch])
+
+    const handleOnChangePagination = useCallback((page: number, pageSize: number) => {
+        setPage(page)
+        setPageSize(pageSize)
+    }, [])
+
+    const handleChangeStatus = useCallback((newValue: string) => {
+        setSelectedStatus(newValue)
+        setPage(1)
+    }, [])
+
+    const handleSearch = useCallback((value: string) => {
+        setSearchBy(value)
+        setPage(1)
+    }, [])
+
+    return {
+        selectedStatus,
+        page,
+        pageSize,
+        searchBy,
+        myOrders,
+        isLoading,
+        isErrorCancel,
+        isSuccessCancel,
+        errorMessageCancel,
+        handleGetListOrder,
+        handleOnChangePagination,
+        handleChangeStatus,
+        handleSearch
+    }
+}
+
+const MyOrderScreen = () => {
+
+    const router = useRouter()
+    const dispatch = useDispatch()
+
+    const {
+        selectedStatus,
+        page,
+        pageSize,
+        searchBy,
+        myOrders,
+        isLoading,
+        isErrorCancel,
+        isSuccessCancel,
+        errorMessageCancel,
+        handleGetListOrder,
+        handleOnChangePagination,
+        handleChangeStatus,
+        handleSearch
+    } = useOrderList()
+
+    useEffect(() => {
+        handleGetListOrder()
+        return () => {
+            dispatch(resetInitialState())
+        }
+    }, [page, pageSize, selectedStatus, searchBy, handleGetListOrder, dispatch])
+
+    useEffect(() => {
+        if (isSuccessCancel) {
+            Toast.show({
+                type: 'success',
+                text1: "Hủy đơn hàng thành công"
+            })
+            handleGetListOrder()
+            dispatch(resetInitialState())
+        } else if (isErrorCancel && errorMessageCancel) {
+            Toast.show({
+                type: 'error',
+                text1: errorMessageCancel
+            })
+            dispatch(resetInitialState())
+        }
+    }, [isSuccessCancel, isErrorCancel, errorMessageCancel, dispatch, handleGetListOrder])
+
+    const renderTabs = useMemo(() => (
+        <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.tabsContainer}
+            contentContainerStyle={{ 
+                alignItems: 'center',
+            }}
+        >
+            <TouchableOpacity
+                style={[styles.tab, selectedStatus === "all" && styles.activeTab]}
+                onPress={() => handleChangeStatus("all")}
+            >
+                <Text style={[styles.tabText, selectedStatus === "all" && styles.activeTabText]}>
+                    {"Tất cả"}
+                </Text>
+            </TouchableOpacity>
+            {Object.entries(OrderStatus).map(([key, option]: any) => (
+                <TouchableOpacity
+                    key={option.label}
+                    style={[styles.tab, selectedStatus === option.label && styles.activeTab]}
+                    onPress={() => handleChangeStatus(option.label)}
+                >
+                    <Text style={[styles.tabText, selectedStatus === option.label && styles.activeTabText]}>
+                        {ORDER_STATUS_VI[key as keyof typeof ORDER_STATUS_VI]}
+                    </Text>
+                </TouchableOpacity>
+            ))}
+        </ScrollView>
+    ), [selectedStatus, handleChangeStatus])
+
+    const renderOrdersList = useMemo(() => {
+        if (!myOrders?.data?.length) return null;
+
+        return myOrders.data.map((item: TOrderItem, index: number) => (
+            <OrderCard orderData={item} key={item.id || index} />
+        ));
+    }, [myOrders?.data]);
+
+    const renderContent = useMemo(() => {
+        if (isLoading) return <ActivityIndicator size="large" color={colors.primary} />
+
+        if (myOrders?.data?.length > 0) {
+            return (
+                <View style={styles.contentContainer}>
+                    {renderOrdersList}
+                </View>
+            )
+        }
+
+        return (
+            <View style={styles.emptyContainer}>
+                <NoData
+                    imageWidth={60}
+                    imageHeight={60}
+                    textNodata={"Không có đơn hàng"}
+                />
+            </View>
+        )
+    }, [isLoading, myOrders?.data?.length, renderOrdersList])
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.tabsWrapper}>
+                {renderTabs}
+            </View>
+            <ScrollView style={styles.contentWrapper}>
+                {renderContent}
+            </ScrollView>
+        </View>
+    )
+}
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: '#fff',
+        paddingHorizontal: 8,
+    },
+    tabsWrapper: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#e0e0e0',
+        marginBottom: 16,
+    },
+    tabsContainer: {
+        flexDirection: 'row',
+    },
+    tab: {
+        minWidth: 100,
+        height: 44,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 8,
+        borderTopLeftRadius: 8,
+        borderTopRightRadius: 8,
+        backgroundColor: 'transparent',
+        borderBottomWidth: 2,
+        borderBottomColor: 'transparent',
+        paddingHorizontal: 16,
+        paddingVertical: 0,
+        transitionProperty: 'border-bottom-color, background-color',
+        transitionDuration: '200ms',
+    },
+    activeTab: {
+        backgroundColor: '#fff',
+        borderBottomColor: '#1976d2',
+        zIndex: 2,
+    },
+    tabText: {
+        color: '#333',
+        fontWeight: '500',
+        fontSize: 16,
+    },
+    activeTabText: {
+        color: '#1976d2',
+        fontWeight: '700',
+    },
+    contentWrapper: {
+        flex: 1,
+    },
+    contentContainer: {
+        padding: 16,
+    },
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+})
+
+export default React.memo(MyOrderScreen)

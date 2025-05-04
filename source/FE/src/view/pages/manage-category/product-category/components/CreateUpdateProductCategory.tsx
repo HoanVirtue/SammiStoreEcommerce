@@ -107,7 +107,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
         }
     }, [dispatch, errors, id]);
 
-    const fetchDetailProductCategory = useCallback(async (id: number) => {
+    const fetchDetailProductCategory = async (id: number) => {
         setLoading(true)
         try {
             const res = await getProductCategoryDetail(id)
@@ -126,16 +126,16 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
         } finally {
             setLoading(false)
         }
-    }, [reset]);
+    };
 
-    const fetchAllCategories = useCallback(async () => {
+    const fetchAllCategories = async () => {
         setLoading(true)
         try {
             const res = await getAllProductCategories({
                 params: {
                     take: -1,
                     skip: 0,
-                    paging: false,
+                    paging: false,  
                     orderBy: "name",
                     dir: "asc",
                     keywords: "''",
@@ -154,9 +154,9 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
         } finally {
             setLoading(false)
         }
-    }, []);
+    };
 
-    const getProductCategoryDefaultCode = useCallback(async () => {
+    const getProductCategoryDefaultCode = async () => {
         try {
             const res = await getProductCategoryCode({
                 params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" }
@@ -165,12 +165,12 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
         } catch (error) {
             console.error('Error getting product category code:', error)
         }
-    }, []);
+    };
 
     useEffect(() => {
         fetchAllCategories()
         getProductCategoryDefaultCode()
-    }, [fetchAllCategories, getProductCategoryDefaultCode])
+    }, [])
 
     useEffect(() => {
         if (!open) {
@@ -182,7 +182,7 @@ const CreateUpdateProductCategory = (props: TCreateUpdateProductCategory) => {
                 fetchDetailProductCategory(id)
             }
         }
-    }, [open, id, reset, defaultValues, fetchDetailProductCategory])
+    }, [open, id])
 
     return (
         <>

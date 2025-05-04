@@ -33,7 +33,7 @@ import { FormHelperText } from "@mui/material";
 interface TCreateUpdateBrand {
     open: boolean
     onClose: () => void
-    idBrand?: number
+    id?: number
 }
 
 type TDefaultValues = {
@@ -59,7 +59,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
     const [brandCode, setBrandCode] = useState<string>("");
 
     //props
-    const { open, onClose, idBrand } = props
+    const { open, onClose, id } = props
 
     //translation
     const { t, i18n } = useTranslation()
@@ -100,13 +100,13 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
 
     const onSubmit = (data: TDefaultValues) => {
         if (!Object.keys(errors)?.length) {
-            if (idBrand) {
+            if (id) {
                 //update
                 dispatch(updateBrandAsync({
                     name: data?.name,
                     code: data?.code,
                     imageCommand: data?.imageCommand,
-                    id: idBrand,
+                    id: id,
                     // slug: data?.slug
                 }))
             } else {
@@ -193,10 +193,10 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
         if (!open) {
             reset(defaultValues);
             setPreviewImage("");
-        } else if (idBrand && open) {
-            fetchDetailBrand(idBrand);
+        } else if (id && open) {
+            fetchDetailBrand(id);
         }
-    }, [open, idBrand, reset]);
+    }, [open, id, reset]);
 
     useEffect(() => {
         getBrandDefaultCode();
@@ -224,7 +224,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                         paddingBottom: '20px'
                     }}>
                         <Typography variant="h4" sx={{ fontWeight: 600 }}>
-                            {idBrand ? t('update_brand') : t('create_brand')}
+                            {id ? t('update_brand') : t('create_brand')}
                         </Typography>
                         <IconButton sx={{
                             position: 'absolute',
@@ -355,7 +355,7 @@ const CreateUpdateBrand = (props: TCreateUpdateBrand) => {
                         </Box>
                         <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
                             <Button type="submit" variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }}>
-                                {idBrand ? t('update') : t('create')}
+                                {id ? t('update') : t('create')}
                             </Button>
                         </Box>
                     </form >

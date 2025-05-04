@@ -1359,15 +1359,6 @@ export const getCustomerColumns = (): GridColDef[] => {
     renderCell: (params: GridRenderCellParams) => <Typography>{params.row.phone}</Typography>,
   },
   {
-    field: "address",
-    headerName: t("address"),
-    minWidth: 300,
-    maxWidth: 300,
-    renderCell: (params: GridRenderCellParams) => <Typography sx={{
-      textWrap: 'wrap',
-    }}>{params.row.streetAddress ? `${params.row.streetAddress}, ` : ''}{params.row.wardName}, {params.row.districtName}, {params.row.provinceName}</Typography>,
-  },
-  {
     field: 'birthday',
     headerName: t('birthday'),
     flex: 1,

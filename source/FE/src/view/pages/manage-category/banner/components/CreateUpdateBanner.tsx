@@ -8,7 +8,7 @@ import { Controller, useForm } from "react-hook-form"
 import * as yup from 'yup';
 
 //Mui
-import { Box, Button, FormHelperText, Grid, IconButton, InputLabel, Typography, Avatar } from "@mui/material"
+import { Box, Button, FormHelperText, Grid, IconButton, InputLabel, Typography, Avatar, FormControlLabel, Switch } from "@mui/material"
 import { useTheme } from "@mui/material"
 
 //components
@@ -41,7 +41,8 @@ interface TCreateUpdateBanner {
 type TDefaultValues = {
     name: string,
     level: number,
-    imageCommand: BannerImage
+    imageCommand: BannerImage,
+    isActive: boolean
 }
 
 const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
@@ -65,12 +66,13 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
         name: yup.string().required(t("required_banner_name")),
         level: yup.number().required(t("required_banner_level")),
         imageCommand: yup.object().shape({
-            imageBase64: yup.string().required(t("required_image")),
+            imageBase64: yup.string().default(""),
             imageUrl: yup.string().default(""),
             publicId: yup.string().default(""),
             typeImage: yup.string().default(""),
-            value: yup.string().default("main"),
-        })
+            value: yup.string().default(""),
+        }),
+        isActive: yup.boolean().default(true)
     });
 
     const defaultValues: TDefaultValues = {
@@ -82,7 +84,8 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
             publicId: '',
             typeImage: '',
             value: '',
-        }
+        },
+        isActive: true
     }
 
     const { handleSubmit, control, formState: { errors }, reset, setValue } = useForm({
@@ -99,6 +102,7 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
                     name: data?.name,
                     level: data?.level,
                     imageCommand: data?.imageCommand,
+                    isActive: data?.isActive,
                     id: Number(id),
                 }))
             } else {
@@ -106,7 +110,8 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
                 dispatch(createBannerAsync({
                     name: data?.name,
                     level: data?.level,
-                    imageCommand: data?.imageCommand
+                    imageCommand: data?.imageCommand,
+                    isActive: data?.isActive,
                 }))
             }
         }
@@ -120,14 +125,21 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
                 reset({
                     name: data?.name,
                     level: data?.level,
-                    imageCommand: data?.imageUrl
+                    imageCommand: {
+                        imageBase64: data?.imageBase64,
+                        imageUrl: data?.imageUrl,
+                        publicId: '',
+                        typeImage: '',
+                        value: '',
+                    },
+                    isActive: data?.isActive ?? true
                 })
                 setBannerImage({
-                    imageBase64: '',
-                    imageUrl: data?.imageUrl,
-                    publicId: '',
-                    typeImage: '',
-                    value: ''
+                    imageUrl: data.imageUrl || '',
+                    imageBase64: data.imageBase64 || '',
+                    publicId: data.publicId || "''",
+                    typeImage: data.typeImage || '',
+                    value: data.value || '',
                 })
             }
             setLoading(false)
@@ -143,7 +155,7 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
             imageUrl: "",
             imageBase64: base64,
             publicId: "''",
-            typeImage: file.type.split("/")[1],
+            typeImage: file.type,
             value: "",
         }
         setBannerImage(newImage)
@@ -300,6 +312,27 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
                                             />
                                         )}
                                         name='level'
+                                    />
+                                </Grid>
+
+                                <Grid item md={12} xs={12} mb={2}>
+                                    <Controller
+                                        name="isActive"
+                                        control={control}
+                                        render={({ field: { onChange, value } }) => (
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                                <InputLabel>{t("status")}</InputLabel>
+                                                <FormControlLabel
+                                                    control={
+                                                        <Switch
+                                                            checked={Boolean(value)}
+                                                            onChange={(e) => onChange(e.target.checked)}
+                                                        />
+                                                    }
+                                                    label={Boolean(value) ? t("active") : t("inactive")}
+                                                />
+                                            </Box>
+                                        )}
                                     />
                                 </Grid>
                             </Grid>

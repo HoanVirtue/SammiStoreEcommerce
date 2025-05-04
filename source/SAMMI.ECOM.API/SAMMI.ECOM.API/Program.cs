@@ -13,6 +13,7 @@ using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
+using Serilog;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,6 +23,7 @@ var configuration = builder.Configuration;
 
 // Configure Serilog for structured logging.
 builder.UseSerialLog();
+//builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

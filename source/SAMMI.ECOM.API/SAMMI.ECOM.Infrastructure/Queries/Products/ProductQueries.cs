@@ -591,12 +591,12 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                         WHERE t1.ISDELETED = 0 AND t1.Id != {productId}
                           AND (t1.CategoryId = (
                                   SELECT categoryId
-                                  FROM product
+                                  FROM Product
                                   WHERE Id = {productId}
                                 )
                                 OR t1.BrandId = (
                                   SELECT BrandId
-                                  FROM product
+                                  FROM Product
                                   WHERE Id = {productId}
                                 )
                               )

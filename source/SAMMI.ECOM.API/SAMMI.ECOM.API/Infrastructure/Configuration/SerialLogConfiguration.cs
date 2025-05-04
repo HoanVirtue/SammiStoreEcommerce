@@ -10,6 +10,11 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
                 .ReadFrom.Configuration(builder.Configuration)
                 .Enrich.FromLogContext()
                 .WriteTo.Console()
+                .WriteTo.File(
+                    formatter: new Serilog.Formatting.Json.JsonFormatter(),
+                    path: "Logs/log-.txt",
+                    rollingInterval: RollingInterval.Day,
+                    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information)
                 .CreateLogger();
 
             builder.Host.UseSerilog();

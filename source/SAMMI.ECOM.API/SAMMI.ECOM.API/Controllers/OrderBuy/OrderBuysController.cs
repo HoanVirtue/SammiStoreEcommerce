@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Azure;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
+using SAMMI.ECOM.API.Services.SeriaLog;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
@@ -40,7 +42,6 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             IUsersRepository usersRepository,
             IConfiguration config,
             IOrderQueries orderQueries,
-            UserIdentity userIdentity,
             IMapper mapper,
             ILogger<OrderBuysController> logger) : base(mediator, logger)
         {
@@ -54,7 +55,6 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _userRepository = usersRepository;
             _config = config;
             _orderQueries = orderQueries;
-            UserIdentity = userIdentity;
         }
 
         [AuthorizePermission(PermissionEnum.OrderView)]
@@ -178,6 +178,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 return Ok(response);
             }
+            AppLogger.LogWarning(UserIdentity,
+                    PermissionEnum.CustomerOrderPlace.ToPolicyName(),
+                    $"User {UserIdentity.FullName} tạo đơn hàng thất bại!",
+                    new
+                    {
+                        response.Errors
+                    });
             return BadRequest(response);
         }
 
@@ -193,16 +200,30 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             }
 
             var paymentResult = paymentResponse.Result;
-            var redirectUrl = paymentResult.PlatForm == "App" ? _config.GetValue<string>("VNPAYOptions:RedirectUrlApp") : _config.GetValue<string>("VNPAYOptions:RedirectUrl");
             string[] paymentInfos = paymentResult.OrderDescription.Split('#')[1].Split('_');
             string orderCode = paymentInfos[0];
+            var redirectUrl = paymentResult.PlatForm == "App" ? _config.GetValue<string>("VNPAYOptions:RedirectUrlApp") : _config.GetValue<string>("VNPAYOptions:RedirectUrl");
             var payment = await _paymentRepository.GetByOrderCode(orderCode);
             if (payment == null)
             {
+                AppLogger.LogWarning(UserIdentity,
+                    "PAYMENT_VNPAY",
+                    $"Đơn hàng không tồn tại!",
+                    new
+                    {
+                        orderCode
+                    });
                 return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString("Giao dịch không tồn tại")}");
             }
             if (paymentResult.VnPayResponseCode != "00")
             {
+                AppLogger.LogWarning(UserIdentity,
+                    "PAYMENT_VNPAY",
+                    $"Giao dịch thất bại!",
+                    new
+                    {
+                        orderCode
+                    });
                 _paymentRepository.UpdateStatus(payment.Id, PaymentStatusEnum.Unpaid);
                 return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString("Giao dịch không thành công.")}");
             }
@@ -214,6 +235,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var paymentUpdateRes = await _paymentRepository.UpdateAndSave(payment);
             if (!paymentUpdateRes.IsSuccess)
             {
+                AppLogger.LogWarning(UserIdentity,
+                    "PAYMENT_VNPAY",
+                    $"Lỗi cập nhật trạng thái thanh toán.",
+                    new
+                    {
+                        orderCode
+                    });
                 return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString("Lỗi cập nhật trạng thái thanh toán.")}");
             }
 
@@ -226,8 +254,27 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var orderUpdateRes = await _orderRepository.UpdateOrderStatus(updateOrderStatusCommand);
             if (!orderUpdateRes.IsSuccess)
             {
+                AppLogger.LogError(UserIdentity,
+                    "PAYMENT_VNPAY",
+                    orderUpdateRes.Errors.ToString(),
+                    new Exception(),
+                    new
+                    {
+                        orderCode
+                    });
                 return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString(orderUpdateRes.Message)}");
             }
+
+            AppLogger.LogAction(UserIdentity,
+                    "PAYMENT_VNPAY",
+                    $"User {UserIdentity.FullName} thanh toán đơn hàng thành công!",
+                    new
+                    {
+                        orderCode,
+                        updateOrderStatusCommand.PaymentStatus,
+                        updateOrderStatusCommand.ShippingStatus,
+                    });
+
 
             return Redirect($"{_config.GetValue<string>("VNPAYOptions:RedirectUrl")}?payment-status=1");
         }
@@ -252,14 +299,30 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                     OrderCode = order.Code,
                     PaymentAmount = await _orderRepository.CalculateTotalPrice(order.Id),
                     PaymentStatus = PaymentStatusEnum.Pending.ToString(),
-                    PaymentMethodId = (await _paymentMethodRepository.GetByCode(PaymentMethodEnum.VNPAY.ToString())).Id
+                    PaymentMethodId = (await _paymentMethodRepository.GetByCode(PaymentMethodEnum.VNPAY.ToString())).Id,
+                    PlatForm = model.PlatForm
                 };
                 var createPaymentRes = await _mediator.Send(paymentRequest);
                 if (!createPaymentRes.IsSuccess)
                 {
+                    AppLogger.LogWarning(UserIdentity,
+                        "PAYBACK_VNPAY",
+                        createPaymentRes.Errors.ToString(),
+                        new
+                        {
+                            order.Code
+                        });
                     actRes.AddError(createPaymentRes.Message);
                     return BadRequest(actRes);
                 }
+
+                AppLogger.LogAction(UserIdentity,
+                    "PAYBACK_VNPAY",
+                    $"User {UserIdentity.FullName} thanh toán lại đơn hàng thành công!",
+                    new
+                    {
+                        order.Code
+                    });
                 return Ok(createPaymentRes);
             }
             else
@@ -278,15 +341,31 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 var paymentCreate = _mapper.Map<CreatePaymentCommand>(payment);
                 paymentCreate.OrderCode = order.Code;
                 paymentCreate.UserIdentity = (await _userRepository.FindById(UserIdentity.Id)).IdentityGuid;
+                paymentCreate.PlatForm = model.PlatForm;
                 var paymentUrl = _vnpayService.CreatePaymentUrl(paymentCreate, HttpContext);
                 if (string.IsNullOrEmpty(paymentUrl))
                 {
+                    AppLogger.LogWarning(UserIdentity,
+                        "PAYBACK_VNPAY",
+                        "Lỗi liên kết tới VNPay",
+                        new
+                        {
+                            order.Code
+                        });
                     actRes.AddError("Không thể liên kết tới VNPay");
                     return BadRequest(actRes);
                 }
 
                 var paymentDTO = _mapper.Map<PaymentDTO>(payment);
                 paymentDTO.ReturnUrl = paymentUrl;
+
+                AppLogger.LogAction(UserIdentity,
+                    "PAYBACK_VNPAY",
+                    $"User {UserIdentity.FullName} thanh toán lại đơn hàng thành công!",
+                    new
+                    {
+                        order.Code
+                    });
                 actRes.SetResult(paymentDTO);
                 return Ok(actRes);
             }

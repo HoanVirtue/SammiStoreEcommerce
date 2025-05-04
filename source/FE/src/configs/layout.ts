@@ -81,11 +81,6 @@ export const VerticalLayoutItems = () => {
                     path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT,
                     // permission: PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW
                 },
-                {
-                    title: t('review_list'),
-                    icon: 'iconoir:page-star',
-                    path: ROUTE_CONFIG.MANAGE_PRODUCT.REVIEW,
-                },
             ]
         },
         {

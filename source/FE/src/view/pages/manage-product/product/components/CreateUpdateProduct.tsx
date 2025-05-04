@@ -207,10 +207,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         resolver: yupResolver(schema)
     });
 
-    /**
-     * Xử lý upload hình ảnh sản phẩm
-     * @param file File hình ảnh được chọn
-     */
+
     const handleUploadProductImage = useCallback(async (file: File) => {
         try {
             const base64WithPrefix = await convertBase64(file);
@@ -236,12 +233,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
         }
     }, [productImages, setValue]);
 
-    /**
-     * Xử lý submit form
-     * Chuyển đổi dữ liệu và gọi API tạo/cập nhật sản phẩm
-     */
     const onSubmit: SubmitHandler<TDefaultValues> = useCallback((data) => {
-        // Kiểm tra và chuẩn bị dữ liệu hình ảnh
         const preparedImages = productImages.map((img, index) => ({
             ...img,
             displayOrder: index + 1,
@@ -260,9 +252,9 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             brandId: Number(data.brandId),
             categoryId: Number(data.categoryId),
             status: data.status,
-            startDate: data.startDate ? data.startDate.toISOString() : new Date().toISOString(),
-            endDate: data.endDate ? data.endDate.toISOString() : new Date().toISOString(),
-            images: preparedImages, // Sử dụng dữ liệu hình ảnh đã được chuẩn bị
+            startDate: data.startDate ? data.startDate.toISOString() : undefined,
+            endDate: data.endDate ? data.endDate.toISOString() : undefined,
+            images: preparedImages,
         };
 
         if (id) {
@@ -333,8 +325,8 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                     ingredient: data?.ingredient ? convertHTMLToDraft(data?.ingredient) : EditorState.createEmpty(),
                     uses: data?.uses ? convertHTMLToDraft(data?.uses) : EditorState.createEmpty(),
                     usageGuide: data?.usageGuide ? convertHTMLToDraft(data?.usageGuide) : EditorState.createEmpty(),
-                    brandId: data.brandId.toString(),
-                    categoryId: data.categoryId.toString(),
+                    brandId: data.brandId,
+                    categoryId: data.categoryId,
                     status: data.status,
                     startDate: data.startDate ? new Date(data.startDate) : null,
                     endDate: data.endDate ? new Date(data.endDate) : null,
@@ -503,8 +495,8 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                         label={t("product_code")}
                                                         onChange={onChange}
                                                         onBlur={onBlur}
-                                                        value={value || productCode}
-                                                        placeholder={t("enter_product_code")}
+                                                        value={value}
+                                                        placeholder={productCode}
                                                         error={!!errors.code}
                                                         helperText={errors.code?.message}
                                                         disabled={isEditMode}

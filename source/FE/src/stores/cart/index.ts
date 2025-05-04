@@ -1,5 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { createCartAsync, deleteCartAsync, getCartsAsync, serviceName } from './action';
+import { createCartAsync, deleteCartAsync, getCartDataAsync, getCartsAsync, serviceName } from './action';
 import { TItemCartProduct } from 'src/types/cart';
 
 const initialState = {
@@ -16,6 +16,10 @@ const initialState = {
   errorMessageDelete: '',
   carts: {
     data: [] as any[],
+    total: 0,
+  },
+  cartData: {
+    data: [],
     total: 0,
   },
 };
@@ -62,6 +66,22 @@ export const cartSlice = createSlice({
         state.isLoading = false;
         state.carts.data = [];
         state.carts.total = 0;
+      });
+
+    // Get Cart Data
+    builder
+      .addCase(getCartDataAsync.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(getCartDataAsync.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.cartData.data = Array.isArray(action?.payload?.result) ? action.payload.result : [];
+        state.cartData.total = action?.payload?.length || 0;
+      })
+      .addCase(getCartDataAsync.rejected, (state) => {
+        state.isLoading = false;
+        state.cartData.data = [];
+        state.cartData.total = 0;
       });
 
     // Create/Update Cart

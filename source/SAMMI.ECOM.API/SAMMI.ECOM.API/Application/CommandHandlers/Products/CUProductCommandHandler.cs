@@ -2,8 +2,10 @@
 using Azure;
 using FluentValidation;
 using MediatR;
+using Nest;
 using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.API.Services.MediaResource;
+using SAMMI.ECOM.API.Services.SeriaLog;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.AggregateModels.Products;
@@ -128,6 +130,18 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             {
                 _productElasticService.AddOrUpdateProduct(productResult);
             }
+
+            AppLogger.LogAction(_currentUser,
+                PermissionEnum.ProductCreate.ToPolicyName(),
+                $"User {_currentUser.FullName} thêm mới sản phẩm thành công!",
+                new
+                {
+                    productResult.Code,
+                    productResult.Price,
+                    productResult.Discount,
+                    productResult.Status,
+                    productResult.ImportPrice
+                });
 
             actResponse.SetResult(_mapper.Map<ProductDTO>(productResult));
             return actResponse;

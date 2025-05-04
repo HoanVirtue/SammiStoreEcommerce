@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
+using SAMMI.ECOM.API.Services.SeriaLog;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.OrderBuy;
@@ -106,8 +107,25 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             var updateStatusRes = await _purchaseRepository.UpdateStatus(request.PurchaseOrderId, request.NewStatus);
             if (!updateStatusRes.IsSuccess)
             {
+                AppLogger.LogError(UserIdentity,
+                    PermissionEnum.ImportUpdateStatus.ToPolicyName(),
+                    actRes.Message,
+                    new Exception(),
+                    new
+                    {
+                        request.PurchaseOrderId
+                    });
                 return BadRequest(updateStatusRes);
             }
+
+            AppLogger.LogAction(UserIdentity,
+                PermissionEnum.ImportUpdateStatus.ToPolicyName(),
+                $"User {UserIdentity.FullName} cập nhật trạng thái phiếu nhập thành công!",
+                new
+                {
+                    request.PurchaseOrderId,
+                    request.NewStatus
+                });
             return Ok(updateStatusRes);
         }
 
@@ -130,10 +148,26 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
                 var updateStatusRes = await _purchaseRepository.UpdateStatus(id, request.NewStatus);
                 if (!updateStatusRes.IsSuccess)
                 {
+                    AppLogger.LogError(UserIdentity,
+                        PermissionEnum.ImportUpdateStatus.ToPolicyName(),
+                        updateStatusRes.Message,
+                        new Exception(),
+                        new
+                        {
+                            PurchaseOrderId = id
+                        });
                     return BadRequest(updateStatusRes);
                 }
             }
-            
+
+            AppLogger.LogAction(UserIdentity,
+                PermissionEnum.ImportUpdateStatus.ToPolicyName(),
+                $"User {UserIdentity.FullName} cập nhật trạng thái danh sách phiếu nhập thành công!",
+                new
+                {
+                    request.PurchaseOrderIds,
+                    request.NewStatus
+                });
             return Ok(ActionResponse.Success);
         }
 
@@ -162,6 +196,13 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
                 }
             }
 
+            AppLogger.LogAction(UserIdentity,
+                PermissionEnum.ImportDelete.ToPolicyName(),
+                $"User {UserIdentity.FullName} xóa phiếu nhập thành công!",
+                new
+                {
+                    PurchaseOrderId = id
+                });
             return Ok(_purchaseRepository.DeleteAndSave(id));
         }
 

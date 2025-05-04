@@ -13,6 +13,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         Task<decimal> GetPrice(int productId);
         Task<ActionResponse> RollbackProduct(int orderId);
         Task<int> TotalProductAsync();
+        Task<ActionResponse> IsExistAnotherTable(int productId);
     }
 
     public class ProductRepository : CrudRepository<Product>, IProductRepository, IDisposable
@@ -79,6 +80,29 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Products
         public async Task<int> TotalProductAsync()
         {
             return await DbSet.CountAsync(x => x.IsDeleted != true);
+        }
+
+        public async Task<ActionResponse> IsExistAnotherTable(int productId)
+        {
+            var actionRes = new ActionResponse();
+            var result = false;
+            var message = "Không thể xóa sản phẩm! ";
+            if (await _context.CartDetails.AnyAsync(x => x.ProductId == productId && x.IsDeleted != true))
+            {
+                actionRes.AddError($"{message}Sản phẩm có id {productId} đang có trong giỏ hàng.");
+                return actionRes;
+            }
+            if(await _context.OrderDetails.AnyAsync(x => x.ProductId == productId && x.IsDeleted != true))
+            {
+                actionRes.AddError($"{message}Sản phẩm có id {productId} đã được bán");
+                return actionRes;
+            }
+            if (await _context.PurchaseOrderDetails.AnyAsync(x => x.ProductId == productId && x.IsDeleted != true))
+            {
+                actionRes.AddError($"{message}Sản phẩm có id {productId} đã tồn tại trong phiếu nhập hàng");
+                return actionRes;
+            }
+            return actionRes;
         }
     }
 }

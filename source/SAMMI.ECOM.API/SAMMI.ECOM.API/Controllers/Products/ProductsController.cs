@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Services.ElasticSearch;
+using SAMMI.ECOM.API.Services.SeriaLog;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
@@ -62,6 +63,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
                 return BadRequest();
             }
             var response = await _mediator.Send(request);
+
             if (!response.IsSuccess)
             {
                 return BadRequest(response);
@@ -96,14 +98,29 @@ namespace SAMMI.ECOM.API.Controllers.Products
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            if (!_productRepository.IsExisted(id))
+            var productEntity = await _productRepository.FindById(id);
+            if (productEntity == null)
             {
                 return BadRequest("Sản phẩm không tồn tại.");
             }
+            var checkExistRes = await _productRepository.IsExistAnotherTable(id);
+            if(!checkExistRes.IsSuccess)
+            {
+                return BadRequest(checkExistRes);
+            }
+
             if (_productElasticService != null && await _productElasticService.IsConnected())
             {
                 _productElasticService.DeleteProduct(id);
             }
+
+            AppLogger.LogAction(UserIdentity,
+                PermissionEnum.ProductDelete.ToPolicyName(),
+                $"User {UserIdentity.FullName} xóa sản phẩm #{productEntity.Code} thành công!",
+                new
+                {
+                    productEntity.Code
+                });
             return Ok(_productRepository.DeleteAndSave(id));
         }
 
@@ -117,11 +134,26 @@ namespace SAMMI.ECOM.API.Controllers.Products
             {
                 return BadRequest();
             }
-            if(!ids.All(id => _productRepository.IsExisted(id)))
+            foreach(int id in ids)
             {
-                actErrorResponse.AddError("Một số sản phẩm không tồn tại.");
-                return BadRequest(actErrorResponse);
+                if(!_productRepository.IsExisted(id))
+                {
+                    actErrorResponse.AddError($"Sản phẩm id {id} không tồn tại.");
+                    return BadRequest(actErrorResponse);
+                }
+                var checkExistRes = await _productRepository.IsExistAnotherTable(id);
+                if (!checkExistRes.IsSuccess)
+                {
+                    return BadRequest(checkExistRes);
+                }
             }
+            AppLogger.LogAction(UserIdentity,
+                PermissionEnum.ProductDelete.ToPolicyName(),
+                $"User {UserIdentity.FullName} xóa danh sách sản phẩm thành công!",
+                new
+                {
+                    ids
+                });
             _productElasticService.DeleteRangeProduct(ids);
             return Ok(_productRepository.DeleteRangeAndSave(ids.Cast<object>().ToArray()));
         }

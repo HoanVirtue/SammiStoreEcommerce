@@ -75,6 +75,43 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
+                    sqlBuilder.Select(@"COALESCE(
+                                          ROUND(
+                                              (
+                                                  (t1.StockQuantity * 
+                                                      COALESCE(
+                                                          (SELECT pod.UnitPrice 
+                                                           FROM PurchaseOrderDetail pod
+                                                           JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                           WHERE pod.ProductId = t1.Id
+                                                           ORDER BY po.CreatedDate DESC 
+                                                           LIMIT 1),
+                                                          t1.ImportPrice
+                                                      )
+                                                  ) + 
+                                                  COALESCE(
+                                                      (SELECT SUM(pod.Quantity * pod.UnitPrice) 
+                                                       FROM PurchaseOrderDetail pod
+                                                       JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                       WHERE pod.ProductId = t1.Id), 
+                                                      0
+                                                  )
+                                              ) / 
+                                              NULLIF(
+                                                  (t1.StockQuantity + 
+                                                   COALESCE(
+                                                       (SELECT SUM(pod.quantity) 
+                                                        FROM PurchaseOrderDetail pod
+                                                        JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                        WHERE pod.ProductId = t1.Id), 
+                                                       0
+                                                   )), 
+                                                  0
+                                              ),
+                                              2
+                                          ),
+                                          t1.ImportPrice
+                                        ) AS CapitalPrice");
                     sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
                     sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
                     sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
@@ -123,6 +160,43 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                 async (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
+                    sqlBuilder.Select(@"COALESCE(
+                                          ROUND(
+                                              (
+                                                  (t1.StockQuantity * 
+                                                      COALESCE(
+                                                          (SELECT pod.UnitPrice 
+                                                           FROM PurchaseOrderDetail pod
+                                                           JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                           WHERE pod.ProductId = t1.Id
+                                                           ORDER BY po.CreatedDate DESC 
+                                                           LIMIT 1),
+                                                          t1.ImportPrice
+                                                      )
+                                                  ) + 
+                                                  COALESCE(
+                                                      (SELECT SUM(pod.Quantity * pod.UnitPrice) 
+                                                       FROM PurchaseOrderDetail pod
+                                                       JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                       WHERE pod.ProductId = t1.Id), 
+                                                      0
+                                                  )
+                                              ) / 
+                                              NULLIF(
+                                                  (t1.StockQuantity + 
+                                                   COALESCE(
+                                                       (SELECT SUM(pod.quantity) 
+                                                        FROM PurchaseOrderDetail pod
+                                                        JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                        WHERE pod.ProductId = t1.Id), 
+                                                       0
+                                                   )), 
+                                                  0
+                                              ),
+                                              2
+                                          ),
+                                          t1.ImportPrice
+                                        ) AS CapitalPrice");
                     sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t3.DisplayOrder");
                     sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
                     sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
@@ -167,12 +241,57 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
             );
         }
 
+        /*
+        Giá vốn trung bình = Tổng giá trị hàng tồn kho ÷ Tổng số lượng tồn kho
+
+        Trong đó:
+        Tổng giá trị hàng tồn kho = (Số lượng tồn kho hiện tại × Giá nhập cuối cùng) + (Tổng số lượng nhập × Giá nhập từ các lần nhập).
+        Tổng số lượng tồn kho = Số lượng tồn kho hiện tại + Tổng số lượng nhập.
+         */
         public Task<IPagedList<ProductDTO>> GetList(RequestFilterModel filterModel)
         {
             return WithPagingTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     var productDirectory = new Dictionary<int, ProductDTO>();
+                    sqlBuilder.Select(@"COALESCE(
+                                          ROUND(
+                                              (
+                                                  (t1.StockQuantity * 
+                                                      COALESCE(
+                                                          (SELECT pod.UnitPrice 
+                                                           FROM PurchaseOrderDetail pod
+                                                           JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                           WHERE pod.ProductId = t1.Id
+                                                           ORDER BY po.CreatedDate DESC 
+                                                           LIMIT 1),
+                                                          t1.ImportPrice
+                                                      )
+                                                  ) + 
+                                                  COALESCE(
+                                                      (SELECT SUM(pod.Quantity * pod.UnitPrice) 
+                                                       FROM PurchaseOrderDetail pod
+                                                       JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                       WHERE pod.ProductId = t1.Id), 
+                                                      0
+                                                  )
+                                              ) / 
+                                              NULLIF(
+                                                  (t1.StockQuantity + 
+                                                   COALESCE(
+                                                       (SELECT SUM(pod.quantity) 
+                                                        FROM PurchaseOrderDetail pod
+                                                        JOIN PurchaseOrder po ON pod.PurchaseOrderId = po.Id
+                                                        WHERE pod.ProductId = t1.Id), 
+                                                       0
+                                                   )), 
+                                                  0
+                                              ),
+                                              2
+                                          ),
+                                          t1.ImportPrice
+                                        ) AS CapitalPrice");
+
                     sqlBuilder.Select("t3.Id, t3.PublicId, t3.TypeImage, t3.ImageUrl, t2.DisplayOrder");
                     sqlBuilder.Select("t4.Code AS CategoryCode, t4.Name AS CategoryName");
                     sqlBuilder.Select("t5.Code AS BrandCode, t5.Name AS BrandName");
@@ -647,6 +766,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 else
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productEntry.IsLiked = IsLikedAsync(productEntry.Id);
+                                productEntry.ImportPrice = 0;
                                 productDirectory.Add(product.Id, productEntry);
                             }
 
@@ -724,6 +844,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 else
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productEntry.IsLiked = IsLikedAsync(productEntry.Id);
+                                productEntry.ImportPrice = 0;
                                 productDirectory.Add(product.Id, productEntry);
                             }
 
@@ -801,6 +922,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 else
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
                                 productEntry.IsLiked = IsLikedAsync(productEntry.Id);
+                                productEntry.ImportPrice = 0;
                                 productDirectory.Add(product.Id, productEntry);
                             }
 
@@ -875,6 +997,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                     productEntry.NewPrice = Math.Round((decimal)(productEntry.Price * (1 - productEntry.Discount)), 2);
                                 else
                                     productEntry.NewPrice = Math.Round(productEntry.Price ?? 0, 2);
+                                productEntry.IsLiked = IsLikedAsync(productEntry.Id);
+                                productEntry.ImportPrice = 0;
                                 productDirectory.Add(product.Id, productEntry);
                             }
                             if (image != null && productEntry.Images.All(i => i.Id != image.Id))
@@ -981,6 +1105,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
                                 productEntry = product;
                                 productEntry.Images = new List<ImageDTO>();
                                 productEntry.IsLiked = IsLikedAsync(productEntry.Id);
+                                productEntry.ImportPrice = 0;
                                 productDirectory.Add(product.Id, productEntry);
                             }
                             if (image != null && productEntry.Images.All(i => i.Id != image.Id))

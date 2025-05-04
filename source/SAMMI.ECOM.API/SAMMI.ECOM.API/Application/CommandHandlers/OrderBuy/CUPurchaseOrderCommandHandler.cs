@@ -299,11 +299,28 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
                 if (!actRes.IsSuccess)
                 {
+                    AppLogger.LogError(_currentUser,
+                        PermissionEnum.ImportUpdate.ToPolicyName(),
+                        actRes.Message,
+                        new Exception(),
+                        new
+                        {
+                            updatePurchaseRes.Result.Code
+                        });
                     return actRes;
                 }
             }
 
             await _purchaseDetailRepository.SaveChangeAsync();
+
+            AppLogger.LogAction(_currentUser,
+                PermissionEnum.ImportUpdate.ToPolicyName(),
+                $"User {_currentUser.FullName} cập nhật thông tin phiếu nhập thành công!",
+                new
+                {
+                    updatePurchaseRes.Result.Code,
+                    updatePurchaseRes.Result.Status
+                });
 
             actRes.SetResult(_mapper.Map<PurchaseOrderDTO>(purchaseUpdated));
             return actRes;

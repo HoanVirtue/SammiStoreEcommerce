@@ -1,11 +1,10 @@
-import { getEndowProducts } from '@/services/product';
 import { TProduct } from '@/types/product';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Dimensions } from 'react-native';
 import { ProductCard } from './ProductCard';
 import CountdownTimer from './CountDownTimer';
 import NoData from '@/components/NoData';
-
+import { getEndowProducts } from '@/services/product';
 
 
 
@@ -106,8 +105,9 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
 const styles = StyleSheet.create({
     outerContainer: {
         flex: 1,
-        backgroundColor: '#f0f0f0', // Example secondary color
-        padding: 10,
+        width: '100%',
+        backgroundColor: '#f0f0f0', 
+        padding: 2,
     },
     innerContainer: {
         flex: 1,
@@ -141,23 +141,24 @@ const styles = StyleSheet.create({
     },
     productListContainer: {
         flex: 1, // Ensure FlatList/NoData takes remaining space
-        padding: 10,
+        padding: 2,
     },
     listContentContainer: {
         // Styles for the content container of FlatList if needed
     },
     columnWrapper: {
-        justifyContent: 'space-between', // Distribute items within rows
+        justifyContent: 'space-between',
+        gap: 10 // Increased gap for horizontal spacing
     },
     productItemContainer: {
        // Calculates width for 2 columns with spacing
-       width: (Dimensions.get('window').width - 40) / 2, // 10 padding * 2 sides + 10 internal padding
-       marginBottom: 10, // Space between rows
+       width: (Dimensions.get('window').width - 40) / 2,
+       marginBottom: 10,
         // Adjust based on numColumns and desired spacing
     },
     noDataContainer: {
         flex: 1, // Take full space
-        padding: 20,
+        padding: 2,
         justifyContent: 'center',
         alignItems: 'center',
     },

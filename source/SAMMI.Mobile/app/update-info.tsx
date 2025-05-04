@@ -30,7 +30,7 @@ export default function UpdateInfoScreen() {
       try {
         const token = await AsyncStorage.getItem('accessToken');
         if (!token) {
-          router.replace('/(auth)/login' as any);
+          router.replace('/login' as any);
           return;
         }
 

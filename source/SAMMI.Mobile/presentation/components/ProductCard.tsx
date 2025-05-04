@@ -224,18 +224,19 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 12,
+    paddingBottom: 8,
   },
   name: {
     fontSize: 14,
     fontWeight: '600',
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: 6,
     height: 40,
   },
   priceContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   price: {
     fontSize: 16,
@@ -249,7 +250,7 @@ const styles = StyleSheet.create({
     marginLeft: 6,
   },
   stockContainer: {
-    marginBottom: 8,
+    marginBottom: 10,
   },
   stockText: {
     fontSize: 12,
@@ -266,8 +267,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.primary,
-    paddingVertical: 8,
-    gap: 6,
+    paddingVertical: 10,
+    gap: 8,
   },
   disabledButton: {
     backgroundColor: colors.textSecondary,

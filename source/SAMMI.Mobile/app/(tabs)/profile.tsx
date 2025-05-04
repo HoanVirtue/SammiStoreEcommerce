@@ -21,7 +21,7 @@ import {
   Settings
 } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
-import LoginScreen from '../(auth)/login';
+import LoginScreen from '../login';
 
 export default function ProfileScreen() {
 
@@ -37,12 +37,6 @@ export default function ProfileScreen() {
     const checkAuth = async () => {
       const token = await AsyncStorage.getItem(ACCESS_TOKEN);
       setHasToken(!!token);
-      if (!token) {
-        router.replace('/(auth)/login' as any);
-        while (router.canGoBack()) {
-          router.back();
-        }
-      }
     };
     checkAuth();
   }, [user]);
@@ -63,7 +57,7 @@ export default function ProfileScreen() {
       await logout();
       await AsyncStorage.removeItem(ACCESS_TOKEN);
       // Reset navigation stack và chuyển về login
-      router.replace('/(auth)/login' as any);
+      router.replace('/login' as any);
       // Xóa toàn bộ navigation stack
       while (router.canGoBack()) {
         router.back();
@@ -72,7 +66,7 @@ export default function ProfileScreen() {
       console.error('Error during logout:', error);
       // Nếu có lỗi khi gọi API, vẫn xóa token và chuyển về login
       await AsyncStorage.removeItem(ACCESS_TOKEN);
-      router.replace('/(auth)/login' as any);
+      router.replace('/login' as any);
       while (router.canGoBack()) {
         router.back();
       }

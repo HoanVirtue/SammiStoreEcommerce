@@ -54,7 +54,7 @@ const AuthProvider = ({ children }: Props) => {
     const initAuth = async (): Promise<void> => {
       const storedToken = window.localStorage.getItem(authConfig.storageTokenKeyName);
       if (storedToken) {
-        // setLoading(true);
+        setLoading(true);
         try {
           instance.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
           const response = await getLoginUser();
@@ -64,7 +64,7 @@ const AuthProvider = ({ children }: Props) => {
           removeLocalUserData();
           delete instance.defaults.headers.common['Authorization'];
           setUser(null);
-          // setLoading(false);
+          setLoading(false);
           if (!router.pathname.includes('login')) {
             router.replace('/login');
           }
@@ -78,7 +78,7 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   const handleLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    // setLoading(true);
+    setLoading(true);
     try {
       const response = await loginAuth({
         username: params.username,
@@ -112,16 +112,16 @@ const AuthProvider = ({ children }: Props) => {
       const returnUrl = params.returnUrl || router.query.returnUrl || '/';
       const redirectURL = returnUrl !== '/' ? returnUrl : '/';
       router.replace(redirectURL as string);
-      // setLoading(false);
+      setLoading(false);
     } catch (err: any) {
-      // setLoading(false);
+      setLoading(false);
       if (errorCallback) errorCallback(err);
       toast.error(err?.response?.data?.message || t('login_error'));
     }
   };
 
   const handleAdminLogin = async (params: LoginParams, errorCallback?: ErrCallbackType) => {
-    // setLoading(true);
+    setLoading(true);
     try {
       const response = await loginAdminAuth({
         username: params.username,

@@ -84,10 +84,10 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(auth)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
-        <Stack.Screen name="product/[id]" options={{ presentation: 'card' }} />
-        <Stack.Screen name="article/[id]" options={{ presentation: 'card' }} />
-        <Stack.Screen name="checkout" options={{ presentation: 'card' }} />
-        <Stack.Screen name="payment/vnpay" options={{ presentation: 'card' }} />
+        <Stack.Screen name="product/[id]" options={{ presentation: 'card', headerShown: false }} />
+        <Stack.Screen name="article/[id]" options={{ presentation: 'card', headerShown: false }} />
+        <Stack.Screen name="checkout" options={{ presentation: 'card', headerShown: false }} />
+        <Stack.Screen name="payment/vnpay" options={{ presentation: 'card', headerShown: false }} />
         <Stack.Screen
           name="update-info"
           options={{

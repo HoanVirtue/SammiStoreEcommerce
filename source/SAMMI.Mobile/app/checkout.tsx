@@ -194,6 +194,7 @@ const CheckoutScreen = () => {
         totalQuantity: memoQueryProduct.selectedProducts.reduce((acc: number, item: TItemOrderProduct) => acc + item.quantity, 0),
         discountAmount: memoVoucherDiscountPrice,
         isBuyNow: false,
+        platForm: 'App',
         paymentMethodId: Number(selectedPayment),
       })
     ).then(async (res) => {

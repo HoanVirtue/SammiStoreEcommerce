@@ -91,7 +91,7 @@ export const getAuthMe = async () => {
 
 export const changePasswordMe = async (data: TChangePassword) => {
     try {
-        const res = await instance.patch(`${API_ENDPOINT.AUTH.INDEX}/change-password`, data)
+        const res = await instance.post(`${API_ENDPOINT.AUTH.INDEX}/change-password`, data)
         return res.data
     } catch (error) {
         return error

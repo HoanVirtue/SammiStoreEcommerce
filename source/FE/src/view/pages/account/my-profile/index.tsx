@@ -124,7 +124,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                             parsedBirthday = toZonedTime(parsedBirthday, 'Asia/Ho_Chi_Minh');
                         }
                     }
-                    
+
                     reset({
                         email: data?.email,
                         phone: data?.phone,
@@ -147,14 +147,11 @@ const MyProfilePage: NextPage<TProps> = () => {
     }, [i18n.language])
 
     useEffect(() => {
-        if (errorMessageUpdateProfile) {
-            if (isErrorUpdateProfile) {
-                toast.error(errorMessageUpdateProfile)
-            }
-            else if (isSuccessUpdateProfile) {
-                toast.success(t("update_profile_success"))
-                fetchGetAuthMe()
-            }
+        if (isSuccessUpdateProfile) {
+            toast.success(t("update_profile_success"))
+            fetchGetAuthMe()
+        } else if(isErrorUpdateProfile && errorMessageUpdateProfile) {
+            toast.error(errorMessageUpdateProfile)
         }
         dispatch(resetInitialState())
     }, [isErrorUpdateProfile, isSuccessUpdateProfile, errorMessageUpdateProfile])
@@ -353,7 +350,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                                 name='phone'
                             />
                         </Grid>
-            
+
                         <Grid item md={6} xs={12} >
                             <Controller
                                 control={control}

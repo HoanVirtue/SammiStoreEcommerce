@@ -6,7 +6,6 @@ export const ROUTE_CONFIG = {
     LOGIN: "/login",
     PAYMENT: "/payment/vnpay",
     REGISTER: "/register",
-    CHANGE_PASSWORD: "/change-password",
     MY_CART: "/my-cart",
     MY_ORDER: "/my-order",
     CHECKOUT: "/checkout",
@@ -14,6 +13,7 @@ export const ROUTE_CONFIG = {
         MY_PROFILE: "/account/my-profile",
         MY_ORDER: "/account/my-order",
         MY_PRODUCT: "/account/my-product",
+        CHANGE_PASSWORD: "/account/change-password",
     },
     SYSTEM: {
         ROLE: "/system/role",

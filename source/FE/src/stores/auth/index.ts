@@ -103,12 +103,12 @@ export const authSlice = createSlice({
       state.isLoading = false
       state.isSuccessUpdateProfile = !!action.payload?.isSuccess
       state.isErrorUpdateProfile = !action.payload?.isSuccess
-      state.errorMessageUpdateProfile = action.payload?.message
+      state.errorMessageUpdateProfile = action.payload?.response?.data?.message
     })
     builder.addCase(updateProfileAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isSuccessUpdateProfile = false
-      state.isErrorUpdateProfile = false
+      state.isErrorUpdateProfile = true
       state.errorMessageUpdateProfile = action.error?.message || ''
     })
 
@@ -138,16 +138,17 @@ export const authSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(changePasswordAsync.fulfilled, (state, action) => {
+      console.log(action)
       state.isLoading = false
-      state.isSuccessChangePassword = !!action.payload?.data
-      state.isErrorChangePassword = !action.payload?.data
+      state.isSuccessChangePassword = action.payload?.message === undefined ? true : false
+      state.isErrorChangePassword = action.payload?.message === undefined ? false : true
       state.errorMessageChangePassword = action.payload?.message
       state.typeError = action.payload?.typeError
     })
     builder.addCase(changePasswordAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isSuccessChangePassword = false
-      state.isErrorChangePassword = false
+      state.isErrorChangePassword = true
       state.errorMessageChangePassword = ""
       state.typeError = ""
     })

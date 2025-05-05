@@ -165,7 +165,6 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
             ).then(() => {
                 if (isSuccessCreate) {
                     toast.success(t('add_to_cart_success'))
-                    // Fetch updated cart after adding product
                     dispatch(
                         getCartsAsync({
                             params: {
@@ -277,7 +276,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
                     backgroundColor: theme.palette.background.paper,
                     borderRadius: "15px",
                     py: 5, px: 4
-                }} >    
+                }} >
                     <Box sx={{
                         width: "100%",
                         height: "100%",
@@ -603,7 +602,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
                             </Grid>
                         </Grid>
                     </Box>
-                </Grid> 
+                </Grid>
 
                 <Grid xs={12} sx={{ mt: 4 }}>
                     <Box sx={{

@@ -439,7 +439,7 @@ const AddressModal = (props: TAddressModal) => {
                                                                 color="error"
                                                                 onClick={() => handleDeleteAddress(address.id)}
                                                                 sx={{ py: 1.5 }}
-                                                                disabled={addresses.length === 1}
+                                                                disabled={addresses.length === 1 || address.isDefault}
                                                             >
                                                                 {t('delete')}
                                                             </Button>

@@ -5,6 +5,8 @@ using SAMMI.ECOM.Domain.AggregateModels.OrderBuy;
 using SAMMI.ECOM.Domain.AggregateModels.System;
 using SAMMI.ECOM.Domain.Commands.System;
 using SAMMI.ECOM.Domain.DomainModels.System;
+using SAMMI.ECOM.Infrastructure.Repositories.Permission;
+using SAMMI.ECOM.Infrastructure.Services.SignalR;
 using SAMMI.ECOM.Repository.GenericRepositories;
 
 namespace SAMMI.ECOM.Infrastructure.Repositories.System
@@ -13,7 +15,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.System
     {
         Task<bool> IsReadAll(int userId);
         Task<ActionResponse<NotificationDTO>> CreateNotifi(Notification notifi);
-        Task<ActionResponse> CreateNotifiForRole(int roleId, Notification notifi);
+        Task<ActionResponse> CreateNotifiForRole(object role, Notification notifi);
     }
     public class NotificationRepository : CrudRepository<Notification>, INotificationRepository, IDisposable
     {
@@ -21,13 +23,19 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.System
         private bool _disposed;
         private readonly IMapper _mapper;
         private readonly Lazy<IUsersRepository> _userRepository;
+        private readonly Lazy<IRoleRepository> _roleRepository;
+        private readonly SignalRNotificationService _notifiSignalR;
         public NotificationRepository(SammiEcommerceContext context,
             Lazy<IUsersRepository> userRepository,
+            Lazy<IRoleRepository> roleRepository,
+            SignalRNotificationService notifiSignalR,
             IMapper mapper) : base(context)
         {
             _context = context;
             _mapper = mapper;
             _userRepository = userRepository;
+            _roleRepository = roleRepository;
+            _notifiSignalR = notifiSignalR;
         }
 
         public async Task<ActionResponse<NotificationDTO>> CreateNotifi(Notification notifi)
@@ -40,6 +48,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.System
             {
                 return actRes;
             }
+            _notifiSignalR.SendNotificationAsync(notifi.ReceiverId, _mapper.Map<NotificationDTO>(notifi));
             actRes.SetResult(_mapper.Map<NotificationDTO>(createRes.Result));
             return actRes;
         }
@@ -66,11 +75,16 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.System
             return false;
         }
 
-        public async Task<ActionResponse> CreateNotifiForRole(int roleId, Notification notifi)
+        public async Task<ActionResponse> CreateNotifiForRole(object role, Notification notifi)
         {
             var actRes = new ActionResponse();
             notifi.CreatedDate = DateTime.Now;
-            var userIds = await _userRepository.Value.GetUserByRole(roleId);
+            notifi.IsReaded = false;
+            bool isRoleId = false;
+            if(role is int)
+                isRoleId = true;
+            role = _roleRepository.Value.GetIdByCode(role.ToString());
+            var userIds = await _userRepository.Value.GetUserByRole(int.Parse(role.ToString()));
             foreach (var id in userIds)
             {
                 notifi.ReceiverId = id;
@@ -80,6 +94,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.System
                     return actRes;
             }
             await SaveChangeAsync();
+            foreach(var id in userIds)
+            {
+                notifi.ReceiverId = id;
+                await _notifiSignalR.SendNotificationAsync(id, _mapper.Map<NotificationDTO>(notifi));
+            }
             return actRes;
         }
     }

@@ -11,6 +11,7 @@ using SAMMI.ECOM.API.Infrastructure.Configuration;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure;
+using SAMMI.ECOM.Infrastructure.Hubs;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
 using Serilog;
@@ -26,6 +27,8 @@ builder.UseSerialLog();
 //builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
+
+builder.Services.AddSignalR();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -152,6 +155,8 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 builder.Services.AddHttpContextAccessor();
 
+
+
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
@@ -197,5 +202,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

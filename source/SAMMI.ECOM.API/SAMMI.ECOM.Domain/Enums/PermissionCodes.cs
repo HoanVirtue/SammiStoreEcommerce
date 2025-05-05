@@ -493,6 +493,7 @@ namespace SAMMI.ECOM.Domain.Enums
 
             // Quyền quản lý nhập hàng (admin)
             PermissionEnum.ImportCreate,
+            PermissionEnum.ImportUpdate,
             PermissionEnum.ImportUpdateStatus,
             PermissionEnum.ImportDelete,
             PermissionEnum.ImportView,
@@ -572,6 +573,8 @@ namespace SAMMI.ECOM.Domain.Enums
             PermissionEnum.BrandView,
 
             // Quyền quản lý nhập hàng (admin)
+            PermissionEnum.ImportCreate,
+            PermissionEnum.ImportUpdate,
             PermissionEnum.ImportUpdateStatus,
             PermissionEnum.ImportView,
 

@@ -154,7 +154,12 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 {
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
-builder.Services.AddHttpContextAccessor();
+
+//builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpsRedirection(options =>
+{
+    options.HttpsPort = null; // Không chuyển hướng tới HTTPS
+});
 
 var app = builder.Build();
 

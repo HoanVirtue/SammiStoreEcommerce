@@ -22,6 +22,9 @@ public partial class Notification : Entity
     [ForeignKey("Order")]
     public int? OrderId { get; set; }
 
+    [Column("IsReaded")]
+    public bool? IsReaded { get; set; }
+
     public virtual Order? Order { get; set; }
 
     public virtual User Receiver { get; set; } = null!;

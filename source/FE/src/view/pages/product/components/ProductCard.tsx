@@ -1,4 +1,4 @@
-import React, { useMemo, lazy, Suspense } from 'react';
+import React, { useMemo, lazy, Suspense, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { styled, useTheme } from '@mui/material/styles';
 import Card from '@mui/material/Card';
@@ -10,7 +10,6 @@ import IconifyIcon from 'src/components/Icon';
 import { Box, Fab, LinearProgress, Rating, Tooltip, ButtonGroup, Skeleton } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { TProduct } from 'src/types/product';
-import { hexToRGBA } from 'src/utils/hex-to-rgba';
 import { useRouter } from 'next/router';
 import { ROUTE_CONFIG } from 'src/configs/route';
 import { formatPrice, isExpired } from 'src/utils';
@@ -65,6 +64,8 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
 
     const { item, isLoading = false, showProgress = false } = props
 
+    const [isLiked, setIsLiked] = useState(item?.isLiked)
+
     //hooks
     const { t } = useTranslation()
     const theme = useTheme()
@@ -79,6 +80,7 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
     const handleNavigateProductDetail = (id: number) => {
         router.push(`${ROUTE_CONFIG.PRODUCT}/${id}`)
     }
+
 
     const handleAddProductToCart = (item: TProduct) => {
         if (user?.id) {
@@ -121,9 +123,11 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
         if (user?.id) {
             try {
                 let response;
+
                 if (isLiked) {
                     response = await unlikeProduct(id);
                     if (response?.isSuccess) {
+                        setIsLiked(false);
                         toast.success(t('remove_from_wishlist_success'));
                     } else {
                         toast.error(response?.message || t('remove_from_wishlist_error'));
@@ -131,6 +135,7 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                 } else {
                     response = await likeProduct(id);
                     if (response?.isSuccess) {
+                        setIsLiked(true);
                         toast.success(t('add_to_wishlist_success'));
                     } else {
                         toast.error(response?.message || t('add_to_wishlist_error'));
@@ -234,9 +239,9 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                         right: 2
                     }}>
                     <Tooltip title={t("add_to_cart")}>
-                        <Fab aria-label="add" 
-                                                        disabled={item.stockQuantity === 0}
-                         sx={{ backgroundColor: theme.palette.common.white }}>
+                        <Fab aria-label="add"
+                            disabled={item.stockQuantity === 0}
+                            sx={{ backgroundColor: theme.palette.common.white }}>
                             <IconButton onClick={() => handleAddProductToCart(item)}
                                 sx={{
                                     '&.Mui-disabled': {
@@ -260,12 +265,12 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                     </Tooltip>
                     <Tooltip title={t("add_to_wishlist")}>
                         <Fab aria-label="add-to-fav" sx={{ backgroundColor: theme.palette.common.white }}>
-                            <IconButton onClick={() => handleToggleFavoriteProduct(item?.id, Boolean(user && item?.likedBy?.includes(user.id)))}
+                            <IconButton onClick={() => handleToggleFavoriteProduct(item?.id, isLiked)}
                                 aria-label="add to favorites">
-                                {user && item?.likedBy?.includes(user.id) ? (
+                                {isLiked ? (
                                     <IconifyIcon icon="mdi:heart" color={theme.palette.primary.main} fontSize='1.5rem' />
                                 ) : (
-                                    <IconifyIcon icon="tabler:heart" color={theme.palette.primary.main} fontSize='1.5rem' />
+                                    <IconifyIcon icon="mdi:heart-outline" color={theme.palette.primary.main} fontSize='1.5rem' />
                                 )}
                             </IconButton>
                         </Fab>

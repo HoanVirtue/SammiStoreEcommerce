@@ -97,12 +97,9 @@ const ChangePasswordPage: NextPage<TProps> = () => {
                 newPassword: data.newPassword,
                 confirmPassword: data.confirmPassword
             })
-            console.log(res)
+
             if (res?.isSuccess) {
                 toast.success(t("update_password_success"))
-                setTimeout(() => {
-                    logout()
-                }, 0)
             }
             else {
                 toast.error(res?.response?.data?.message)

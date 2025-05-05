@@ -134,7 +134,7 @@ const MyProductPage: NextPage<TProps> = () => {
                                 <Grid container spacing={4}>
                                     {myLikedProducts.map((product) => (
                                         <Grid item key={product.id} md={3} sm={6} xs={12}>
-                                            <MyProductCard item={product} />
+                                            <MyProductCard item={product} onProductUnliked={fetchMyLikedProduct} />
                                         </Grid>
                                     ))}
                                 </Grid>
@@ -144,15 +144,7 @@ const MyProductPage: NextPage<TProps> = () => {
                         </Stack>
                     </Box>
                 </Grid>
-                <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", mt: 4 }}>
-                    <CustomPagination
-                        pageSize={pageSize}
-                        pageSizeOptions={PAGE_SIZE_OPTIONS}
-                        onChangePagination={handleOnChangePagination}
-                        page={page}
-                        rowLength={totalItems}
-                    />
-                </Box>
+
             </Box>
         </>
     )

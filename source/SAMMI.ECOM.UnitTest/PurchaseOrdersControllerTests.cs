@@ -28,7 +28,9 @@ namespace SAMMI.ECOM.UnitTest
                 _mockPurchaseQueries.Object,
                 _mockPurchaseRepository.Object,
                 null, // Mediator
-                null  // Logger
+                null,  // Logger
+                null,
+                null
             );
         }
 

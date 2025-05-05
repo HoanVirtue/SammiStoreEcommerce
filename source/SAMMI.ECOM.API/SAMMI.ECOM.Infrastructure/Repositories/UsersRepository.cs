@@ -30,6 +30,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
         Task<int> GetCustomerCount();
 
         Task<ActionResponse> IsExistAnotherTable(int id, TypeUserEnum type = TypeUserEnum.Customer);
+        Task<List<int>> GetUserByRole(int roleId);
     }
     public class UsersRepository : CrudRepository<User>, IUsersRepository, IDisposable
     {
@@ -247,6 +248,12 @@ namespace SAMMI.ECOM.Infrastructure.Repositories
             }
 
             return actionRes;
+        }
+
+        public Task<List<int>> GetUserByRole(int roleId)
+        {
+            return DbSet.Where(x => x.RoleId == roleId && x.IsDeleted != true)
+                .Select(x => x.Id).ToListAsync();
         }
     }
 }

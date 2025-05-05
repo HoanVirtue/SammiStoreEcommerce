@@ -103,12 +103,12 @@ export const authSlice = createSlice({
       state.isLoading = false
       state.isSuccessUpdateProfile = !!action.payload?.isSuccess
       state.isErrorUpdateProfile = !action.payload?.isSuccess
-      state.errorMessageUpdateProfile = action.payload?.message
+      state.errorMessageUpdateProfile = action.payload?.response?.data?.message
     })
     builder.addCase(updateProfileAsync.rejected, (state, action) => {
       state.isLoading = false
       state.isSuccessUpdateProfile = false
-      state.isErrorUpdateProfile = false
+      state.isErrorUpdateProfile = true
       state.errorMessageUpdateProfile = action.error?.message || ''
     })
 

@@ -859,6 +859,8 @@
     "required_product_import_price": "Giá nhập sản phẩm không được để trống",
     "at_least_import_price_product": "Giá nhập sản phẩm phải lớn hơn 1000",
     "start_date_must_be_future_or_today": "Ngày bắt đầu phải lớn hơn hoặc bằng ngày hiện tại",
+    "quantity_min_1": "Số lượng phải ít nhất là 1",
+    "unit_price_min_0": "Giá sản phẩm phải ít nhất là 0",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

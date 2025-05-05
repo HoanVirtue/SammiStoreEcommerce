@@ -421,6 +421,15 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
     setValue(`items.${index}.total`, quantity * unitPrice);
   };
 
+  const getAvailableProducts = (currentIndex: number) => {
+    const currentItems = watch('items');
+    const selectedProductIds = currentItems
+      .map((item, idx) => (idx !== currentIndex ? item.productId : null))
+      .filter((id): id is number => id !== null && id !== 0);
+
+    return productOptions.filter(option => !selectedProductIds.includes(option.id));
+  };
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       {loading && <Spinner />}
@@ -587,7 +596,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
                             control={control}
                             render={({ field: { onChange, value } }) => (
                               <CustomAutocomplete
-                                options={productOptions}
+                                options={getAvailableProducts(index)}
                                 value={productOptions.find((option) => option.id === value) || null}
                                 onChange={(newValue) => {
                                   if (newValue && newValue.id !== undefined) {

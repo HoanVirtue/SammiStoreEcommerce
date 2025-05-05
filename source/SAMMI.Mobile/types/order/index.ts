@@ -71,6 +71,7 @@ export type TParamsCreateOrder = {
     estimatedDeliveryDate?: Date| string | null;
     actualDeliveryDate?: Date|string | null;
     shippingCompanyId: number;
+    platForm?: string,
     details: {
         id: number;
         orderId: number;

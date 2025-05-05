@@ -5,8 +5,7 @@ import { getImportStatistics } from '@/services/report';
 import { formatCurrency } from '@/utils/format';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-
-const { RangePicker } = DatePicker;
+const { RangePicker } = DatePicker; 
 
 const ImportStatisticsPage = () => {
   const { t } = useTranslation();

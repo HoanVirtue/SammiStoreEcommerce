@@ -10,6 +10,7 @@ using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.Permission;
+using SAMMI.ECOM.Infrastructure.Repositories.System;
 
 namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
 {
@@ -20,11 +21,13 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
         private readonly IPurchaseOrderQueries _purchaseQueries;
         private readonly IPurchaseOrderRepository _purchaseRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly INotificationRepository _notifiRepository;
         public PurchaseOrdersController(
             IPurchaseOrderQueries purchaseQueries,
             IPurchaseOrderRepository purchaseOrderRepository,
             IRoleRepository roleRepository,
             UserIdentity userIdentity,
+            INotificationRepository notificationRepository,
             IMediator mediator,
             ILogger<PurchaseOrdersController> logger) : base(mediator, logger)
         {
@@ -32,6 +35,7 @@ namespace SAMMI.ECOM.API.Controllers.PurcharseOrder
             _purchaseRepository = purchaseOrderRepository;
             _roleRepository = roleRepository;
             UserIdentity = userIdentity;
+            _notifiRepository = notificationRepository;
         }
 
         [AuthorizePermission(PermissionEnum.ImportView)]

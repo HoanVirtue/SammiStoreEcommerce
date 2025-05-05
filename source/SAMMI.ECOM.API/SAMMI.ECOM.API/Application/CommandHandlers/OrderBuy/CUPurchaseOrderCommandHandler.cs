@@ -10,6 +10,7 @@ using SAMMI.ECOM.Infrastructure.Repositories;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.Permission;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
+using SAMMI.ECOM.Infrastructure.Repositories.System;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 {
@@ -20,12 +21,14 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly IProductRepository _productRepository;
         private readonly IPurchaseOrderDetailRepository _purchaseDetailRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly INotificationRepository _notifiRepository;
         public CreatePurchaseOrderCommandHandler(
             IUsersRepository usersRepository,
             IPurchaseOrderRepository purchaseOrderRepository,
             IProductRepository productRepository,
             IPurchaseOrderDetailRepository purchaseDetailRepository,
             IRoleRepository roleRepository,
+            INotificationRepository notificationRepository,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -34,6 +37,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             _productRepository = productRepository;
             _purchaseDetailRepository = purchaseDetailRepository;
             _roleRepository = roleRepository;
+            _notifiRepository = notificationRepository;
         }
 
         public override async Task<ActionResponse<PurchaseOrderDTO>> Handle(CreatePurchaseOrderCommand request, CancellationToken cancellationToken)
@@ -117,6 +121,27 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     createPurchaseRes.Result.Code,
                     createPurchaseRes.Result.Status
                 });
+
+            var notifiRes = await _notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
+                new Domain.AggregateModels.OrderBuy.Notification()
+                {
+                    Title = request.Status == PurchaseOrderStatus.PendingApproval ? "Có đơn nhập hàng mới cần phê duyệt" : "Có đơn nhập hàng mới",
+                    Content = $"Có đơn nhập hàng mới mã {createPurchaseRes.Result.Code}",
+                    CreatedBy = _currentUser.UserName
+                });
+            if (!notifiRes.IsSuccess)
+            {
+                AppLogger.LogWarning(_currentUser,
+                    "NOTIFICATION",
+                    notifiRes.Message,
+                    new
+                    {
+                        createPurchaseRes.Result.Code,
+                        createPurchaseRes.Result.Status
+                    });
+                actRes.AddError("Đã có lỗi xảy ra với phần thông báo của hệ thống!");
+                return actRes;
+            }
             actRes.SetResult(_mapper.Map<PurchaseOrderDTO>(purchaseCreated));
             return actRes;
         }

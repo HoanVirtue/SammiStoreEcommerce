@@ -15,6 +15,7 @@ using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
+using SAMMI.ECOM.Infrastructure.Repositories.System;
 using SAMMI.ECOM.Infrastructure.Services.VNPay;
 
 namespace SAMMI.ECOM.API.Controllers.OrderBuy
@@ -32,6 +33,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
         private readonly IUsersRepository _userRepository;
         private readonly IConfiguration _config;
         private readonly IOrderQueries _orderQueries;
+        private readonly INotificationRepository _notifiRepository;
         public OrderBuysController(IMediator mediator,
             IVNPayService vNPayService,
             IPaymentRepository paymentRepository,
@@ -42,6 +44,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             IUsersRepository usersRepository,
             IConfiguration config,
             IOrderQueries orderQueries,
+            INotificationRepository notificationRepository,
             IMapper mapper,
             ILogger<OrderBuysController> logger) : base(mediator, logger)
         {
@@ -55,6 +58,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             _userRepository = usersRepository;
             _config = config;
             _orderQueries = orderQueries;
+            _notifiRepository = notificationRepository;
         }
 
         [AuthorizePermission(PermissionEnum.OrderView)]
@@ -275,7 +279,19 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                         updateOrderStatusCommand.ShippingStatus,
                     });
 
+            _notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
+                new Domain.AggregateModels.OrderBuy.Notification()
+                {
+                    Title = "Khách hàng đã thanh toán, chờ xử lý",
+                    Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
+                });
 
+            _notifiRepository.CreateNotifiForRole(RoleTypeEnum.MANAGER.ToString(),
+                new Domain.AggregateModels.OrderBuy.Notification()
+                {
+                    Title = "Khách hàng đã thanh toán, chờ xử lý",
+                    Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
+                });
             return Redirect($"{_config.GetValue<string>("VNPAYOptions:RedirectUrl")}?payment-status=1");
         }
 

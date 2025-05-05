@@ -9,6 +9,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Permission
     public interface IRoleRepository : ICrudRepository<Role>
     {
         Task<Role> FindByCode(string code);
+        Task<int> GetIdByCode(string code);
         Task<bool> IsExistedCode(string code, int id);
     }
     public class RoleRepository : CrudRepository<Role>, IRoleRepository, IDisposable
@@ -28,6 +29,11 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.Permission
         public async Task<Role> FindByCode(string code)
         {
             return await DbSet.SingleOrDefaultAsync(x => x.Code.ToLower() == code.ToLower() && x.IsDeleted != true);
+        }
+
+        public Task<int> GetIdByCode(string code)
+        {
+            return DbSet.Where(x => x.Code.ToLower() == code.ToLower() && x.IsDeleted != true).Select(x => x.Id).FirstOrDefaultAsync();
         }
 
         public Task<bool> IsExistedCode(string code, int id)

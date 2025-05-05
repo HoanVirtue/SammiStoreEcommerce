@@ -37,7 +37,9 @@ export const ROUTE_CONFIG = {
     MANAGE_ORDER: {
         ORDER: "/manage-order/order",
     },
-
+    REPORT: {
+        REVENUE: "/report/revenue",
+    },
     DASHBOARD: "/dashboard",
     ADDRESS: {
         PROVINCE: "/address/province",

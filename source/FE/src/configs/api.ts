@@ -1,10 +1,10 @@
+import { BASE_URL } from "src/configs/env"
 
-
-export const BASE_URL = `${process.env.NEXT_PUBLIC_API_HOST}/api`
 export const API_ENDPOINT = {
   AUTH: {
-    INDEX: `${BASE_URL}/auth`,
-    AUTH_ME: `${BASE_URL}/auth/me`,
+    LOGIN: `${BASE_URL}/auth/login`,
+    REFRESH_TOKEN: `${BASE_URL}/auth/refresh-token`,
+    LOGOUT: `${BASE_URL}/auth/logout`,
   },
   PAYMENT: {
     VNPAY: {
@@ -12,7 +12,7 @@ export const API_ENDPOINT = {
     }
   },
   REPORT: {
-    INDEX: `${BASE_URL}/report`
+    INDEX: `${BASE_URL}/reports`
   },
   GHN: {
     INDEX: `${BASE_URL}/ghn`
@@ -45,6 +45,8 @@ export const API_ENDPOINT = {
   },
   USER: {
     INDEX: `${BASE_URL}/users`,
+    CHANGE_PASSWORD: `${BASE_URL}/users/change-password`,
+    UPDATE_PROFILE: `${BASE_URL}/users/update-profile`,
     ME: {
       INDEX: `${BASE_URL}/users/get-current-user`,
     },
@@ -63,7 +65,7 @@ export const API_ENDPOINT = {
   },
   SETTING: {
     PAYMENT_METHOD: {
-      INDEX: `${BASE_URL}/payment-method`,
+      INDEX: `${BASE_URL}/payment-methods`,
     },
     DELIVERY_METHOD: {
       INDEX: `${BASE_URL}/delivery-type`,
@@ -101,5 +103,8 @@ export const API_ENDPOINT = {
     REVIEW: {
       INDEX: `${BASE_URL}/reviews`,
     },
-  }
+  },
+  PERMISSION: {
+    INDEX: `${BASE_URL}/permissions`,
+  },
 }

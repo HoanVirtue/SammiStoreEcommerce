@@ -861,6 +861,21 @@
     "start_date_must_be_future_or_today": "Ngày bắt đầu phải lớn hơn hoặc bằng ngày hiện tại",
     "quantity_min_1": "Số lượng phải ít nhất là 1",
     "unit_price_min_0": "Giá sản phẩm phải ít nhất là 0",
+    "old_password": "Mật khẩu cũ",
+    "old_password_is_required": "Mật khẩu cũ không được để trống",
+    "the_old_password_format_is_incorrect": "Mật khẩu cũ không hợp lệ",
+    "new_password": "Mật khẩu mới",
+    "new_password_is_required": "Mật khẩu mới không được để trống",
+    "confirm_new_password": "Xác nhận mật khẩu mới",
+    "enter_your_old_password": "Nhập mật khẩu cũ",
+    "enter_your_new_password": "Nhập mật khẩu mới",
+    "enter_your_confirm_new_password": "Nhập lại mật khẩu mới",
+    "confirm_new_password_is_required": "Mật khẩu xác nhận mới không được để trống",
+    "the_confirm_new_password_format_is_incorrect": "Mật khẩu xác nhận mới không hợp lệ",
+    "passwords_dot_not_match": "Mật khẩu không khớp",
+    "confirm_your_new_password": "Xác nhận mật khẩu mới",
+    
+
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

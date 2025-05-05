@@ -92,7 +92,6 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
             ).then(() => {
                 if (isSuccessCreate) {
                     toast.success(t('add_to_cart_success'))
-                    // Refetch cart data
                     dispatch(getCartsAsync({
                         params: {
                             take: -1,
@@ -235,9 +234,18 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                         right: 2
                     }}>
                     <Tooltip title={t("add_to_cart")}>
-                        <Fab aria-label="add" sx={{ backgroundColor: theme.palette.common.white }}>
+                        <Fab aria-label="add" 
+                                                        disabled={item.stockQuantity === 0}
+                         sx={{ backgroundColor: theme.palette.common.white }}>
                             <IconButton onClick={() => handleAddProductToCart(item)}
-                                disabled={item.stockQuantity === 0}>
+                                sx={{
+                                    '&.Mui-disabled': {
+                                        color: theme.palette.grey[400],
+                                        '& .MuiSvgIcon-root': {
+                                            color: theme.palette.grey[400]
+                                        }
+                                    }
+                                }}>
                                 <IconifyIcon color={theme.palette.primary.main}
                                     icon="bi:cart-plus" fontSize='1.5rem' />
                             </IconButton>

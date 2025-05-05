@@ -50,6 +50,11 @@ export default function Nav({ open, onClose }: Props) {
             title: t('my_vouchers'),
             path: '/account/my-vouchers',
             icon: <IconifyIcon icon="mdi:voucher-outline" />,
+        },
+        {
+            title: t('change_password'),
+            path: '/account/change-password',
+            icon: <IconifyIcon icon="mdi:key-outline" />,
         }
     ];
 

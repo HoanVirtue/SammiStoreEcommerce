@@ -17,8 +17,9 @@ export type TRegisterAuth = {
 }
 
 export type TChangePassword = {
-    currentPassword: string,
-    newPassword: string
+    oldPassword: string,
+    newPassword: string,
+    confirmPassword: string
 }
 
 export interface LoginParams {

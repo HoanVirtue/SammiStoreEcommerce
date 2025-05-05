@@ -51,7 +51,6 @@ namespace SAMMI.ECOM.API.Controllers
         {
             try
             {
-                _logger.LogError("Login request: test login", request);
                 if (string.IsNullOrEmpty(request.Username))
                 {
                     return BadRequest(string.Format(SignInError.UserNameEmpty, request.Username));

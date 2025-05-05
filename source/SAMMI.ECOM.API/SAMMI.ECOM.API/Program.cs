@@ -13,8 +13,6 @@ using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure;
 using SAMMI.ECOM.Infrastructure.Hubs;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
-using SAMMI.ECOM.Infrastructure.Services.GHN_API;
-using Serilog;
 using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -120,7 +118,7 @@ builder.Services
 
 builder.Services.AddMemoryCache();
 
-builder.Services.AddAuthorization(options => 
+builder.Services.AddAuthorization(options =>
 {
     foreach (var per in PermissionCodes.AllPermissionCodes)
     {
@@ -144,8 +142,11 @@ catch (Exception ex)
     Console.WriteLine($"Error connect Redis: {ex.Message}");
 }
 
+//builder.Services.AddDataProtection()
+//    .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
 builder.Services.AddDataProtection()
-    .PersistKeysToFileSystem(new DirectoryInfo("/root/.aspnet/DataProtection-Keys"));
+    .PersistKeysToFileSystem(new DirectoryInfo(@"/var/sammi-api-keys"))
+    .SetApplicationName("SammiAPI");
 
 builder.Services.AddHttpClient();
 
@@ -155,35 +156,33 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 });
 builder.Services.AddHttpContextAccessor();
 
-
-
 var app = builder.Build();
 
 app.UseCors("CorsPolicy");
 
-using (var scope = app.Services.CreateScope())
-{
-    var context = scope.ServiceProvider.GetRequiredService<SammiEcommerceContext>();
-    var ghnService = scope.ServiceProvider.GetRequiredService<IGHNService>();
-    var dataSeed = new DataSeeder(context, ghnService);
-    try
-    {
-        Console.WriteLine("Applying migrations...");
-        await context.Database.MigrateAsync();
+//using (var scope = app.Services.CreateScope())
+//{
+//    var context = scope.ServiceProvider.GetRequiredService<SammiEcommerceContext>();
+//    var ghnService = scope.ServiceProvider.GetRequiredService<IGHNService>();
+//    var dataSeed = new DataSeeder(context, ghnService);
+//    try
+//    {
+//        Console.WriteLine("Applying migrations...");
+//        await context.Database.MigrateAsync();
 
-        if (app.Environment.IsDevelopment())
-        {
-            Console.WriteLine("Seeding data...");
-            await dataSeed.SeedAsync();
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"An error occurred during database initialization: {ex.Message}");
-        throw;
-    }
-    await dataSeed.SeedAsync();
-}
+//        if (app.Environment.IsDevelopment())
+//        {
+//            Console.WriteLine("Seeding data...");
+//            await dataSeed.SeedAsync();
+//        }
+//    }
+//    catch (Exception ex)
+//    {
+//        Console.WriteLine($"An error occurred during database initialization: {ex.Message}");
+//        throw;
+//    }
+//    await dataSeed.SeedAsync();
+//}
 
 // Configure the HTTP request pipeline.
 //if (app.Environment.IsDevelopment())

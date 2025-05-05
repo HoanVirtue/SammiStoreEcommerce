@@ -66,6 +66,7 @@ const INITIAL_PRODUCT_STATE: TProduct = {
     brandId: 0,
     categoryId: 0,
     status: 0,
+    isLiked: false,
     images: [{
         id: 0,
         imageUrl: '',

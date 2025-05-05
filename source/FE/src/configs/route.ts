@@ -39,6 +39,7 @@ export const ROUTE_CONFIG = {
     },
     REPORT: {
         REVENUE: "/report/revenue",
+        IMPORT: "/report/import",
     },
     DASHBOARD: "/dashboard",
     ADDRESS: {

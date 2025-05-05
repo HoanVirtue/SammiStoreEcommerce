@@ -29,9 +29,14 @@ export const VerticalLayoutItems = () => {
                     path: ROUTE_CONFIG.DASHBOARD,
                 },
                 {
-                    title: "Doanh thu",
+                    title: "Thống kê doanh thu",
                     icon: 'material-symbols:payments-outline',
                     path: ROUTE_CONFIG.REPORT.REVENUE,
+                },
+                {
+                    title: "Thống kê nhập hàng",
+                    icon: 'material-symbols:inventory-2-outline',
+                    path: ROUTE_CONFIG.REPORT.IMPORT,
                 },
             ]
         },

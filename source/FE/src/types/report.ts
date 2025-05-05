@@ -6,6 +6,13 @@ export interface SaleRevenueFilterModel extends RequestFilterModel {
   paymentMethodId?: number;
 }
 
+export interface ImportStatisticFilterModel {
+  dateFrom?: Date;
+  dateTo?: Date;
+  employeeId?: number;
+  supplierId?: number;
+}
+
 export interface SaleRevenueData {
   date: string;
   totalOrders: number;

@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from 'src/configs/api'
 import instance from 'src/helpers/axios'
-import { SaleRevenueFilterModel } from '../types/report'
+import { SaleRevenueFilterModel, ImportStatisticFilterModel } from '../types/report'
 
 export const getCountUserType = async () => {
   try {
@@ -69,6 +69,22 @@ export const getSalesRevenue = async (data: SaleRevenueFilterModel) => {
         dateFrom: data.dateFrom,
         dateTo: data.dateTo,
         paymentMethodId: data.paymentMethodId
+      }
+    })
+    return res.data
+  } catch (error: any) {
+    return error?.response?.data
+  }
+}
+
+export const getImportStatistics = async (data: ImportStatisticFilterModel) => {
+  try {
+    const res = await instance.get(`${API_ENDPOINT.REPORT.INDEX}/get-import-statistics`, {
+      params: {
+        dateFrom: data.dateFrom,
+        dateTo: data.dateTo,
+        employeeId: data.employeeId,
+        supplierId: data.supplierId
       }
     })
     return res.data

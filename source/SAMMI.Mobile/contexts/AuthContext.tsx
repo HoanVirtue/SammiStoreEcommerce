@@ -15,7 +15,6 @@ import { AuthValuesType, ErrCallbackType, UserDataType } from './types'
 import { getLoginUser, loginAuth, logoutAuth, loginAdminAuth } from '@/services/auth'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from '@/helpers/storage'
 import instance from '@/helpers/axios'
-import { updateProductToCart } from '@/stores/order'
 import { AppDispatch } from '@/stores'
 import { useDispatch } from 'react-redux'
 import { LoginParams } from '@/types/auth'
@@ -118,6 +117,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
           accessToken,
           refreshToken
         );
+        console.log("setLocalUserData", userData);
       } else {
         await setTemporaryToken(accessToken);
       }
@@ -160,7 +160,8 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       setUser({ ...userResponse.result });
 
       const userData = userResponse.result;
-      if (params.rememberMe) {
+      // if (params.rememberMe) {
+      if (true) {
         await setLocalUserData(
           JSON.stringify(userData || {}),
           accessToken,
@@ -195,7 +196,6 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
     removeLocalUserData()
     delete instance.defaults.headers.common['Authorization'];
     dispatch(resetInitialState())
-
   }
 
   const values = {

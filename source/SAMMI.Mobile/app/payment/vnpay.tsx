@@ -1,49 +1,144 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     TouchableOpacity,
     SafeAreaView,
+    Linking,
+    Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@react-navigation/native';
-import { ROUTE_CONFIG } from '@/configs/route';
-import { useLocalSearchParams } from 'expo-router';
-import { formatPrice } from '@/utils';
-import { CheckCircle } from 'lucide-react-native';
+import { CheckCircle, XCircle } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
+import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 
 const VnPayScreen = () => {
     const router = useRouter();
     const theme = useTheme();
-    const params = useLocalSearchParams();
+    const [paymentStatus, setPaymentStatus] = useState<'loading' | 'success' | 'failed'>('loading');
+    const [errorMessage, setErrorMessage] = useState<string>('');
 
-    const paymentMethod = params.paymentMethod as string;
+    useEffect(() => {
+        const handleDeepLink = async () => {
+            try {
+                // 1. Kiểm tra URL ban đầu khi app mở
+                const initialUrl = await Linking.getInitialURL();
+                if (initialUrl) {
+                    console.log('Initial URL:', initialUrl);
+                    processPaymentUrl(initialUrl);
+                    return;
+                }
+
+                // 2. Lắng nghe deep link khi app đang mở
+                const subscription = Linking.addEventListener('url', ({ url }) => {
+                    console.log('Deep link received:', url);
+                    processPaymentUrl(url);
+                });
+
+                return () => {
+                    subscription.remove();
+                };
+            } catch (error) {
+                console.error('Error in handleDeepLink:', error);
+                setPaymentStatus('failed');
+                setErrorMessage('Có lỗi xảy ra khi xử lý thanh toán');
+            }
+        };
+
+        handleDeepLink();
+    }, []);
+
+    const processPaymentUrl = (url: string) => {
+        try {
+            // Parse URL để lấy các tham số
+            const urlObj = new URL(url);
+            const queryParams = Object.fromEntries(urlObj.searchParams);
+            console.log('Payment params:', queryParams);
+
+            // Xử lý kết quả thanh toán
+            const vnpResponseCode = queryParams['vnp_ResponseCode'];
+            const vnpTxnRef = queryParams['vnp_TxnRef'];
+            const vnpAmount = queryParams['vnp_Amount'];
+
+            if (vnpResponseCode === '00') {
+                setPaymentStatus('success');
+                // TODO: Gọi API cập nhật trạng thái đơn hàng
+                setTimeout(() => {
+                    router.replace('/(tabs)');
+                }, 2000);
+            } else {
+                setPaymentStatus('failed');
+                setErrorMessage('Thanh toán không thành công');
+                setTimeout(() => {
+                    router.replace('/(tabs)');
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error processing payment URL:', error);
+            setPaymentStatus('failed');
+            setErrorMessage('Có lỗi xảy ra khi xử lý thanh toán');
+            setTimeout(() => {
+                router.replace('/(tabs)');
+            }, 2000);
+        }
+    };
 
     const handleGoToHome = () => {
-        router.push('/' as never);
+        router.replace('/(tabs)');
     };
 
     const handleGoToOrders = () => {
-        router.push('/my-order' as never);
+        router.replace('/my-order' as any);
+    };
+
+    const renderContent = () => {
+        switch (paymentStatus) {
+            case 'loading':
+                return (
+                    <>
+                        <LoadingIndicator />
+                        <Text style={[styles.statusText, { color: theme.colors.text }]}>
+                            Đang xử lý thanh toán...
+                        </Text>
+                    </>
+                );
+            case 'success':
+                return (
+                    <>
+                        <View style={styles.iconContainer}>
+                            <CheckCircle size={80} color={colors.success} />
+                        </View>
+                        <Text style={[styles.title, { color: theme.colors.text }]}>
+                            Thanh toán thành công
+                        </Text>
+                        <Text style={[styles.description, { color: theme.colors.text }]}>
+                            Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi. Đơn hàng của quý khách đã được xác nhận và đang được xử lý.
+                        </Text>
+                    </>
+                );
+            case 'failed':
+                return (
+                    <>
+                        <View style={styles.iconContainer}>
+                            <XCircle size={80} color={colors.error} />
+                        </View>
+                        <Text style={[styles.title, { color: theme.colors.text }]}>
+                            Thanh toán không thành công
+                        </Text>
+                        <Text style={[styles.description, { color: theme.colors.text }]}>
+                            {errorMessage || 'Vui lòng thử lại sau'}
+                        </Text>
+                    </>
+                );
+        }
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
-                <View style={styles.iconContainer}>
-                    <CheckCircle size={80} color={colors.primary} />
-                </View>
-
-                <Text style={[styles.title, { color: theme.colors.text }]}>
-                    Đặt hàng thành công
-                </Text>
-
-                <Text style={[styles.description, { color: theme.colors.text }]}>
-                    Chúc mừng quý khách hàng đã đặt hàng tại Sammi Stores. Nhân viên của chúng tôi sẽ liên hệ lại quý khách hàng khi đơn hàng được xác nhận. Quý khách hàng có thể theo dõi bằng cách đăng nhập và theo dõi đơn hàng trên ứng dụng của chúng tôi.
-                </Text>
-
+                {renderContent()}
 
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
@@ -91,19 +186,10 @@ const styles = StyleSheet.create({
         marginBottom: 24,
         lineHeight: 24,
     },
-    orderInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: 12,
-        paddingHorizontal: 20,
-    },
-    orderLabel: {
+    statusText: {
         fontSize: 16,
-        fontWeight: '500',
-    },
-    orderValue: {
-        fontSize: 16,
+        marginTop: 16,
+        textAlign: 'center',
     },
     buttonContainer: {
         flexDirection: 'row',

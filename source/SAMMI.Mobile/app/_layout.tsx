@@ -101,8 +101,9 @@ function RootLayoutNav() {
             headerShown: false,
           }}
         />
-
-          name="favourite-product"
+        
+        <Stack.Screen
+          name="favourite"
           options={{
             headerShown: false,
           }}

@@ -38,6 +38,11 @@ export const VerticalLayoutItems = () => {
                     icon: 'material-symbols:inventory-2-outline',
                     path: ROUTE_CONFIG.REPORT.IMPORT,
                 },
+                {
+                    title: "Thống kê tồn kho",
+                    icon: 'material-symbols:inventory-2-outline',
+                    path: ROUTE_CONFIG.REPORT.INVENTORY,
+                },
             ]
         },
         {

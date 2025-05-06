@@ -13,9 +13,17 @@ import { formatPrice } from '@/utils';
 import { getProductDetail } from '@/services/product';
 import { isExpired } from '@/utils';
 import { useCart } from './_layout';
+import { getCartsAsync } from '@/stores/cart/action';
+
+import { useDispatch } from 'react-redux';
+import { AppDispatch } from '@/stores';
+import { useAuth } from '@/hooks/useAuth';
+
 
 export default function CartScreen() {
   const { refreshCart } = useCart();
+  const { user } = useAuth();
+  const dispatch: AppDispatch = useDispatch();
   const [cart, setCart] = useState<{ data: TItemOrderProduct[] }>({ data: [] });
   const [isLoading, setIsLoading] = useState(true);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
@@ -50,6 +58,24 @@ export default function CartScreen() {
       setRefreshing(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (user?.id) {
+        dispatch(
+            getCartsAsync({
+                params: {
+                    take: -1,
+                    skip: 0,
+                    paging: false,
+                    orderBy: 'name',
+                    dir: 'asc',
+                    keywords: "''",
+                    filters: '',
+                },
+            })
+        );
+    }
+}, [dispatch, user?.id]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

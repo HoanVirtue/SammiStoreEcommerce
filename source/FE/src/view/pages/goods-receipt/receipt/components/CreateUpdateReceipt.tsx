@@ -25,7 +25,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useTranslation } from 'react-i18next';
 import { parseISO, isValid } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 import { getAllSuppliers } from 'src/services/supplier';
 import { getAllEmployees } from 'src/services/employee';
 import { getAllProducts } from 'src/services/product';
@@ -261,7 +261,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
         if (data.receiptDate) {
           parsedDate = parseISO(data.receiptDate); 
           if (isValid(parsedDate)) {
-            parsedDate = utcToZonedTime(parsedDate, 'Asia/Ho_Chi_Minh');
+              parsedDate = toZonedTime(parsedDate, 'Asia/Ho_Chi_Minh');
           } else {
             parsedDate = new Date();
           }

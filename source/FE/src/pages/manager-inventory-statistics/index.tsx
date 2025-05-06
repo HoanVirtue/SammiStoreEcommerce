@@ -4,18 +4,18 @@ import { getInventoryStatistics } from '@/services/report';
 import { formatCurrency } from '@/utils/format';
 import { formatDate } from '@/utils';
 import { useTranslation } from 'react-i18next';
-import { 
-  Box, 
-  Card, 
-  CardContent, 
-  Typography, 
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
   TextField,
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
   Paper,
   TablePagination,
   CircularProgress
@@ -127,7 +127,7 @@ const InventoryStatisticsPage = () => {
           <Typography variant="h5" component="div" gutterBottom>
             {t('inventory_statistics')}
           </Typography>
-          
+
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', mb: 3 }}>
             <TextField
               label={t('maximum_stock_quantity')}
@@ -148,7 +148,7 @@ const InventoryStatisticsPage = () => {
               sx={{ width: 200 }}
             />
           </Box>
-          
+
           <Box sx={{ mb: 3 }}>
             {isLoading ? (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -169,7 +169,7 @@ const InventoryStatisticsPage = () => {
               </>
             )}
           </Box>
-          
+
           <TableContainer component={Paper}>
             <Table size="small">
               <TableHead>
@@ -208,8 +208,8 @@ const InventoryStatisticsPage = () => {
                       <TableCell align="right">{formatCurrency(row.price || 0)}</TableCell>
                       <TableCell>{row.status === 1 ? t('active') : t('inactive')}</TableCell>
                       <TableCell>
-                        {row.lastReceiptDate 
-                          ? formatDate(row.lastReceiptDate, { dateStyle: "medium", timeStyle: "short" }) 
+                        {row.lastReceiptDate
+                          ? formatDate(row.lastReceiptDate, { dateStyle: "medium", timeStyle: "short" })
                           : '-'}
                       </TableCell>
                       <TableCell align="right">{row.daysSinceLastReceipt || '-'}</TableCell>
@@ -219,7 +219,7 @@ const InventoryStatisticsPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          
+
           <TablePagination
             rowsPerPageOptions={[5, 10, 25, 50]}
             component="div"

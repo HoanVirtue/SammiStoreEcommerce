@@ -21,6 +21,7 @@ import { useDispatch } from 'react-redux'
 import { LoginParams } from '@/types/auth'
 import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { resetInitialState } from '@/stores/auth'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -188,26 +189,13 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      setUser(null);
-      await removeLocalUserData();
-      delete instance.defaults.headers.common['Authorization'];
-      dispatch(updateProductToCart({
-        orderItems: []
-      }));
-      router.replace('/login' as any);
-    } catch (error) {
-      console.error('Error during logout:', error);
-      // Still try to clear local data even if logout API call fails
-      setUser(null);
-      await removeLocalUserData();
-      delete instance.defaults.headers.common['Authorization'];
-      dispatch(updateProductToCart({
-        orderItems: []
-      }));
-      router.replace('/login' as any);
-    }
+  const handleLogout = () => {
+
+    setUser(null)
+    removeLocalUserData()
+    delete instance.defaults.headers.common['Authorization'];
+    dispatch(resetInitialState())
+
   }
 
   const values = {

@@ -193,32 +193,28 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
     }, [orderData?.orderStatus, orderData?.paymentStatus])
 
     const renderOrderItems = useMemo(() => {
-        return orderData?.details?.map((item: TOrderDetail) => (
-            <View key={item.productId} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <View style={{ borderWidth: 1, borderColor: '#e0e0e0', height: 80 }}>
-                    <Image 
-                        source={{ uri: item?.imageUrl }} 
-                        style={{ width: 80, height: 80 }} 
-                        resizeMode="cover"
-                    />
-                </View>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, width: '100%' }}>
-                    <View>
-                        <View style={{ width: '80%' }}>
-                            <Text style={{ fontSize: 14 }}>{item?.productName}</Text>
-                        </View>
-                        <View>
-                            <Text style={{
-                                color: '#1976d2',
-                                fontWeight: 'bold',
-                                fontSize: 14
-                            }}>
-                                {formatPrice(item?.price)}
-                            </Text>
-                        </View>
-                    </View>
-                    <View>
-                        <Text style={{ fontSize: 16 }}>x{item?.quantity}</Text>
+        return orderData?.details?.map((item: TOrderDetail, idx: number) => (
+            <View key={item.productId + idx} style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                padding: 12,
+                borderBottomWidth: idx === orderData.details.length - 1 ? 0 : 1,
+                borderColor: '#f5f5f5',
+                backgroundColor: '#fff',
+            }}>
+                <Image
+                    source={{ uri: item?.imageUrl }}
+                    style={{ width: 60, height: 60, borderRadius: 4, borderWidth: 1, borderColor: '#eee', backgroundColor: '#fafafa' }}
+                    resizeMode="cover"
+                />
+                <View style={{ flex: 1, marginLeft: 12 }}>
+                    <Text numberOfLines={1} style={{ fontSize: 15, fontWeight: '500' }}>{item?.productName}</Text>
+                    {!!(item as any)?.variantName && (
+                        <Text style={{ color: '#888', fontSize: 13, marginTop: 2 }}>{(item as any)?.variantName}</Text>
+                    )}
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 6 }}>
+                        <Text style={{ color: colors.primary, fontWeight: 'bold' }}>{formatPrice(item?.price)}</Text>
+                        <Text style={{ color: '#333' }}>x{item?.quantity}</Text>
                     </View>
                 </View>
             </View>
@@ -229,105 +225,101 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
         <>
             {loading && <ActivityIndicator />}
             <View style={{
-                backgroundColor: '#ffffff',
-                padding: 32,
-                borderRadius: 15,
-                width: '100%',
+                backgroundColor: '#fff',
+                borderRadius: 8,
+                marginBottom: 16,
+                padding: 0,
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.05,
+                shadowRadius: 4,
+                elevation: 2,
+                borderWidth: 1,
+                borderColor: '#f0f0f0',
             }}>
-                {renderOrderStatus}
-                <View style={{ height: 1, backgroundColor: '#e0e0e0', marginVertical: 16 }} />
-                <ScrollView style={{ marginVertical: 16, gap: 16 }}>
-                    {renderOrderItems}
-                </ScrollView>
-                <View style={{ height: 1, backgroundColor: '#e0e0e0', marginVertical: 16 }} />
-                <View style={{ flexDirection: 'row', width: '100%', justifyContent: 'flex-end', marginTop: 12, gap: 8 }}>
-                    <Text style={{ fontWeight: 'bold', fontSize: 18 }}>
-                        Tổng tiền:
+                {/* Header: Shop name + Status */}
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    padding: 12,
+                    borderTopLeftRadius: 8,
+                    borderTopRightRadius: 8,
+                    borderBottomWidth: 1,
+                    borderColor: '#f5f5f5',
+                    backgroundColor: '#fff8f1',
+                }}>
+                    <Text style={{ color: orderData.orderStatus === OrderStatus.Completed.label ? '#43a047' : colors.primary, fontWeight: 'bold' }}>
+                        {OrderStatus[orderData?.orderStatus as keyof typeof OrderStatus]?.title || 'Đang xử lý'}
                     </Text>
-                    <Text style={{ fontWeight: 'bold', fontSize: 18, color: colors.primary }}>
+                </View>
+                {/* Danh sách sản phẩm */}
+                {renderOrderItems}
+                {/* Tổng tiền */}
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    padding: 12,
+                    borderTopWidth: 1,
+                    borderColor: '#f5f5f5',
+                    backgroundColor: '#fafbfc',
+                }}>
+                    <Text style={{ fontSize: 15 }}>Tổng số tiền ({orderData.details?.length} sản phẩm): </Text>
+                    <Text style={{ fontWeight: 'bold', fontSize: 16, color: colors.primary, marginLeft: 4 }}>
                         {formatPrice(orderData.totalPrice)}
                     </Text>
                 </View>
+                {/* Các nút chức năng */}
                 <View style={{
                     flexDirection: 'row',
-                    alignItems: 'center',
                     justifyContent: 'flex-end',
-                    padding: 0,
-                    gap: 16,
-                    marginTop: 16
+                    alignItems: 'center',
+                    padding: 12,
+                    gap: 8,
+                    backgroundColor: '#fff',
+                    borderBottomLeftRadius: 8,
+                    borderBottomRightRadius: 8,
                 }}>
-                    {(orderData.orderStatus === OrderStatus.Pending.label
-                        || orderData.orderStatus === OrderStatus.WaitingForPayment.label) &&
-                        orderData.paymentStatus !== PaymentStatus.Paid.label
-                        && orderData.paymentMethod === 'VNPay'
-                        && (
-                            <TouchableOpacity
-                                style={{
-                                    backgroundColor: colors.primary,
-                                    height: 40,
-                                    marginTop: 12,
-                                    paddingVertical: 6,
-                                    paddingHorizontal: 16,
-                                    borderRadius: 4,
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    gap: 8
-                                }}
-                                onPress={handlePayment}
-                            >
-                                <Text style={{ color: 'white', fontWeight: '600' }}>Thanh toán</Text>
-                            </TouchableOpacity>
-                        )}
                     {(orderData.orderStatus === OrderStatus.WaitingForPayment.label || orderData.orderStatus === OrderStatus.Pending.label) &&
-                        orderData.paymentMethod !== 'VNPay' &&
-                        (
+                        orderData.paymentMethod !== 'VNPay' && (
                             <TouchableOpacity
                                 style={{
-                                    backgroundColor: '#d32f2f',
-                                    height: 40,
-                                    marginTop: 12,
+                                    borderWidth: 1,
+                                    borderColor: '#d32f2f',
+                                    borderRadius: 4,
                                     paddingVertical: 6,
                                     paddingHorizontal: 16,
-                                    borderRadius: 4,
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    gap: 8
+                                    marginLeft: 8,
                                 }}
                                 onPress={() => setOpenCancelDialog(true)}
                             >
-                                <Text style={{ color: 'white', fontWeight: '600' }}>Hủy đơn hàng</Text>
+                                <Text style={{ color: '#d32f2f', fontWeight: '600' }}>Hủy đơn</Text>
                             </TouchableOpacity>
                         )}
                     <TouchableOpacity
                         style={{
-                            backgroundColor: colors.primary,
-                            height: 40,
-                            marginTop: 12,
+                            borderWidth: 1,
+                            borderColor: colors.primary,
+                            borderRadius: 4,
                             paddingVertical: 6,
                             paddingHorizontal: 16,
-                            borderRadius: 4,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            gap: 8,
-                            opacity: memoDisableBuyAgain ? 0.5 : 1
+                            marginLeft: 8,
+                            opacity: memoDisableBuyAgain ? 0.5 : 1,
                         }}
                         onPress={handleBuyAgain}
                         disabled={memoDisableBuyAgain}
                     >
-                        <Text style={{ color: 'white', fontWeight: '600' }}>Mua lại</Text>
+                        <Text style={{ color: colors.primary, fontWeight: '600' }}>Mua lại</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={{
                             borderWidth: 1,
                             borderColor: colors.primary,
-                            height: 40,
-                            marginTop: 12,
+                            borderRadius: 4,
                             paddingVertical: 6,
                             paddingHorizontal: 16,
-                            borderRadius: 4,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            gap: 8
+                            marginLeft: 8,
                         }}
                         onPress={handleNavigateDetail}
                     >

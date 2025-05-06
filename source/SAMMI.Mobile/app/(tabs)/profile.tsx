@@ -56,20 +56,11 @@ export default function ProfileScreen() {
     try {
       await logout();
       await AsyncStorage.removeItem(ACCESS_TOKEN);
-      // Reset navigation stack và chuyển về login
-      router.replace('/login' as any);
-      // Xóa toàn bộ navigation stack
-      while (router.canGoBack()) {
-        router.back();
-      }
+      setHasToken(false);
     } catch (error) {
       console.error('Error during logout:', error);
-      // Nếu có lỗi khi gọi API, vẫn xóa token và chuyển về login
       await AsyncStorage.removeItem(ACCESS_TOKEN);
-      router.replace('/login' as any);
-      while (router.canGoBack()) {
-        router.back();
-      }
+      setHasToken(false);
     }
   };
 

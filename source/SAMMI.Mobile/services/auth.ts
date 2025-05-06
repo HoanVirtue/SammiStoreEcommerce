@@ -17,8 +17,6 @@ export const loginAuth = async (data: TLoginAuth) => {
             isEmployee: data.isEmployee || false,
         });
 
-        console.log("loginAuth", res);
-
         return res.data;
     } catch (error: any) {
         throw error;

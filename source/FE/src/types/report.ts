@@ -49,4 +49,32 @@ export interface InventoryStatistic {
   totalStockQuantity: number;
   totalAmount: number;
   inventoryDetails: InventoryStatisticDetail[];
+}
+
+export interface ImportStatisticDetail {
+  id: number;
+  code: string;
+  employeeId: number;
+  supplierId: number;
+  status: string;
+  note: string;
+  createdDate: string;
+  updatedDate: string;
+  createdBy: string;
+  updatedBy: string;
+  isActive: boolean;
+  isDeleted: boolean;
+  totalQuantity: number;
+  totalPrice: number;
+  employeeName: string;
+  supplierName: string;
+}
+
+export interface ImportStatistic {
+  imports: {
+    subset: ImportStatisticDetail[];
+    totalItemCount: number;
+  };
+  totalQuantity: number;
+  totalAmount: number;
 } 

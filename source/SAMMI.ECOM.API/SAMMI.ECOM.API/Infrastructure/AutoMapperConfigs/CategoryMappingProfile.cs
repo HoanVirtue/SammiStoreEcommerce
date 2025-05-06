@@ -72,6 +72,9 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<RolePermission, RolePermissionDTO>();
 
             CreateMap<Permission, PermissionDTO>();
+
+            CreateMap<NotificationCommand, Notification>();
+            CreateMap<Notification, NotificationDTO>();
             //CreateMap<>();
         }
     }

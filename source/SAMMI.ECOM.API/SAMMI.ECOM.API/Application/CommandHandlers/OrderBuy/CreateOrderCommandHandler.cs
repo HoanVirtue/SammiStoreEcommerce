@@ -13,7 +13,9 @@ using SAMMI.ECOM.Infrastructure.Queries.Auth;
 using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.AddressCategory;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
+using SAMMI.ECOM.Infrastructure.Repositories.Permission;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
+using SAMMI.ECOM.Infrastructure.Repositories.System;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 {
@@ -31,6 +33,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly IShippingCompanyRepository _shippingRepository;
         private readonly ICartDetailQueries _cartDetailQueries;
         private readonly IMyVoucherRepository _myVoucherRepository;
+        private readonly INotificationRepository _notifiRepository;
+        private readonly IRoleRepository _roleRepository;
         public CreateOrderCommandHandler(
             IOrderRepository orderRepository,
             IOrderDetailRepository detailRepository,
@@ -45,6 +49,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             ICartDetailQueries cartDetailQueries,
             IMyVoucherRepository myVoucherRepository,
             UserIdentity currentUser,
+            IRoleRepository roleRepository,
+            INotificationRepository notificationRepository,
             IMapper mapper) : base(currentUser, mapper)
         {
             _orderRepository = orderRepository;
@@ -59,17 +65,13 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             _shippingRepository = shippingCompanyRepository;
             _cartDetailQueries = cartDetailQueries;
             _myVoucherRepository = myVoucherRepository;
+            _notifiRepository = notificationRepository;
+            _roleRepository = roleRepository;
         }
 
         public override async Task<ActionResponse<OrderDTO>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<OrderDTO>();
-            if (_currentUser.Id == null && request.Id == 0)
-            {
-                actResponse.AddError("Vui lòng đăng nhập hệ thống");
-                return actResponse;
-            }
-
             if (!_wardRepository.IsExisted(request.WardId))
             {
                 actResponse.AddError("Mã phường không tồn tại.");
@@ -225,6 +227,24 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                         totalAmount,
                         PaymentMethod = paymentMethod.Code.ToString()
                     });
+
+            _notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
+                new Domain.AggregateModels.OrderBuy.Notification()
+                {
+                    Title = "Có đơn hàng mới, đang chờ thanh toán",
+                    Content = $"Có đơn hàng mới mã {orderCreated.Code}, đang chờ thanh toán",
+                    CreatedBy = _currentUser.UserName
+                });
+
+            _notifiRepository.CreateNotifiForRole(RoleTypeEnum.MANAGER.ToString(),
+                new Domain.AggregateModels.OrderBuy.Notification()
+                {
+                    Title = "Có đơn hàng mới, đang chờ thanh toán",
+                    Content = $"Có đơn hàng mới mã {orderCreated.Code}, đang chờ thanh toán",
+                    CreatedBy = _currentUser.UserName
+                });
+
+
             actResponse.SetResult(orderResult);
 
             return actResponse;

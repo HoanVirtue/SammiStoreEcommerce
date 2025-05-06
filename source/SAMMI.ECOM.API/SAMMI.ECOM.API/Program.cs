@@ -5,12 +5,14 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
 using SAMMI.ECOM.API.Infrastructure.Configuration;
 using SAMMI.ECOM.Core.Models.GlobalConfigs;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure;
+using SAMMI.ECOM.Infrastructure.Hubs;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
 using Serilog;
@@ -26,6 +28,8 @@ builder.UseSerialLog();
 //builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
+
+builder.Services.AddSignalR();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -113,6 +117,28 @@ builder.Services
             ValidIssuer = tokenOptionSettings!.JWTIssuer,
             IssuerSigningKey = tokenOptionSettings!.SigningCredentials.Key
         };
+
+        x.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddMemoryCache();
@@ -151,6 +177,8 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 builder.Services.AddHttpContextAccessor();
+
+
 
 var app = builder.Build();
 
@@ -197,5 +225,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.Run();

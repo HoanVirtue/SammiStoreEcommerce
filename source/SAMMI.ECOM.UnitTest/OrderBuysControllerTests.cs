@@ -46,8 +46,8 @@ namespace SAMMI.ECOM.UnitTest
                 null, // Configuration
                 _mockOrderQueries.Object,
                 null, // UserIdentity
-                null, // Mapper
-                null  // Logger
+                null, // Mapper,
+                null
             );
         }
 

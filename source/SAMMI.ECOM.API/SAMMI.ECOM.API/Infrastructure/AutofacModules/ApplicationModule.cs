@@ -18,6 +18,7 @@ using SAMMI.ECOM.Infrastructure.Services.Auth;
 using SAMMI.ECOM.Infrastructure.Services.Auth.Helpers.PasswordVerification;
 using SAMMI.ECOM.Infrastructure.Services.Caching;
 using SAMMI.ECOM.Infrastructure.Services.GHN_API;
+using SAMMI.ECOM.Infrastructure.Services.SignalR;
 using SAMMI.ECOM.Repository.GenericRepositories;
 using System.Reflection;
 
@@ -81,6 +82,11 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
 
             builder.RegisterType<MemoryCacheService>().As<IMemoryCacheService>().InstancePerLifetimeScope();
 
+            builder.RegisterType<MemoryCacheService>().As<IMemoryCacheService>().InstancePerLifetimeScope();
+            
+            builder.RegisterType<SignalRNotificationService>()
+                .AsSelf()
+                .SingleInstance();
 
             // Register all the Repository classes (they implement CrudRepository) in assembly holding the Repositories
             builder.RegisterAssemblyTypes(typeof(UsersRepository).GetTypeInfo().Assembly)

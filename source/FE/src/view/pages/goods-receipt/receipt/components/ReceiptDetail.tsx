@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import Spinner from 'src/components/spinner';
 import { getReceiptDetail, updateReceiptStatus } from 'src/services/receipt';
 import { formatDate, formatPrice } from 'src/utils';
-import { GOODS_RECEIPT_STATUS, RECEIPT_STATUS } from 'src/configs/receipt';
+import { GOODS_RECEIPT_FULL_STATUS, RECEIPT_STATUS } from 'src/configs/receipt';
 import { toast } from 'react-toastify';
 
 interface ReceiptDetailProps {
@@ -21,7 +21,7 @@ const ReceiptDetail: React.FC<ReceiptDetailProps> = ({ id, onClose }) => {
     const [updating, setUpdating] = useState(false);
 
     const statusOptions = Object.values(RECEIPT_STATUS());
-    const translatedStatus = Object.values(GOODS_RECEIPT_STATUS());
+    const translatedStatus = Object.values(GOODS_RECEIPT_FULL_STATUS());
 
     const fetchReceiptDetail = async (id: number) => {
         setLoading(true);

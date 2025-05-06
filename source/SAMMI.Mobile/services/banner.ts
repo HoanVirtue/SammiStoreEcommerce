@@ -11,6 +11,15 @@ export const getAllBanners = async (data: {params: TParamsGetAllBanners}) => {
     }
 }
 
+export const getHomeBanners = async (data: {numberTop: number}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.SETTING.BANNER.INDEX}/get-banners`, {params: data})
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const createBanner = async (data: TParamsCreateBanner) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.SETTING.BANNER.INDEX}`, data)

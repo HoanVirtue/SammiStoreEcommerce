@@ -11,17 +11,23 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '@/stores';
 import Toast from 'react-native-toast-message';
 import { ROUTE_CONFIG } from '@/configs/route';
+import { ProductCardSkeleton } from './ProductCardSkeleton';
 
 interface ProductCardProps {
   product: TProduct;
   onPress?: (product: TProduct) => void;
+  isLoading?: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) => {
+export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, isLoading }) => {
   const router = useRouter();
   const { user } = useAuth();
   const dispatch: AppDispatch = useDispatch();
   const { isSuccessCreate, isErrorCreate, errorMessageCreate } = useSelector((state: RootState) => state.cart);
+
+  if (isLoading) {
+    return <ProductCardSkeleton />;
+  }
 
   if (!product) {
     return null;

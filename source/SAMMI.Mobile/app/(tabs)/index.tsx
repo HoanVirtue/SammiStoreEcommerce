@@ -13,6 +13,7 @@ import { getAllProducts } from '@/services/product';
 import { TProduct } from '@/types/product';
 import { useAuth } from '@/hooks/useAuth';
 import HotSale from '@/presentation/components/HotSale';
+import Banner from '@/presentation/components/Banner';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -50,9 +51,6 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" />
       <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.header}>
-          <Text style={styles.greeting}>Chào {user?.fullName} !</Text>
-        </View>
 
         <SearchBar
           value=""
@@ -61,15 +59,8 @@ export default function HomeScreen() {
           placeholder="Tìm kiếm sản phẩm..."
         />
 
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Sản phẩm bán chạy</Text>
-            <Pressable style={styles.viewAllButton} onPress={handleViewAll}>
-              <Text style={styles.viewAllText}>Xem tất cả</Text>
-              <ChevronRight size={16} color={colors.primary} />
-            </Pressable>
-          </View>
-        </View>
+        {/* <Banner /> */}
+
         <View style={styles.hotSaleContainer}>
           <HotSale />
         </View>

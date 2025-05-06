@@ -88,16 +88,13 @@ export default function CartScreen() {
     fetchCart();
   }, [fetchCart]);
 
-  const subtotal = useMemo(() => {
-    if (!cart?.data) return 0;
-    return cart.data
-      .filter((item) => selectedItems.includes(item.productId))
-      .reduce((total, item) => {
-        const price = item.price || 0;
-        const quantity = item.quantity || 1;
-        return total + price * quantity;
-      }, 0);
-  }, [cart?.data, selectedItems]);
+  const memoSubtotal = useMemo(() => {
+    return memoSelectedProduct.reduce((result: number, current: TItemOrderProduct) => {
+        return result + (current.newPrice * current.quantity);
+    }, 0);
+}, [memoSelectedProduct]);
+
+const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
 
   const handleUpdateQuantity = useCallback(
     async (productId: number, quantity: number) => {
@@ -200,10 +197,10 @@ export default function CartScreen() {
             productImage: item.productImage || '/public/svgs/placeholder.svg',
           }))
         ),
-        totalPrice: subtotal.toString(),
+        totalPrice: memoTotalPrice.toString(),
       },
     });
-  }, [cart.data, selectedItems, subtotal]);
+  }, [cart.data, selectedItems, memoTotalPrice]);
 
   const handleCheckboxChange = useCallback((productId: number) => {
     setSelectedItems((prev) =>
@@ -323,7 +320,7 @@ export default function CartScreen() {
           <View style={styles.footer}>
             <View style={styles.totalContainer}>
               <Text style={styles.totalLabel}>{selectedItems.length} sản phẩm đã chọn</Text>
-              <Text style={styles.totalText}>Tạm tính: {formatPrice(subtotal)}</Text>
+              <Text style={styles.totalText}>Tạm tính: {formatPrice(memoTotalPrice)}</Text>
               {/* {memoSave > 0 && (
                 <Text style={styles.saveText}>Tiết kiệm: {formatPrice(memoSave)}</Text>
               )} */}

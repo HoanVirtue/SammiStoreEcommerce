@@ -53,7 +53,7 @@ import { toast } from 'react-toastify'
 import { getAllRoles } from 'src/services/role'
 import { useAuth } from 'src/hooks/useAuth'
 import { format, parseISO, isValid } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 type TProps = {}
 
@@ -121,7 +121,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                     if (data.birthday) {
                         parsedBirthday = parseISO(data.birthday);
                         if (isValid(parsedBirthday)) {
-                            parsedBirthday = utcToZonedTime(parsedBirthday, 'Asia/Ho_Chi_Minh');
+                            parsedBirthday = toZonedTime(parsedBirthday, 'Asia/Ho_Chi_Minh');
                         }
                     }
 
@@ -161,7 +161,7 @@ const MyProfilePage: NextPage<TProps> = () => {
         if (data.birthday) {
             const parsedDate = parseISO(data.birthday);
             if (isValid(parsedDate)) {
-                const vietnamDate = utcToZonedTime(parsedDate, 'Asia/Ho_Chi_Minh');
+                const vietnamDate = toZonedTime(parsedDate, 'Asia/Ho_Chi_Minh');
                 formattedBirthday = format(vietnamDate, 'yyyy-MM-dd');
             }
         }

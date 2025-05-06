@@ -52,6 +52,7 @@ import { resetInitialState } from 'src/stores/auth'
 import { toast } from 'react-toastify'
 import { getAllRoles } from 'src/services/role'
 import { useAuth } from 'src/hooks/useAuth'
+
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import timezone from 'dayjs/plugin/timezone'
@@ -59,6 +60,7 @@ import timezone from 'dayjs/plugin/timezone'
 // Khởi tạo plugin dayjs
 dayjs.extend(utc)
 dayjs.extend(timezone)
+
 
 type TProps = {}
 
@@ -131,9 +133,11 @@ const MyProfilePage: NextPage<TProps> = () => {
                 if (data) {
                     let formattedBirthday = '';
                     if (data.birthday) {
+
                         // Sử dụng dayjs thay vì date-fns
                         const date = dayjs(data.birthday).tz('Asia/Ho_Chi_Minh');
                         formattedBirthday = date.isValid() ? date.format('YYYY-MM-DD') : '';
+
                     }
 
                     reset({

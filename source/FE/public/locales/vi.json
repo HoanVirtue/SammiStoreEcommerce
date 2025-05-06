@@ -888,6 +888,18 @@
     "remove_from_wishlist": "Xóa khỏi danh sách yêu thích",
     "no_vouchers_available": "Bạn chưa có voucher nào!",
     "status_required": "Trạng thái không được để trống",
+    "total_amount": "Tổng tiền",
+    "total_quantity": "Tổng số lượng",
+    "total_discount": "Tổng giảm giá",
+    "total_tax": "Tổng thuế",
+    "total_shipping": "Tổng phí vận chuyển",
+    "total_payment": "Tổng thanh toán",
+    "select_payment_method": "Chọn phương thức thanh toán",
+    "select_employee": "Chọn nhân viên",
+    "select_customer": "Chọn khách hàng",
+    "select_supplier": "Chọn nhà cung cấp",
+    "select_role": "Chọn vai trò",
+    
 
 
     "province_id": "Mã Tỉnh/Thành phố",

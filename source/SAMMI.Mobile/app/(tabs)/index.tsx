@@ -59,7 +59,9 @@ export default function HomeScreen() {
           placeholder="Tìm kiếm sản phẩm..."
         />
 
-        {/* <Banner /> */}
+        <View style={{ marginTop: 16 }}>
+          {/* <Banner /> */}
+        </View>
 
         <View style={styles.hotSaleContainer}>
           <HotSale />

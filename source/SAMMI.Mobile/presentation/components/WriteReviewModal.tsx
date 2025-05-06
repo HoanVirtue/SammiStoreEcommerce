@@ -92,6 +92,7 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
                     ...formData,
                     imageCommand
                 }))
+                console.log("formData", formData)
             } else {
                 dispatch(createReviewAsync(formData))
             }

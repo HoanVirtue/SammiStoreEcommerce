@@ -77,10 +77,10 @@ export default function CartScreen() {
     }
 }, [dispatch, user?.id]);
 
-  const onRefresh = useCallback(async () => {
+  const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 0));
       const response = await getCarts({
         params: {
           take: -1,
@@ -102,7 +102,7 @@ export default function CartScreen() {
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }
 
 
   const memoSelectedProduct = useMemo(() => {

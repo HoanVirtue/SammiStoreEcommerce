@@ -138,65 +138,7 @@ export default function ProfileScreen() {
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Sở thích</Text>
-
-          <View style={styles.menuItem}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.iconContainer, { backgroundColor: '#EDE7F6' }]}>
-                <Moon size={18} color="#673AB7" />
-              </View>
-              <Text style={styles.menuItemText}>Chế độ tối</Text>
-            </View>
-            <Switch
-              value={darkMode}
-              onValueChange={toggleDarkMode}
-              trackColor={{ false: colors.border, true: colors.primary }}
-              thumbColor={colors.white}
-            />
-          </View>
-
-          <View style={styles.menuItem}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.iconContainer, { backgroundColor: '#FCE4EC' }]}>
-                <Bell size={18} color={colors.primary} />
-              </View>
-              <Text style={styles.menuItemText}>Thông báo</Text>
-            </View>
-            <Switch
-              value={notifications}
-              onValueChange={toggleNotifications}
-              trackColor={{ false: colors.border, true: colors.primary }}
-              thumbColor={colors.white}
-            />
-          </View>
-
-          <Pressable style={styles.menuItem}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.iconContainer, { backgroundColor: '#E0F7FA' }]}>
-                <Settings size={18} color="#00BCD4" />
-              </View>
-              <Text style={styles.menuItemText}>Cài đặt</Text>
-            </View>
-            <ChevronRight size={16} color={colors.textSecondary} />
-          </Pressable>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Hỗ trợ</Text>
-
-          <Pressable style={styles.menuItem}>
-            <View style={styles.menuItemLeft}>
-              <View style={[styles.iconContainer, { backgroundColor: '#F1F8E9' }]}>
-                <HelpCircle size={18} color="#8BC34A" />
-              </View>
-              <Text style={styles.menuItemText}>Trợ giúp & Hỗ trợ</Text>
-            </View>
-            <ChevronRight size={16} color={colors.textSecondary} />
-          </Pressable>
-
+          
           <Pressable style={styles.menuItem} onPress={handleSignOut}>
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>

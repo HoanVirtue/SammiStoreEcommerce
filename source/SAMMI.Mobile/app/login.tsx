@@ -6,7 +6,8 @@ import {
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
-    ScrollView
+    ScrollView,
+    ActivityIndicator
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,14 +20,16 @@ import { Button } from '@/components/Button';
 import { Alert } from '@/components/Alert';
 import { useAuth } from '@/hooks/useAuth';
 import Toast from 'react-native-toast-message';
+import { colors } from '@/constants/colors';
 export default function LoginScreen() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const { isLoading } = useAppSelector((state: RootState) => state.auth);
+
     const { isDark } = useTheme();
 
     const { login } = useAuth();
 
+    const [isLoading, setIsLoading] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [usernameError, setUsernameError] = useState('');
@@ -60,22 +63,22 @@ export default function LoginScreen() {
     };
 
     const handleLogin = async () => {
-
         const isValid = validateForm();
         if (isValid) {
-
-            login({ username, password, rememberMe: isRemember || true  }, (err) => {
-                console.log("handleLogin", err);
-                if (err?.response?.errors !== "") {
-                    Toast.show({
-                        type: 'error',
-                        text1: err?.response?.message || 'Đã có lỗi xảy ra'
-                    })
-                }
-            })
+            setIsLoading(true);
+            try {
+                await login({ username, password, rememberMe: isRemember || true  }, (err) => {
+                    if (err?.response?.errors !== "") {
+                        Toast.show({
+                            type: 'error',
+                            text1: err?.response?.message || 'Đã có lỗi xảy ra'
+                        })
+                    }
+                });
+            } finally {
+                setIsLoading(false);
+            }
         }
-
-
     };
 
     const handleBack = () => {
@@ -158,17 +161,19 @@ export default function LoginScreen() {
                             style={styles.forgotPasswordButton}
                             onPress={handleForgotPassword}
                         >
-                            <Text style={[styles.forgotPasswordText, { color: isDark ? palette.primary[400] : palette.primary[600] }]}>
+                            <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>
                                 Quên mật khẩu?
                             </Text>
                         </TouchableOpacity>
 
-                        <Button
-                            title="Đăng nhập"
+                        <TouchableOpacity
+                            style={[styles.loginButton]}
                             onPress={handleLogin}
-                            style={styles.loginButton}
-                            loading={isLoading}
-                        />
+                        >
+                            <Text style={styles.loginButtonText}>
+                                {isLoading ? <ActivityIndicator size="small" color={colors.white} /> : 'Đăng nhập'}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.footer}>
@@ -176,7 +181,7 @@ export default function LoginScreen() {
                             Chưa có tài khoản?
                         </Text>
                         <TouchableOpacity onPress={handleRegister}>
-                            <Text style={[styles.registerText, { color: isDark ? palette.primary[400] : palette.primary[600] }]}>
+                            <Text style={[styles.registerText, { color: colors.primary }]}>
                                 Đăng ký
                             </Text>
                         </TouchableOpacity>
@@ -228,7 +233,17 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     loginButton: {
+        backgroundColor: colors.primary,
         marginBottom: 16,
+        padding: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    loginButtonText: {
+        color: colors.white,
+        fontSize: 16,
+        fontWeight: '600',
     },
     footer: {
         flexDirection: 'row',

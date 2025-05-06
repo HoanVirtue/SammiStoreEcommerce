@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Infrastructure.AutofacModules;
 using SAMMI.ECOM.API.Infrastructure.Configuration;
@@ -113,6 +114,28 @@ builder.Services
             ClockSkew = TimeSpan.Zero,
             ValidIssuer = tokenOptionSettings!.JWTIssuer,
             IssuerSigningKey = tokenOptionSettings!.SigningCredentials.Key
+        };
+
+        x.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                var accessToken = context.Request.Query["access_token"];
+                var path = context.HttpContext.Request.Path;
+                if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+                {
+                    context.Token = accessToken;
+                }
+                return Task.CompletedTask;
+            },
+            OnTokenValidated = context =>
+            {
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                return Task.CompletedTask;
+            }
         };
     });
 

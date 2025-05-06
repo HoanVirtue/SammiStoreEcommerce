@@ -131,7 +131,7 @@ const MyVouchersPage = () => {
 
     if (vouchers.length === 0) {
         return (
-            <Box sx={{ textAlign: 'center', py: 4 }}>
+            <Box sx={{ textAlign: 'center', py: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', backgroundColor: theme.palette.background.paper, borderRadius: '10px', padding: '20px' }}>
                 <IconifyIcon icon="mdi:ticket-outline" width={60} color={theme.palette.text.secondary} />
                 <Typography variant="h6" color="text.secondary" sx={{ mt: 2 }}>
                     {t('no_vouchers_available')}

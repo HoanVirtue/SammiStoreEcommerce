@@ -875,6 +875,8 @@
     "passwords_dot_not_match": "Mật khẩu không khớp",
     "confirm_your_new_password": "Xác nhận mật khẩu mới",
     "remove_from_wishlist": "Xóa khỏi danh sách yêu thích",
+    "no_vouchers_available": "Bạn chưa có voucher nào!",
+    "status_required": "Trạng thái không được để trống",
 
 
     "province_id": "Mã Tỉnh/Thành phố",

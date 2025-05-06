@@ -30,6 +30,7 @@ namespace SAMMI.ECOM.UnitTest
                 null, // Mediator
                 null,  // Logger
                 null,
+                null,
                 null
             );
         }

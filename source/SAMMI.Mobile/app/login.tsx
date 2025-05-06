@@ -60,10 +60,12 @@ export default function LoginScreen() {
     };
 
     const handleLogin = async () => {
+
         const isValid = validateForm();
         if (isValid) {
 
-            login({ username, password, rememberMe: isRemember }, (err) => {
+            login({ username, password, rememberMe: isRemember || true  }, (err) => {
+                console.log("handleLogin", err);
                 if (err?.response?.errors !== "") {
                     Toast.show({
                         type: 'error',

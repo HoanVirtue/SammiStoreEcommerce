@@ -1,5 +1,6 @@
 import { API_ENDPOINT } from 'src/configs/api'
 import instance from 'src/helpers/axios'
+import { SaleRevenueFilterModel, ImportStatisticFilterModel, InventoryFilterModel } from '../types/report'
 
 export const getCountUserType = async () => {
   try {
@@ -58,5 +59,52 @@ export const getCountOrderStatus = async () => {
     return res.data
   } catch (error) {
     return error
+  }
+}
+
+export const getSalesRevenue = async (data: SaleRevenueFilterModel) => {
+  try {
+    const res = await instance.get(`${API_ENDPOINT.REPORT.INDEX}/sales-revenue`, {
+      params: {
+        dateFrom: data.dateFrom,
+        dateTo: data.dateTo,
+        paymentMethodId: data.paymentMethodId
+      }
+    })
+    return res.data
+  } catch (error: any) {
+    return error?.response?.data
+  }
+}
+
+export const getImportStatistics = async (data: ImportStatisticFilterModel) => {
+  try {
+    const res = await instance.get(`${API_ENDPOINT.REPORT.INDEX}/get-import-statistics`, {
+      params: {
+        dateFrom: data.dateFrom,
+        dateTo: data.dateTo,
+        employeeId: data.employeeId,
+        supplierId: data.supplierId
+      }
+    })
+    return res.data
+  } catch (error: any) {
+    return error?.response?.data
+  }
+}
+
+export const getInventoryStatistics = async (data: InventoryFilterModel) => {
+  try {
+    const res = await instance.get(`${API_ENDPOINT.REPORT.INDEX}/inventory-statistics`, {
+      params: {
+        maximumStockQuantity: data.maximumStockQuantity,
+        daysOfExistence: data.daysOfExistence,
+        skip: data.skip,
+        take: data.take
+      }
+    })
+    return res.data
+  } catch (error: any) {
+    return error?.response?.data
   }
 }

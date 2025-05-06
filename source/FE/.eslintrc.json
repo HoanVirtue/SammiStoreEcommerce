@@ -24,9 +24,8 @@
     // add new line above return
     "newline-before-return": "off",
     "compilerOptions": {
-      // "noUnusedLocals": false
-      "noUnusedLocals": "off"
-    },
+    "noUnusedLocals": false
+  },
     // add new line below import
     "import/newline-after-import": [
       "error",

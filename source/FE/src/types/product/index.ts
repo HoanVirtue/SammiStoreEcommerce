@@ -53,6 +53,7 @@ export type TProduct = {
     startDate?: Date | null;
     endDate?: Date | null;
     images: ProductImage[];
+    isLiked: boolean;
 }
 
 export type TParamsCreateProduct = {

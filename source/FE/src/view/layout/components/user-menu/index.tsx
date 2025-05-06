@@ -205,12 +205,12 @@ const UserMenu = (props: TProps) => {
                         {t("wishlist")}
                     </MenuItem>
                 </Link>
-                <Link href={ROUTE_CONFIG.CHANGE_PASSWORD} style={{ textDecoration: 'none', color: 'inherit' }}>
+                <Link href={ROUTE_CONFIG.ACCOUNT.CHANGE_PASSWORD} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <MenuItem sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                         <Suspense fallback={<Spinner />}>
                             <IconifyIcon icon="tabler:lock-password" />
                         </Suspense>
-                        {t("Đổi mật khẩu")}
+                        {t("change_password")}
                     </MenuItem>
                 </Link>
                 <MenuItem onClick={logout}

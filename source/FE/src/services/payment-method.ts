@@ -21,7 +21,6 @@ export const createPaymentMethod = async (data: TParamsCreatePaymentMethod) => {
     }
 }
 
-
 export const updatePaymentMethod = async (data: TParamsUpdatePaymentMethod) => {
     const { id, ...rests } = data
     try {
@@ -31,7 +30,6 @@ export const updatePaymentMethod = async (data: TParamsUpdatePaymentMethod) => {
         return error?.response?.data
     }
 }
-
 
 export const deletePaymentMethod = async (id: number) => {
     try {
@@ -51,7 +49,6 @@ export const getPaymentMethodDetail = async (id: number) => {
     }
 }
 
-
 export const deleteMultiplePaymentMethods = async (data: TParamsDeleteMultiplePaymentMethods) => {
     try {
         const res = await instance.delete(`${API_ENDPOINT.SETTING.PAYMENT_METHOD.INDEX}`, {data})
@@ -67,3 +64,16 @@ export const deleteMultiplePaymentMethods = async (data: TParamsDeleteMultiplePa
         return error?.response?.data
     }
 }
+
+export interface PaymentMethod {
+  id: number;
+  name: string;
+  code: string;
+  description?: string;
+  isActive: boolean;
+}
+
+export const getPaymentMethods = async () => {
+  const response = await instance.get<PaymentMethod[]>(`${API_ENDPOINT.SETTING.PAYMENT_METHOD.INDEX}`);
+  return response.data;
+};

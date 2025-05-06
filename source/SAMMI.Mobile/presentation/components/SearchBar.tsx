@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, TextInput, View, Pressable } from 'react-native';
 import { colors } from '@/constants/colors';
 import { Search, X } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 interface SearchBarProps {
   value: string;
@@ -14,9 +15,10 @@ export const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onSearch,
   onClear,
-  placeholder = 'Search for products...',
+  placeholder = 'Tìm kiếm sản phẩm...',
 }) => {
   const [localValue, setLocalValue] = useState(value);
+  const router = useRouter();
 
   const handleSubmit = () => {
     onSearch(localValue);
@@ -27,8 +29,12 @@ export const SearchBar: React.FC<SearchBarProps> = ({
     onClear();
   };
 
+  const handlePress = () => {
+    router.push('/search');
+  };
+
   return (
-    <View style={styles.container}>
+    <Pressable onPress={handlePress} style={styles.container}>
       <View style={styles.searchIcon}>
         <Search size={20} color={colors.textSecondary} />
       </View>
@@ -42,6 +48,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         returnKeyType="search"
         onSubmitEditing={handleSubmit}
         clearButtonMode="never"
+        editable={false}
       />
 
       {localValue.length > 0 && (
@@ -49,7 +56,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
           <X size={18} color={colors.textSecondary} />
         </Pressable>
       )}
-    </View>
+    </Pressable>
   );
 };
 
@@ -62,7 +69,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     height: 48,
     marginHorizontal: 16,
-    marginVertical: 8,
+    marginVertical: 16,
   },
   searchIcon: {
     marginRight: 8,

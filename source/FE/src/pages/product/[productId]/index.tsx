@@ -6,7 +6,14 @@ import { getProductDetail } from 'src/services/product'
 import { fetchStaticData, getRevalidationTime } from 'src/utils/staticFetching'
 
 //views
-const ProductDetailPage = lazy(() => import('src/view/pages/product/ProductDetail'))
+// const ProductDetailPage = lazy(() => import('src/view/pages/product/ProductDetail'))
+interface ProductDetailPageProps {
+    initialData: any;
+  }
+  
+  const ProductDetailPage = lazy(
+    () => import('src/view/pages/product/ProductDetail')
+  ) as React.LazyExoticComponent<React.FC<ProductDetailPageProps>>;
 
 type TProps = {
     productData: any

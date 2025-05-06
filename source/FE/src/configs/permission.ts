@@ -123,6 +123,11 @@ export const PERMISSIONS: any = {
         DELETE: "MANAGE_PROMOTION.VOUCHER.DELETE",
       },
     },
+    REPORT: {
+      REVENUE: {
+        VIEW: "REPORT.REVENUE.VIEW",
+      },
+    },
   };
 
 export const LIST_PERMISSION_DATA: any = [
@@ -227,5 +232,21 @@ export const LIST_PERMISSION_DATA: any = [
     value: "PAYMENT_TYPE",
     parentValue: "SETTING",
     isHideView: true,
+  },
+  {
+    id: 15,
+    name: "report",
+    isParent: true,
+    value: "REPORT",
+  },
+  {
+    id: 16,
+    name: "revenue",
+    isParent: false,
+    value: "REVENUE",
+    parentValue: "REPORT",
+    isHideCreate: true,
+    isHideUpdate: true,
+    isHideDelete: true,
   },
 ]

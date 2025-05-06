@@ -20,13 +20,28 @@ export const VerticalLayoutItems = () => {
     const { t } = useTranslation()
     return [
         {
-            title: t('manage_system'),
+            title: "Quản trị hệ thống",
             icon: 'icon-park-outline:system',
             children: [
                 {
-                    title: t('dashboard'),
+                    title: "Trang quản trị",
                     icon: 'mage:dashboard-bar-notification',
                     path: ROUTE_CONFIG.DASHBOARD,
+                },
+                {
+                    title: "Thống kê doanh thu",
+                    icon: 'material-symbols:payments-outline',
+                    path: ROUTE_CONFIG.REPORT.REVENUE,
+                },
+                {
+                    title: "Thống kê nhập hàng",
+                    icon: 'material-symbols:inventory-2-outline',
+                    path: ROUTE_CONFIG.REPORT.IMPORT,
+                },
+                {
+                    title: "Thống kê tồn kho",
+                    icon: 'material-symbols:inventory-2-outline',
+                    path: ROUTE_CONFIG.REPORT.INVENTORY,
                 },
             ]
         },
@@ -49,7 +64,6 @@ export const VerticalLayoutItems = () => {
                     title: t('receipt_list'),
                     icon: 'material-symbols-light:receipt-long-outline-rounded',
                     path: ROUTE_CONFIG.GOODS_RECEIPT.RECEIPT,
-                    // permission: PERMISSIONS.GOODS_RECEIPT.RECEIPT_LIST.VIEW
                 },
             ]
         },
@@ -61,13 +75,11 @@ export const VerticalLayoutItems = () => {
                     title: t('event_list'),
                     icon: 'carbon:event',
                     path: ROUTE_CONFIG.MANAGE_PROMOTION.EVENT,
-                    // permission: PERMISSIONS.MANAGE_PROMOTION.EVENT.VIEW
                 },
                 {
                     title: t('list_voucher'),
                     icon: 'ci:ticket-voucher',
                     path: ROUTE_CONFIG.MANAGE_PROMOTION.VOUCHER,
-                    // permission: PERMISSIONS.MANAGE_PROMOTION.VOUCHER.VIEW
                 },
             ]
         },
@@ -79,7 +91,6 @@ export const VerticalLayoutItems = () => {
                     title: t('product_list'),
                     icon: 'fluent-mdl2:product-catalog',
                     path: ROUTE_CONFIG.MANAGE_PRODUCT.PRODUCT,
-                    // permission: PERMISSIONS.MANAGE_PRODUCT.PRODUCT.VIEW
                 },
             ]
         },
@@ -130,24 +141,6 @@ export const VerticalLayoutItems = () => {
                 },
             ]
         },
-        // {
-        //     title: t('system'),
-        //     icon: 'icon-park-outline:system',
-        //     children: [
-        //         {
-        //             title: t('user'),
-        //             icon: 'iconoir:user',
-        //             path: ROUTE_CONFIG.SYSTEM.USER,
-        //             // permission: PERMISSIONS.SYSTEM.USER.VIEW
-        //         },
-        //         {
-        //             title: t('role'),
-        //             icon: 'oui:app-users-roles',
-        //             path: ROUTE_CONFIG.SYSTEM.ROLE,
-        //             // permission: PERMISSIONS.SYSTEM.ROLE.VIEW
-        //         }
-        //     ]
-        // },
         {
             title: t('address'),
             icon: 'fluent:location-settings-20-regular',
@@ -168,6 +161,6 @@ export const VerticalLayoutItems = () => {
                     path: ROUTE_CONFIG.ADDRESS.WARD,
                 },
             ]
-        },
+        }
     ]
 }

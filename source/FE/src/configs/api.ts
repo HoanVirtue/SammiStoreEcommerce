@@ -12,7 +12,7 @@ export const API_ENDPOINT = {
     }
   },
   REPORT: {
-    INDEX: `${BASE_URL}/report`
+    INDEX: `${BASE_URL}/reports`
   },
   GHN: {
     INDEX: `${BASE_URL}/ghn`

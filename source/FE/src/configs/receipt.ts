@@ -45,6 +45,42 @@ export const GOODS_RECEIPT_STATUS = () => {
     }
 }
 
+export const GOODS_RECEIPT_FULL_STATUS = () => {
+    const { t } = useTranslation()
+    return {
+        "0": {
+            label: t("draft"),
+            value: "0",
+            originalValue: "Draft",
+        },
+        "1": {
+            label: t("pending_approval"),
+            value: "1",
+            originalValue: "PendingApproval",
+        },
+        "2": {
+            label: t("approved"),
+            value: "2",
+            originalValue: "Approved",
+        },
+        "3": {
+            label: t("processing"),
+            value: "3",
+            originalValue: "Processing",
+        },
+        "4": {
+            label: t("completed"),
+            value: "4",
+            originalValue: "Completed",
+        },
+        "5": {
+            label: t("canceled"),
+            value: "5",
+            originalValue: "Canceled",
+        },
+    }
+}
+
 export const getReceiptStatusLabel = (status: string) => {
     const statusMap: { [key: string]: string } = {
         "Draft": "0",

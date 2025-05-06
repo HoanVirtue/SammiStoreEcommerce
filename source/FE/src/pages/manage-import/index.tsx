@@ -1,27 +1,28 @@
 import { useState } from 'react';
-import { Card, DatePicker, Select, Table } from 'antd';
+import { Card, Select, Table } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { getImportStatistics } from '@/services/report';
 import { formatCurrency } from '@/utils/format';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-const { RangePicker } = DatePicker; 
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Box } from '@mui/material';
 
 const ImportStatisticsPage = () => {
   const { t } = useTranslation();
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
-    dayjs(),
-    dayjs().add(1, 'day'),
-  ]);
+  const [startDate, setStartDate] = useState<dayjs.Dayjs>(dayjs().startOf('year'));
+  const [endDate, setEndDate] = useState<dayjs.Dayjs>(dayjs().endOf('year'));
   const [employeeId, setEmployeeId] = useState<number | null>(null);
   const [supplierId, setSupplierId] = useState<number | null>(null);
 
   const { data: importData, isLoading } = useQuery({
-    queryKey: ['import-statistics', dateRange, employeeId, supplierId],
+    queryKey: ['import-statistics', startDate, endDate, employeeId, supplierId],
     queryFn: () =>
       getImportStatistics({
-        dateFrom: dateRange[0].toDate(),
-        dateTo: dateRange[1].toDate(),
+        dateFrom: startDate.toDate(),
+        dateTo: endDate.toDate(),
         employeeId: employeeId || undefined,
         supplierId: supplierId || undefined,
       }),
@@ -68,14 +69,28 @@ const ImportStatisticsPage = () => {
     <div className="p-6">
       <Card title="Thống kê nhập hàng">
         <div className="mb-4 flex gap-4">
-          <RangePicker
-            value={dateRange}
-            onChange={(dates) => {
-              if (dates) {
-                setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs]);
-              }
-            }}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <DatePicker
+                label={t('from_date')}
+                value={startDate}
+                onChange={(newValue) => {
+                  if (newValue) {
+                    setStartDate(newValue);
+                  }
+                }}
+              />
+              <DatePicker
+                label={t('to_date')}
+                value={endDate}
+                onChange={(newValue) => {
+                  if (newValue) {
+                    setEndDate(newValue);
+                  }
+                }}
+              />
+            </Box>
+          </LocalizationProvider>
           <Select
             placeholder={t('select_employee')}
             allowClear

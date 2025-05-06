@@ -1,28 +1,29 @@
 import { useState } from 'react';
-import { Card, DatePicker, Select, Table } from 'antd';
+import { Card, Select, Table } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { getSalesRevenue } from '@/services/report';
 import { formatCurrency } from '@/utils/format';
 import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { Box } from '@mui/material';
 
-const { RangePicker } = DatePicker;
-
-const RevenuePage = () => {
+const RevenueStatisticsPage = () => {
   const { t } = useTranslation();
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([
-    dayjs(),
-    dayjs().add(1, 'day'),
-  ]);
-  const [paymentMethodId, setPaymentMethodId] = useState<number | null>(null);
+  const [startDate, setStartDate] = useState<dayjs.Dayjs>(dayjs().startOf('year'));
+  const [endDate, setEndDate] = useState<dayjs.Dayjs>(dayjs().endOf('year'));
+  const [employeeId, setEmployeeId] = useState<number | null>(null);
+  const [customerId, setCustomerId] = useState<number | null>(null);
 
   const { data: revenueData, isLoading } = useQuery({
-    queryKey: ['sales-revenue', dateRange, paymentMethodId],
+    queryKey: ['revenue-statistics', startDate, endDate, employeeId, customerId],
     queryFn: () =>
       getSalesRevenue({
-        dateFrom: dateRange[0].toDate(),
-        dateTo: dateRange[1].toDate(),
-        paymentMethodId: paymentMethodId || undefined,
+        dateFrom: startDate.toDate(),
+        dateTo: endDate.toDate(),
+        paymentMethodId: employeeId || undefined,
       }),
   });
 
@@ -33,24 +34,14 @@ const RevenuePage = () => {
       key: 'code',
     },
     {
-      title: t('customer_name'),
+      title: t('employee'),
+      dataIndex: 'employeeName',
+      key: 'employeeName',
+    },
+    {
+      title: t('customer'),
       dataIndex: 'customerName',
       key: 'customerName',
-    },
-    {
-      title: t('phone_number'),
-      dataIndex: 'phoneNumber',
-      key: 'phoneNumber',
-    },
-    {
-      title: t('payment_method'),
-      dataIndex: 'paymentMethod',
-      key: 'paymentMethod',
-    },
-    {
-      title: t('order_status'),
-      dataIndex: 'orderStatus',
-      key: 'orderStatus',
     },
     {
       title: t('total_price'),
@@ -71,29 +62,52 @@ const RevenuePage = () => {
     },
   ];
 
-  const revenueTableData = revenueData?.result?.revenueDetails?.subset || [];
+  const revenueTableData = revenueData?.result?.orderDetails?.subset || [];
 
   return (
     <div className="p-6">
-      <Card title="Doanh thu">
+      <Card title={t('revenue_statistics')}>
         <div className="mb-4 flex gap-4">
-          <RangePicker
-            value={dateRange}
-            onChange={(dates) => {
-              if (dates) {
-                setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs]);
-              }
-            }}
-          />
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <DatePicker
+                label={t('from_date')}
+                value={startDate}
+                onChange={(newValue) => {
+                  if (newValue) {
+                    setStartDate(newValue);
+                  }
+                }}
+              />
+              <DatePicker
+                label={t('to_date')}
+                value={endDate}
+                onChange={(newValue) => {
+                  if (newValue) {
+                    setEndDate(newValue);
+                  }
+                }}
+              />
+            </Box>
+          </LocalizationProvider>
           <Select
-            placeholder={t('select_payment_method')}
+            placeholder={t('select_employee')}
             allowClear
             style={{ width: 200 }}
-            onChange={(value) => setPaymentMethodId(value)}
+            onChange={(value) => setEmployeeId(value)}
             options={[
-              { label: 'Tiền mặt', value: 1 },
-              { label: 'VNPay', value: 2 },
-              { label: 'Thẻ tín dụng', value: 3 },
+              { label: 'Nhân viên 1', value: 1 },
+              { label: 'Nhân viên 2', value: 2 },
+            ]}
+          />
+          <Select
+            placeholder={t('select_customer')}
+            allowClear
+            style={{ width: 200 }}
+            onChange={(value) => setCustomerId(value)}
+            options={[
+              { label: 'Khách hàng 1', value: 1 },
+              { label: 'Khách hàng 2', value: 2 },
             ]}
           />
         </div>
@@ -111,9 +125,9 @@ const RevenuePage = () => {
           loading={isLoading}
           rowKey="code"
           pagination={{
-            total: revenueData?.result?.revenueDetails?.totalItemCount || 0,
-            pageSize: revenueData?.result?.revenueDetails?.take || 10,
-            current: (revenueData?.result?.revenueDetails?.skip || 0) / (revenueData?.result?.revenueDetails?.take || 10) + 1,
+            total: revenueData?.result?.orderDetails?.totalItemCount || 0,
+            pageSize: revenueData?.result?.orderDetails?.take || 10,
+            current: (revenueData?.result?.orderDetails?.skip || 0) / (revenueData?.result?.orderDetails?.take || 10) + 1,
           }}
         />
       </Card>
@@ -121,4 +135,4 @@ const RevenuePage = () => {
   );
 };
 
-export default RevenuePage; 
+export default RevenueStatisticsPage; 

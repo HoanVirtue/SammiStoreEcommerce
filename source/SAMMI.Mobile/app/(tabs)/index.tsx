@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, View, Text, ScrollView, FlatList, Pressable, RefreshControl, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -21,8 +21,16 @@ export default function HomeScreen() {
   const [error, setError] = useState<string | null>(null);
   const [publicProducts, setPublicProducts] = useState<TProduct[]>([]);
   const { user } = useAuth();
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
 
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setRefreshTrigger(prev => prev + 1); // Increment refreshTrigger to trigger HotSale refresh
+    setRefreshing(false);
+  }, []);
 
   const handleCategoryPress = (category: Category) => {
     // router.push(`/search?category=${category.id}`);
@@ -50,8 +58,17 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView showsVerticalScrollIndicator={false}>
-
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[colors.primary]}
+            tintColor={colors.primary}
+          />
+        }
+      >
         <SearchBar
           value=""
           onSearch={handleSearch}
@@ -62,7 +79,7 @@ export default function HomeScreen() {
         {/* <Banner /> */}
 
         <View style={styles.hotSaleContainer}>
-          <HotSale />
+          <HotSale refreshTrigger={refreshTrigger} />
         </View>
       </ScrollView>
     </SafeAreaView>

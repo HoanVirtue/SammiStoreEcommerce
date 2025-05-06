@@ -91,6 +91,9 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children, onAuthStateCh
         if (error.response?.status === 401) {
             handleRedirectToLogin(router, pathname, onAuthStateChange)
         }
+        if (error.response?.data) {
+            return Promise.reject(error.response.data)
+        }
         return Promise.reject(error)
     })
 

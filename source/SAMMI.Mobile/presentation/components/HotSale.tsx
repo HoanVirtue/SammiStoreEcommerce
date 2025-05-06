@@ -10,9 +10,10 @@ import { getEndowProducts } from '@/services/product';
 
 interface HotSaleProps {
     initialData?: any[];
+    refreshTrigger?: number;
 }
 
-const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
+const HotSale: React.FC<HotSaleProps> = ({ initialData, refreshTrigger = 0 }) => {
     const saleEndTime = '2025-05-26T23:59:59';
     const [publicProducts, setPublicProducts] = useState<{ data: TProduct[]; total: number }>({
         data: [],
@@ -30,7 +31,7 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
                     total: res.result.length
                 });
             } else {
-                 setPublicProducts({ data: [], total: 0 });
+                setPublicProducts({ data: [], total: 0 });
             }
         } catch (error) {
             console.error("Failed to fetch endow products:", error);
@@ -42,7 +43,7 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
 
     useEffect(() => {
         handleGetListProduct();
-    }, []);
+    }, [refreshTrigger]); // Add refreshTrigger as dependency
 
     const skeletonCount = 10; // Number of skeleton loaders
 
@@ -81,7 +82,7 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
                             columnWrapperStyle={styles.columnWrapper}
                             scrollEnabled={false}
                         />
-                    ) : publicProducts?.data?.length > 0 ? (
+                    ) : publicProducts.data.length > 0 ? (
                         <FlatList
                             data={publicProducts.data}
                             renderItem={renderProductItem}

@@ -378,6 +378,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                                         </InputLabel>
                                         <CustomSelect
                                             fullWidth
+                                            variant="outlined"
                                             onChange={onChange}
                                             onBlur={onBlur}
                                             value={value}

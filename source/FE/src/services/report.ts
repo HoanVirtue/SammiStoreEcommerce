@@ -68,7 +68,16 @@ export const getSalesRevenue = async (data: SaleRevenueFilterModel) => {
       params: {
         dateFrom: data.dateFrom,
         dateTo: data.dateTo,
-        paymentMethodId: data.paymentMethodId
+        paymentMethodId: data.paymentMethodId,
+        skip: data.skip,
+        take: data.take,
+        paging: data.paging,
+        type: data.type,
+        orderBy: data.orderBy,
+        dir: data.dir,
+        filters: data.filters,
+        keywords: data.keywords,
+        restrictOrderBy: data.restrictOrderBy
       }
     })
     return res.data
@@ -100,7 +109,14 @@ export const getInventoryStatistics = async (data: InventoryFilterModel) => {
         maximumStockQuantity: data.maximumStockQuantity,
         daysOfExistence: data.daysOfExistence,
         skip: data.skip,
-        take: data.take
+        take: data.take,
+        paging: data.paging,
+        type: data.type,
+        orderBy: data.orderBy,
+        dir: data.dir,
+        filters: data.filters,
+        keywords: data.keywords,
+        restrictOrderBy: data.restrictOrderBy
       }
     })
     return res.data

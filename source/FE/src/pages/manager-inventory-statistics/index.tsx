@@ -21,6 +21,49 @@ import {
   CircularProgress
 } from '@mui/material';
 
+interface InventoryDetail {
+  id: number;
+  code: string;
+  name: string;
+  stockQuantity: number;
+  price: number;
+  status: number;
+  categoryId: number;
+  categoryCode: string | null;
+  categoryName: string | null;
+  lastReceiptDate: string | null;
+  daysSinceLastReceipt: number | null;
+  createdDate: string;
+  updatedDate: string | null;
+  createdBy: string;
+  updatedBy: string | null;
+  isActive: boolean;
+  isDeleted: boolean;
+  displayOrder: number | null;
+}
+
+interface InventoryResponse {
+  result: {
+    totalStockQuantity: number;
+    totalAmount: number;
+    inventoryDetails: {
+      subset: InventoryDetail[];
+      count: number;
+      pageCount: number;
+      totalItemCount: number;
+      skip: number;
+      take: number;
+      hasPreviousPage: boolean;
+      hasNextPage: boolean;
+      isFirstPage: boolean;
+      isLastPage: boolean;
+    };
+  };
+  isSuccess: boolean;
+  message: string;
+  errors: any;
+}
+
 const InventoryStatisticsPage = () => {
   const { t } = useTranslation();
   const [maximumStockQuantity, setMaximumStockQuantity] = useState<number | null>(null);
@@ -28,25 +71,35 @@ const InventoryStatisticsPage = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const { data: inventoryData, isLoading } = useQuery({
-    queryKey: ['inventory-statistics', maximumStockQuantity, daysOfExistence],
-    queryFn: () =>
-      getInventoryStatistics({
+  const { data, isLoading, refetch } = useQuery({
+    queryKey: ['inventory-statistics', maximumStockQuantity, daysOfExistence, page, rowsPerPage],
+    queryFn: async () => {
+      console.log(`Fetching inventory data: page=${page}, rowsPerPage=${rowsPerPage}`);
+      const response = await getInventoryStatistics({
         maximumStockQuantity: maximumStockQuantity || undefined,
         daysOfExistence: daysOfExistence || undefined,
         skip: page * rowsPerPage,
-        take: rowsPerPage
-      }),
+        take: rowsPerPage,
+        paging: true,
+        type: 1, // Grid type
+        orderBy: 'CreatedDate',
+        dir: 'DESC'
+      });
+      console.log('API Response:', response);
+      return response as InventoryResponse;
+    },
+    refetchOnWindowFocus: false
   });
 
   // Đảm bảo inventoryTableData luôn là một mảng
-  const inventoryTableData = Array.isArray(inventoryData?.result?.inventoryDetails) 
-    ? inventoryData.result.inventoryDetails 
+  const inventoryTableData = Array.isArray(data?.result?.inventoryDetails?.subset) 
+    ? data.result.inventoryDetails.subset 
     : [];
 
   // Đảm bảo totalStockQuantity và totalAmount luôn có giá trị hợp lệ
-  const totalStockQuantity = inventoryData?.result?.totalStockQuantity || 0;
-  const totalAmount = inventoryData?.result?.totalAmount || 0;
+  const totalStockQuantity = data?.result?.totalStockQuantity || 0;
+  const totalAmount = data?.result?.totalAmount || 0;
+  const totalItemCount = data?.result?.inventoryDetails?.totalItemCount || 0;
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -110,6 +163,9 @@ const InventoryStatisticsPage = () => {
                 <Typography variant="subtitle1" fontWeight="bold">
                   {t('total_amount')}: {formatCurrency(totalAmount)}
                 </Typography>
+                {/* <Typography variant="subtitle1" fontWeight="bold">
+                  {t('total_products')}: {totalItemCount}
+                </Typography> */}
               </>
             )}
           </Box>
@@ -122,6 +178,7 @@ const InventoryStatisticsPage = () => {
                   <TableCell>{t('product_name')}</TableCell>
                   <TableCell align="right">{t('quantity')}</TableCell>
                   <TableCell align="right">{t('price')}</TableCell>
+                  <TableCell>{t('status')}</TableCell>
                   <TableCell>{t('last_receipt_date')}</TableCell>
                   <TableCell align="right">{t('days_since_last_receipt')}</TableCell>
                 </TableRow>
@@ -129,7 +186,7 @@ const InventoryStatisticsPage = () => {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={7} align="center">
                       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, py: 2 }}>
                         <CircularProgress size={24} />
                         <Typography>{t('loading')}</Typography>
@@ -138,17 +195,18 @@ const InventoryStatisticsPage = () => {
                   </TableRow>
                 ) : inventoryTableData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={7} align="center">
                       <Typography sx={{ py: 2 }}>{t('no_data')}</Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  inventoryTableData.map((row: any) => (
+                  inventoryTableData.map((row: InventoryDetail) => (
                     <TableRow key={row.id}>
                       <TableCell>{row.code}</TableCell>
                       <TableCell>{row.name}</TableCell>
                       <TableCell align="right">{row.stockQuantity}</TableCell>
                       <TableCell align="right">{formatCurrency(row.price || 0)}</TableCell>
+                      <TableCell>{row.status === 1 ? t('active') : t('inactive')}</TableCell>
                       <TableCell>
                         {row.lastReceiptDate 
                           ? formatDate(row.lastReceiptDate, { dateStyle: "medium", timeStyle: "short" }) 
@@ -163,17 +221,18 @@ const InventoryStatisticsPage = () => {
           </TableContainer>
           
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50]}
             component="div"
-            count={inventoryData?.result?.totalCount || 0}
+            count={totalItemCount}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             labelRowsPerPage={t('rows_per_page')}
-            labelDisplayedRows={({ from, to, count }) => 
-              `${from}-${to} ${t('of')} ${count !== -1 ? count : `${t('more_than')} ${to}`}`
-            }
+            labelDisplayedRows={({ from, to, count }) => {
+              if (count === 0) return `0 ${t('of')} 0`;
+              return `${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, count)} ${t('of')} ${count}`;
+            }}
           />
         </CardContent>
       </Card>

@@ -21,6 +21,7 @@ import { Text, View, StyleSheet, ScrollView, ActivityIndicator } from 'react-nat
 import { TOrderItem } from '@/types/order';
 import NoData from '@/components/NoData';
 import { colors } from '@/constants/colors';
+import { Ionicons } from '@expo/vector-icons';
 
 const ORDER_STATUS_VI = {
     Pending: 'Chờ xác nhận',
@@ -107,7 +108,6 @@ const useOrderList = () => {
 }
 
 const MyOrderScreen = () => {
-
     const router = useRouter()
     const dispatch = useDispatch()
 
@@ -126,6 +126,14 @@ const MyOrderScreen = () => {
         handleChangeStatus,
         handleSearch
     } = useOrderList()
+
+    const handleGoBack = useCallback(() => {
+        try {
+            router.back()
+        } catch (error) {
+            router.push('/')
+        }
+    }, [router])
 
     useEffect(() => {
         handleGetListOrder()
@@ -214,6 +222,12 @@ const MyOrderScreen = () => {
 
     return (
         <View style={styles.container}>
+            <TouchableOpacity 
+                style={styles.backButton} 
+                onPress={handleGoBack}
+            >
+                <Ionicons name="arrow-back" size={24} color={colors.primary} />
+            </TouchableOpacity>
             <View style={styles.tabsWrapper}>
                 {renderTabs}
             </View>
@@ -229,6 +243,10 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#fff',
         paddingHorizontal: 8,
+    },
+    backButton: {
+        padding: 8,
+        marginBottom: 8,
     },
     tabsWrapper: {
         borderBottomWidth: 1,

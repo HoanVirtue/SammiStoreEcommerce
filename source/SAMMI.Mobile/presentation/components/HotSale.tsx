@@ -108,13 +108,13 @@ const styles = StyleSheet.create({
         width: '100%',
         backgroundColor: '#f0f0f0', 
         padding: 2,
+        
     },
     innerContainer: {
         flex: 1,
         backgroundColor: '#ffffff', // Example background paper color
         borderRadius: 8,
-        marginHorizontal: 'auto', // Centering like maxWidth: '1440px', margin: '0 auto' is tricky in RN, adjust as needed
-        // maxWidth: 1440, // maxWidth is not directly supported on View in RN web, use alignment/padding
+        marginHorizontal: 'auto', 
     },
     header: {
         flexDirection: 'row',

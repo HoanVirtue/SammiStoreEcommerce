@@ -94,14 +94,7 @@ export default function TabLayout() {
             tabBarIcon: ({ color, size }: { color: string; size: number }) => <Search size={size} color={color} />,
           }}
         />
-        <Tabs.Screen
-          name="wishlist"
-          options={{
-            title: 'Yêu thích',
-            headerShown: false,
-            tabBarIcon: ({ color, size }: { color: string; size: number }) => <Heart size={size} color={color} />,
-          }}
-        />
+
         <Tabs.Screen
           name="cart"
           options={{

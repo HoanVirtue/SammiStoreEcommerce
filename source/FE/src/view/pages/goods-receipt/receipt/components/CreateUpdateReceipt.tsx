@@ -98,6 +98,16 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
     // Add other statuses here if they exist in GOODS_RECEIPT_STATUS
   };
 
+  // Add status mapping function
+  const mapStatusToValue = (status: string): string => {
+    const statusMap: { [key: string]: string } = {
+      'Draft': '0',
+      'PendingApproval': '1',
+      // Add other mappings as needed
+    };
+    return statusMap[status] || status;
+  };
+
   const schema = yup.object().shape({
     receiptCode: yup.string().required(t('receipt_code_required')),
     receiptDate: yup.date().nullable().required(t('receipt_date_required')),
@@ -240,7 +250,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
   };
 
   const fetchReceiptDetail = async (receiptId: number) => {
-    setLoading(true);
+
     try {
       const res = await getReceiptDetail(receiptId);
       if (res?.result) {
@@ -281,7 +291,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
         }
 
         const statusExists = Object.values(statusOptions).find(
-          (option) => option.originalValue === data.status.toString()
+          (option) => option.originalValue === data.status
         );
         if (!statusExists) {
           console.warn('Status not found:', data.status);
@@ -313,7 +323,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
         setValue('receiptDate', parsedDate);
         setValue('supplierId', data.supplierId.toString());
         setValue('employeeId', data.employeeId.toString());
-        setValue('status', data.status.toString());
+        setValue('status', mapStatusToValue(data.status));
         setValue('items', itemsWithValidProducts);
       }
     } catch (err) {
@@ -340,6 +350,8 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
     }
   }, [id, supplierOptions, employeeOptions, productOptions]);
 
+  console.log("mode", isEditMode, id)
+
   const onSubmit: SubmitHandler<ReceiptFormData> = async (data) => {
     setLoading(true);
     try {
@@ -357,6 +369,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
           unitPrice: item.unitPrice,
         })),
       };
+
 
       if (isEditMode && id) {
         const result = await dispatch(updateReceiptAsync({ id, ...receiptData }));
@@ -514,7 +527,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={4}>
                   <Controller
                     name="employeeId"
                     control={control}
@@ -533,7 +546,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
                     )}
                   />
                 </Grid>
-                <Grid item xs={12} sm={6}>
+                <Grid item xs={12} sm={4}>
                   <Controller
                     name="status"
                     control={control}

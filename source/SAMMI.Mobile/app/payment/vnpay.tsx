@@ -6,7 +6,7 @@ import {
     TouchableOpacity,
     SafeAreaView,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useTheme } from '@react-navigation/native';
 import { ROUTE_CONFIG } from '@/configs/route';
 import { useLocalSearchParams } from 'expo-router';
@@ -15,18 +15,18 @@ import { CheckCircle } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 
 const VnPayScreen = () => {
-    const navigation = useNavigation();
+    const router = useRouter();
     const theme = useTheme();
     const params = useLocalSearchParams();
 
     const paymentMethod = params.paymentMethod as string;
 
     const handleGoToHome = () => {
-        navigation.navigate('(tabs)/index' as never);
+        router.push('/' as never);
     };
 
     const handleGoToOrders = () => {
-        navigation.navigate('(tabs)/account/my-order' as never);
+        router.push('/my-order' as never);
     };
 
     return (

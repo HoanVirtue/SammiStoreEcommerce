@@ -31,13 +31,25 @@ namespace SAMMI.ECOM.API.Controllers.System
         [HttpGet]
         public async Task<IActionResult> GetAsync()
         {
-            _notifiSignalR.SendNotificationAsync(1, new Domain.DomainModels.System.NotificationDTO()
+            await _notifiSignalR.SendNotificationAsync(1, new Domain.DomainModels.System.NotificationDTO()
             {
                 ReceiverId = 1,
                 Title = "Hello Hoàn",
                 Content = "Hôm nay là sinh nhật của bạn"
             });
             return Ok(await _notificationQueries.GetAll(UserIdentity.Id));
+        }
+
+        [HttpGet("send")]
+        public async Task<IActionResult> SendAsync()
+        {
+            await _notifiSignalR.SendNotificationAsync(1, new Domain.DomainModels.System.NotificationDTO()
+            {
+                ReceiverId = 1,
+                Title = "Hello Hoàn",
+                Content = "Hôm nay là sinh nhật của bạn"
+            });
+            return Ok();
         }
 
         [HttpPut]

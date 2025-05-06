@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Domain.DomainModels.System;
@@ -13,6 +14,7 @@ namespace SAMMI.ECOM.Infrastructure.Hubs
     {
         Task ReceiveNotification(NotificationDTO notifi);
     }
+    [Authorize]
     public class NotificationHub : Hub<INotificationHub>
     {
         private readonly UserIdentity UserIdentity;

@@ -52,8 +52,15 @@ import { resetInitialState } from 'src/stores/auth'
 import { toast } from 'react-toastify'
 import { getAllRoles } from 'src/services/role'
 import { useAuth } from 'src/hooks/useAuth'
-import { format, parseISO, isValid } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
+
+import dayjs from 'dayjs'
+import utc from 'dayjs/plugin/utc'
+import timezone from 'dayjs/plugin/timezone'
+
+// Khởi tạo plugin dayjs
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
 
 type TProps = {}
 
@@ -109,7 +116,14 @@ const MyProfilePage: NextPage<TProps> = () => {
         resolver: yupResolver(schema)
     });
 
-    //fetch api
+    // Sửa hàm formatDate
+    const formatDisplayDate = (dateString: string | null | undefined): string => {
+        if (!dateString) return '';
+        const date = dayjs(dateString);
+        return date.isValid() ? date.format('YYYY-MM-DD') : '';
+    };
+
+    // Sửa fetchGetAuthMe()
     const fetchGetAuthMe = async () => {
         setLoading(true)
         await getLoginUser()
@@ -117,12 +131,13 @@ const MyProfilePage: NextPage<TProps> = () => {
                 setLoading(false)
                 const data = response?.result
                 if (data) {
-                    let parsedBirthday = null;
+                    let formattedBirthday = '';
                     if (data.birthday) {
-                        parsedBirthday = parseISO(data.birthday);
-                        if (isValid(parsedBirthday)) {
-                            parsedBirthday = toZonedTime(parsedBirthday, 'Asia/Ho_Chi_Minh');
-                        }
+
+                        // Sử dụng dayjs thay vì date-fns
+                        const date = dayjs(data.birthday).tz('Asia/Ho_Chi_Minh');
+                        formattedBirthday = date.isValid() ? date.format('YYYY-MM-DD') : '';
+
                     }
 
                     reset({
@@ -131,7 +146,7 @@ const MyProfilePage: NextPage<TProps> = () => {
                         firstName: data?.firstName,
                         lastName: data?.lastName,
                         gender: data?.gender,
-                        birthday: parsedBirthday ? format(parsedBirthday, 'yyyy-MM-dd') : '',
+                        birthday: formattedBirthday,
                     })
                     setAvatar(data?.avatar)
                     setUser({ ...data })
@@ -159,11 +174,9 @@ const MyProfilePage: NextPage<TProps> = () => {
     const onSubmit = (data: any) => {
         let formattedBirthday = data.birthday;
         if (data.birthday) {
-            const parsedDate = parseISO(data.birthday);
-            if (isValid(parsedDate)) {
-                const vietnamDate = toZonedTime(parsedDate, 'Asia/Ho_Chi_Minh');
-                formattedBirthday = format(vietnamDate, 'yyyy-MM-dd');
-            }
+            // Sử dụng dayjs thay vì date-fns
+            const date = dayjs(data.birthday).tz('Asia/Ho_Chi_Minh');
+            formattedBirthday = date.isValid() ? date.format('YYYY-MM-DD') : data.birthday;
         }
 
         dispatch(updateProfileAsync({

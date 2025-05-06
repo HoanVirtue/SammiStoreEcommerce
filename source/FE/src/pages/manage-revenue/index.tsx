@@ -29,49 +29,118 @@ import {
   CircularProgress
 } from '@mui/material';
 
+interface RevenueDetail {
+  id: number;
+  code: string;
+  customerId: number;
+  customerName: string;
+  phoneNumber: string;
+  paymentMethodId: number;
+  paymentMethod: string;
+  orderStatus: string;
+  totalPrice: number | null;
+  totalQuantity: number;
+  createdDate: string;
+  updatedDate: string | null;
+  createdBy: string;
+  updatedBy: string | null;
+  isActive: boolean;
+  isDeleted: boolean;
+  displayOrder: number | null;
+}
+
+interface SalesRevenueResponse {
+  result: {
+    totalAmount: number;
+    totalQuantity: number;
+    revenueDetails: {
+      subset: RevenueDetail[];
+      count: number;
+      pageCount: number;
+      totalItemCount: number;
+      skip: number;
+      take: number;
+      hasPreviousPage: boolean;
+      hasNextPage: boolean;
+      isFirstPage: boolean;
+      isLastPage: boolean;
+    };
+  };
+  isSuccess: boolean;
+  message: string;
+  errors: any;
+}
+
 const RevenueStatisticsPage = () => {
   const { t } = useTranslation();
   const [startDate, setStartDate] = useState<dayjs.Dayjs>(dayjs().startOf('year'));
   const [endDate, setEndDate] = useState<dayjs.Dayjs>(dayjs().endOf('year'));
-  const [employeeId, setEmployeeId] = useState<number | null>(null);
+  const [paymentMethodId, setPaymentMethodId] = useState<number | null>(null);
   const [customerId, setCustomerId] = useState<number | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
-  const { data: revenueData, isLoading } = useQuery({
-    queryKey: ['revenue-statistics', startDate, endDate, employeeId, customerId],
-    queryFn: () =>
-      getSalesRevenue({
+  const { data, isLoading } = useQuery({
+    queryKey: ['revenue-statistics', startDate, endDate, paymentMethodId, page, rowsPerPage],
+    queryFn: async () => {
+      console.log(`Fetching revenue data: page=${page}, rowsPerPage=${rowsPerPage}`);
+      const response = await getSalesRevenue({
         dateFrom: startDate.toDate(),
         dateTo: endDate.toDate(),
-        paymentMethodId: employeeId || undefined,
-      }),
+        paymentMethodId: paymentMethodId || undefined,
+        skip: page * rowsPerPage,
+        take: rowsPerPage,
+        paging: true,
+        type: 1, // Grid type
+        orderBy: 'CreatedDate',
+        dir: 'DESC'
+      });
+      console.log('API Response:', response);
+      return response as SalesRevenueResponse;
+    },
+    refetchOnWindowFocus: false
   });
 
-  const revenueTableData = Array.isArray(revenueData?.result?.orderDetails?.subset)
-    ? revenueData.result.orderDetails.subset
+  const revenueData = data;
+  const revenueTableData = Array.isArray(revenueData?.result?.revenueDetails?.subset)
+    ? revenueData.result.revenueDetails.subset
     : [];
 
   const totalAmount = revenueData?.result?.totalAmount || 0;
   const totalQuantity = revenueData?.result?.totalQuantity || 0;
-  const totalCount = revenueData?.result?.orderDetails?.totalItemCount || 0;
+  const totalCount = revenueData?.result?.revenueDetails?.totalItemCount || 0;
 
   const handleChangePage = (event: unknown, newPage: number) => {
+    console.log(`Changing page to ${newPage}`);
     setPage(newPage);
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    console.log(`Changing rows per page to ${newRowsPerPage}`);
+    setRowsPerPage(newRowsPerPage);
     setPage(0);
   };
 
-  const handleEmployeeChange = (event: SelectChangeEvent<number | string>) => {
-    setEmployeeId(event.target.value === '' ? null : Number(event.target.value));
+  const handlePaymentMethodChange = (event: SelectChangeEvent<number | string>) => {
+    setPaymentMethodId(event.target.value === '' ? null : Number(event.target.value));
   };
 
   const handleCustomerChange = (event: SelectChangeEvent<number | string>) => {
     setCustomerId(event.target.value === '' ? null : Number(event.target.value));
   };
+
+  // Lọc danh sách khách hàng duy nhất từ dữ liệu
+  const uniqueCustomers = revenueTableData.reduce((acc: Array<{id: number, name: string, phone: string}>, item: RevenueDetail) => {
+    if (!acc.some(c => c.id === item.customerId)) {
+      acc.push({
+        id: item.customerId,
+        name: item.customerName || '',
+        phone: item.phoneNumber || ''
+      });
+    }
+    return acc;
+  }, []);
 
   return (
     <Box sx={{ p: 3 }}>
@@ -108,16 +177,16 @@ const RevenueStatisticsPage = () => {
             </LocalizationProvider>
             
             <FormControl sx={{ minWidth: 200 }} size="small">
-              <InputLabel id="employee-select-label">{t('select_employee')}</InputLabel>
+              <InputLabel id="payment-method-select-label">{t('payment_method')}</InputLabel>
               <Select
-                labelId="employee-select-label"
-                value={employeeId || ''}
-                onChange={handleEmployeeChange}
-                label={t('select_employee')}
+                labelId="payment-method-select-label"
+                value={paymentMethodId || ''}
+                onChange={handlePaymentMethodChange}
+                label={t('payment_method')}
               >
                 <MenuItem value=""><em>{t('none')}</em></MenuItem>
-                <MenuItem value={1}>{t('employee')} 1</MenuItem>
-                <MenuItem value={2}>{t('employee')} 2</MenuItem>
+                <MenuItem value={1}>{t('cash_on_delivery')}</MenuItem>
+                <MenuItem value={2}>{t('vnpay')}</MenuItem>
               </Select>
             </FormControl>
             
@@ -130,8 +199,11 @@ const RevenueStatisticsPage = () => {
                 label={t('select_customer')}
               >
                 <MenuItem value=""><em>{t('none')}</em></MenuItem>
-                <MenuItem value={1}>{t('customer')} 1</MenuItem>
-                <MenuItem value={2}>{t('customer')} 2</MenuItem>
+                {uniqueCustomers.map((customer: {id: number, name: string, phone: string}) => (
+                  <MenuItem key={customer.id} value={customer.id}>
+                    {customer.name} ({customer.phone})
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
@@ -159,8 +231,9 @@ const RevenueStatisticsPage = () => {
               <TableHead>
                 <TableRow>
                   <TableCell>{t('order_code')}</TableCell>
-                  <TableCell>{t('employee')}</TableCell>
                   <TableCell>{t('customer')}</TableCell>
+                  <TableCell>{t('payment_method')}</TableCell>
+                  <TableCell>{t('order_status')}</TableCell>
                   <TableCell align="right">{t('total_price')}</TableCell>
                   <TableCell align="right">{t('quantity')}</TableCell>
                   <TableCell>{t('created_date')}</TableCell>
@@ -169,7 +242,7 @@ const RevenueStatisticsPage = () => {
               <TableBody>
                 {isLoading ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={7} align="center">
                       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, py: 2 }}>
                         <CircularProgress size={24} />
                         <Typography>{t('loading')}</Typography>
@@ -178,16 +251,17 @@ const RevenueStatisticsPage = () => {
                   </TableRow>
                 ) : revenueTableData.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} align="center">
+                    <TableCell colSpan={7} align="center">
                       <Typography sx={{ py: 2 }}>{t('no_data')}</Typography>
                     </TableCell>
                   </TableRow>
                 ) : (
-                  revenueTableData.map((row: any) => (
-                    <TableRow key={row.code}>
+                  revenueTableData.map((row: RevenueDetail) => (
+                    <TableRow key={row.code || row.id}>
                       <TableCell>{row.code}</TableCell>
-                      <TableCell>{row.employeeName}</TableCell>
-                      <TableCell>{row.customerName}</TableCell>
+                      <TableCell>{row.customerName} ({row.phoneNumber})</TableCell>
+                      <TableCell>{row.paymentMethod}</TableCell>
+                      <TableCell>{row.orderStatus}</TableCell>
                       <TableCell align="right">{formatCurrency(row.totalPrice || 0)}</TableCell>
                       <TableCell align="right">{row.totalQuantity}</TableCell>
                       <TableCell>
@@ -201,17 +275,18 @@ const RevenueStatisticsPage = () => {
           </TableContainer>
           
           <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
+            rowsPerPageOptions={[5, 10, 25, 50]}
             component="div"
-            count={totalCount}
+            count={totalCount || 0}
             rowsPerPage={rowsPerPage}
             page={page}
             onPageChange={handleChangePage}
             onRowsPerPageChange={handleChangeRowsPerPage}
             labelRowsPerPage={t('rows_per_page')}
-            labelDisplayedRows={({ from, to, count }) => 
-              `${from}-${to} ${t('of')} ${count !== -1 ? count : `${t('more_than')} ${to}`}`
-            }
+            labelDisplayedRows={({ from, to, count }) => {
+              if (count === 0) return `0 ${t('of')} 0`;
+              return `${page * rowsPerPage + 1}-${Math.min((page + 1) * rowsPerPage, count)} ${t('of')} ${count}`;
+            }}
           />
         </CardContent>
       </Card>

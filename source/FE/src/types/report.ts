@@ -4,6 +4,15 @@ export interface SaleRevenueFilterModel extends RequestFilterModel {
   dateFrom?: Date;
   dateTo?: Date;
   paymentMethodId?: number;
+  skip?: number;
+  take?: number;
+  paging?: boolean;
+  type?: number;
+  orderBy?: string;
+  dir?: string;
+  filters?: string;
+  keywords?: string;
+  restrictOrderBy?: boolean;
 }
 
 export interface ImportStatisticFilterModel {
@@ -24,6 +33,13 @@ export interface InventoryFilterModel extends RequestFilterModel {
   daysOfExistence?: number;
   skip?: number;
   take?: number;
+  paging?: boolean;
+  type?: number;
+  orderBy?: string;
+  dir?: string;
+  filters?: string;
+  keywords?: string;
+  restrictOrderBy?: boolean;
 }
 
 export interface InventoryStatisticDetail {

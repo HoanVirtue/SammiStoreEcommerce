@@ -29,39 +29,39 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             var detailPageList = await WithPagingTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    //sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.UnitPrice) AS 'TotalPrice'");
-                    //sqlBuilder.Select("t3.FullName AS EmployeeName");
-                    //sqlBuilder.Select("t4.FullName AS SupplierName");
+                    sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.UnitPrice) AS 'TotalPrice'");
+                    sqlBuilder.Select("t3.FullName AS EmployeeName");
+                    sqlBuilder.Select("t4.FullName AS SupplierName");
 
-                    //sqlBuilder.InnerJoin("PurchaseOrderDetail t2 ON t1.Id = t2.PurchaseOrderId AND t2.IsDeleted != 1");
-                    //sqlBuilder.InnerJoin("Users t3 ON t1.EmployeeId = t3.Id AND t3.IsDeleted != 1");
-                    //sqlBuilder.InnerJoin("Users t4 ON t1.SupplierId = t4.Id AND t4.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("PurchaseOrderDetail t2 ON t1.Id = t2.PurchaseOrderId AND t2.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("Users t3 ON t1.EmployeeId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("Users t4 ON t1.SupplierId = t4.Id AND t4.IsDeleted != 1");
 
-                    //sqlBuilder.Where("t1.Status = @status", new { status = PurchaseOrderStatus.Completed.ToString() });
-                    //sqlBuilder.Where(string.Format("t1.CreatedDate >= '{0}' AND t1.CreatedDate <= '{1}'", string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom), string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)));
-                    //if(filterModel.EmployeeId != null && filterModel.EmployeeId != 0)
-                    //{
-                    //    sqlBuilder.Where("t1.EmployeeId = @employeeId", new { employeeId = filterModel.EmployeeId });
-                    //}
-                    //if(filterModel.SupplierId != null && filterModel.SupplierId != 0)
-                    //{
-                    //    sqlBuilder.Where("t1.SupplierId = @supplierId", new { supplierId = filterModel.SupplierId });
-                    //}
+                    sqlBuilder.Where("t1.Status = @status", new { status = PurchaseOrderStatus.Completed.ToString() });
+                    sqlBuilder.Where(string.Format("t1.CreatedDate >= '{0}' AND t1.CreatedDate <= '{1}'", string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom), string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)));
+                    if (filterModel.EmployeeId != null && filterModel.EmployeeId != 0)
+                    {
+                        sqlBuilder.Where("t1.EmployeeId = @employeeId", new { employeeId = filterModel.EmployeeId });
+                    }
+                    if (filterModel.SupplierId != null && filterModel.SupplierId != 0)
+                    {
+                        sqlBuilder.Where("t1.SupplierId = @supplierId", new { supplierId = filterModel.SupplierId });
+                    }
 
-                    //sqlBuilder.GroupBy(@"t1.Id,
-                    //    t1.Code,
-                    //    t1.EmployeeId,
-                    //    t1.SupplierId,
-                    //    t1.Status,
-                    //    t1.Note,
-                    //    t1.CreatedDate,
-                    //    t1.UpdatedDate,
-                    //    t1.CreatedBy,
-                    //    t1.UpdatedBy,
-                    //    t1.IsActive,
-                    //    t1.IsDeleted,
-                    //    t3.FullName,
-                    //    t4.FullName");
+                    sqlBuilder.GroupBy(@"t1.Id,
+                        t1.Code,
+                        t1.EmployeeId,
+                        t1.SupplierId,
+                        t1.Status,
+                        t1.Note,
+                        t1.CreatedDate,
+                        t1.UpdatedDate,
+                        t1.CreatedBy,
+                        t1.UpdatedBy,
+                        t1.IsActive,
+                        t1.IsDeleted,
+                        t3.FullName,
+                        t4.FullName");
 
                     //sqlBuilder.OrderBy("t1.CreatedDate DESC, t1.EmployeeId, t1.SupplierId");
 
@@ -139,8 +139,14 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                 t4.FullName
 
                         ORDER BY t1.Id DESC , t1.CreatedDate DESC, t1.EmployeeId, t1.SupplierId";
-                    return conn.QueryAsync<ImportStatisticDetail>(query, sqlTemplate.Parameters);
+                    return conn.QueryAsync<ImportStatisticDetail>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, filterModel);
+
+            detailPageList.Subset = detailPageList.Subset
+                .OrderByDescending(x => x.CreatedDate)
+                .ThenBy(x => x.EmployeeId)
+                .ThenBy(x => x.SupplierId)
+                .ToList();
 
             var totalImport = await WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
@@ -174,7 +180,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                         t1.IsDeleted");
 
                     return conn.QueryAsync<ImportStatisticDetail>(sqlTemplate.RawSql, sqlTemplate.Parameters);
-                }, filterModel);
+                });
 
             var importStatistic = new ImportStatistic
             {

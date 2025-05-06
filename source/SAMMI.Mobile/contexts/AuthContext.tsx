@@ -134,7 +134,7 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       setLoading(false);
       if (errorCallback) errorCallback(err);
       Toast.show({
-        text1: 'Đăng nhập thất bại',
+        text1: err?.message || 'Đã có lỗi xảy ra',
         type: 'error'
       });
     }

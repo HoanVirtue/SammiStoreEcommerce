@@ -25,9 +25,10 @@ import receipt from '@/stores/receipt'
 import banner from '@/stores/banner'
 import event from '@/stores/event'
 import cart from '@/stores/cart'
+import favouriteReducer from './favourite'
 
 export const store = configureStore({
-  reducer: { user, auth, role, deliveryMethod, paymentMethod, province, district, productCategory, product, order, review, ward, brand, employee, customer, supplier, address, voucher, receipt, banner, event, cart },
+  reducer: { user, auth, role, deliveryMethod, paymentMethod, province, district, productCategory, product, order, review, ward, brand, employee, customer, supplier, address, voucher, receipt, banner, event, cart, favourite: favouriteReducer },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
       serializableCheck: false

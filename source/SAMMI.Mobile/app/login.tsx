@@ -96,7 +96,7 @@ export default function LoginScreen() {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: isDark ? palette.neutral[900] : '#FFFFFF' }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
             <KeyboardAvoidingView
                 style={styles.keyboardAvoidingView}
                 behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -107,15 +107,20 @@ export default function LoginScreen() {
                         style={styles.backButton}
                         onPress={handleBack}
                     >
-                        <ArrowLeft size={24} color={isDark ? palette.neutral[100] : palette.neutral[900]} />
+                        <ArrowLeft size={24} color={colors.primary} />
                     </TouchableOpacity>
 
                     <View style={styles.header}>
-                        <Text style={[styles.title, { color: isDark ? palette.neutral[100] : palette.neutral[900] }]}>
+                        {/* <Image 
+                            source={require('@/assets/images/logo.png')} 
+                            style={styles.logo}
+                            resizeMode="contain"
+                        /> */}
+                        <Text style={[styles.title, { color: colors.text }]}>
                             Chào mừng trở lại
                         </Text>
-                        <Text style={[styles.subtitle, { color: isDark ? palette.neutral[400] : palette.neutral[500] }]}>
-                            Đăng nhập vào tài khoản của bạn để tiếp tục
+                        <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+                            Đăng nhập để khám phá thế giới làm đẹp
                         </Text>
                     </View>
 
@@ -134,7 +139,7 @@ export default function LoginScreen() {
                             value={username}
                             onChangeText={setUsername}
                             autoCapitalize="none"
-                            leftIcon={<User size={20} color={isDark ? palette.neutral[400] : palette.neutral[500]} />}
+                            leftIcon={<User size={20} color={colors.primary} />}
                             error={usernameError}
                         />
 
@@ -144,14 +149,14 @@ export default function LoginScreen() {
                             value={password}
                             onChangeText={setPassword}
                             secureTextEntry={!showPassword}
-                            leftIcon={<Lock size={20} color={isDark ? palette.neutral[400] : palette.neutral[500]} />}
+                            leftIcon={<Lock size={20} color={colors.primary} />}
                             error={passwordError}
                             rightIcon={
                                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                     {showPassword ? (
-                                        <Eye size={20} color={isDark ? palette.neutral[400] : palette.neutral[500]} />
+                                        <Eye size={20} color={colors.primary} />
                                     ) : (
-                                        <EyeOff size={20} color={isDark ? palette.neutral[400] : palette.neutral[500]} />
+                                        <EyeOff size={20} color={colors.primary} />
                                     )}
                                 </TouchableOpacity>
                             }
@@ -177,7 +182,7 @@ export default function LoginScreen() {
                     </View>
 
                     <View style={styles.footer}>
-                        <Text style={[styles.footerText, { color: isDark ? palette.neutral[400] : palette.neutral[500] }]}>
+                        <Text style={[styles.footerText, { color: colors.textSecondary }]}>
                             Chưa có tài khoản?
                         </Text>
                         <TouchableOpacity onPress={handleRegister}>
@@ -208,20 +213,31 @@ const styles = StyleSheet.create({
     },
     header: {
         marginBottom: 32,
+        alignItems: 'center',
+    },
+    logo: {
+        width: 120,
+        height: 120,
+        marginBottom: 16,
     },
     title: {
         fontSize: 28,
         fontWeight: '700',
         marginBottom: 8,
+        textAlign: 'center',
     },
     subtitle: {
         fontSize: 16,
+        textAlign: 'center',
     },
     alert: {
         marginBottom: 16,
     },
     form: {
         marginBottom: 24,
+    },
+    input: {
+        marginBottom: 16,
     },
     forgotPasswordButton: {
         alignSelf: 'flex-end',

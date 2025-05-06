@@ -16,7 +16,7 @@ import { useRouter } from 'expo-router';
 import { resetInitialState } from '@/stores/order';
 import Toast from 'react-native-toast-message';
 import { OrderStatus } from '@/configs/order';
-import { TouchableOpacity } from 'react-native';
+import { SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
 import { Text, View, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import { TOrderItem } from '@/types/order';
 import NoData from '@/components/NoData';
@@ -129,9 +129,9 @@ const MyOrderScreen = () => {
 
     const handleGoBack = useCallback(() => {
         try {
-            router.back()
+            router.push('/(tabs)/profile');
         } catch (error) {
-            router.push('/')
+            router.push('/(tabs)')
         }
     }, [router])
 
@@ -221,24 +221,48 @@ const MyOrderScreen = () => {
     }, [isLoading, myOrders?.data?.length, renderOrdersList])
 
     return (
-        <View style={styles.container}>
-            <TouchableOpacity 
-                style={styles.backButton} 
-                onPress={handleGoBack}
-            >
-                <Ionicons name="arrow-back" size={24} color={colors.primary} />
-            </TouchableOpacity>
-            <View style={styles.tabsWrapper}>
-                {renderTabs}
+        <SafeAreaView style={styles.safeArea}>
+            <StatusBar barStyle="dark-content" />
+            <View style={styles.headerRow}>
+                <TouchableOpacity 
+                    style={styles.backButton} 
+                    onPress={handleGoBack}
+                >
+                    <Ionicons name="arrow-back" size={24} color={colors.primary} />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Đơn hàng của tôi</Text>
             </View>
-            <ScrollView style={styles.contentWrapper}>
-                {renderContent}
-            </ScrollView>
-        </View>
+            <View style={styles.container}>
+                <View style={styles.tabsWrapper}>
+                    {renderTabs}
+                </View>
+                <ScrollView style={styles.contentWrapper}>
+                    {renderContent}
+                </ScrollView>
+            </View>
+        </SafeAreaView>
     )
 }
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#fff',
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        backgroundColor: '#fff',
+        paddingHorizontal: 8,
+    },
+    headerTitle: {
+        fontSize: 20,
+        // fontWeight: 'bold',
+        color: colors.primary,
+        marginLeft: 8,
+        marginBottom: 8
+    },
     container: {
         flex: 1,
         backgroundColor: '#fff',

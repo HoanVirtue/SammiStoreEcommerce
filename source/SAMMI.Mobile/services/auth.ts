@@ -19,6 +19,7 @@ export const loginAuth = async (data: TLoginAuth) => {
 
         return res.data;
     } catch (error: any) {
+        console.log('error', error); 
         throw error;
     }
 };

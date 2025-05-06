@@ -19,6 +19,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { AxiosInterceptor } from '@/helpers/axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuth } from '@/hooks/useAuth';
+import Toast from 'react-native-toast-message';
 
 
 // Initialize AsyncStorage
@@ -70,6 +71,7 @@ export default function RootLayout() {
     <Provider store={store}>
       <AuthProvider>
         <AppContent />
+        <Toast />
       </AuthProvider>
     </Provider>
   );
@@ -103,7 +105,7 @@ function RootLayoutNav() {
         />
         
         <Stack.Screen
-          name="favourite"
+          name="favourite-product"
           options={{
             headerShown: false,
           }}

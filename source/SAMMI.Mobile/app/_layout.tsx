@@ -102,6 +102,12 @@ function RootLayoutNav() {
           }}
         />
 
+          name="favourite-product"
+          options={{
+            headerShown: false,
+          }}
+        />
+
       </Stack>
     </AxiosInterceptor>
   );

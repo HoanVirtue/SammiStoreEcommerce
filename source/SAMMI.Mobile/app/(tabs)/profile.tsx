@@ -69,7 +69,7 @@ export default function ProfileScreen() {
   }
 
   const handleFavorite = () => {
-    router.replace('/favorite' as any);
+    router.replace('/favourite' as any);
   }
 
   const handleOrder = () => {

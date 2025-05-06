@@ -324,31 +324,36 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             var detailPageList = await WithPagingTemplateAsync(
                 async (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    //sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) AS 'TotalPrice'");
-                    //sqlBuilder.Select("t3.FullName AS 'CustomerName', t3.Phone AS 'PhoneNumber'");
-                    //sqlBuilder.Select("t4.PaymentMethodId");
-                    //sqlBuilder.Select("t5.Name AS 'PaymentMethod'");
+                    sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) - COALESCE(t1.DiscountValue, 0) AS 'TotalPrice'");
+                    sqlBuilder.Select("t3.FullName AS 'CustomerName', t3.Phone AS 'PhoneNumber'");
+                    sqlBuilder.Select("t4.PaymentMethodId");
+                    sqlBuilder.Select("t5.Name AS 'PaymentMethod'");
 
-                    //sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
-                    //sqlBuilder.InnerJoin("Users t3 ON t1.CustomerId = t3.Id AND t3.IsDeleted != 1");
-                    //sqlBuilder.InnerJoin("Payment t4 ON t1.Id = t4.OrderId AND t4.IsDeleted != 1");
-                    //sqlBuilder.LeftJoin("PaymentMethod t5 ON t4.PaymentMethodId = t5.Id AND t5.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("Users t3 ON t1.CustomerId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.InnerJoin("Payment t4 ON t1.Id = t4.OrderId AND t4.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("PaymentMethod t5 ON t4.PaymentMethodId = t5.Id AND t5.IsDeleted != 1");
 
-                    //sqlBuilder.Where($"t1.OrderStatus = @orderStatus", new { OrderStatusEnum.Completed });
+                    sqlBuilder.Where($"t1.OrderStatus = @orderStatus", new {orderStatus = OrderStatusEnum.Completed.ToString() });
+                    sqlBuilder.Where($"t1.CreatedDate >= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom)}' AND t1.CreatedDate <= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)}'");
+                    if (filterModel.PaymentMethodId != null && filterModel.PaymentMethodId != 0)
+                    {
+                        sqlBuilder.Where($"t3.PaymentMethodId = {filterModel.PaymentMethodId}");
+                    }
 
-                    //sqlBuilder.GroupBy(@"t1.Id,
-                    //    t1.Code,
-                    //    t1.CustomerId,
-                    //    t1.OrderStatus,
-                    //    t1.CreatedDate,
-                    //    t1.UpdatedDate,
-                    //    t1.CreatedBy,
-                    //    t1.UpdatedBy,
-                    //    t1.IsActive,
-                    //    t1.IsDeleted,
-                    //    t1.DisplayOrder,
-                    //    t3.FullName, t3.Phone,
-                    //    t4.PaymentMethodId, t5.Name");
+                    sqlBuilder.GroupBy(@"t1.Id,
+                        t1.Code,
+                        t1.CustomerId,
+                        t1.OrderStatus,
+                        t1.CreatedDate,
+                        t1.UpdatedDate,
+                        t1.CreatedBy,
+                        t1.UpdatedBy,
+                        t1.IsActive,
+                        t1.IsDeleted,
+                        t1.DisplayOrder,
+                        t3.FullName, t3.Phone,
+                        t4.PaymentMethodId, t5.Name");
 
                     //sqlBuilder.OrderBy("t1.CreatedDate DESC");
                     //sqlBuilder.OrderBy("t1.CustomerId ASC");
@@ -422,13 +427,17 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                                 t4.PaymentMethodId, t5.Name
                         ORDER BY t1.Id DESC , t1.CreatedDate DESC , t1.CustomerId ASC";
 
-                    return await conn.QueryAsync<SalesRevenueDetail>(query, sqlTemplate.Parameters);
+                    return await conn.QueryAsync<SalesRevenueDetail>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, filterModel);
+
+            detailPageList.Subset = detailPageList.Subset.OrderByDescending(x => x.CreatedDate)
+                .ThenBy(x => x.CustomerId)
+                .ToList();
 
             var totalRevenue = await WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) - t1.DiscountValue AS 'TotalPrice'");
+                    sqlBuilder.Select("SUM(t2.Quantity) AS 'TotalQuantity', SUM(t2.Quantity * t2.Price) - COALESCE(t1.DiscountValue, 0) AS 'TotalPrice'");
 
                     sqlBuilder.InnerJoin("OrderDetail t2 ON t1.Id = t2.OrderId AND t2.IsDeleted != 1");
                     sqlBuilder.InnerJoin("Payment t3 ON t1.Id = t3.OrderId AND t3.IsDeleted != 1");
@@ -452,7 +461,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                         t1.DisplayOrder");
 
                     return conn.QueryAsync<SalesRevenueDetail>(sqlTemplate.RawSql, sqlTemplate.Parameters);
-                }, filterModel);
+                });
 
             var salesRevenue = new SalesRevenue
             {

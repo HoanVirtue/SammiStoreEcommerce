@@ -129,8 +129,8 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
                         imageBase64: data?.imageBase64,
                         imageUrl: data?.imageUrl,
                         publicId: '',
-                        typeImage: '',
-                        value: '',
+                        typeImage: data?.typeImage,
+                        value: data?.value,
                     },
                     isActive: data?.isActive ?? true
                 })
@@ -156,7 +156,8 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
             imageBase64: base64,
             publicId: "''",
             typeImage: file.type,
-            value: "",
+            value: file.name,
+            
         }
         setBannerImage(newImage)
         setValue("imageCommand", newImage, { shouldValidate: true })
@@ -326,7 +327,17 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
                                                     control={
                                                         <Switch
                                                             checked={Boolean(value)}
-                                                            onChange={(e) => onChange(e.target.checked)}
+                                                            onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                                                            sx={{
+                                                                '& .MuiSwitch-track': {
+                                                                    color: theme.palette.primary.main,
+                                                                    border: `1px solid ${theme.palette.primary.main}`,
+                                                                    backgroundColor: theme.palette.primary.main,
+                                                                    '&:hover': {
+                                                                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                                                    },
+                                                                },
+                                                            }}
                                                         />
                                                     }
                                                     label={Boolean(value) ? t("active") : t("inactive")}

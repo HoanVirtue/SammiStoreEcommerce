@@ -198,7 +198,7 @@ export default function DashboardClient() {
   );
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>Đang tải dữ liệu...</div>;
   }
 
   return (

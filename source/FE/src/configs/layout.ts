@@ -28,21 +28,6 @@ export const VerticalLayoutItems = () => {
                     icon: 'mage:dashboard-bar-notification',
                     path: ROUTE_CONFIG.DASHBOARD,
                 },
-                {
-                    title: "Thống kê doanh thu",
-                    icon: 'material-symbols:payments-outline',
-                    path: ROUTE_CONFIG.REPORT.REVENUE,
-                },
-                {
-                    title: "Thống kê nhập hàng",
-                    icon: 'material-symbols:inventory-2-outline',
-                    path: ROUTE_CONFIG.REPORT.IMPORT,
-                },
-                {
-                    title: "Thống kê tồn kho",
-                    icon: 'material-symbols:inventory-2-outline',
-                    path: ROUTE_CONFIG.REPORT.INVENTORY,
-                },
             ]
         },
         {
@@ -80,6 +65,27 @@ export const VerticalLayoutItems = () => {
                     title: t('list_voucher'),
                     icon: 'ci:ticket-voucher',
                     path: ROUTE_CONFIG.MANAGE_PROMOTION.VOUCHER,
+                },
+            ]
+        },
+        {
+            title: t('manage_statistic'),
+            icon: 'akar-icons:statistic-up',
+            children: [
+                {
+                    title: "Thống kê doanh thu",
+                    icon: 'material-symbols:payments-outline',
+                    path: ROUTE_CONFIG.REPORT.REVENUE,
+                },
+                {
+                    title: "Thống kê nhập hàng",
+                    icon: 'material-symbols:inventory-2-outline',
+                    path: ROUTE_CONFIG.REPORT.IMPORT,
+                },
+                {
+                    title: "Thống kê tồn kho",
+                    icon: 'material-symbols:inventory-2-outline',
+                    path: ROUTE_CONFIG.REPORT.INVENTORY,
                 },
             ]
         },

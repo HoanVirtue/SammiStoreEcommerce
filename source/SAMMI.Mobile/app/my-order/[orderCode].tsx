@@ -84,6 +84,9 @@ const MyOrderDetailPage: React.FC<TProps> = () => {
     const orderId = typeof params.orderId === 'string' ? +params.orderId : 0
     const orderCode = typeof params.orderCode === 'string' ? params.orderCode : ''
 
+    console.log("orderId", orderId)
+    console.log("orderCode", orderCode)
+
     //Dispatch
     const dispatch: AppDispatch = useDispatch()
     const { isSuccessCancel, isErrorCancel, errorMessageCancel } = useSelector((state: RootState) => state.order)

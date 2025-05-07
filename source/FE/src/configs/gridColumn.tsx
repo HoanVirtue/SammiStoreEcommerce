@@ -804,6 +804,27 @@ export const getBannerColumns = (): GridColDef[] => {
     },
 
     {
+      field: 'status',
+      headerName: t('status'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <>
+            {row?.isActive === true ? (
+              <StyledPublicProduct label={t('active')} />
+            ) : (
+              <StyledPrivateProduct label={t('inactive')} />
+            )
+            }
+          </>
+        )
+      }
+    },
+
+    {
       field: 'createdAt',
       headerName: t('created_at'),
       minWidth: 220,

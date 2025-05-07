@@ -71,7 +71,8 @@ export default function LoginScreen() {
                     if (err?.response?.errors !== "") {
                         Toast.show({
                             type: 'error',
-                            text1: err?.response?.message || 'Đã có lỗi xảy ra'
+                            text1: err?.response?.message || 'Đã có lỗi xảy ra',
+                            text2: err?.response?.errors || ''
                         })
                     }
                 });

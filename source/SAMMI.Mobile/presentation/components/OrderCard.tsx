@@ -134,8 +134,8 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
     }, [dispatch, orderData.details, isSuccessCreateCart, errorMessageCreateCart, router])
 
     const handleNavigateDetail = useCallback(() => {
-        router.push(`/my-order/${orderData.code}` as any)
-    }, [router, orderData.code])
+        router.push(`/my-order/${orderData.code}?orderId=${orderData.id}` as any)
+    }, [router, orderData.code, orderData.id])
 
     const handlePayment = useCallback(async () => {
         setLoading(true)

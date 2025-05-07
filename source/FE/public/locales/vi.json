@@ -59,8 +59,6 @@
     "maximum_stock_quantity": "Số lượng tồn kho tối đa",
     "days_of_existence": "Số ngày tồn kho",
     "total_stock_quantity": "Tổng số lượng tồn kho",
-    "total_quantity": "Tổng số lượng",
-    "total_amount": "Tổng giá trị",
     "product_code": "Mã sản phẩm",
     "stock_quantity": "Số lượng tồn kho",
     "last_receipt_date": "Ngày nhập cuối cùng",
@@ -349,8 +347,6 @@
     "update_ward_success": "Cập nhật quận/huyện thành công",
     "delete_district_success": "Xóa quận/huyện thành công",
     "delete_product_success": "Xóa sản phẩm thành công",
-    "stock_quantity": "Số lượng trong kho",
-    "product_code": "Mã sản phẩm",
     "delete_ward_success": "Xóa phường/xã thành công",
     "district_id": "Mã Quận/huyện",
     "ward_id": "Mã Phường/xã",
@@ -895,10 +891,10 @@
     "total_shipping": "Tổng phí vận chuyển",
     "total_payment": "Tổng thanh toán",
     "select_payment_method": "Chọn phương thức thanh toán",
-    "select_employee": "Chọn nhân viên",
-    "select_customer": "Chọn khách hàng",
-    "select_supplier": "Chọn nhà cung cấp",
     "select_role": "Chọn vai trò",
+    "manage_statistic": "Quản lý thống kê",
+    "cash_on_delivery": "Thanh toán khi nhận hàng",
+    "vnpay": "Thanh toán qua VNPay",
     
 
 

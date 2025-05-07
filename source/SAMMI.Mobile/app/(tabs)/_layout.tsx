@@ -3,8 +3,6 @@ import { Tabs } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { Home, Search, Heart, User, ShoppingBag } from 'lucide-react-native';
 import { StyleSheet, Text, View } from 'react-native';
-import { getCarts } from '@/services/cart';
-import { TParamsGetAllCarts } from '@/types/cart';
 import { useDispatch } from 'react-redux';
 import { RootState } from '@/stores';
 import { AppDispatch } from '@/stores';
@@ -12,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { CartItem } from '@/domain/entities/CartItem';
 import { getCartsAsync } from '@/stores/cart/action';
 import { useAuth } from '@/hooks/useAuth';
+
 export const CartContext = createContext({
   cartData: [] as any[],
   refreshCart: () => { },
@@ -20,10 +19,10 @@ export const CartContext = createContext({
 export const useCart = () => useContext(CartContext);
 
 export default function TabLayout() {
-
   const { carts } = useSelector((state: RootState) => state.cart)
   const { user } = useAuth()
   const dispatch: AppDispatch = useDispatch()
+
   useEffect(() => {
     if (user?.id) {
       dispatch(
@@ -48,9 +47,6 @@ export default function TabLayout() {
       return result + current.quantity;
     }, 0);
   }, [carts]);
-
-
-
 
   return (
     <Tabs
@@ -94,7 +90,6 @@ export default function TabLayout() {
           tabBarIcon: ({ color, size }: { color: string; size: number }) => <Search size={size} color={color} />,
         }}
       />
-
       <Tabs.Screen
         name="cart"
         options={{

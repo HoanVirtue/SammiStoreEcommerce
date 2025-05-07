@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Pressable, Image, Platform } from 'react-native
 import { useRouter } from 'expo-router';
 import { TProduct } from '@/types/product';
 import { colors } from '@/constants/colors';
-import { Heart, ShoppingBag, Star } from 'lucide-react-native';
+import { Heart, Star } from 'lucide-react-native';
 import { formatPrice } from '@/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { createCartAsync, getCartsAsync } from '@/stores/cart/action';
@@ -45,49 +45,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, isLo
 
   const handleWishlist = (e: any) => {
     e.stopPropagation();
-  };
-
-  const handleAddToCart = (e: any) => {
-    e.stopPropagation();
-
-    if (user?.id) {
-      dispatch(
-        createCartAsync({
-          cartId: 0,
-          productId: product.id,
-          quantity: 1,
-          operation: 0,
-        })
-      ).then(() => {
-        if (isSuccessCreate) {
-          Toast.show({
-            type: 'success',
-            text1: 'Thành công',
-            text2: 'Thêm vào giỏ hàng thành công'
-          });
-          // Refetch cart data
-          dispatch(getCartsAsync({
-            params: {
-              take: -1,
-              skip: 0,
-              paging: false,
-              orderBy: "name",
-              dir: "asc",
-              keywords: "''",
-              filters: ""
-            }
-          }));
-        } else if (isErrorCreate) {
-          Toast.show({
-            type: 'error',
-            text1: 'Lỗi',
-            text2: errorMessageCreate
-          });
-        }
-      });
-    } else {
-      router.push(ROUTE_CONFIG.LOGIN as any);
-    }
   };
 
   const calculateDiscountedPrice = () => {
@@ -152,18 +109,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, isLo
           </Text>
         </View>
       </View>
-
-      <Pressable
-        style={[
-          styles.addToCartButton,
-          isOutOfStock && styles.disabledButton
-        ]}
-        onPress={handleAddToCart}
-        disabled={isOutOfStock}
-      >
-        <ShoppingBag size={16} color={colors.white} />
-        <Text style={styles.addToCartText}>Thêm vào giỏ hàng</Text>
-      </Pressable>
     </Pressable>
   );
 };
@@ -267,22 +212,5 @@ const styles = StyleSheet.create({
   },
   outOfStock: {
     color: colors.error,
-  },
-  addToCartButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.primary,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  disabledButton: {
-    backgroundColor: colors.textSecondary,
-    opacity: 0.7,
-  },
-  addToCartText: {
-    color: colors.white,
-    fontWeight: '600',
-    fontSize: 14,
-  },
+  }
 });

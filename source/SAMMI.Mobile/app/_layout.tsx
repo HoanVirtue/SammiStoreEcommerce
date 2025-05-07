@@ -89,6 +89,7 @@ function RootLayoutNav() {
         <Stack.Screen name="product/[id]" options={{ presentation: 'card', headerShown: false }} />
         <Stack.Screen name="article/[id]" options={{ presentation: 'card', headerShown: false }} />
         <Stack.Screen name="checkout" options={{ presentation: 'card', headerShown: false }} />
+        <Stack.Screen name="vnpayview" options={{ presentation: 'card', headerShown: false }} />
         <Stack.Screen name="payment/vnpay" options={{ presentation: 'card', headerShown: false }} />
         <Stack.Screen
           name="update-info"

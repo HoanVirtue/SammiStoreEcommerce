@@ -24,7 +24,7 @@ import { getAllPaymentMethods } from '@/services/payment-method';
 import { getCartData } from '@/services/cart';
 import { formatPrice } from '@/utils';
 import { Truck, Wallet, Ticket } from 'lucide-react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ProductImage, TProduct } from '../types/product';
 import { TParamsAddresses } from '@/types/address';
 import AddressModal from './address';
@@ -84,9 +84,11 @@ const CheckoutScreen = () => {
   const [cartItems, setCartItems] = useState<any[]>([]);
   const [showWebView, setShowWebView] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState('');
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
   const { user } = useAuth();
   const navigation = useNavigation();
+  const router = useRouter();
   const theme = useTheme();
   const dispatch: AppDispatch = useDispatch();
   const PAYMENT_DATA = PAYMENT_METHOD();
@@ -200,7 +202,7 @@ const CheckoutScreen = () => {
         paymentMethodId: Number(selectedPayment),
       })
     ).then(async (res) => {
-      console.log('res payment', res);
+      console.log('checkout vnpay res', res);
       if (res?.payload?.isSuccess) {
         const resultData = res.payload.result;
         const orderId = resultData?.orderId;
@@ -211,14 +213,22 @@ const CheckoutScreen = () => {
           : (memoQueryProduct.totalPrice + shippingPrice - voucherDiscount);
 
         if (returnUrl) {
-          Toast.show({ type: 'info', text1: 'Đang chuyển đến thanh toán VNPay...' });
-          setPaymentUrl(returnUrl);
-          setShowWebView(true);
+          router.push({
+            pathname: 'vnpayview' as any,
+            params: {
+              paymentUrl: returnUrl,
+              orderId: orderId,
+              totalPrice: finalTotalPrice,
+            }
+          });
         } else {
-          (navigation.navigate as any)('payment/vnpay', {
-            orderId: orderId,
-            totalPrice: finalTotalPrice,
-            paymentStatus: 'pending',
+          router.push({
+            pathname: 'payment/vnpay' as any,
+            params: {
+              orderId: orderId,
+              totalPrice: finalTotalPrice,
+              paymentStatus: 'pending',
+            }
           });
         }
       } else {
@@ -549,16 +559,36 @@ const CheckoutScreen = () => {
       />
 
       {showWebView && (
-        <WebView
-          source={{ uri: paymentUrl }}
-          style={{ flex: 1 }}
-          onNavigationStateChange={(navState) => {
-            if (navState.url.includes('payment_complete')) {
-              setShowWebView(false);
-              Toast.show({ type: 'success', text1: 'Thanh toán thành công!' });
-            }
-          }}
-        />
+        <View style={styles.webViewContainer}>
+          {isPaymentLoading && (
+            <View style={styles.loadingOverlay}>
+              <View style={styles.loadingContent}>
+                <ActivityIndicator size="large" color={colors.white} />
+                <Text style={styles.loadingText}>Đang tải trang thanh toán...</Text>
+              </View>
+            </View>
+          )}
+          <WebView
+            source={{ uri: paymentUrl }}
+            style={styles.webView}
+            onLoadStart={() => setIsPaymentLoading(true)}
+            onLoadEnd={() => setIsPaymentLoading(false)}
+            onNavigationStateChange={(navState) => {
+              if (navState.url.includes('payment_complete')) {
+                setShowWebView(false);
+                Toast.show({ type: 'success', text1: 'Thanh toán thành công!' });
+                navigation.navigate('order-success' as never);
+              } else if (navState.url.includes('payment_failed')) {
+                setShowWebView(false);
+                Toast.show({ 
+                  type: 'error', 
+                  text1: 'Thanh toán thất bại',
+                  text2: 'Vui lòng thử lại sau'
+                });
+              }
+            }}
+          />
+        </View>
       )}
     </SafeAreaView>
   );
@@ -768,6 +798,18 @@ const styles = StyleSheet.create({
   discountValue: {
     color: '#4CAF50',
   },
+  webViewContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#fff',
+    zIndex: 1000,
+  },
+  webView: {
+    flex: 1,
+  },
   loadingOverlay: {
     position: 'absolute',
     top: 0,
@@ -777,7 +819,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 999,
+    zIndex: 1001,
   },
   loadingContent: {
     backgroundColor: colors.primary,

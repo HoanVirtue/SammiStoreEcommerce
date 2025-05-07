@@ -4,6 +4,7 @@ import { WebView } from 'react-native-webview';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
 import { colors } from '@/constants/colors';
+import { router } from 'expo-router';
 
 interface VNPayWebViewParams {
   paymentUrl: string;
@@ -22,17 +23,12 @@ const VNPayWebViewScreen = () => {
     const { url } = navState;
 
     // Kiểm tra URL trả về từ VNPay để xác định trạng thái thanh toán
-    if (url.includes('vnpay_return') || url.includes('payment/success') || url.includes('payment/failure')) {
+    if (url.includes('payment-status') || url.includes('payment/success') || url.includes('payment/failure')) {
       const urlParams = new URLSearchParams(url.split('?')[1]);
       const paymentStatus = urlParams.get('vnp_TransactionStatus') === '00' ? 'success' : 'failed';
 
       // Quay lại màn hình trước và chuyển hướng đến màn hình trạng thái thanh toán
-      navigation.goBack();
-      (navigation.navigate as any)('payment/vnpay', {
-        orderId,
-        totalPrice,
-        paymentStatus,
-      });
+      router.push('payment/vnpay' as any);
 
       // Hiển thị thông báo dựa trên trạng thái thanh toán
       Toast.show({

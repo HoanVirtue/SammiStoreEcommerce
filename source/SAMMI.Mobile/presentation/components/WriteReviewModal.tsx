@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { convertBase64 } from "@/utils"
 import { createReviewAsync } from "@/stores/review/action"
 import { Resolver } from "react-hook-form"
+import Toast from "react-native-toast-message"
 
 interface TWriteReviewModal {
     open: boolean
@@ -96,11 +97,28 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
                     ...formData,
                     imageCommand
                 }))
-                onClose()
+                .then((res) => {
+                    if (res?.payload?.isSuccess) {
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Đánh giá sản phẩm thành công',
+                            text2: ''
+                        })
+                        onClose()
+                    }
+                })
             } else {
                 dispatch(createReviewAsync(formData))
-                onClose()
-                console.log("isSuccessCreate", isSuccessCreate)
+                .then((res) => {
+                    if (res?.payload?.isSuccess) {
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Đánh giá sản phẩm thành công',
+                            text2: ''
+                        })
+                        onClose()
+                    }
+                })
             }
         }
     }

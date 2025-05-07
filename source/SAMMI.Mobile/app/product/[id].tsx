@@ -40,7 +40,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { createCartAsync, getCartsAsync } from '@/stores/cart/action';
 import { AppDispatch, RootState } from '@/stores';
 import { ROUTE_CONFIG } from '@/configs/route';
-import { getAllReviewByProductId } from '../../services/review';
+import { getAllReviewByProductId, getOverallReview } from '../../services/review';
 import { getListRelatedProducts } from '../../services/product';
 
 const { width } = Dimensions.get('window');
@@ -48,6 +48,18 @@ const { width } = Dimensions.get('window');
 interface ProductReviewsProps {
   productId: string | number;
   onRatingDataChange: (data: { averageRating: number; totalRating: number }) => void;
+}
+
+interface OverallReview {
+  averageRating: number;
+  totalRating: number;
+  totalRating5: number;
+  totalRating4: number;
+  totalRating3: number;
+  totalRating2: number;
+  totalRating1: number;
+  totalComment: number;
+  totalImage: number;
 }
 
 const REVIEW_FILTERS = [
@@ -65,12 +77,30 @@ const ProductReviews = ({ productId, onRatingDataChange }: ProductReviewsProps) 
   const [reviews, setReviews] = useState<TReviewItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState({ typeReview: 0, rateNumber: 0 });
-  const [average, setAverage] = useState(0);
-  const [total, setTotal] = useState(0);
+  const [overallReview, setOverallReview] = useState<OverallReview | null>(null);
+  const [totalReview, setTotalReview] = useState(0);
 
   useEffect(() => {
-    fetchReviews();
+    if (productId) {
+      fetchOverallReview();
+      fetchReviews();
+    }
   }, [productId, selected]);
+
+  const fetchOverallReview = async () => {
+    try {
+      const response = await getOverallReview(Number(productId));
+      if (response?.result) {
+        setOverallReview(response.result);
+        onRatingDataChange({
+          averageRating: response.result.averageRating || 0,
+          totalRating: response.result.totalRating || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching overall review:', error);
+    }
+  };
 
   const fetchReviews = async () => {
     setLoading(true);
@@ -86,10 +116,10 @@ const ProductReviews = ({ productId, onRatingDataChange }: ProductReviewsProps) 
         },
       });
       setReviews(res?.result?.subset || []);
-      setAverage(res?.result?.averageRating || 0);
-      setTotal(res?.result?.totalItemCount || 0);
-      onRatingDataChange?.({ averageRating: res?.result?.averageRating || 0, totalRating: res?.result?.totalItemCount || 0 });
-    } catch (e) {}
+      setTotalReview(res?.result?.totalItemCount || 0);
+    } catch (e) {
+      console.error('Error fetching reviews:', e);
+    }
     setLoading(false);
   };
 
@@ -116,18 +146,18 @@ const ProductReviews = ({ productId, onRatingDataChange }: ProductReviewsProps) 
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
       <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
-        <Text style={{ fontSize: 32, color: colors.primary, fontWeight: 'bold' }}>{average.toFixed(1)}</Text>
+        <Text style={{ fontSize: 32, color: colors.primary, fontWeight: 'bold' }}>{overallReview?.averageRating?.toFixed(1)}</Text>
         <Text style={{ fontSize: 16, color: colors.primary, marginLeft: 4 }}>trên 5</Text>
         <Rating
           type='star'
           ratingCount={5}
           imageSize={18}
           readonly
-          startingValue={average}
+          startingValue={overallReview?.averageRating || 0}
           tintColor={colors.background}
           style={{ marginLeft: 8 }}
         />
-        <Text style={{ marginLeft: 8, color: colors.textSecondary }}>({total} đánh giá)</Text>
+        <Text style={{ marginLeft: 8, color: colors.textSecondary }}>({overallReview?.totalRating || 0} đánh giá)</Text>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
         {REVIEW_FILTERS.map(f => (
@@ -136,7 +166,16 @@ const ProductReviews = ({ productId, onRatingDataChange }: ProductReviewsProps) 
             style={[{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: selected.typeReview === f.typeReview && selected.rateNumber === f.rateNumber ? colors.primary : '#fff', marginRight: 8, borderWidth: 1, borderColor: colors.primary },]}
             onPress={() => setSelected({ typeReview: f.typeReview, rateNumber: f.rateNumber })}
           >
-            <Text style={{ color: selected.typeReview === f.typeReview && selected.rateNumber === f.rateNumber ? '#fff' : colors.primary, fontWeight: '500' }}>{f.label}</Text>
+            <Text style={{ color: selected.typeReview === f.typeReview && selected.rateNumber === f.rateNumber ? '#fff' : colors.primary, fontWeight: '500' }}>
+              {f.label} {f.typeReview === 0 && `(${overallReview?.totalRating || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 5 && `(${overallReview?.totalRating5 || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 4 && `(${overallReview?.totalRating4 || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 3 && `(${overallReview?.totalRating3 || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 2 && `(${overallReview?.totalRating2 || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 1 && `(${overallReview?.totalRating1 || 0})`}
+              {f.typeReview === 2 && `(${overallReview?.totalComment || 0})`}
+              {f.typeReview === 3 && `(${overallReview?.totalImage || 0})`}
+            </Text>
           </Pressable>
         ))}
       </ScrollView>

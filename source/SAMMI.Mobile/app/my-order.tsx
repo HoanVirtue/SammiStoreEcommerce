@@ -201,13 +201,37 @@ const MyOrderScreen = () => {
     const renderContent = useMemo(() => {
         if (isLoading) return <ActivityIndicator size="large" color={colors.primary} />
 
-        if (myOrders?.data?.length > 0) {
             return (
-                <View style={styles.contentContainer}>
-                    {renderOrdersList}
-                </View>
+                <ScrollView style={styles.contentWrapper}>
+                    <View style={styles.contentContainer}>
+                        {renderOrdersList}
+                    </View>
+                    <View style={styles.paginationContainer}>
+                        <View style={styles.paginationInfo}>
+                            <Text style={styles.paginationText}>
+                                {`Hiển thị ${((page - 1) * pageSize) + 1} - ${Math.min(page * pageSize, myOrders.total)} trên ${myOrders.total}`}
+                            </Text>
+                        </View>
+                        <View style={styles.paginationControls}>
+                            <TouchableOpacity 
+                                style={[styles.paginationButton, page === 1 && styles.paginationButtonDisabled]}
+                                onPress={() => page > 1 && handleOnChangePagination(page - 1, pageSize)}
+                                disabled={page === 1}
+                            >
+                                <Ionicons name="chevron-back" size={24} color={page === 1 ? colors.textSecondary : colors.primary} />
+                            </TouchableOpacity>
+                            <Text style={styles.paginationPageText}>{page}</Text>
+                            <TouchableOpacity 
+                                style={[styles.paginationButton, page * pageSize >= myOrders.total && styles.paginationButtonDisabled]}
+                                onPress={() => page * pageSize < myOrders.total && handleOnChangePagination(page + 1, pageSize)}
+                                disabled={page * pageSize >= myOrders.total}
+                            >
+                                <Ionicons name="chevron-forward" size={24} color={page * pageSize >= myOrders.total ? colors.textSecondary : colors.primary} />
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </ScrollView>
             )
-        }
 
         return (
             <View style={styles.emptyContainer}>
@@ -218,7 +242,7 @@ const MyOrderScreen = () => {
                 />
             </View>
         )
-    }, [isLoading, myOrders?.data?.length, renderOrdersList])
+    }, [isLoading, myOrders?.data?.length, renderOrdersList, page, pageSize, myOrders?.total, handleOnChangePagination])
 
     return (
         <SafeAreaView style={styles.safeArea}>
@@ -236,9 +260,7 @@ const MyOrderScreen = () => {
                 <View style={styles.tabsWrapper}>
                     {renderTabs}
                 </View>
-                <ScrollView style={styles.contentWrapper}>
-                    {renderContent}
-                </ScrollView>
+                {renderContent}
             </View>
         </SafeAreaView>
     )
@@ -321,6 +343,44 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 20,
+    },
+    paginationContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 16,
+        paddingHorizontal: 8,
+        borderTopWidth: 1,
+        borderTopColor: colors.border,
+        backgroundColor: colors.card,
+        marginTop: 8,
+    },
+    paginationInfo: {
+        flex: 1,
+    },
+    paginationText: {
+        fontSize: 14,
+        color: colors.textSecondary,
+    },
+    paginationControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    paginationButton: {
+        padding: 8,
+        borderRadius: 8,
+        backgroundColor: colors.background,
+    },
+    paginationButtonDisabled: {
+        opacity: 0.5,
+    },
+    paginationPageText: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: colors.primary,
+        minWidth: 24,
+        textAlign: 'center',
     },
 })
 

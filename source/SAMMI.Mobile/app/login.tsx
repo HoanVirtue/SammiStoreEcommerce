@@ -89,7 +89,7 @@ export default function LoginScreen() {
     };
 
     const handleRegister = () => {
-        router.push('/register' as any);
+        router.push('/register1' as any);
     };
 
     const handleForgotPassword = () => {

@@ -6,6 +6,16 @@ export type LoginParams = {
   rememberMe?: boolean
 }
 
+export type RegisterParams = {
+  firstName: string
+  lastName: string
+  phone: string
+  email: string
+  username: string
+  password: string
+  rePassword: string
+}
+
 export type TUserAddress ={
   id: number;
   streetAddress: string;
@@ -50,4 +60,5 @@ export type AuthValuesType = {
   setUser: (value: UserDataType | null) => void
   login: (params: LoginParams, errorCallback?: ErrCallbackType) => void
   loginAdmin: (params: LoginParams, errorCallback?: ErrCallbackType) => void
+  register: (params: RegisterParams, errorCallback?: ErrCallbackType) => void
 }

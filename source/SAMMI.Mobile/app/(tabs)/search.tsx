@@ -1,11 +1,12 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, StatusBar } from 'react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { StyleSheet, View, Text, TextInput, FlatList, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
 import { Search, X } from 'lucide-react-native';
 import { getAllProducts, getSuggestProduct } from '@/services/product';
 import {  TParamsGetSuggest, TParamsSuggestProduct } from '@/types/product';
 import { ProductCard } from '@/presentation/components/ProductCard';
+import { useFocusEffect } from '@react-navigation/native';
 
 export default function Search1Screen() {
   const [searchText, setSearchText] = useState('');
@@ -13,13 +14,22 @@ export default function Search1Screen() {
   const [products, setProducts] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchInputRef = useRef<TextInput>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Focus the input when the screen is focused
+      setTimeout(() => {
+        searchInputRef.current?.focus();
+      }, 100);
+    }, [])
+  );
 
   const fetchSuggestions = useCallback(async (text: string) => {
     if (text.length < 2) {
       setSuggestions([]);
       return;
     }
-
     try {
       const params: TParamsGetSuggest = {
         keyWord: text,
@@ -74,9 +84,14 @@ export default function Search1Screen() {
         <View style={styles.searchContainer}>
           <Search size={20} color={colors.textSecondary} />
           <TextInput
+            ref={searchInputRef}
             style={styles.searchInput}
             placeholder="Tìm kiếm sản phẩm..."
             value={searchText}
+            autoFocus={true}
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
             onChangeText={(text) => {
               setSearchText(text);
               setShowSuggestions(true);
@@ -106,7 +121,20 @@ export default function Search1Screen() {
                 style={styles.suggestionItem}
                 onPress={() => handleSuggestionPress(item)}
               >
-                <Text style={styles.suggestionText}>{item.name}</Text>
+                <Image 
+                  source={{ uri: item.productImage }} 
+                  style={styles.suggestionImage}
+                  resizeMode="cover"
+                />
+                <View style={styles.suggestionContent}>
+                  <Text style={styles.suggestionText} numberOfLines={2}>{item.name}</Text>
+                  <View style={styles.priceContainer}>
+                    <Text style={styles.suggestionPrice}>{item.newPrice?.toLocaleString('vi-VN')}đ</Text>
+                    {item.newPrice > item.price && (
+                      <Text style={styles.originalPrice}>{item.price?.toLocaleString('vi-VN')}đ</Text>
+                    )}
+                  </View>
+                </View>
               </TouchableOpacity>
             )}
           />
@@ -166,13 +194,40 @@ const styles = StyleSheet.create({
     marginTop: 4, // tạo khoảng cách với ô nhập
   },
   suggestionItem: {
+    flexDirection: 'row',
     padding: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    alignItems: 'center',
+  },
+  suggestionImage: {
+    width: 50,
+    height: 50,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  suggestionContent: {
+    flex: 1,
   },
   suggestionText: {
-    fontSize: 16,
+    fontSize: 14,
     color: colors.text,
+    marginBottom: 4,
+  },
+  priceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  suggestionPrice: {
+    fontSize: 14,
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  originalPrice: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    textDecorationLine: 'line-through',
   },
   productsContainer: {
     padding: 16,

@@ -1,4 +1,5 @@
 ﻿using System.Data.Common;
+using SAMMI.ECOM.Core.Models;
 
 namespace SAMMI.ECOM.API.Infrastructure.Configuration
 {
@@ -42,12 +43,12 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
             string errorMessage;
             if (ex.Message.Contains("timeout", StringComparison.OrdinalIgnoreCase))
             {
-                errorMessage = "Kết nối cơ sở dữ liệu bị timeout. Vui lòng thử lại sau.";
+                errorMessage = "Kết nối đến máy chủ quá hạn. Vui lòng thử lại sau.";
             }
             else if (ex.Message.Contains("cannot connect", StringComparison.OrdinalIgnoreCase) ||
                      ex.Message.Contains("server was not found", StringComparison.OrdinalIgnoreCase))
             {
-                errorMessage = "Không thể kết nối đến server cơ sở dữ liệu. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.";
+                errorMessage = "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng hoặc thử lại sau.";
             }
             else if (ex.Message.Contains("login failed", StringComparison.OrdinalIgnoreCase))
             {
@@ -55,13 +56,10 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
             }
             else
             {
-                errorMessage = "Không thể kết nối đến server cơ sở dữ liệu. Vui lòng thử lại sau.";
+                errorMessage = "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.";
             }
 
-            var response = new
-            {
-                error = errorMessage
-            };
+            var response = new ActionResponse().AddError(errorMessage);
 
             await context.Response.WriteAsJsonAsync(response);
         }
@@ -71,10 +69,7 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-            var response = new
-            {
-                error = "Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau."
-            };
+            var response = new ActionResponse().AddError("Đã xảy ra lỗi hệ thống. Vui lòng thử lại sau.");
 
             await context.Response.WriteAsJsonAsync(response);
         }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, View, Text, ScrollView, FlatList, Pressable, RefreshControl, StatusBar, TextInput } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Pressable, RefreshControl, StatusBar, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Category } from '@/domain/entities/Category';
@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import HotSale from '@/presentation/components/HotSale';
 import { Banner } from '@/presentation/components/Banner';
 import TopSale from '@/presentation/components/TopSale';
+
 export default function HomeScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -24,11 +25,10 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setRefreshTrigger(prev => prev + 1); // Increment refreshTrigger to trigger HotSale refresh
+    setRefreshTrigger(prev => prev + 1);
     setRefreshing(false);
   }, []);
 
@@ -54,12 +54,42 @@ export default function HomeScreen() {
     return <LoadingIndicator fullScreen />;
   }
 
+  const renderHeader = () => (
+    <View style={styles.searchContainer}>
+      <Search size={20} color={colors.textSecondary} />
+      <TextInput
+        placeholder="Tìm kiếm sản phẩm..."
+        value=""
+        editable={false}
+        onPress={() => router.push('/search')}
+        style={styles.searchInput}
+      />
+    </View>
+  );
+
+  const renderHotSale = () => (
+    <View style={styles.hotSaleContainer}>
+      <HotSale refreshTrigger={refreshTrigger} />
+    </View>
+  );
+
+  const renderTopSale = () => (
+    <View style={styles.topSaleContainer}>
+      <TopSale />
+    </View>
+  );
+
+  const renderItem = () => null; // We don't need to render items since we're using sections
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView 
+      <FlatList
+        data={[1]}
+        renderItem={renderItem}
+        keyExtractor={() => 'home'}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -68,31 +98,15 @@ export default function HomeScreen() {
             tintColor={colors.primary}
           />
         }
-      >
-        
-        <View style={styles.searchContainer}>
-          <Search size={20} color={colors.textSecondary} />
-          <TextInput
-            placeholder="Tìm kiếm sản phẩm..."
-            value=""
-            editable={false}
-            onPress={() => router.push('/search')}
-            style={styles.searchInput}
-          />
-        </View>
-        
-
-        {/* <Banner /> */}
-
-        <View style={styles.hotSaleContainer}>
-          <HotSale refreshTrigger={refreshTrigger} />
-        </View>
-
-        <View style={styles.topSaleContainer}>
-          <TopSale />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        ListHeaderComponent={
+          <>
+            {renderHeader()}
+            {renderHotSale()}
+            {renderTopSale()}
+          </>
+        }
+      />
+    </View>
   );
 }
 
@@ -100,6 +114,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  contentContainer: {
+    paddingTop: Platform.OS === 'ios' ? 40 : 30,
   },
   header: {
     paddingHorizontal: 16,
@@ -155,6 +172,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   hotSaleContainer: {
+    marginTop: 16,
+  },
+  topSaleContainer: {
     marginTop: 16,
   },
   searchContainer: {

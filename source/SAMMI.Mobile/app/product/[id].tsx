@@ -10,7 +10,8 @@ import {
   FlatList,
   ViewStyle,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  StatusBar
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -561,7 +562,8 @@ export default function ProductDetailScreen() {
 
 
   return (
-    <SafeAreaView style={styles.container} edges={['bottom']}>
+    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <Pressable onPress={handleGoBack} style={styles.iconButton} hitSlop={10}>
           <ArrowLeft size={24} color={colors.text} />

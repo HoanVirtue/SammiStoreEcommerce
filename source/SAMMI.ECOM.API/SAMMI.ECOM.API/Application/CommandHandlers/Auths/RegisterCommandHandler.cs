@@ -87,9 +87,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Auths
                 .WithMessage("Điện thoại chỉ được chứa chữ số");
 
             RuleFor(x => x.Email)
+                .NotEmpty()
                 .Must(x => StringExtensions.IsValidEmail(x))
-                .WithMessage("Email không đúng định dạng")
-                .When(x => !string.IsNullOrEmpty(x.Email));
+                .WithMessage("Email không đúng định dạng");
 
             RuleFor(x => x.Password)
                 .NotEmpty()

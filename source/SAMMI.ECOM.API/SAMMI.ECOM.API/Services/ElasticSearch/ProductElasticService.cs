@@ -217,6 +217,7 @@ namespace SAMMI.ECOM.API.Services.ElasticSearch
             {
                 var response = await _elasticClient.SearchAsync<ProductDTO>(s => s
                 .Index(_indexName)
+                .Size(size ?? 5)
                 .Query(q => q.Bool(b => b
                     .Must(
                         q => q.Term(t => t.IsActive, true),

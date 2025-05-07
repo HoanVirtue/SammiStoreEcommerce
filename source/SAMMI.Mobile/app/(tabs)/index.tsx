@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, View, Text, ScrollView, FlatList, Pressable, RefreshControl, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, FlatList, Pressable, RefreshControl, StatusBar, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Category } from '@/domain/entities/Category';
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, Search } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
@@ -69,12 +69,18 @@ export default function HomeScreen() {
           />
         }
       >
-        <SearchBar
-          value=""
-          onSearch={handleSearch}
-          onClear={() => { }}
-          placeholder="Tìm kiếm sản phẩm..."
-        />
+        
+        <View style={styles.searchContainer}>
+          <Search size={20} color={colors.textSecondary} />
+          <TextInput
+            placeholder="Tìm kiếm sản phẩm..."
+            value=""
+            editable={false}
+            onPress={() => router.push('/search')}
+            style={styles.searchInput}
+          />
+        </View>
+        
 
         {/* <Banner /> */}
 
@@ -146,5 +152,24 @@ const styles = StyleSheet.create({
   },
   hotSaleContainer: {
     marginTop: 16,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginVertical: 16,
+    paddingHorizontal: 16,
+    height: 48,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    color: colors.text,
+    height: '100%',
   },
 });

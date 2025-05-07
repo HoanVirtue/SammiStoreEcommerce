@@ -59,7 +59,8 @@ services:
       - redis
       - elasticsearch
     environment:
-      - ConnectionStrings__DefaultConnection=Server=mysql;Database=sammi_ecommerce;User=root;Password=123456;
+      # - ConnectionStrings__DefaultConnection=Server=mysql;Database=sammi_ecommerce;User=root;Password=123456;
+      - ConnectionStrings__DefaultConnection=Server=nozomi.proxy.rlwy.net;Port=14433;Database=SAMMI_ECOMMERCE;User=root;Password=vQBRYjzFbjlbnkRBUcJTGKaAyUHdikBc;
       - RedisConnection=redis:6379,abortConnect=false
       - ElasticsearchConnection=http://elasticsearch:9200
     volumes:

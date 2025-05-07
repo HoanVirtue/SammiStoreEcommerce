@@ -228,6 +228,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseMiddleware<ExceptionMiddleware>();
+
 app.MapControllers();
 
 app.MapHub<NotificationHub>("/notificationHub");

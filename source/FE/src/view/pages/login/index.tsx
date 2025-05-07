@@ -100,8 +100,8 @@ const LoginPage: NextPage<TProps> = () => {
                 if (err?.response?.errors !== "") {
                     toast.error(err?.response?.message)
                 }
-                setIsLoading(false);
             })
+            setIsLoading(false);
         }
     }
 

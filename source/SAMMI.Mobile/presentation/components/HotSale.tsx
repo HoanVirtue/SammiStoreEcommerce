@@ -2,7 +2,7 @@ import { TProduct } from '@/types/product';
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, Dimensions } from 'react-native';
 import { ProductCard } from './ProductCard';
-import CountdownTimer from './CountDownTimer';
+import CountDownTimer from './CountDownTimer';
 import NoData from '@/components/NoData';
 import { getEndowProducts } from '@/services/product';
 
@@ -68,7 +68,7 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData, refreshTrigger = 0 }) =>
                         <Text style={styles.headerSubtitle}>Sản phẩm sẽ trở về giá gốc khi hết giờ</Text>
                     </View>
                     <View>
-                        <CountdownTimer saleEndTime={saleEndTime} />
+                        <CountDownTimer saleEndTime={saleEndTime} />
                     </View>
                 </View>
                 <View style={styles.productListContainer}>

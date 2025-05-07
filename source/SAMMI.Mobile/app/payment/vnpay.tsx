@@ -8,42 +8,34 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useTheme } from '@react-navigation/native';
-import { ROUTE_CONFIG } from '@/configs/route';
-import { useLocalSearchParams } from 'expo-router';
-import { formatPrice } from '@/utils';
-import { CheckCircle } from 'lucide-react-native';
+import { CheckCircle, XCircle } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
+import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 
 const VnPayScreen = () => {
     const router = useRouter();
     const theme = useTheme();
-    const params = useLocalSearchParams();
-
-    const paymentMethod = params.paymentMethod as string;
 
     const handleGoToHome = () => {
-        router.push('/' as never);
+        router.replace('/(tabs)');
     };
 
     const handleGoToOrders = () => {
-        router.push('/my-order' as never);
+        router.replace('/my-order' as any);
     };
 
     return (
         <SafeAreaView style={styles.container}>
             <View style={styles.content}>
                 <View style={styles.iconContainer}>
-                    <CheckCircle size={80} color={colors.primary} />
+                    <CheckCircle size={80} color={colors.success} />
                 </View>
-
                 <Text style={[styles.title, { color: theme.colors.text }]}>
-                    Đặt hàng thành công
+                    Thanh toán thành công
                 </Text>
-
                 <Text style={[styles.description, { color: theme.colors.text }]}>
-                    Chúc mừng quý khách hàng đã đặt hàng tại Sammi Stores. Nhân viên của chúng tôi sẽ liên hệ lại quý khách hàng khi đơn hàng được xác nhận. Quý khách hàng có thể theo dõi bằng cách đăng nhập và theo dõi đơn hàng trên ứng dụng của chúng tôi.
+                    Cảm ơn quý khách đã sử dụng dịch vụ của chúng tôi. Đơn hàng của quý khách đã được xác nhận và đang được xử lý.
                 </Text>
-
 
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
@@ -90,20 +82,6 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         marginBottom: 24,
         lineHeight: 24,
-    },
-    orderInfo: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        width: '100%',
-        marginBottom: 12,
-        paddingHorizontal: 20,
-    },
-    orderLabel: {
-        fontSize: 16,
-        fontWeight: '500',
-    },
-    orderValue: {
-        fontSize: 16,
     },
     buttonContainer: {
         flexDirection: 'row',

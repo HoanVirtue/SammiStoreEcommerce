@@ -19,6 +19,9 @@ import {
     IconButton,
     Avatar,
     FormHelperText,
+    InputLabel,
+    FormControlLabel,
+    Switch,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
@@ -114,6 +117,7 @@ type EventFormData = {
     imageId: number;
     description: EditorState;
     voucherCommands: VoucherCommand[];
+    isActive: boolean;
 };
 
 interface VoucherFormErrors {
@@ -215,6 +219,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             value: yup.string(),
             displayOrder: yup.number()
         }),
+        isActive: yup.boolean().default(true),
         description: yup.string(),
         voucherCommands: yup.array().of(
             yup.object().shape({
@@ -243,6 +248,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         startDate: new Date(),
         endDate: new Date(),
         eventType: 0,
+        isActive: true,
         imageCommand: {
             imageUrl: '',
             imageBase64: '',
@@ -311,6 +317,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             if (res?.result) {
                 const data = res.result;
                 setValue('code', data.code);
+                setValue('isActive', data.isActive);
                 setValue('name', data.name);
                 setValue('startDate', addHours(new Date(data.startDate), -7));
                 setValue('endDate', addHours(new Date(data.endDate), -7));
@@ -359,7 +366,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                         typeImage: '',
                         value: '',
                         displayOrder: 0,
-                    }, { shouldValidate: false }); 
+                    }, { shouldValidate: false });
                 }
 
                 setValue('description', data.description ? convertHTMLToDraft(data.description) : EditorState.createEmpty());
@@ -459,7 +466,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
     const onSubmit = async (data: EventFormData) => {
         try {
             const { voucherCommands, ...eventDataWithoutVouchers } = data;
-            
+
             const adjustedStartDate = addHours(data.startDate, 7);
             const adjustedEndDate = addHours(data.endDate, 7);
 
@@ -467,6 +474,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 ...eventDataWithoutVouchers,
                 startDate: adjustedStartDate,
                 endDate: adjustedEndDate,
+                isActive: data.isActive,
                 description: data.description ? draftToHtml(convertToRaw(data.description.getCurrentContent())) : '',
                 imageId: data.imageId || null,
             };
@@ -770,7 +778,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                 />
                             </Grid>
 
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={12} sm={4}>
                                 <Controller
                                     name="code"
                                     control={control}
@@ -790,7 +798,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                     )}
                                 />
                             </Grid>
-                            <Grid item xs={12} sm={6}>
+                            <Grid item xs={12} sm={4}>
                                 <Controller
                                     name="name"
                                     control={control}
@@ -869,6 +877,36 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                                 }
                                             }}
                                         />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} sm={4}>
+                                <Controller
+                                    name="isActive"
+                                    control={control}
+                                    render={({ field: { onChange, value } }) => (
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                            <InputLabel>{t("status")}</InputLabel>
+                                            <FormControlLabel
+                                                control={
+                                                    <Switch
+                                                        checked={Boolean(value)}
+                                                        onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                                                        sx={{
+                                                            '& .MuiSwitch-track': {
+                                                                color: theme.palette.primary.main,
+                                                                border: `1px solid ${theme.palette.primary.main}`,
+                                                                backgroundColor: theme.palette.primary.main,
+                                                                '&:hover': {
+                                                                    backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                                                },
+                                                            },
+                                                        }}
+                                                    />
+                                                }
+                                                label={Boolean(value) ? t("active") : t("inactive")}
+                                            />
+                                        </Box>
                                     )}
                                 />
                             </Grid>

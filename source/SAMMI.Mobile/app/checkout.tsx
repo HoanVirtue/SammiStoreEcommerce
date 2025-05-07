@@ -17,23 +17,20 @@ import { useDispatch, useSelector } from 'react-redux';
 import { PAYMENT_METHOD } from '@/configs/payment';
 import { getVoucherDetail } from '@/services/voucher';
 import { createOrderAsync } from '@/stores/order/action';
-import { ROUTE_CONFIG } from '@/configs/route';
 import Toast from 'react-native-toast-message';
-import { createVNPayPaymentUrl } from '@/services/payment';
 import { getCaculatedFee } from '@/services/delivery-method';
 import { getCurrentAddress } from '@/services/address';
 import { getAllPaymentMethods } from '@/services/payment-method';
 import { getCartData } from '@/services/cart';
 import { formatPrice } from '@/utils';
 import { Truck, Wallet, Ticket } from 'lucide-react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ProductImage, TProduct } from '../types/product';
 import { TParamsAddresses } from '@/types/address';
 import AddressModal from './address';
-import { getProductDetail } from '@/services/product';
 import VoucherModal from './voucher';
 import { colors } from '@/constants/colors';
-import * as WebBrowser from 'expo-web-browser';
+import { WebView } from 'react-native-webview';
 
 // Types và Interfaces
 type TItemOrderProduct = {
@@ -72,6 +69,7 @@ type TOrderDetail = {
 
 const CheckoutScreen = () => {
   const [loading, setLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [openAddress, setOpenAddress] = useState(false);
   const [openVoucher, setOpenVoucher] = useState(false);
   const [paymentOptions, setPaymentOptions] = useState<PaymentOption[]>([]);
@@ -84,9 +82,13 @@ const CheckoutScreen = () => {
   const [voucherDiscount, setVoucherDiscount] = useState<number>(0);
   const params = useLocalSearchParams();
   const [cartItems, setCartItems] = useState<any[]>([]);
+  const [showWebView, setShowWebView] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState('');
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
 
   const { user } = useAuth();
   const navigation = useNavigation();
+  const router = useRouter();
   const theme = useTheme();
   const dispatch: AppDispatch = useDispatch();
   const PAYMENT_DATA = PAYMENT_METHOD();
@@ -136,6 +138,7 @@ const CheckoutScreen = () => {
       Toast.show({
         type: 'error',
         text1: 'Lỗi khi tải dữ liệu đơn hàng',
+        text2: 'Vui lòng thử lại sau.'
       });
     }
 
@@ -160,6 +163,7 @@ const CheckoutScreen = () => {
   }, [selectedVoucherId, memoQueryProduct.totalPrice]);
 
   const handlePlaceOrder = () => {
+    setIsLoading(true);
     const shipping = selectedDelivery ? shippingPrice : 0;
     const subtotal = memoQueryProduct.totalPrice;
     const totalPrice = Number(subtotal) + Number(shipping) - Number(voucherDiscount);
@@ -198,8 +202,8 @@ const CheckoutScreen = () => {
         paymentMethodId: Number(selectedPayment),
       })
     ).then(async (res) => {
+      console.log('checkout vnpay res', res);
       if (res?.payload?.isSuccess) {
-        console.log('res payment', res);
         const resultData = res.payload.result;
         const orderId = resultData?.orderId;
         const returnUrl = resultData?.returnUrl;
@@ -208,22 +212,23 @@ const CheckoutScreen = () => {
           ? totalPriceFromApi
           : (memoQueryProduct.totalPrice + shippingPrice - voucherDiscount);
 
-        const paymentMethodInfo = paymentOptions.find(p => p.id === Number(selectedPayment));
-        const paymentMethodLabel = paymentMethodInfo?.label || 'Không xác định';
-
         if (returnUrl) {
-          Toast.show({ type: 'info', text1: 'Đang chuyển đến cổng thanh toán VNPay...' });
-          try {
-            await WebBrowser.openBrowserAsync(returnUrl);
-          } catch (error) {
-            console.error("Error opening VNPay URL:", error);
-            Toast.show({ type: 'error', text1: 'Không thể mở trang thanh toán VNPay.' });
-          }
+          router.push({
+            pathname: 'vnpayview' as any,
+            params: {
+              paymentUrl: returnUrl,
+              orderId: orderId,
+              totalPrice: finalTotalPrice,
+            }
+          });
         } else {
-          (navigation.navigate as any)('payment/vnpay', {
-            orderId: orderId,
-            totalPrice: finalTotalPrice,
-            paymentStatus: 'pending',
+          router.push({
+            pathname: 'payment/vnpay' as any,
+            params: {
+              orderId: orderId,
+              totalPrice: finalTotalPrice,
+              paymentStatus: 'pending',
+            }
           });
         }
       } else {
@@ -233,39 +238,13 @@ const CheckoutScreen = () => {
           text2: 'Vui lòng thử lại sau.'
         });
       }
+    }).finally(() => {
+      setIsLoading(false);
     });
   };
 
   const onChangeDelivery = (value: string) => setSelectedDelivery(value);
   const onChangePayment = (value: string) => setSelectedPayment(value);
-
-  const handlePaymentVNPay = async (data: { orderId: number; totalPrice: number }) => {
-    setLoading(true);
-    try {
-      const res = await createVNPayPaymentUrl({
-        totalPrice: data.totalPrice,
-        orderId: +data?.orderId,
-        language: 'vn',
-      });
-      if (res?.result) {
-        // Handle payment URL in React Native
-      }
-    } catch (error) {
-      console.error('Error creating VNPay payment URL:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePaymentTypeOrder = (id: string, data: { orderId: number; totalPrice: number }) => {
-    switch (id) {
-      case PAYMENT_DATA.VN_PAYMENT.value:
-        handlePaymentVNPay(data);
-        break;
-      default:
-        break;
-    }
-  };
 
   const getShippingFee = async () => {
     if (myCurrentAddress?.wardId && memoQueryProduct.totalPrice) {
@@ -356,7 +335,6 @@ const CheckoutScreen = () => {
     getShippingFee();
   }, [myCurrentAddress, memoQueryProduct.totalPrice]);
 
-  // Fetch cart data based on selected products
   const productIdsString = useMemo(() => {
     return memoQueryProduct.selectedProducts.map((p) => p.productId).join(',');
   }, [memoQueryProduct.selectedProducts]);
@@ -370,12 +348,11 @@ const CheckoutScreen = () => {
             params: { productIds: productIdsString }
           });
           if (response?.isSuccess && response?.result) {
-            // Map response to include quantity from original selection
             const itemsWithQuantity = response.result.map((item: any) => {
               const originalProduct = memoQueryProduct.selectedProducts.find(p => p.productId === item.productId);
               return {
                 ...item,
-                quantity: originalProduct?.quantity || 0 // Add quantity back
+                quantity: originalProduct?.quantity || 0
               };
             });
             setCartItems(itemsWithQuantity);
@@ -405,8 +382,8 @@ const CheckoutScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+
       <ScrollView style={styles.scrollView}>
-        {/* Shipping Address Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Thông tin giao hàng</Text>
           {user ? (
@@ -429,7 +406,6 @@ const CheckoutScreen = () => {
           )}
         </View>
 
-        {/* Delivery Method Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Phương thức giao hàng</Text>
           {deliveryOption.map((delivery) => (
@@ -452,7 +428,6 @@ const CheckoutScreen = () => {
           ))}
         </View>
 
-        {/* Payment Method Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Phương thức thanh toán</Text>
           {paymentOptions.map((payment) => (
@@ -469,7 +444,6 @@ const CheckoutScreen = () => {
           ))}
         </View>
 
-        {/* Voucher Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Mã giảm giá</Text>
           <View style={styles.voucherContainer}>
@@ -487,11 +461,9 @@ const CheckoutScreen = () => {
           </View>
         </View>
 
-        {/* Order Summary */}
         <View style={styles.summaryContainer}>
           <Text style={styles.summaryTitle}>Tóm tắt đơn hàng</Text>
 
-          {/* Product List */}
           <View style={styles.productList}>
             {cartItems.length === 0 ? (
               <Text style={styles.emptyText}>Không có sản phẩm nào được chọn</Text>
@@ -556,12 +528,14 @@ const CheckoutScreen = () => {
           </View>
 
           <TouchableOpacity
-            style={[
-              styles.placeOrderButton,
-            ]}
+            style={[styles.placeOrderButton]}
             onPress={handlePlaceOrder}
           >
-            <Text style={styles.placeOrderButtonText}>Đặt hàng</Text>
+            <Text style={styles.placeOrderButtonText}>
+              {
+                isLoading ? <ActivityIndicator size="small" color={colors.white} /> : 'Đặt hàng'
+              }
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -583,6 +557,39 @@ const CheckoutScreen = () => {
           productName: item.product.name
         }))}
       />
+
+      {showWebView && (
+        <View style={styles.webViewContainer}>
+          {isPaymentLoading && (
+            <View style={styles.loadingOverlay}>
+              <View style={styles.loadingContent}>
+                <ActivityIndicator size="large" color={colors.white} />
+                <Text style={styles.loadingText}>Đang tải trang thanh toán...</Text>
+              </View>
+            </View>
+          )}
+          <WebView
+            source={{ uri: paymentUrl }}
+            style={styles.webView}
+            onLoadStart={() => setIsPaymentLoading(true)}
+            onLoadEnd={() => setIsPaymentLoading(false)}
+            onNavigationStateChange={(navState) => {
+              if (navState.url.includes('payment_complete')) {
+                setShowWebView(false);
+                Toast.show({ type: 'success', text1: 'Thanh toán thành công!' });
+                navigation.navigate('order-success' as never);
+              } else if (navState.url.includes('payment_failed')) {
+                setShowWebView(false);
+                Toast.show({ 
+                  type: 'error', 
+                  text1: 'Thanh toán thất bại',
+                  text2: 'Vui lòng thử lại sau'
+                });
+              }
+            }}
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -790,6 +797,40 @@ const styles = StyleSheet.create({
   },
   discountValue: {
     color: '#4CAF50',
+  },
+  webViewContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: '#fff',
+    zIndex: 1000,
+  },
+  webView: {
+    flex: 1,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1001,
+  },
+  loadingContent: {
+    backgroundColor: colors.primary,
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  loadingText: {
+    color: colors.white,
+    marginTop: 10,
+    fontSize: 16,
   },
 });
 

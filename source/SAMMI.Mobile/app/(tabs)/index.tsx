@@ -13,8 +13,8 @@ import { getAllProducts } from '@/services/product';
 import { TProduct } from '@/types/product';
 import { useAuth } from '@/hooks/useAuth';
 import HotSale from '@/presentation/components/HotSale';
-import Banner from '@/presentation/components/Banner';
-
+import { Banner } from '@/presentation/components/Banner';
+import TopSale from '@/presentation/components/TopSale';
 export default function HomeScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -86,6 +86,10 @@ export default function HomeScreen() {
 
         <View style={styles.hotSaleContainer}>
           <HotSale refreshTrigger={refreshTrigger} />
+        </View>
+
+        <View style={styles.topSaleContainer}>
+          <TopSale />
         </View>
       </ScrollView>
     </SafeAreaView>

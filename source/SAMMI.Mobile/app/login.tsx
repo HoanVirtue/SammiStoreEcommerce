@@ -7,7 +7,7 @@ import {
     KeyboardAvoidingView,
     Platform,
     ScrollView,
-    Image
+    ActivityIndicator
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -21,15 +21,15 @@ import { Alert } from '@/components/Alert';
 import { useAuth } from '@/hooks/useAuth';
 import Toast from 'react-native-toast-message';
 import { colors } from '@/constants/colors';
-
 export default function LoginScreen() {
     const router = useRouter();
     const dispatch = useAppDispatch();
-    const { isLoading } = useAppSelector((state: RootState) => state.auth);
+
     const { isDark } = useTheme();
 
     const { login } = useAuth();
 
+    const [isLoading, setIsLoading] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [usernameError, setUsernameError] = useState('');
@@ -65,16 +65,20 @@ export default function LoginScreen() {
     const handleLogin = async () => {
         const isValid = validateForm();
         if (isValid) {
-            login({ username, password, rememberMe: isRemember || true  }, (err) => {
-                console.log("handleLogin", err);
-                if (err) {
-                    Toast.show({
-                        type: 'warning',
-                        text1: 'Đã có lỗi xảy ra',
-                        text2: err.message || 'Tài khoản hoặc mật khẩu không chính xác'
-                    });
-                }
-            })
+            setIsLoading(true);
+            try {
+                await login({ username, password, rememberMe: isRemember || true  }, (err) => {
+                    if (err?.response?.errors !== "") {
+                        Toast.show({
+                            type: 'error',
+                            text1: err?.response?.message || 'Đã có lỗi xảy ra',
+                            text2: err?.response?.errors || ''
+                        })
+                    }
+                });
+            } finally {
+                setIsLoading(false);
+            }
         }
     };
 
@@ -168,12 +172,14 @@ export default function LoginScreen() {
                             </Text>
                         </TouchableOpacity>
 
-                        <Button
-                            title="Đăng nhập"
+                        <TouchableOpacity
+                            style={[styles.loginButton]}
                             onPress={handleLogin}
-                            style={styles.loginButton}
-                            loading={isLoading}
-                        />
+                        >
+                            <Text style={styles.loginButtonText}>
+                                {isLoading ? <ActivityIndicator size="small" color={colors.white} /> : 'Đăng nhập'}
+                            </Text>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.footer}>
@@ -244,8 +250,17 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     },
     loginButton: {
-        marginBottom: 16,
         backgroundColor: colors.primary,
+        marginBottom: 16,
+        padding: 16,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    loginButtonText: {
+        color: colors.white,
+        fontSize: 16,
+        fontWeight: '600',
     },
     footer: {
         flexDirection: 'row',

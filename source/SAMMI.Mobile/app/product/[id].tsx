@@ -8,7 +8,9 @@ import {
   Image,
   Dimensions,
   FlatList,
-  ViewStyle
+  ViewStyle,
+  Alert,
+  ActivityIndicator
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -29,11 +31,17 @@ import {
 import { TProduct } from '@/types/product';
 import { TReviewItem } from '@/types/review';
 import { getPublicProductDetail } from '@/services/product';
+import { getAllReviews } from '@/services/review';
 
 import { Rating } from 'react-native-ratings';
 import { formatPrice } from '@/utils';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from '@/hooks/useAuth';
+import { createCartAsync, getCartsAsync } from '@/stores/cart/action';
+import { AppDispatch, RootState } from '@/stores';
+import { ROUTE_CONFIG } from '@/configs/route';
+import { getAllReviewByProductId, getOverallReview } from '../../services/review';
+import { getListRelatedProducts } from '../../services/product';
 
 const { width } = Dimensions.get('window');
 
@@ -42,15 +50,146 @@ interface ProductReviewsProps {
   onRatingDataChange: (data: { averageRating: number; totalRating: number }) => void;
 }
 
+interface OverallReview {
+  averageRating: number;
+  totalRating: number;
+  totalRating5: number;
+  totalRating4: number;
+  totalRating3: number;
+  totalRating2: number;
+  totalRating1: number;
+  totalComment: number;
+  totalImage: number;
+}
+
+const REVIEW_FILTERS = [
+  { label: 'Tất Cả', typeReview: 0, rateNumber: 0 },
+  { label: '5 Sao', typeReview: 1, rateNumber: 5 },
+  { label: '4 Sao', typeReview: 1, rateNumber: 4 },
+  { label: '3 Sao', typeReview: 1, rateNumber: 3 },
+  { label: '2 Sao', typeReview: 1, rateNumber: 2 },
+  { label: '1 Sao', typeReview: 1, rateNumber: 1 },
+  { label: 'Có Bình Luận', typeReview: 2, rateNumber: 0 },
+  { label: 'Có Hình Ảnh', typeReview: 3, rateNumber: 0 },
+];
+
 const ProductReviews = ({ productId, onRatingDataChange }: ProductReviewsProps) => {
+  const [reviews, setReviews] = useState<TReviewItem[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState({ typeReview: 0, rateNumber: 0 });
+  const [overallReview, setOverallReview] = useState<OverallReview | null>(null);
+  const [totalReview, setTotalReview] = useState(0);
+
   useEffect(() => {
-    onRatingDataChange({ averageRating: 4.5, totalRating: 120 });
-  }, [productId, onRatingDataChange]);
+    if (productId) {
+      fetchOverallReview();
+      fetchReviews();
+    }
+  }, [productId, selected]);
+
+  const fetchOverallReview = async () => {
+    try {
+      const response = await getOverallReview(Number(productId));
+      if (response?.result) {
+        setOverallReview(response.result);
+        onRatingDataChange({
+          averageRating: response.result.averageRating || 0,
+          totalRating: response.result.totalRating || 0
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching overall review:', error);
+    }
+  };
+
+  const fetchReviews = async () => {
+    setLoading(true);
+    try {
+      const res = await getAllReviewByProductId({
+        params: {
+          productId: Number(productId),
+          rateNumber: selected.rateNumber || 5,
+          typeReview: selected.typeReview,
+          take: 20,
+          skip: 0,
+          paging: true,
+        },
+      });
+      setReviews(res?.result?.subset || []);
+      setTotalReview(res?.result?.totalItemCount || 0);
+    } catch (e) {
+      console.error('Error fetching reviews:', e);
+    }
+    setLoading(false);
+  };
+
+  const renderReviewItem = ({ item }: { item: TReviewItem }) => (
+    <View style={{ marginBottom: 16, backgroundColor: '#fafafa', borderRadius: 8, padding: 12 }}>
+      <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.customerName}</Text>
+      <Rating
+        type='star'
+        ratingCount={5}
+        imageSize={16}
+        readonly
+        startingValue={item.rating}
+        style={{ marginVertical: 2 }}
+      />
+      <Text style={{ color: '#888', fontSize: 12, marginBottom: 4 }}>{item.createdDate}</Text>
+      <Text style={{ marginTop: 4, fontSize: 15 }}>{item.comment}</Text>
+      {item.imageUrl && (
+        <Image source={{ uri: item.imageUrl }} style={{ width: 80, height: 80, marginTop: 8, borderRadius: 8 }} />
+      )}
+    </View>
+  );
 
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Đánh giá sản phẩm</Text>
-      <Text style={styles.sectionContent}>Phần giữ chỗ cho đánh giá (Trung bình: 4.5, Tổng: 120)</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
+        <Text style={{ fontSize: 32, color: colors.primary, fontWeight: 'bold' }}>{overallReview?.averageRating?.toFixed(1)}</Text>
+        <Text style={{ fontSize: 16, color: colors.primary, marginLeft: 4 }}>trên 5</Text>
+        <Rating
+          type='star'
+          ratingCount={5}
+          imageSize={18}
+          readonly
+          startingValue={overallReview?.averageRating || 0}
+          tintColor={colors.background}
+          style={{ marginLeft: 8 }}
+        />
+        <Text style={{ marginLeft: 8, color: colors.textSecondary }}>({overallReview?.totalRating || 0} đánh giá)</Text>
+      </View>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: 8 }}>
+        {REVIEW_FILTERS.map(f => (
+          <Pressable
+            key={f.label}
+            style={[{ paddingHorizontal: 12, paddingVertical: 6, borderRadius: 20, backgroundColor: selected.typeReview === f.typeReview && selected.rateNumber === f.rateNumber ? colors.primary : '#fff', marginRight: 8, borderWidth: 1, borderColor: colors.primary },]}
+            onPress={() => setSelected({ typeReview: f.typeReview, rateNumber: f.rateNumber })}
+          >
+            <Text style={{ color: selected.typeReview === f.typeReview && selected.rateNumber === f.rateNumber ? '#fff' : colors.primary, fontWeight: '500' }}>
+              {f.label} {f.typeReview === 0 && `(${overallReview?.totalRating || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 5 && `(${overallReview?.totalRating5 || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 4 && `(${overallReview?.totalRating4 || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 3 && `(${overallReview?.totalRating3 || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 2 && `(${overallReview?.totalRating2 || 0})`}
+              {f.typeReview === 1 && f.rateNumber === 1 && `(${overallReview?.totalRating1 || 0})`}
+              {f.typeReview === 2 && `(${overallReview?.totalComment || 0})`}
+              {f.typeReview === 3 && `(${overallReview?.totalImage || 0})`}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+      {loading ? (
+        <Text>Đang tải đánh giá...</Text>
+      ) : (
+        <FlatList
+          data={reviews}
+          keyExtractor={item => item.id?.toString()}
+          renderItem={renderReviewItem}
+          ListEmptyComponent={<Text style={{ textAlign: 'center', marginTop: 20 }}>Chưa có đánh giá nào</Text>}
+          scrollEnabled={false}
+        />
+      )}
     </View>
   );
 };
@@ -60,13 +199,80 @@ interface RelatedProductListProps {
 }
 
 const RelatedProductList = ({ productId }: RelatedProductListProps) => {
+  const [relatedProducts, setRelatedProducts] = useState<TProduct[]>([]);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
   useEffect(() => {
+    const fetchRelatedProducts = async () => {
+      setLoading(true);
+      try {
+        const res = await getListRelatedProducts({
+          params: {
+            productId: Number(productId),
+            numberTop: 5
+          }
+        });
+        if (res?.result) {
+          setRelatedProducts(res.result);
+        }
+      } catch (error) {
+        console.error('Error fetching related products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (productId) {
+      fetchRelatedProducts();
+    }
   }, [productId]);
+
+  if (loading) {
+    return (
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Sản phẩm liên quan</Text>
+        <LoadingIndicator />
+      </View>
+    );
+  }
+
+  if (!relatedProducts.length) {
+    return null;
+  }
 
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>Sản phẩm liên quan</Text>
-      <Text style={styles.sectionContent}>Phần giữ chỗ cho sản phẩm liên quan</Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ paddingRight: 16 }}
+      >
+        {relatedProducts.map((product) => (
+          <Pressable
+            key={product.id}
+            style={styles.relatedProductCard}
+            onPress={() => router.push(`/product/${product.id}`)}
+          >
+            <Image
+              source={{ 
+                uri: product.images?.[0]?.imageUrl || 'https://via.placeholder.com/150x150.png?text=No+Image'
+              }}
+              style={styles.relatedProductImage}
+              resizeMode="cover"
+            />
+            <View style={styles.relatedProductInfo}>
+              <Text style={styles.relatedProductName} numberOfLines={2}>
+                {product.name}
+              </Text>
+              <Text style={styles.relatedProductPrice}>
+                {formatPrice(product.price)}
+              </Text>
+            </View>
+          </Pressable>
+        ))}
+      </ScrollView>
     </View>
   );
 };
@@ -94,7 +300,8 @@ export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { user } = useAuth();
-  const dispatch = useDispatch();
+  const dispatch: AppDispatch = useDispatch();
+  const { isSuccessCreate, isErrorCreate, errorMessageCreate } = useSelector((state: RootState) => state.cart);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [productData, setProductData] = useState<TProduct>(INITIAL_PRODUCT_STATE);
@@ -106,6 +313,7 @@ export default function ProductDetailScreen() {
   const [error, setError] = useState<string | null>(null);
   const [averageRating, setAverageRating] = useState<number>(0);
   const [totalRatings, setTotalRatings] = useState<number>(0);
+  const [isAddingToCart, setIsAddingToCart] = useState<boolean>(false);
 
   const fetchProductDetail = async (productId: string) => {
     setLoading(true);
@@ -144,17 +352,45 @@ export default function ProductDetailScreen() {
     }
   };
 
-  const handleAddToCart = () => {
-    if (quantity <= 0 || quantity > productData.stockQuantity) {
-        console.warn("Số lượng không hợp lệ hoặc hết hàng");
-        return;
+  const handleAddProductToCart = (item: TProduct) => {
+    if (user?.id) {
+      setIsAddingToCart(true);
+      dispatch(
+        createCartAsync({
+          cartId: 0,
+          productId: item.id,
+          quantity: quantity,
+          operation: 0,
+        })
+      ).then(() => {
+        if (isSuccessCreate) {
+          Alert.alert('Thêm sản phẩm vào giỏ hàng thành công');
+          dispatch(
+            getCartsAsync({
+              params: {
+                take: -1,
+                skip: 0,
+                paging: false,
+                orderBy: 'name',
+                dir: 'asc',
+                keywords: "''",
+                filters: '',
+              },
+            })
+          );
+        } else if (isErrorCreate) {
+          Alert.alert('Lỗi', errorMessageCreate || 'Thêm sản phẩm vào giỏ hàng thất bại. Vui lòng thử lại');
+        }
+        setIsAddingToCart(false);
+      });
+    } else {
+      router.push('/login' as any);
     }
-    console.log(`Thêm ${quantity} của ${productData.name} (ID: ${productData.id}) vào giỏ hàng`);
   };
 
   const handleBuyNow = () => {
     console.log(`Mua ${quantity} của ${productData.name} ngay`);
-    handleAddToCart();
+    handleAddProductToCart(productData);
     router.push('/cart');
   };
 
@@ -309,7 +545,7 @@ export default function ProductDetailScreen() {
     return (
       <View style={styles.section}>
           <Pressable style={styles.sectionHeader} onPress={toggle}>
-              <Text style={styles.sectionTitle}>{title === 'Description' ? 'Mô tả' : title === 'Ingredients' ? 'Thành phần' : title === 'How to Use' ? 'Cách sử dụng' : title}</Text>
+              <Text style={styles.sectionTitle}>{title === 'Description' ? 'Công dụng' : title === 'Ingredients' ? 'Thành phần' : title === 'How to Use' ? 'Hướng dẫn sử dụng' : title}</Text>
               {isVisible ? (
                 <ChevronUp size={20} color={colors.textSecondary} />
               ) : (
@@ -340,33 +576,34 @@ export default function ProductDetailScreen() {
         </Pressable>
       </View>
 
-      <ScrollView
+      <FlatList
+        data={[1]} // Single item to render the content
+        renderItem={() => (
+          <>
+            {renderImageCarousel()}
+            {renderProductInfo()}
+            <View style={styles.detailsContainer}>
+              {renderExpandableSection('Công dụng', productData.uses, showDescription, toggleDescription)}
+              {renderExpandableSection('Thành phần', productData.ingredient, showIngredients, toggleIngredients)}
+              {renderExpandableSection('Hướng dẫn sử dụng', productData.usageGuide, showHowToUse, toggleHowToUse)}
+              {id && <ProductReviews productId={id} onRatingDataChange={handleRatingDataChange}/>}
+              {id && <RelatedProductList productId={id} />}
+            </View>
+          </>
+        )}
+        keyExtractor={() => 'product-detail'}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContentContainer}
-      >
-        {renderImageCarousel()}
-        {renderProductInfo()}
-
-         <View style={styles.detailsContainer}>
-             {renderExpandableSection('Description', productData.uses, showDescription, toggleDescription)}
-             {renderExpandableSection('Ingredients', productData.ingredient, showIngredients, toggleIngredients)}
-             {renderExpandableSection('How to Use', productData.usageGuide, showHowToUse, toggleHowToUse)}
-
-            {id && <ProductReviews productId={id} onRatingDataChange={handleRatingDataChange}/>}
-
-            {id && <RelatedProductList productId={id} />}
-         </View>
-
-      </ScrollView>
+      />
 
       <View style={styles.footer}>
         <Button
-          title="Thêm vào giỏ hàng"
-          onPress={handleAddToCart}
-          icon={<ShoppingBag size={18} color={colors.white} />}
+          title={isAddingToCart ? "" : "Thêm vào giỏ hàng"}
+          onPress={() => handleAddProductToCart(productData)}
+          icon={isAddingToCart ? <ActivityIndicator size="small" color={colors.white} /> : <ShoppingBag size={18} color={colors.white} />}
           // @ts-ignore
           style={[styles.footerButton, styles.addToCartButton]}
-          disabled={productData.stockQuantity === 0 || quantity <= 0}
+          disabled={productData.stockQuantity === 0 || quantity <= 0 || isAddingToCart}
           titleStyle={styles.footerButtonTitle}
         />
       </View>
@@ -606,8 +843,8 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   section: {
-    marginBottom: 0,
-    paddingBottom: 0,
+    marginBottom: 10,
+    paddingBottom: 10,
   },
    sectionHeader: {
     flexDirection: 'row',
@@ -621,6 +858,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+    marginBottom: 10,
   },
   sectionContent: {
     fontSize: 14,
@@ -656,5 +894,34 @@ const styles = StyleSheet.create({
   },
   buyNowButton: {
       backgroundColor: colors.secondary,
+  },
+  relatedProductCard: {
+    width: 150,
+    marginRight: 12,
+    backgroundColor: colors.white,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  relatedProductImage: {
+    width: '100%',
+    height: 150,
+    backgroundColor: colors.border,
+  },
+  relatedProductInfo: {
+    padding: 8,
+  },
+  relatedProductName: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: colors.text,
+    marginBottom: 4,
+    height: 40,
+  },
+  relatedProductPrice: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.primary,
   },
 });

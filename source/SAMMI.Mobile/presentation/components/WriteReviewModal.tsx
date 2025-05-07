@@ -7,11 +7,12 @@ import { yupResolver } from "@hookform/resolvers/yup"
 import { Picker } from '@react-native-picker/picker'
 import * as ImagePicker from 'expo-image-picker'
 import { TOrderDetail } from "@/types/order"
-import { AppDispatch } from "@/stores"
-import { useDispatch } from "react-redux"
+import { AppDispatch, RootState } from "@/stores"
+import { useDispatch, useSelector } from "react-redux"
 import { convertBase64 } from "@/utils"
 import { createReviewAsync } from "@/stores/review/action"
 import { Resolver } from "react-hook-form"
+import Toast from "react-native-toast-message"
 
 interface TWriteReviewModal {
     open: boolean
@@ -32,6 +33,7 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
 
     const { open, onClose, orderId, orderDetails } = props
     const dispatch: AppDispatch = useDispatch()
+    const { isSuccessCreate } = useSelector((state: RootState) => state.review)
 
     const schema = yup.object().shape({
         comment: yup.string().optional(),
@@ -71,14 +73,17 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
         }
     }
 
+
     const onSubmit = (data: TDefaultValues) => {
-        if (!Object.keys(errors)?.length && data.productId && orderId) {
+        if (!Object.keys(errors)?.length) {
             const formData = {
                 productId: data.productId,
                 orderId: orderId,
                 rating: data?.rating,
-                content: data?.comment ?? "",
+                comment: data?.comment ?? "",
             }
+
+
 
             if (imageFile) {
                 const imageCommand = {
@@ -92,8 +97,28 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
                     ...formData,
                     imageCommand
                 }))
+                .then((res) => {
+                    if (res?.payload?.isSuccess) {
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Đánh giá sản phẩm thành công',
+                            text2: ''
+                        })
+                        onClose()
+                    }
+                })
             } else {
                 dispatch(createReviewAsync(formData))
+                .then((res) => {
+                    if (res?.payload?.isSuccess) {
+                        Toast.show({
+                            type: 'success',
+                            text1: 'Đánh giá sản phẩm thành công',
+                            text2: ''
+                        })
+                        onClose()
+                    }
+                })
             }
         }
     }

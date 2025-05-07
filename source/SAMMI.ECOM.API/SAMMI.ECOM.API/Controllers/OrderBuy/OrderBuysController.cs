@@ -204,7 +204,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             }
 
             var paymentResult = paymentResponse.Result;
-            string[] paymentInfos = paymentResult.OrderDescription.Split('#')[1].Split('_');
+            string[] paymentInfos = paymentResult.OrderDescription.Split('#')[1].Split('_');    
             string orderCode = paymentInfos[0];
             var redirectUrl = paymentResult.PlatForm == "App" ? _config.GetValue<string>("VNPAYOptions:RedirectUrlApp") : _config.GetValue<string>("VNPAYOptions:RedirectUrl");
             var payment = await _paymentRepository.GetByOrderCode(orderCode);
@@ -292,7 +292,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                     Title = "Khách hàng đã thanh toán, chờ xử lý",
                     Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
                 });
-            return Redirect($"{_config.GetValue<string>("VNPAYOptions:RedirectUrl")}?payment-status=1");
+            return Redirect($"{redirectUrl}?payment-status=1");
         }
 
         [AuthorizePermission(PermissionEnum.CustomerOrderPayment)]

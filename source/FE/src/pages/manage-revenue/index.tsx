@@ -29,6 +29,23 @@ import {
   CircularProgress
 } from '@mui/material';
 
+const getOrderStatusTranslation = (status: string) => {
+  switch (status) {
+    case 'Pending':
+      return 'Chờ xử lý';
+    case 'WaitingForPayment':
+      return 'Chờ thanh toán';
+    case 'Processing':
+      return 'Đang xử lý';
+    case 'Completed':
+      return 'Hoàn thành';
+    case 'Cancelled':
+      return 'Đã hủy';
+    default:
+      return status;
+  }
+};
+
 interface RevenueDetail {
   id: number;
   code: string;
@@ -261,7 +278,7 @@ const RevenueStatisticsPage = () => {
                       <TableCell>{row.code}</TableCell>
                       <TableCell>{row.customerName} ({row.phoneNumber})</TableCell>
                       <TableCell>{row.paymentMethod}</TableCell>
-                      <TableCell>{row.orderStatus}</TableCell>
+                      <TableCell>{getOrderStatusTranslation(row.orderStatus)}</TableCell>
                       <TableCell align="right">{formatCurrency(row.totalPrice || 0)}</TableCell>
                       <TableCell align="right">{row.totalQuantity}</TableCell>
                       <TableCell>

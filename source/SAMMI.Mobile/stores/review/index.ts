@@ -94,6 +94,7 @@ export const reviewSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(createReviewAsync.fulfilled, (state, action) => {
+      console.log("action.payload review", action)
       state.isLoading = false
       state.isSuccessCreate = !!action.payload?.isSuccess
       state.isErrorCreate = !action.payload?.isSuccess

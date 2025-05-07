@@ -1,14 +1,13 @@
 import React, { useRef, useEffect, useState } from 'react';
 import {
   View,
-  Text,
   Image,
   StyleSheet,
   Dimensions,
-  TouchableOpacity,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
-import Carousel from 'react-native-snap-carousel';
+import Carousel from 'react-native-snap-carousel'; // Ensure this is installed and imported correctly
 import { getHomeBanners } from '@/services/banner';
 
 const { width: screenWidth } = Dimensions.get('window');
@@ -17,11 +16,6 @@ interface Banner {
   id: number;
   imageUrl: string;
   name?: string;
-  description?: string;
-}
-
-interface CarouselProps {
-  initialData?: Banner[];
 }
 
 const styles = StyleSheet.create({
@@ -37,114 +31,86 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
+    resizeMode: 'cover',
   },
-  textContainer: {
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: [{ translateX: -screenWidth / 4 }, { translateY: -50 }],
+  loadingContainer: {
+    height: Platform.OS === 'ios' ? 400 : 300,
+    justifyContent: 'center',
     alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 16,
-    color: 'white',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  button: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: 'white',
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
 
-const Banner: React.FC<CarouselProps> = ({ initialData }) => {
+export const Banner: React.FC = () => {
   const carouselRef = useRef<Carousel<Banner>>(null);
-  const [banners, setBanners] = useState<Banner[]>(initialData || []);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchBanners = async () => {
-      try {
-        const response = await getHomeBanners({ numberTop: 5 });
-        if (response?.result?.subset) {
-          setBanners(response.result.subset as Banner[]);
-        }
-      } catch (error) {
-        console.error('Error fetching banners:', error);
+  const fetchBanners = async () => {
+    try {
+      setLoading(true);
+      const response = await getHomeBanners({ numberTop: 3 });
+
+      if (response?.isSuccess) {
+        setBanners(response.result);
       }
-    };
-
-    if (!initialData) {
-      fetchBanners();
+    } catch (error) {
+      console.error('Error fetching banners:', error);
+      setError('Failed to load banners');
+    } finally {
+      setLoading(false);
     }
-  }, [initialData]);
+  };
 
   useEffect(() => {
-    // Auto-play functionality
-    const interval = setInterval(() => {
-      if (carouselRef.current) {
-        carouselRef.current.snapToNext();
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
+    fetchBanners();
   }, []);
 
-  const renderItem = ({ item }: { item: Banner }) => (
-    <View style={styles.slide}>
-      <Image
-        source={{ uri: item.imageUrl }}
-        style={styles.image}
-        resizeMode="contain"
-      />
-      {item.name && (
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>{item.name}</Text>
-          {item.description && (
-            <Text style={styles.description}>{item.description}</Text>
-          )}
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Xem thêm</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
+  const renderItem = ({ item }: { item: Banner }) => {
+    if (!item?.imageUrl) {
+      return <View style={styles.slide} />;
+    }
 
-  if (!banners.length) {
-    return null;
+    return (
+      <View style={styles.slide}>
+        <Image
+          source={{ uri: item.imageUrl }}
+          style={styles.image}
+          onError={(e) => console.error('Image loading error:', e.nativeEvent.error)}
+        />
+      </View>
+    );
+  };
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  if (error || !banners.length) {
+    return <View style={{ height: 0 }} />;
   }
 
   return (
     <View style={styles.container}>
-      <Carousel
-        ref={carouselRef}
-        data={banners}
-        renderItem={renderItem}
-        sliderWidth={screenWidth}
-        itemWidth={screenWidth}
-        autoplay={true}
-        autoplayInterval={3000}
-        loop={true}
-        enableMomentum={false}
-        lockScrollWhileSnapping={true}
-      />
+        {/* <Carousel
+          ref={carouselRef}
+          data={banners}
+          renderItem={renderItem}
+          sliderWidth={screenWidth}
+          itemWidth={screenWidth}
+          autoplay
+          autoplayInterval={3000}
+          loop
+          enableMomentum={false}
+          lockScrollWhileSnapping
+          inactiveSlideScale={0.9}
+          inactiveSlideOpacity={0.7}
+          onSnapToItem={(index) => console.log('Current index:', index)}
+        /> */}
     </View>
   );
 };
-
-export default Banner;

@@ -13,7 +13,7 @@ import { getAllProducts } from '@/services/product';
 import { TProduct } from '@/types/product';
 import { useAuth } from '@/hooks/useAuth';
 import HotSale from '@/presentation/components/HotSale';
-import Banner from '@/presentation/components/Banner';
+import { Banner } from '@/presentation/components/Banner';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -77,7 +77,7 @@ export default function HomeScreen() {
         />
 
         <View style={{ marginTop: 16 }}>
-          {/* <Banner /> */}
+          <Banner />
         </View>
 
         <View style={styles.hotSaleContainer}>

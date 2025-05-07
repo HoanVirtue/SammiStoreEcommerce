@@ -123,7 +123,8 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       }
       Toast.show({
         text1: 'Đăng nhập thành công',
-        type: 'success'
+        type: 'success',
+        text2: ''
       });
 
       const returnUrl = params.returnUrl || '/(tabs)';

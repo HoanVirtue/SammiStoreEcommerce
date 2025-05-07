@@ -12,6 +12,7 @@ import { AppDispatch, RootState } from '@/stores';
 import Toast from 'react-native-toast-message';
 import { ROUTE_CONFIG } from '@/configs/route';
 import { ProductCardSkeleton } from './ProductCardSkeleton';
+import { useCart } from '@/app/(tabs)/_layout';
 
 interface ProductCardProps {
   product: TProduct;
@@ -24,6 +25,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, isLo
   const { user } = useAuth();
   const dispatch: AppDispatch = useDispatch();
   const { isSuccessCreate, isErrorCreate, errorMessageCreate } = useSelector((state: RootState) => state.cart);
+  const { refreshCart } = useCart();
 
   if (isLoading) {
     return <ProductCardSkeleton />;
@@ -77,6 +79,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, isLo
               filters: ""
             }
           }));
+          // Add this line to update cart count in layout
+          refreshCart();
         } else if (isErrorCreate) {
           Toast.show({
             type: 'error',

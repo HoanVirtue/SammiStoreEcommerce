@@ -14,6 +14,7 @@ import { getProductDetail } from '@/services/product';
 import { isExpired } from '@/utils';
 import { useCart } from './_layout';
 import { getCartsAsync } from '@/stores/cart/action';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { useDispatch } from 'react-redux';
 import { AppDispatch } from '@/stores';
@@ -46,6 +47,7 @@ export default function CartScreen() {
         },
       });
       setCart({ data: response?.result || [] });
+      refreshCart();
     } catch (error) {
       console.error('Error fetching cart:', error);
       Toast.show({
@@ -93,6 +95,7 @@ export default function CartScreen() {
         },
       });
       setCart({ data: response?.result || [] });
+      refreshCart();
     } catch (error) {
       console.error('Error refreshing cart:', error);
       Toast.show({
@@ -275,6 +278,12 @@ const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
 
   const cartItems = useMemo(() => cart?.data || [], [cart?.data]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchCart();
+    }, [fetchCart])
+  );
+
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
@@ -287,7 +296,19 @@ const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" />
       {cartItems.length === 0 ? (
-        <View style={styles.emptyContainer}>
+        <ScrollView 
+          contentContainerStyle={styles.emptyContainer}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+              progressViewOffset={100}
+              progressBackgroundColor={colors.background}
+            />
+          }
+        >
           <ShoppingBag size={64} color={colors.primaryLight} />
           <Text style={styles.emptyTitle}>Giỏ hàng trống</Text>
           <Text style={styles.emptyText}>Hãy thêm sản phẩm vào giỏ hàng</Text>
@@ -296,7 +317,7 @@ const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
             onPress={handleContinueShopping}
             style={styles.shopButton}
           />
-        </View>
+        </ScrollView>
       ) : (
         <>
           <ScrollView style={styles.itemsContainer}

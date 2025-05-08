@@ -122,26 +122,26 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                     createPurchaseRes.Result.Status
                 });
 
-            var notifiRes = await _notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
-                new Domain.AggregateModels.OrderBuy.Notification()
-                {
-                    Title = request.Status == PurchaseOrderStatus.PendingApproval ? "Có đơn nhập hàng mới cần phê duyệt" : "Có đơn nhập hàng mới",
-                    Content = $"Có đơn nhập hàng mới mã {createPurchaseRes.Result.Code}",
-                    CreatedBy = _currentUser.UserName
-                });
-            if (!notifiRes.IsSuccess)
-            {
-                AppLogger.LogWarning(_currentUser,
-                    "NOTIFICATION",
-                    notifiRes.Message,
-                    new
-                    {
-                        createPurchaseRes.Result.Code,
-                        createPurchaseRes.Result.Status
-                    });
-                actRes.AddError("Đã có lỗi xảy ra với phần thông báo của hệ thống!");
-                return actRes;
-            }
+            //var notifiRes = await _notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
+            //    new Domain.AggregateModels.OrderBuy.Notification()
+            //    {
+            //        Title = request.Status == PurchaseOrderStatus.PendingApproval ? "Có đơn nhập hàng mới cần phê duyệt" : "Có đơn nhập hàng mới",
+            //        Content = $"Có đơn nhập hàng mới mã {createPurchaseRes.Result.Code}",
+            //        CreatedBy = _currentUser.UserName
+            //    });
+            //if (!notifiRes.IsSuccess)
+            //{
+            //    AppLogger.LogWarning(_currentUser,
+            //        "NOTIFICATION",
+            //        notifiRes.Message,
+            //        new
+            //        {
+            //            createPurchaseRes.Result.Code,
+            //            createPurchaseRes.Result.Status
+            //        });
+            //    actRes.AddError("Đã có lỗi xảy ra với phần thông báo của hệ thống!");
+            //    return actRes;
+            //}
             actRes.SetResult(_mapper.Map<PurchaseOrderDTO>(purchaseCreated));
             return actRes;
         }

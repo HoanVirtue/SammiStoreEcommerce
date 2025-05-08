@@ -228,21 +228,21 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                         PaymentMethod = paymentMethod.Code.ToString()
                     });
 
-            _notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
-                new Domain.AggregateModels.OrderBuy.Notification()
-                {
-                    Title = "Có đơn hàng mới, đang chờ thanh toán",
-                    Content = $"Có đơn hàng mới mã {orderCreated.Code}, đang chờ thanh toán",
-                    CreatedBy = _currentUser.UserName
-                });
+            //await _notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
+            //    new Domain.AggregateModels.OrderBuy.Notification()
+            //    {
+            //        Title = "Có đơn hàng mới, đang chờ thanh toán",
+            //        Content = $"Có đơn hàng mới mã {orderCreated.Code}, đang chờ thanh toán",
+            //        CreatedBy = _currentUser.UserName
+            //    });
 
-            _notifiRepository.CreateNotifiForRole(RoleTypeEnum.MANAGER.ToString(),
-                new Domain.AggregateModels.OrderBuy.Notification()
-                {
-                    Title = "Có đơn hàng mới, đang chờ thanh toán",
-                    Content = $"Có đơn hàng mới mã {orderCreated.Code}, đang chờ thanh toán",
-                    CreatedBy = _currentUser.UserName
-                });
+            //await _notifiRepository.CreateNotifiForRole(RoleTypeEnum.MANAGER.ToString(),
+            //    new Domain.AggregateModels.OrderBuy.Notification()
+            //    {
+            //        Title = "Có đơn hàng mới, đang chờ thanh toán",
+            //        Content = $"Có đơn hàng mới mã {orderCreated.Code}, đang chờ thanh toán",
+            //        CreatedBy = _currentUser.UserName
+            //    });
 
 
             actResponse.SetResult(orderResult);

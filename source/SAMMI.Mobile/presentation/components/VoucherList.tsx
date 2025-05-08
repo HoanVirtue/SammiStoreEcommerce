@@ -114,7 +114,7 @@ const styles = StyleSheet.create({
   },
   voucherCard: {
     width: 280,
-    height: 160,
+    minHeight: 160,
     backgroundColor: colors.primary,
     borderRadius: 12,
     marginRight: 12,
@@ -130,7 +130,7 @@ const styles = StyleSheet.create({
   },
   voucherContent: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
   },
   discount: {
     fontSize: 32,

@@ -279,19 +279,19 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                         updateOrderStatusCommand.ShippingStatus,
                     });
 
-            _notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
-                new Domain.AggregateModels.OrderBuy.Notification()
-                {
-                    Title = "Khách hàng đã thanh toán, chờ xử lý",
-                    Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
-                });
+            //_notifiRepository.CreateNotifiForRole(RoleTypeEnum.ADMIN.ToString(),
+            //    new Domain.AggregateModels.OrderBuy.Notification()
+            //    {
+            //        Title = "Khách hàng đã thanh toán, chờ xử lý",
+            //        Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
+            //    });
 
-            _notifiRepository.CreateNotifiForRole(RoleTypeEnum.MANAGER.ToString(),
-                new Domain.AggregateModels.OrderBuy.Notification()
-                {
-                    Title = "Khách hàng đã thanh toán, chờ xử lý",
-                    Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
-                });
+            //_notifiRepository.CreateNotifiForRole(RoleTypeEnum.MANAGER.ToString(),
+            //    new Domain.AggregateModels.OrderBuy.Notification()
+            //    {
+            //        Title = "Khách hàng đã thanh toán, chờ xử lý",
+            //        Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
+            //    });
             return Redirect($"{redirectUrl}?payment-status=1");
         }
 

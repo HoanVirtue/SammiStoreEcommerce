@@ -217,6 +217,7 @@ namespace SAMMI.ECOM.API.Services.ElasticSearch
             {
                 var response = await _elasticClient.SearchAsync<ProductDTO>(s => s
                 .Index(_indexName)
+                .Size(size ?? 5)
                 .Query(q => q.Bool(b => b
                     .Must(
                         q => q.Term(t => t.IsActive, true),
@@ -256,7 +257,7 @@ namespace SAMMI.ECOM.API.Services.ElasticSearch
                                 ? (decimal)(x.Price * (1 - (x.Discount ?? 0)))
                                 : x.Price ?? 0,
                             2),
-                        ProductImage = x.Images.OrderBy(i => i.DisplayOrder).FirstOrDefault().ImageUrl ?? null
+                        ProductImage = x.Images?.OrderBy(i => i.DisplayOrder).FirstOrDefault()?.ImageUrl ?? null
                     }).ToList();
             }
             catch(Exception ex)

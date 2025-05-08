@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, View, Text, FlatList, Pressable, RefreshControl, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Pressable, RefreshControl, StatusBar, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Category } from '@/domain/entities/Category';
-import { ChevronRight } from 'lucide-react-native';
+import { ChevronRight, Search } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { LoadingIndicator } from '@/presentation/components/LoadingIndicator';
 import { ErrorView } from '@/presentation/components/ErrorView';
@@ -55,45 +55,41 @@ export default function HomeScreen() {
   }
 
   const renderHeader = () => (
-    <>
-      <SearchBar
-        value=""
-        onSearch={handleSearch}
-        onClear={() => { }}
+    <View style={styles.searchContainer}>
+      <Search size={20} color={colors.textSecondary} />
+      <TextInput
         placeholder="Tìm kiếm sản phẩm..."
+        value=""
+        editable={false}
+        onPress={() => router.push('/search')}
+        style={styles.searchInput}
       />
-      <View style={{ marginTop: 16 }}>
-        {/* <Banner /> */}
-      </View>
-    </>
+    </View>
   );
 
-  const renderItem = ({ item, index }: { item: any; index: number }) => {
-    if (index === 0) {
-      return (
-        <View style={styles.hotSaleContainer}>
-          <HotSale refreshTrigger={refreshTrigger} />
-        </View>
-      );
-    } else if (index === 1) {
-      return (
-        <View style={styles.topSaleContainer}>
-          <TopSale />
-        </View>
-      );
-    }
-    return null;
-  };
+  const renderHotSale = () => (
+    <View style={styles.hotSaleContainer}>
+      <HotSale refreshTrigger={refreshTrigger} />
+    </View>
+  );
+
+  const renderTopSale = () => (
+    <View style={styles.topSaleContainer}>
+      <TopSale />
+    </View>
+  );
+
+  const renderItem = () => null; // We don't need to render items since we're using sections
 
   return (
-    <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+    <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <FlatList
-        data={[1, 2]} // Just two items for HotSale and TopSale
+        data={[1]}
         renderItem={renderItem}
-        keyExtractor={(_, index) => index.toString()}
-        ListHeaderComponent={renderHeader}
+        keyExtractor={() => 'home'}
         showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -102,8 +98,15 @@ export default function HomeScreen() {
             tintColor={colors.primary}
           />
         }
+        ListHeaderComponent={
+          <>
+            {renderHeader()}
+            {renderHotSale()}
+            {renderTopSale()}
+          </>
+        }
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -111,6 +114,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  contentContainer: {
+    paddingTop: Platform.OS === 'ios' ? 40 : 30,
   },
   header: {
     paddingHorizontal: 16,
@@ -170,5 +176,24 @@ const styles = StyleSheet.create({
   },
   topSaleContainer: {
     marginTop: 16,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    marginVertical: 16,
+    paddingHorizontal: 16,
+    height: 48,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    color: colors.text,
+    height: '100%',
   },
 });

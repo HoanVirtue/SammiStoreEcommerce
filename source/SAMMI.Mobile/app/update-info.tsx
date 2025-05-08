@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, ScrollView, TextInput, TouchableOpacity, Image, StatusBar, Platform } from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TextInput, TouchableOpacity, Image, StatusBar, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { Button } from '@/presentation/components/Button';
-import { Camera, Image as ImageIcon, ArrowLeft } from 'lucide-react-native';
+import { Camera, Image as ImageIcon, ArrowLeft, User } from 'lucide-react-native';
 import Toast from 'react-native-toast-message';
 import * as ImagePicker from 'expo-image-picker';
-import { updateUser } from '@/services/user';
+import { updateAvatar, updateUser } from '@/services/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getUserDetail } from '@/services/user';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { TParamsUpdateUser, TParamsUser } from '@/types/user';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function UpdateInfoScreen() {
-  const [user, setUser] = useState<TParamsUser | null>(null);
+  const [userUpdate, setUserUpdate] = useState<TParamsUpdateUser | null>(null);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [phone, setPhone] = useState('');
@@ -22,26 +23,25 @@ export default function UpdateInfoScreen() {
   const [avatar, setAvatar] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [birthday, setBirthday] = useState(new Date());
-  const [gender, setGender] = useState(true);
+  const [gender, setGender] = useState(1);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const { user, setUser } = useAuth();
 
   useEffect(() => {
-    const fetchUserInfo = async () => {
+    const fetchUserInfo = () => {
       try {
-        const token = await AsyncStorage.getItem('accessToken');
-        if (!token) {
+        if (!user) {
           router.replace('/login' as any);
           return;
         }
-
-        const userData = (await getUserDetail()).result as TParamsUser;
-        setUser(userData);
-        setFirstName(userData?.firstName || '');
-        setLastName(userData?.lastName || '');
-        setPhone(userData?.phone || '');
-        setEmail(userData?.email || '');
-        setAvatar(userData?.avatar || '');
-        setBirthday(userData?.birthday ? new Date(userData.birthday) : new Date());
+        
+        setFirstName(user?.firstName || '');
+        setLastName(user?.lastName || '');
+        setPhone(user?.phone || '');
+        setEmail(user?.email || '');
+        setAvatar(user?.avatar || '');
+        setBirthday(user?.birthday ? new Date(user.birthday) : new Date());
+        setGender(user?.gender === 0 ? 0 : 1);
       } catch (error) {
         console.error('Error fetching user:', error);
         Toast.show({
@@ -67,14 +67,15 @@ export default function UpdateInfoScreen() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: 'images',
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 1,
+      quality: 0.5,
+      base64: true,
     });
 
     if (!result.canceled) {
-      setAvatar(result.assets[0].uri);
+      await handleUpdateAvatar(result.assets[0].base64 || '');
     }
   };
 
@@ -97,20 +98,28 @@ export default function UpdateInfoScreen() {
     setIsLoading(true);
     try {
       const updateData = {
-        id: user?.id,
         firstName,
         lastName,
-        phone,
         email,
-        avatar: avatar.startsWith('file://') ? avatar : undefined,
-        gender,
+        phone,
+        gender: gender ? 1 : 0,
         birthday: birthday.toISOString().split('T')[0]
-      };
+      } as TParamsUpdateUser;
 
-      await updateUser(updateData);
+      const updateResponse = await updateUser(updateData);
+      if(!updateResponse.isSuccess) {
+        Toast.show({
+          type: 'error',
+          text1: 'Cập nhật thông tin thất bại',
+          text2: updateResponse.message,
+        });
+        return;
+      }
+      setUser({...updateResponse.result});
+      console.log(updateResponse);
       Toast.show({
         type: 'success',
-        text1: 'Cập nhật thành công',
+        text1: 'Cập nhật thông tin thành công',
       });
       router.push('/(tabs)/profile');
     } catch (error) {
@@ -125,8 +134,48 @@ export default function UpdateInfoScreen() {
     }
   };
 
+  const handleUpdateAvatar = async (imageBase64: string) => {
+    try {
+      setIsLoading(true);
+      
+      const response = await updateAvatar(imageBase64);
+
+      if (!response?.isSuccess) {
+        Toast.show({
+          type: 'error',
+          text1: 'Cập nhật ảnh thất bại',
+          text2: response?.message,
+        });
+        return;
+      }
+
+      setAvatar(response?.result.imageUrl);
+      if (user?.id) {
+        setUser({...user, avatar: response?.result.imageUrl});
+      }
+      Toast.show({
+        type: 'success',
+        text1: 'Cập nhật ảnh thành công',
+      });
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Cập nhật ảnh thất bại',
+        text2: 'Vui lòng thử lại sau',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
+      {isLoading && (
+        <View style={styles.loadingOverlay}>
+          <ActivityIndicator size="large" color={colors.primary} />
+        </View>
+      )}
       <StatusBar barStyle="dark-content" />
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={() => router.push('/(tabs)/profile')}>
@@ -142,7 +191,7 @@ export default function UpdateInfoScreen() {
               <Image source={{ uri: avatar }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <ImageIcon size={48} color={colors.primaryLight} />
+                <User size={48} color={colors.primaryLight} />
               </View>
             )}
             <TouchableOpacity style={styles.cameraButton} onPress={pickImage}>
@@ -196,16 +245,16 @@ export default function UpdateInfoScreen() {
             <Text style={styles.label}>Giới tính</Text>
             <View style={styles.genderContainer}>
               <TouchableOpacity
-                style={[styles.genderButton, gender === true && styles.genderButtonActive]}
-                onPress={() => setGender(true)}
+                style={[styles.genderButton, gender === 1 && styles.genderButtonActive]}
+                onPress={() => setGender(1)}
               >
-                <Text style={[styles.genderText, gender === true && styles.genderTextActive]}>Nam</Text>
+                <Text style={[styles.genderText, gender === 1 && styles.genderTextActive]}>Nam</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.genderButton, gender === false && styles.genderButtonActive]}
-                onPress={() => setGender(false)}
+                style={[styles.genderButton, gender === 0 && styles.genderButtonActive]}
+                onPress={() => setGender(0)}
               >
-                <Text style={[styles.genderText, gender === false && styles.genderTextActive]}>Nữ</Text>
+                <Text style={[styles.genderText, gender === 0 && styles.genderTextActive]}>Nữ</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -371,5 +420,16 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     color: colors.text,
-  }
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    zIndex: 999,
+  },
 });

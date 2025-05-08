@@ -15,6 +15,11 @@ import { colors } from '@/constants/colors';
 import { Button } from '@/presentation/components/Button';
 import { router } from 'expo-router';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react-native';
+import { useAuth } from '@/hooks/useAuth';
+import { RegisterParams } from '@/contexts/types';
+import Toast from 'react-native-toast-message';
+
+export const PASSWORD_REG = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
 export default function RegisterScreen() {
   const [formData, setFormData] = useState({
@@ -30,6 +35,8 @@ export default function RegisterScreen() {
   const [showPassword, setShowPassword] = useState(false);
   const [showRePassword, setShowRePassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const { register } = useAuth();
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -65,6 +72,8 @@ export default function RegisterScreen() {
 
     if (!formData.password) {
       newErrors.password = 'Mật khẩu không được bỏ trống.';
+    } else if (!PASSWORD_REG.test(formData.password)) {
+      newErrors.password = 'Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt';
     }
 
     if (!formData.rePassword) {
@@ -77,10 +86,23 @@ export default function RegisterScreen() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     if (validateForm()) {
-      // TODO: Implement registration logic
-      console.log('Form data:', formData);
+      try {
+        setIsLoading(true);
+        var registerParam = formData as RegisterParams;
+        await register(registerParam, (err) => {
+          if (err?.response?.errors !== "") {
+              Toast.show({
+                  type: 'error',
+                  text1: err?.response?.message || 'Đã có lỗi xảy ra',
+                  text2: err?.response?.errors || ''
+              })
+          }
+        });
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -259,6 +281,8 @@ export default function RegisterScreen() {
               title="Đăng ký"
               onPress={handleRegister}
               style={styles.registerButton}
+              loading={isLoading}
+              disabled={isLoading}
             />
 
             <View style={styles.loginContainer}>

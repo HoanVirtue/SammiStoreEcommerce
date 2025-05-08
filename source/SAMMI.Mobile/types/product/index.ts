@@ -70,6 +70,8 @@ export type TProduct = {
     images: ProductImage[];
 }
 
+
+
 export type TParamsCreateProduct = {
     code: string;
     name: string;

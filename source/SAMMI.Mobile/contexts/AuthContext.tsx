@@ -11,8 +11,8 @@ import axios from 'axios'
 import authConfig, { LIST_PUBLIC_PAGE } from '@/configs/auth'
 
 // ** Types
-import { AuthValuesType, ErrCallbackType, UserDataType } from './types'
-import { getLoginUser, loginAuth, logoutAuth, loginAdminAuth } from '@/services/auth'
+import { AuthValuesType, ErrCallbackType, RegisterParams, UserDataType } from './types'
+import { getLoginUser, loginAuth, logoutAuth, loginAdminAuth, registerAuth } from '@/services/auth'
 import { removeLocalUserData, setLocalUserData, setTemporaryToken } from '@/helpers/storage'
 import instance from '@/helpers/axios'
 import { AppDispatch } from '@/stores'
@@ -30,7 +30,8 @@ const defaultProvider: AuthValuesType = {
   setLoading: () => Boolean,
   login: () => Promise.resolve(),
   loginAdmin: () => Promise.resolve(),
-  logout: () => Promise.resolve()
+  logout: () => Promise.resolve(),
+  register: () => Promise.resolve()
 }
 
 const AuthContext = createContext<AuthValuesType>(defaultProvider)
@@ -117,7 +118,6 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
           accessToken,
           refreshToken
         );
-        console.log("setLocalUserData", userData);
       } else {
         await setTemporaryToken(accessToken);
       }
@@ -135,8 +135,9 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
       setLoading(false);
       if (errorCallback) errorCallback(err);
       Toast.show({
-        text1: err?.message || 'Đã có lỗi xảy ra',
-        type: 'error'
+        type: 'error',
+        text1: 'Đăng nhập thất bại',
+        text2: err?.message || 'Đã có lỗi xảy ra',
       });
     }
   };
@@ -199,6 +200,36 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
     dispatch(resetInitialState())
   }
 
+  const handleRegister = async (params: RegisterParams, errorCallback?: ErrCallbackType) => {
+    setLoading(true);
+    try {
+      const response = await registerAuth(params);
+      if(!!response.isSuccess) {
+        Toast.show({
+          text1: 'Đăng ký tài khoản thành công. Vui lòng xác thực email để đăng nhập',
+          type: 'success',
+          text2: ''
+        });
+        router.replace('/login' as any);
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Đăng ký tài khoản thất bại',
+          text2: response.message,
+        });
+      }
+      
+      setLoading(false);
+    } catch (err: any) {
+      setLoading(false);
+      if (errorCallback) errorCallback(err);
+      Toast.show({
+        text1: err?.message || 'Đã có lỗi xảy ra',
+        type: 'error'
+      });
+    }
+  }
+
   const values = {
     user,
     loading,
@@ -206,7 +237,8 @@ const AuthProvider: FC<Props> = ({ children }): ReactElement => {
     setLoading,
     login: handleLogin,
     logout: handleLogout,
-    loginAdmin: handleAdminLogin
+    loginAdmin: handleAdminLogin,
+    register: handleRegister
   }
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>

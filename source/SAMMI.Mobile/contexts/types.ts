@@ -45,7 +45,8 @@ export type UserDataType = {
   username: string
   gender: number
   displayOrder: number
-
+  avatar: string
+  birthday: string
   role?: {
     name: string
     permissions: string[]

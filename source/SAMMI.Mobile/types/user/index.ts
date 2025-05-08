@@ -20,17 +20,12 @@ export type TParamsCreateUser = {
 }
 
 export type TParamsUpdateUser = {
-    id: number,
     firstName?: string,
     lastName?: string,
     email: string,
-    password?: string,
-    phoneNumber?: string,
-    role: string,
-    city?: string,
-    address?: string,
-    status?: number,
-    avatar?: string
+    phone?: string,
+    gender?: number,
+    birthday?: string
 }
 
 export type TParamsDeleteUser = {

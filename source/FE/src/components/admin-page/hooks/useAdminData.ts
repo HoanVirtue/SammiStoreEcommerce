@@ -14,7 +14,7 @@ export const useAdminData = (
   // State for data handling
   const [page, setPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(PAGE_SIZE_OPTIONS[0]);
-  const [sortBy, setSortBy] = useState<string>("createdDate asc");
+  const [sortBy, setSortBy] = useState<string>("createdDate desc");
   const [filters, setFilters] = useState<TFilter[]>([]);
   
   // Hooks
@@ -46,7 +46,7 @@ export const useAdminData = (
         take: pageSize,
         skip: (page - 1) * pageSize,
         orderBy: orderByField || "createdDate",
-        dir: orderByDir || "asc",
+        dir: orderByDir || "desc",
         paging: true,
         keywords: debouncedFilters.length > 0 ? debouncedFilters[0].value || "''" : "''",
       },

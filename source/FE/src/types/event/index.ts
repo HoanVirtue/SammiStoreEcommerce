@@ -37,7 +37,7 @@ export type TParamsCreateEvent = {
     eventType: number;
     imageCommand: EventImage;
     imageId: number 
-    description?: EditorState;
+    description?: string;
     voucherCommands: {
         code: string
         name: string

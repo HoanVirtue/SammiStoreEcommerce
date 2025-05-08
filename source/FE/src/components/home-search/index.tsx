@@ -1,7 +1,7 @@
 import { keyframes, styled } from "@mui/material";
 import IconifyIcon from "../Icon";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useDebounce } from "src/hooks/useDebounce";
 import { SxProps } from "@mui/material";
 import { Theme } from "@mui/material";
@@ -93,6 +93,7 @@ const StyledInputBase = styled('input')(({ theme }) => ({
 const HomeSearch = (props: THomeSearch) => {
     const { t } = useTranslation();
     const router = useRouter();
+    const searchRef = useRef<HTMLDivElement>(null);
 
     // Props
     const { value, onChange, placeholder = t('search'), sx } = props;
@@ -119,6 +120,41 @@ const HomeSearch = (props: THomeSearch) => {
         'Kem nền',
         'Phấn phủ'
     ];
+
+    const animatePlaceholder = useCallback(() => {
+        const text = placeholder;
+        let index = isDeleting ? text.length : 0;
+        let currentText = isDeleting ? text : '';
+
+        const interval = setInterval(() => {
+            if (!isDeleting && index <= text.length) {
+                setDisplayPlaceholder(text.substring(0, index));
+                index++;
+                if (index > text.length) {
+                    setTimeout(() => {
+                        setIsDeleting(true);
+                    }, 1000); // Pause 1s before deleting
+                    clearInterval(interval);
+                }
+            } else if (isDeleting && index >= 0) {
+                setDisplayPlaceholder(text.substring(0, index));
+                index--;
+                if (index < 0) {
+                    setTimeout(() => {
+                        setIsDeleting(false);
+                    }, 500); // Pause 0.5s before typing again
+                    clearInterval(interval);
+                }
+            }
+        }, 100); // Speed of typing/deleting
+
+        return () => clearInterval(interval);
+    }, [placeholder, isDeleting]);
+
+    useEffect(() => {
+        const animation = animatePlaceholder();
+        return () => animation();
+    }, [animatePlaceholder]);
 
     // Load search history from localStorage
     useEffect(() => {
@@ -192,8 +228,22 @@ const HomeSearch = (props: THomeSearch) => {
         onChange(keyword);
     };
 
+    // Handle click outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+                setShowSuggestions(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+
     return (
-        <Box sx={{ position: 'relative', ...sx }}>
+        <Box sx={{ position: 'relative', ...sx }} ref={searchRef}>
             <Search onSubmit={handleSearch}>
                 <StyledInputBase
                     type="text"
@@ -227,7 +277,9 @@ const HomeSearch = (props: THomeSearch) => {
                         maxHeight: '80vh',
                         overflow: 'auto',
                         backgroundColor: 'background.paper',
-                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                        width: '100%',
+                        maxWidth: '600px'
                     }}
                 >
                     {isLoading ? (

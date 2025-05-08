@@ -43,6 +43,7 @@ import { AppDispatch, RootState } from '@/stores';
 import { ROUTE_CONFIG } from '@/configs/route';
 import { getAllReviewByProductId, getOverallReview } from '../../services/review';
 import { getListRelatedProducts } from '../../services/product';
+import Toast from 'react-native-toast-message';
 
 const { width } = Dimensions.get('window');
 
@@ -126,6 +127,7 @@ const ProductReviews = ({ productId, onRatingDataChange }: ProductReviewsProps) 
 
   const renderReviewItem = ({ item }: { item: TReviewItem }) => (
     <View style={{ marginBottom: 16, backgroundColor: '#fafafa', borderRadius: 8, padding: 12 }}>
+      <View style={{ flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
       <Text style={{ fontWeight: 'bold', fontSize: 15 }}>{item.customerName}</Text>
       <Rating
         type='star'
@@ -135,6 +137,7 @@ const ProductReviews = ({ productId, onRatingDataChange }: ProductReviewsProps) 
         startingValue={item.rating}
         style={{ marginVertical: 2 }}
       />
+      </View>
       <Text style={{ color: '#888', fontSize: 12, marginBottom: 4 }}>{item.createdDate}</Text>
       <Text style={{ marginTop: 4, fontSize: 15 }}>{item.comment}</Text>
       {item.imageUrl && (
@@ -365,7 +368,10 @@ export default function ProductDetailScreen() {
         })
       ).then(() => {
         if (isSuccessCreate) {
-          Alert.alert('Thêm sản phẩm vào giỏ hàng thành công');
+          Toast.show({
+            type: 'success',
+            text1: 'Thêm sản phẩm vào giỏ hàng thành công',
+          });
           dispatch(
             getCartsAsync({
               params: {
@@ -380,7 +386,11 @@ export default function ProductDetailScreen() {
             })
           );
         } else if (isErrorCreate) {
-          Alert.alert('Lỗi', errorMessageCreate || 'Thêm sản phẩm vào giỏ hàng thất bại. Vui lòng thử lại');
+          Toast.show({
+            type: 'error',
+            text1: 'Lỗi',
+            text2: errorMessageCreate || 'Thêm sản phẩm vào giỏ hàng thất bại. Vui lòng thử lại',
+          });
         }
         setIsAddingToCart(false);
       });

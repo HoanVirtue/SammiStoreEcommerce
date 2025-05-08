@@ -19,37 +19,37 @@ const Vouchers = [
     {
         id: 1,
         image: Voucher1,
-        code: 'SM03',
+        code: 'SAMMI000080',
         description: 'Mã giảm 8% tối đa 80K cho đơn hàng từ 599K áp dụng với một số sản phẩm.'
     },
     {
         id: 2,
         image: Voucher2,
-        code: '30K',
+        code: 'SAMMI000090',
         description: 'Mã giảm 30K cho đơn hàng từ 599K áp dụng với một số sản phẩm nhất định.'
     },
     {
         id: 3,
         image: Voucher3,
-        code: 'March',
+        code: 'SAMMI000091',
         description: 'Mã giảm 8% tối đa 30K cho đơn hàng từ 249K áp dụng với một số sản phẩm.'
     },
     {
         id: 4,
         image: Voucher4,
-        code: '10K',
+        code: 'SAMMI000092',
         description: 'Mã giảm 10K cho đơn hàng từ 249K áp dụng với một số sản phẩm nhất định.			'
     },
     {
         id: 5,
         image: Voucher2,
-        code: '30K',
+        code: 'SAMMI000093',
         description: 'Mã giảm 30K cho đơn hàng từ 599K áp dụng với một số sản phẩm nhất định.'
     },
     {
         id: 6,
         image: Voucher3,
-        code: 'March',
+        code: 'SAMMI000060',
         description: 'Mã giảm 8% tối đa 30K cho đơn hàng từ 249K áp dụng với một số sản phẩm.'
     },
 ]

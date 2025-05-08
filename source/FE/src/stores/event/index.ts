@@ -94,10 +94,9 @@ export const eventSlice = createSlice({
       state.typeError = action.payload?.errors
     })
     builder.addCase(createEventAsync.rejected, (state, action) => {
-      const payload = action.payload as ReduxPayload;
       state.isLoading = false
       state.isErrorCreateUpdate = true
-      state.errorMessageCreateUpdate = payload?.errors?.errorMessage || 'Error creating Event'
+      state.errorMessageCreateUpdate = action?.error?.message || 'Error creating Event'
     })
 
     //update Event
@@ -109,6 +108,7 @@ export const eventSlice = createSlice({
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.typeError = action.payload?.errors
+      state.errorMessageCreateUpdate = action.payload?.message
     })
     builder.addCase(updateEventAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;

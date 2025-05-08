@@ -30,10 +30,10 @@ import { useTranslation } from 'react-i18next';
 import CustomTextField from 'src/components/text-field';
 import CustomAutocomplete from 'src/components/custom-autocomplete';
 import Spinner from 'src/components/spinner';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createEventAsync, updateEventAsync } from 'src/stores/event/action';
 import { useRouter } from 'next/router';
-import { AppDispatch } from 'src/stores';
+import { AppDispatch, RootState } from 'src/stores';
 import { getEventCode, getEventDetail } from 'src/services/event';
 import { toast } from 'react-toastify';
 import AddIcon from '@mui/icons-material/Add';
@@ -48,6 +48,8 @@ import CustomEditor from 'src/components/custom-editor';
 import { convertToRaw, EditorState } from 'draft-js';
 import draftToHtml from 'draftjs-to-html';
 import { format, addHours } from 'date-fns';
+import { Resolver } from 'react-hook-form';
+import { getVoucherCode } from '@/services/voucher';
 
 enum PromotionEventType {
     DirectDiscount = 0,
@@ -57,9 +59,9 @@ enum PromotionEventType {
 }
 
 enum DiscountTypeEnum {
-    Percentage = 0,
-    FixedAmount = 1,
-    FreeShipping = 2,
+    Percentage = 1,
+    FixedAmount = 2,
+    FreeShipping = 3,
 }
 
 enum ConditionTypeEnum {
@@ -157,6 +159,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
     const [isImageLoaded, setIsImageLoaded] = useState(false);
     const imageRef = useRef<HTMLImageElement>(null);
     const [eventCode, setEventCode] = useState<string>("");
+    const [voucherCode, setVoucherCode] = useState<string>("");
 
     const [voucherCommands, setVoucherCommands] = useState<VoucherCommand[]>([
         {
@@ -183,6 +186,8 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
     const [products, setProducts] = useState<{ label: string, value: number }[]>([]);
     const [loadingProvinces, setLoadingProvinces] = useState(false);
     const [loadingProducts, setLoadingProducts] = useState(false);
+
+    const { errorMessageCreateUpdate } = useSelector((state: RootState) => state.event);
 
     const eventTypeOptions = [
         { label: t("direct_discount"), value: PromotionEventType.DirectDiscount },
@@ -212,34 +217,39 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         endDate: yup.date().required(t("end_date_required")),
         eventType: yup.number().required(t("event_type_required")),
         imageCommand: yup.object().shape({
-            imageUrl: yup.string(),
-            imageBase64: yup.string(),
-            publicId: yup.string(),
-            typeImage: yup.string(),
-            value: yup.string(),
-            displayOrder: yup.number()
-        }),
+            imageUrl: yup.string().default(""),
+            imageBase64: yup.string().default(""),
+            publicId: yup.string().default(""),
+            typeImage: yup.string().default(""),
+            value: yup.string().default(""),
+            displayOrder: yup.number().default(0)
+        }).default({}),
+        imageId: yup.number().notRequired(),
         isActive: yup.boolean().default(true),
-        description: yup.string(),
-        voucherCommands: yup.array().of(
-            yup.object().shape({
-                code: yup.string().required(t("voucher_code_required")),
-                name: yup.string().required(t("voucher_name_required")),
-                eventId: yup.number(),
-                discountTypeId: yup.number().required(t("discount_type_required")),
-                discountValue: yup.number().required(t("discount_value_required")),
-                usageLimit: yup.number().required(t("usage_limit_required")),
-                startDate: yup.date().required(t("voucher_start_date_required")),
-                endDate: yup.date().required(t("voucher_end_date_required")),
-                conditions: yup.array().of(
-                    yup.object().shape({
-                        voucherId: yup.number(),
-                        conditionType: yup.number().required(t("condition_type_required")),
-                        conditionValue: yup.number().required(t("condition_value_required"))
-                    })
-                )
-            })
-        )
+        description: yup.mixed<EditorState>().notRequired(),
+        voucherCommands: yup.array().when('$isEditMode', {
+            is: false,
+            then: (schema) => schema.of(
+                yup.object().shape({
+                    code: yup.string().required(t("voucher_code_required")),
+                    name: yup.string().required(t("voucher_name_required")),
+                    eventId: yup.number(),
+                    discountTypeId: yup.number().required(t("discount_type_required")),
+                    discountValue: yup.number().required(t("discount_value_required")),
+                    usageLimit: yup.number().required(t("usage_limit_required")),
+                    startDate: yup.date().required(t("voucher_start_date_required")),
+                    endDate: yup.date().required(t("voucher_end_date_required")),
+                    conditions: yup.array().of(
+                        yup.object().shape({
+                            voucherId: yup.number(),
+                            conditionType: yup.number().required(t("condition_type_required")),
+                            conditionValue: yup.number().required(t("condition_value_required"))
+                        })
+                    )
+                })
+            ),
+            otherwise: (schema) => schema.notRequired()
+        })
     });
 
     const defaultValues: EventFormData = {
@@ -287,6 +297,8 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
     } = useForm<EventFormData>({
         defaultValues,
         mode: 'onChange',
+        resolver: yupResolver(schema) as Resolver<EventFormData>,
+        context: { isEditMode }
     });
 
     const watchedVoucherCommands = watch('voucherCommands');
@@ -383,7 +395,6 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             }
         } catch (err) {
             console.error('Error fetching event detail:', err);
-            toast.error(t('error_fetching_event_detail'));
         } finally {
             setLoading(false);
         }
@@ -430,10 +441,18 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         setEventCode(res?.result);
     };
 
+    const getVoucherDefaultCode = async () => {
+        const res = await getVoucherCode({
+            params: { take: -1, skip: 0, filters: '', orderBy: 'createdDate', dir: 'asc', paging: false, keywords: "''" }
+        });
+        setVoucherCode(res?.result);
+    };
+
     useEffect(() => {
         fetchAllProvinces();
         fetchAllProducts();
         getEventDefaultCode();
+        getVoucherDefaultCode();
     }, []);
 
     useEffect(() => {
@@ -446,22 +465,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
         }
     }, [id]);
 
-    const handleCreateEvent = async (data: any) => {
-        const result = await dispatch(createEventAsync(data));
-        if (!result?.payload?.result) {
-            throw new Error(t('create_event_failed'));
-        }
-    };
-
-    const handleUpdateEvent = async (data: any) => {
-        if (!id) {
-            throw new Error(t('invalid_event_id'));
-        }
-        const result = await dispatch(updateEventAsync({ ...data, id }));
-        if (!result?.payload?.result) {
-            throw new Error(t('update_event_failed'));
-        }
-    };
+    console.log("err", errors)
 
     const onSubmit = async (data: EventFormData) => {
         try {
@@ -475,8 +479,8 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 startDate: adjustedStartDate,
                 endDate: adjustedEndDate,
                 isActive: data.isActive,
-                description: data.description ? draftToHtml(convertToRaw(data.description.getCurrentContent())) : '',
-                imageId: data.imageId || null,
+                description: data?.description ? draftToHtml(convertToRaw(data?.description.getCurrentContent())) : "",
+                imageId: data.imageId || 0,
             };
 
             let eventData;
@@ -504,14 +508,25 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             }
 
             if (isEditMode && id) {
-                await handleUpdateEvent(eventData);
+                const result = await dispatch(updateEventAsync({ ...eventData, id, voucherCommands: [] }));
+                console.log("result", result)
+                if (result?.payload?.isSuccess) {
+                    toast.success(t('update_event_success'));
+                    onClose();
+                } else {
+                    toast.error(result.payload.response.data.message);
+                }
             } else {
-                await handleCreateEvent(eventData);
+                const result = await dispatch(createEventAsync({ ...eventData, voucherCommands: data.voucherCommands }));
+                if (result?.payload?.isSuccess) {
+                    toast.success(t('create_event_success'));
+                    onClose();
+                } else {
+                    toast.error(result.payload.response.data.message);
+                }
             }
-            onClose();
         } catch (error: any) {
             console.error('Error submitting event:', error);
-            toast.error(error.message);
         }
     };
 
@@ -790,7 +805,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                             onChange={onChange}
                                             onBlur={onBlur}
                                             value={value}
-                                            placeholder={t("enter_event_code")}
+                                            placeholder={eventCode}
                                             error={!!errors.code}
                                             helperText={errors.code?.message}
                                             disabled={isEditMode}
@@ -919,7 +934,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                             editorState={field.value}
                                             onEditorStateChange={(state) => field.onChange(state)}
                                             error={!!errors.description}
-                                            helperText={errors.description?.message}
+                                            helperText={errors.description?.message?.toString()}
                                         />
                                     )}
                                 />
@@ -971,7 +986,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                                                                 onChange={(e) => handleVoucherChange(voucherIndex, 'code', e.target.value)}
                                                                 error={!!(errors.voucherCommands as VoucherFormErrors)?.code}
                                                                 helperText={(errors.voucherCommands as VoucherFormErrors)?.code?.message}
-                                                                placeholder={t("enter_voucher_code")}
+                                                                placeholder={voucherCode}
                                                                 size="small"
                                                             />
                                                         </StyledTableCell>

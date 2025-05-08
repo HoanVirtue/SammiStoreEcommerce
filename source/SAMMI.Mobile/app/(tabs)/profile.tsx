@@ -18,7 +18,8 @@ import {
   ChevronRight,
   Heart,
   ShoppingBag,
-  Settings
+  Settings,
+  TicketIcon
 } from 'lucide-react-native';
 import { useAuth } from '@/hooks/useAuth';
 import LoginScreen from '../login';
@@ -80,6 +81,10 @@ export default function ProfileScreen() {
     router.replace('/address' as any);
   }
 
+  const handleVoucher = () => {
+    router.replace('/my-voucher' as any);
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" />
@@ -125,6 +130,16 @@ export default function ProfileScreen() {
                 <ShoppingBag size={18} color="#4CAF50" />
               </View>
               <Text style={styles.menuItemText}>Đơn hàng của tôi</Text>
+            </View>
+            <ChevronRight size={16} color={colors.textSecondary} />
+          </Pressable>
+
+          <Pressable style={styles.menuItem} onPress={handleVoucher}>
+            <View style={styles.menuItemLeft}>
+              <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
+                <TicketIcon size={18} color="#4CAF50" />
+              </View>
+              <Text style={styles.menuItemText}>Voucher của tôi</Text>
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>

@@ -14,6 +14,9 @@ export const API_ENDPOINT = {
   REPORT: {
     INDEX: `${BASE_URL}/reports`
   },
+  DISCOUNT_TYPE: {
+    INDEX: `${BASE_URL}/discount-type`
+  },
   GHN: {
     INDEX: `${BASE_URL}/ghn`
   },

@@ -45,6 +45,7 @@ export const getOverallReview = async (productId: number) => {
 export const createReview = async (data: TParamsCreateReview) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}`, data)
+        console.log('create review res service', res)
         return res.data
     }
     catch (error: any) {

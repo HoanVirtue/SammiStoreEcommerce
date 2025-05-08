@@ -137,6 +137,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             ImageDTO imageDTO = null;
             var eventEntity = await _eventRepository.GetByIdAsync(request.Id);
+            request.ImageId = (request.ImageId == 0 || request.ImageId == null) ? null : request.ImageId;
             if (eventEntity.ImageId != request.ImageId)
             {
                 actResponse.AddError("Không được thay đổi ImageId");

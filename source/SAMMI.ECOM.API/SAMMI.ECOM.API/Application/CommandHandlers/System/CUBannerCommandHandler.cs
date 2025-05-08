@@ -60,6 +60,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.System
             else
             {
                 ImageDTO imageDTO = null;
+                request.ImageId = (request.ImageId == 0 || request.ImageId == null) ? null : request.ImageId;
                 var banner = await _bannerRepository.GetByIdAsync(request.Id);
                 if (banner.ImageId != request.ImageId)
                 {

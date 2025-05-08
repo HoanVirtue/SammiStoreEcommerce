@@ -44,7 +44,7 @@ export const updateCustomer = async (data: TParamsUpdateCustomer) => {
 
 export const deleteCustomer = async (id: number) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.USER.CUSTOMER.INDEX}/${id}`)
+        const res = await instance.delete(`${API_ENDPOINT.USER.CUSTOMER.DELETE}/${id}`)
         return res.data
     } catch (error: any) {
         return error?.response?.data

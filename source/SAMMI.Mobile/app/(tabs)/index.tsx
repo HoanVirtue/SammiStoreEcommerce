@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { StyleSheet, View, Text, ScrollView, FlatList, Pressable, RefreshControl, StatusBar } from 'react-native';
+import { StyleSheet, View, Text, FlatList, Pressable, RefreshControl, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Category } from '@/domain/entities/Category';
@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import HotSale from '@/presentation/components/HotSale';
 import { Banner } from '@/presentation/components/Banner';
 import TopSale from '@/presentation/components/TopSale';
+
 export default function HomeScreen() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -24,11 +25,10 @@ export default function HomeScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await new Promise(resolve => setTimeout(resolve, 1000));
-    setRefreshTrigger(prev => prev + 1); // Increment refreshTrigger to trigger HotSale refresh
+    setRefreshTrigger(prev => prev + 1);
     setRefreshing(false);
   }, []);
 
@@ -54,11 +54,45 @@ export default function HomeScreen() {
     return <LoadingIndicator fullScreen />;
   }
 
+  const renderHeader = () => (
+    <>
+      <SearchBar
+        value=""
+        onSearch={handleSearch}
+        onClear={() => { }}
+        placeholder="Tìm kiếm sản phẩm..."
+      />
+      <View style={{ marginTop: 16 }}>
+        {/* <Banner /> */}
+      </View>
+    </>
+  );
+
+  const renderItem = ({ item, index }: { item: any; index: number }) => {
+    if (index === 0) {
+      return (
+        <View style={styles.hotSaleContainer}>
+          <HotSale refreshTrigger={refreshTrigger} />
+        </View>
+      );
+    } else if (index === 1) {
+      return (
+        <View style={styles.topSaleContainer}>
+          <TopSale />
+        </View>
+      );
+    }
+    return null;
+  };
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
       <StatusBar barStyle="dark-content" />
-      <ScrollView 
+      <FlatList
+        data={[1, 2]} // Just two items for HotSale and TopSale
+        renderItem={renderItem}
+        keyExtractor={(_, index) => index.toString()}
+        ListHeaderComponent={renderHeader}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -68,26 +102,7 @@ export default function HomeScreen() {
             tintColor={colors.primary}
           />
         }
-      >
-        <SearchBar
-          value=""
-          onSearch={handleSearch}
-          onClear={() => { }}
-          placeholder="Tìm kiếm sản phẩm..."
-        />
-
-        <View style={{ marginTop: 16 }}>
-          <Banner />
-        </View>
-
-        <View style={styles.hotSaleContainer}>
-          <HotSale refreshTrigger={refreshTrigger} />
-        </View>
-
-        <View style={styles.topSaleContainer}>
-          <TopSale />
-        </View>
-      </ScrollView>
+      />
     </SafeAreaView>
   );
 }

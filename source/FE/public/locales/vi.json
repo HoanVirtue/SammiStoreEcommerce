@@ -794,6 +794,7 @@
     "new": "Mới",
     "expired": "Hết hạn",
     "applying": "Đang áp dụng",
+    "voucher_not_found": "Không tìm thấy voucher",
     "fully_used": "Đã sử dụng hết",
     "code_copied": "Mã đã được sao chép",
     "no_voucher_available": "Không có voucher nào",

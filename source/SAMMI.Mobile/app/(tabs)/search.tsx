@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { colors } from '@/constants/colors';
 import { Search, X, Clock, Trash2 } from 'lucide-react-native';
 import { getAllProducts, getSuggestProduct } from '@/services/product';
-import {  TParamsGetSuggest, TParamsSuggestProduct, TProduct } from '@/types/product';
+import { TParamsGetSuggest, TParamsSuggestProduct, TProduct } from '@/types/product';
 import { ProductCard } from '@/presentation/components/ProductCard';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,7 +18,7 @@ type RootStackParamList = {
 type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'ProductDetail'>;
 
 export default function Search1Screen() {
-  const navigation = useNavigation<NavigationProp>();
+
   const [searchText, setSearchText] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [allSuggestions, setAllSuggestions] = useState<any[]>([]);
@@ -137,27 +137,29 @@ export default function Search1Screen() {
   const handleSearch = async () => {
     if (!searchText.trim()) return;
     const products = (allSuggestions || []).map(convertToTProduct);
-    console.log('products', products[0].images[0].imageUrl);
+
     setProducts(products);
     setShowSuggestions(false);
     saveSearchHistory(searchText.trim());
-    // setIsLoading(true);
-    // try {
-    //   const params: TParamsGetSuggest = {
-    //     keyWord: searchText,
-    //     size: 7
-    //   };
-    //   const response = await getSuggestProduct({ params });
-    //   console.log('response', response);
-    //   setProducts(response?.result.map(convertToTProduct) || []);
-    //   setShowSuggestions(false);
-    //   saveSearchHistory(searchText.trim());
-    // } catch (error) {
-    //   console.error('Error searching products:', error);
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    setIsLoading(true);
+    try {
+      const params: TParamsGetSuggest = {
+        keyWord: searchText,
+        size: 20
+      };
+      const response = await getSuggestProduct({ params });
+
+      setProducts(response?.result.map(convertToTProduct) || []);
+      setShowSuggestions(false);
+      saveSearchHistory(searchText.trim());
+    } catch (error) {
+      console.error('Error searching products:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+
 
   const handleProductPress = (product: any) => {
     router.push(`/product/${product.id}`);
@@ -165,7 +167,7 @@ export default function Search1Screen() {
 
   const handleSuggestionPress = (suggestion: TParamsSuggestProduct) => {
     setSearchText(suggestion.name);
-    setShowSuggestions(false);
+    setShowSuggestions(true);
     // handleSearch();
     handleProductPress(suggestion);
   };
@@ -184,6 +186,9 @@ export default function Search1Screen() {
     if (suggestions.length > 0) {
       return renderSuggestions();
     }
+  };
+
+  const renderProducts = () => {
 
     return (
       <>
@@ -203,12 +208,9 @@ export default function Search1Screen() {
             keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <View style={styles.productItemContainer}>
-                  <ProductCard product={item} />
+                <ProductCard product={item} />
+                <Text>{item.name}</Text>
               </View>
-              // <ProductCard
-              //   product={item}
-              //   onPress={handleProductPress}
-              // />
             )}
             numColumns={2}
             contentContainerStyle={styles.productsContainer}
@@ -254,6 +256,8 @@ export default function Search1Screen() {
     );
   };
 
+
+
   const renderSuggestions = () => {
     if (showSuggestions) {
       if (suggestions.length > 0) {
@@ -265,8 +269,8 @@ export default function Search1Screen() {
                 style={styles.suggestionItem}
                 onPress={() => handleSuggestionPress(item)}
               >
-                <Image 
-                  source={{ uri: item.productImage }} 
+                <Image
+                  source={{ uri: item.productImage }}
                   style={styles.suggestionImage}
                   resizeMode="cover"
                 />
@@ -282,7 +286,7 @@ export default function Search1Screen() {
               </TouchableOpacity>
             ))}
             {!showAllSuggestions && allSuggestions.length > 4 && (
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.viewMoreButton}
                 onPress={handleViewMore}
               >
@@ -330,8 +334,13 @@ export default function Search1Screen() {
           )}
         </View>
       </View>
+      <View>
+        {renderContent()}
+      </View>
+      <View>
+        {renderProducts()}
+      </View>
 
-      {renderContent()}
     </SafeAreaView>
   );
 }
@@ -495,6 +504,6 @@ const styles = StyleSheet.create({
     // Calculates width for 2 columns with spacing
     width: (Dimensions.get('window').width - 40) / 2,
     marginBottom: 10,
-     // Adjust based on numColumns and desired spacing
- },
+    // Adjust based on numColumns and desired spacing
+  },
 });

@@ -21,21 +21,23 @@ const VNPayWebViewScreen = () => {
   // Xử lý thay đổi trạng thái điều hướng của WebView
   const handleNavigationStateChange = (navState: any) => {
     const { url } = navState;
-
+    console.log("url: ", url);
     // Kiểm tra URL trả về từ VNPay để xác định trạng thái thanh toán
-    if (url.includes('payment-status') || url.includes('payment/success') || url.includes('payment/failure')) {
+    if (url.includes('payment-status') || url.includes('payment/success') || url.includes('error-message')) {
       const urlParams = new URLSearchParams(url.split('?')[1]);
-      const paymentStatus = urlParams.get('vnp_TransactionStatus') === '00' ? 'success' : 'failed';
+      const paymentStatus = urlParams.get('payment-status') === '1' ? 'success' : 'failed';
+      const errorMessage = urlParams.get('error-message');
 
-      // Quay lại màn hình trước và chuyển hướng đến màn hình trạng thái thanh toán
+      
       router.push('payment/vnpay' as any);
 
       // Hiển thị thông báo dựa trên trạng thái thanh toán
       Toast.show({
         type: paymentStatus === 'success' ? 'success' : 'error',
         text1: paymentStatus === 'success' ? 'Thanh toán thành công' : 'Thanh toán thất bại',
-        text2: paymentStatus === 'success' ? 'Đơn hàng của bạn đã được xử lý.' : 'Vui lòng thử lại.',
+        text2: paymentStatus === 'success' ? 'Đơn hàng của bạn đã được xử lý.' : errorMessage || 'Lỗi thanh toán',
       });
+      
     }
   };
 

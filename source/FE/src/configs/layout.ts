@@ -79,7 +79,7 @@ export const VerticalLayoutItems = () => {
                 },
                 {
                     title: "Thống kê nhập hàng",
-                    icon: 'material-symbols:inventory-2-outline',
+                    icon: 'fluent:receipt-cube-20-regular',
                     path: ROUTE_CONFIG.REPORT.IMPORT,
                 },
                 {

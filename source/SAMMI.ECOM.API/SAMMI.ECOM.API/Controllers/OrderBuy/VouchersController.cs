@@ -2,6 +2,7 @@
 using AutoMapper;
 using Castle.Core.Resource;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Nest;
 using SAMMI.ECOM.API.Application;
@@ -290,6 +291,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             myVoucherResult.IsValid = await _voucherRepository.ValidVoucher(myVoucherResult.VoucherId, UserIdentity.Id, address.WardId ?? 0, totalAmount, request.Details);
             actRes.SetResult(myVoucherResult);
             return Ok(actRes);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("get-top-vouchers")]
+        public async Task<IActionResult> GetVoucherTopAsync(int numberTop = 15)
+        {
+            return Ok(await _voucherQueries.GetVoucherActive(numberTop));
         }
     }
 }

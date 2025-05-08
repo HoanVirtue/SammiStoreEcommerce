@@ -48,7 +48,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.System
             {
                 return actRes;
             }
-            _notifiSignalR.SendNotificationAsync(notifi.ReceiverId, _mapper.Map<NotificationDTO>(notifi));
+            await _notifiSignalR.SendNotificationAsync(notifi.ReceiverId, _mapper.Map<NotificationDTO>(notifi));
             actRes.SetResult(_mapper.Map<NotificationDTO>(createRes.Result));
             return actRes;
         }
@@ -83,7 +83,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.System
             bool isRoleId = false;
             if(role is int)
                 isRoleId = true;
-            role = _roleRepository.Value.GetIdByCode(role.ToString());
+            role = await _roleRepository.Value.GetIdByCode(role.ToString());
             var userIds = await _userRepository.Value.GetUserByRole(int.Parse(role.ToString()));
             foreach (var id in userIds)
             {

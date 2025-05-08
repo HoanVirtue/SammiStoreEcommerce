@@ -71,6 +71,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             {
                 ImageDTO imageDTO = null;
                 var brand = await _brandRepository.GetByIdAsync(request.Id);
+                request.ImageId = (request.ImageId == 0 || request.ImageId == null) ? null : request.ImageId;
                 if (brand.ImageId != request.ImageId)
                 {
                     actResponse.AddError("Không được thay đổi ImageId");

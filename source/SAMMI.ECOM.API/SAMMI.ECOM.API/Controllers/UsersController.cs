@@ -31,6 +31,7 @@ namespace SAMMI.ECOM.API.Controllers
             IImageRepository imageRepository,
             IMapper mapper,
             UserIdentity currentUser,
+            IRoleRepository roleRepository,
             IMediator mediator,
             ILogger<UsersController> logger) : base(mediator, logger)
         {
@@ -39,6 +40,7 @@ namespace SAMMI.ECOM.API.Controllers
             Mapper = mapper;
             UserIdentity = currentUser;
             _imageRepository = imageRepository;
+            _roleRepository = roleRepository;
         }
 
         [AuthorizePermission(PermissionEnum.EmployeeView)]

@@ -10,11 +10,14 @@ import {
     Alert,
     Clipboard,
     Dimensions,
-    Platform
+    Platform,
+    StatusBar
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Toast from 'react-native-toast-message';
 import { format } from 'date-fns';
-import { TicketIcon, CopyIcon } from 'lucide-react-native';
+import { TicketIcon, CopyIcon, ArrowLeft } from 'lucide-react-native';
+import { useRouter } from 'expo-router';
 
 interface Voucher {
     id: number;
@@ -47,6 +50,7 @@ const MyVouchersPage = () => {
     const [vouchers, setVouchers] = useState<Voucher[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
     useEffect(() => {
         fetchMyVouchers();
@@ -158,18 +162,21 @@ const MyVouchersPage = () => {
                 <View style={styles.cardContent}>
                     <View style={styles.headerRow}>
                         <TicketIcon size={24} color="#1976d2" />
-                        <Text style={styles.voucherName}>{voucher.name}</Text>
+                        <Text style={styles.voucherName} numberOfLines={2} ellipsizeMode="tail">{voucher.name}</Text>
                     </View>
 
                     <View style={styles.codeRow}>
                         <Text style={styles.label}>Mã:</Text>
-                        <Text style={styles.codeText}>{voucher.code}</Text>
-                        <TouchableOpacity 
-                            onPress={() => copyToClipboard(voucher.code)}
-                            style={styles.copyButton}
-                        >
-                            <CopyIcon size={16} color="#666" />
-                        </TouchableOpacity>
+                        <View style={styles.codeTextContainer}>
+                            <Text style={styles.codeText} numberOfLines={1} ellipsizeMode="tail">{voucher.code}</Text>
+                            <TouchableOpacity 
+                                onPress={() => copyToClipboard(voucher.code)}
+                                style={styles.copyButton}
+                            >
+                                <CopyIcon size={16} color="#666" />
+                            </TouchableOpacity>
+                        </View>
+                        
                     </View>
 
                     <View style={styles.discountRow}>
@@ -192,7 +199,7 @@ const MyVouchersPage = () => {
                     {voucher.conditions && (
                         <View style={styles.conditionsContainer}>
                             <Text style={styles.label}>Điều kiện:</Text>
-                            <Text style={styles.conditionsText}>{voucher.conditions}</Text>
+                            <Text style={styles.conditionsText} numberOfLines={2} ellipsizeMode="tail">{voucher.conditions}</Text>
                         </View>
                     )}
                 </View>
@@ -201,30 +208,42 @@ const MyVouchersPage = () => {
     };
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Voucher của tôi</Text>
-            <FlatList
-                data={vouchers}
-                renderItem={renderVoucherCard}
-                keyExtractor={(item) => item.id.toString()}
-                numColumns={2}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-            />
-        </View>
+        <SafeAreaView style={styles.container} edges={['top']}>
+            <StatusBar barStyle="dark-content" />
+
+            <View style={styles.navbar}>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                    <ArrowLeft size={24} color="#D81B60" />
+                </TouchableOpacity>
+                <Text style={styles.navTitle}>Voucher của tôi</Text>
+                <View style={styles.placeholder} />
+            </View>
+            <View style={styles.container}>
+                <FlatList
+                    data={vouchers}
+                    renderItem={renderVoucherCard}
+                    keyExtractor={(item) => item.id.toString()}
+                    numColumns={2}
+                    contentContainerStyle={styles.listContainer}
+                    showsVerticalScrollIndicator={false}
+                />
+            </View>
+        </SafeAreaView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 16,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#FFF5F5', // Màu nền nhẹ nhàng, phù hợp với mỹ phẩm
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
+        marginTop: 16,
         marginBottom: 16,
+        paddingHorizontal: 16,
+        color: '#D81B60', // Màu hồng sang trọng
     },
     loadingContainer: {
         flex: 1,
@@ -234,11 +253,11 @@ const styles = StyleSheet.create({
     errorContainer: {
         margin: 16,
         padding: 16,
-        backgroundColor: '#ffebee',
-        borderRadius: 8,
+        backgroundColor: '#FFEBEE',
+        borderRadius: 12,
     },
     errorText: {
-        color: '#d32f2f',
+        color: '#D32F2F',
     },
     emptyContainer: {
         flex: 1,
@@ -253,34 +272,37 @@ const styles = StyleSheet.create({
     },
     listContainer: {
         paddingBottom: 16,
+        paddingHorizontal: 8,
     },
     card: {
         width: CARD_WIDTH,
         margin: 8,
         backgroundColor: 'white',
-        borderRadius: 8,
+        borderRadius: 16,
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
-            height: 2,
+            height: 4,
         },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
         elevation: 5,
+        borderWidth: 1,
+        borderColor: '#FFE4E1',
     },
     statusBadge: {
         position: 'absolute',
         top: 8,
         right: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 20,
         zIndex: 1,
     },
     statusText: {
         color: 'white',
         fontSize: 12,
-        fontWeight: '500',
+        fontWeight: '600',
     },
     cardContent: {
         padding: 16,
@@ -294,11 +316,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginLeft: 8,
+        color: '#D81B60',
+        flexShrink: 1,
+        flexWrap: 'wrap',
+        maxWidth: '80%',
     },
     codeRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
         marginBottom: 8,
+        backgroundColor: '#FFF0F5',
+        padding: 8,
+        borderRadius: 8,
+        flexWrap: 'wrap',
     },
     label: {
         fontSize: 14,
@@ -306,8 +336,11 @@ const styles = StyleSheet.create({
     },
     codeText: {
         fontSize: 14,
-        fontWeight: '500',
+        fontWeight: '600',
         marginLeft: 4,
+        color: '#D81B60',
+        flexShrink: 1,
+        maxWidth: 120,
     },
     copyButton: {
         marginLeft: 4,
@@ -319,32 +352,65 @@ const styles = StyleSheet.create({
         marginBottom: 12,
     },
     discountText: {
-        fontSize: 14,
-        fontWeight: '500',
-        color: '#1976d2',
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#D81B60',
         marginLeft: 4,
     },
     divider: {
         height: 1,
-        backgroundColor: '#e0e0e0',
+        backgroundColor: '#FFE4E1',
         marginVertical: 12,
     },
     dateRow: {
-        flexDirection: 'row',
+        flexDirection: 'column',
         marginBottom: 8,
     },
     dateText: {
         fontSize: 14,
         fontWeight: '500',
         marginLeft: 4,
+        color: '#666',
     },
     conditionsContainer: {
         marginTop: 8,
+        backgroundColor: '#FFF0F5',
+        padding: 8,
+        borderRadius: 8,
     },
     conditionsText: {
         fontSize: 14,
         fontWeight: '500',
         marginTop: 4,
+        color: '#666',
+        flexShrink: 1,
+        flexWrap: 'wrap',
+    },
+    codeTextContainer: {
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+    },
+    navbar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 8,
+        paddingTop: 8,
+        paddingBottom: 8,
+        backgroundColor: '#FFF5F5',
+    },
+    backButton: {
+        padding: 8,
+    },
+    navTitle: {
+        flex: 1,
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#D81B60',
+    },
+    placeholder: {
+        width: 40, // Để cân bằng với backButton
     },
 });
 

@@ -15,6 +15,7 @@ import { useAuth } from '@/hooks/useAuth';
 import HotSale from '@/presentation/components/HotSale';
 import { Banner } from '@/presentation/components/Banner';
 import TopSale from '@/presentation/components/TopSale';
+import VoucherList from '@/presentation/components/VoucherList';
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -67,6 +68,12 @@ export default function HomeScreen() {
     </View>
   );
 
+  const renderVoucherList = () => (
+    <View style={styles.voucherListContainer}>
+      <VoucherList />
+    </View>
+  );
+
   const renderHotSale = () => (
     <View style={styles.hotSaleContainer}>
       <HotSale refreshTrigger={refreshTrigger} />
@@ -101,6 +108,7 @@ export default function HomeScreen() {
         ListHeaderComponent={
           <>
             {renderHeader()}
+            {renderVoucherList()}
             {renderHotSale()}
             {renderTopSale()}
           </>
@@ -195,5 +203,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
     height: '100%',
+  },
+  voucherListContainer: {
+    marginTop: 16,
   },
 });

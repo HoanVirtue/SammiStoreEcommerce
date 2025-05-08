@@ -1,3 +1,4 @@
+import { PERMISSIONS } from '@/configs/permission'
 import { NextPage } from 'next'
 import { lazy, Suspense } from 'react'
 import Spinner from 'src/components/spinner'
@@ -24,3 +25,5 @@ MyOrder.getLayout = (page: React.ReactNode) => (
         <AccountLayout>{page}</AccountLayout>
     </NoNavLayout>
 )
+
+MyOrder.permission = [PERMISSIONS.ACCOUNT.MY_ORDER.VIEW]

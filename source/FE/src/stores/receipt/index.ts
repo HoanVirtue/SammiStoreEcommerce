@@ -106,10 +106,11 @@ export const receiptSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(createReceiptAsync.fulfilled, (state, action) => {
+      console.log("action result", action)
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
-      state.errorMessageCreateUpdate = action.payload?.message
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.message
       state.typeError = action.payload?.errors
     })
     builder.addCase(createReceiptAsync.rejected, (state, action) => {
@@ -124,10 +125,12 @@ export const receiptSlice = createSlice({
       state.isLoading = true
     })
     builder.addCase(updateReceiptAsync.fulfilled, (state, action) => {
+      console.log("action update", action)
       state.isLoading = false
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.typeError = action.payload?.errors
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.message
     })
     builder.addCase(updateReceiptAsync.rejected, (state, action) => {
       const payload = action.payload as ReceiptPayload;

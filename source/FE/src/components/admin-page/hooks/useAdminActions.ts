@@ -62,7 +62,11 @@ export const useAdminActions = (
   // Handle create/update success/error
   useEffect(() => {
     if (isSuccessCreateUpdate) {
-      toast.success(openCreateUpdate.id ? t(`update_${entityName}_success`) : t(`create_${entityName}_success`));
+      if (openCreateUpdate.id) {
+        toast.success(t(`update_${entityName}_success`));
+      } else {
+        toast.success(t(`create_${entityName}_success`));
+      }
       
       // Use a slight delay to avoid potential infinite loops
       const timeoutId = setTimeout(() => {

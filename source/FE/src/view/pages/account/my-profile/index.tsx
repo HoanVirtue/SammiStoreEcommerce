@@ -137,7 +137,6 @@ const MyProfilePage: NextPage<TProps> = () => {
                         // Sử dụng dayjs thay vì date-fns
                         const date = dayjs(data.birthday).tz('Asia/Ho_Chi_Minh');
                         formattedBirthday = date.isValid() ? date.format('YYYY-MM-DD') : '';
-
                     }
 
                     reset({
@@ -165,7 +164,7 @@ const MyProfilePage: NextPage<TProps> = () => {
         if (isSuccessUpdateProfile) {
             toast.success(t("update_profile_success"))
             fetchGetAuthMe()
-        } else if(isErrorUpdateProfile && errorMessageUpdateProfile) {
+        } else if (isErrorUpdateProfile && errorMessageUpdateProfile) {
             toast.error(errorMessageUpdateProfile)
         }
         dispatch(resetInitialState())
@@ -178,7 +177,6 @@ const MyProfilePage: NextPage<TProps> = () => {
             const date = dayjs(data.birthday).tz('Asia/Ho_Chi_Minh');
             formattedBirthday = date.isValid() ? date.format('YYYY-MM-DD') : data.birthday;
         }
-
         dispatch(updateProfileAsync({
             email: data.email,
             firstName: data.firstName,

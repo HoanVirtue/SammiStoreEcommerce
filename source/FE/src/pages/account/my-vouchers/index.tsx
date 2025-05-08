@@ -1,3 +1,4 @@
+import { PERMISSIONS } from '@/configs/permission'
 import { NextPage } from 'next'
 import { lazy, Suspense } from 'react'
 import Spinner from 'src/components/spinner'
@@ -25,3 +26,4 @@ MyVouchers.getLayout = (page: React.ReactNode) => <NoNavLayout>
     </AccountLayout>
 </NoNavLayout>
 
+MyVouchers.permission = [PERMISSIONS.ACCOUNT.MY_VOUCHER.VIEW]

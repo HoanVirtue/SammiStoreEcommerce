@@ -178,6 +178,7 @@ const HomeSearch = (props: THomeSearch) => {
     const handleSuggestionClick = (product: Product) => {
         setSearch(product.name);
         setShowSuggestions(false);
+        saveSearchHistory(product.name);
         router.push(`/product/${product.id}`);
     };
 

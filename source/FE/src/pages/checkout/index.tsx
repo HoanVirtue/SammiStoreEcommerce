@@ -1,3 +1,4 @@
+import { PERMISSIONS } from '@/configs/permission'
 import { NextPage } from 'next'
 import { lazy, Suspense } from 'react'
 import Spinner from 'src/components/spinner'
@@ -20,3 +21,4 @@ export default Checkout
 
 Checkout.getLayout = (page: React.ReactNode) => <NoNavLayout>{page}</NoNavLayout>
 
+Checkout.permission = [PERMISSIONS.CHECKOUT]

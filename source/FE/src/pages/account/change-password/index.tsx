@@ -1,3 +1,4 @@
+import { PERMISSIONS } from '@/configs/permission'
 import { NextPage } from 'next'
 import { lazy, Suspense } from 'react'
 import Spinner from 'src/components/spinner'
@@ -24,3 +25,5 @@ ChangePassword.getLayout = (page: React.ReactNode) => <NoNavLayout>
         {page}
     </AccountLayout>
 </NoNavLayout>
+
+ChangePassword.permission = [PERMISSIONS.ACCOUNT.CHANGE_PASSWORD.VIEW]  

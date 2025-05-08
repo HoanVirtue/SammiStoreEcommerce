@@ -11,7 +11,13 @@ type TAxiosInterceptor = {
     children: React.ReactNode
 }
 
-const instance = axios.create({ baseURL: BASE_URL })
+const instance = axios.create({ 
+    baseURL: BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+    }
+})
 
 const handleRedirectToLogin = (router: NextRouter, setUser: (data: UserDataType | null) => void) => {
     if (router.asPath !== '/') {
@@ -69,20 +75,20 @@ const AxiosInterceptor: React.FC<TAxiosInterceptor> = ({ children }) => {
                                     setTemporaryToken(newAccessToken)
                                 }
                             } else {
-                                // handleRedirectToLogin(router, setUser)
+                                handleRedirectToLogin(router, setUser)
                             }
                         }).catch(() => {
-                            // handleRedirectToLogin(router, setUser)
+                            handleRedirectToLogin(router, setUser)
                         })
                     } else {
-                        // handleRedirectToLogin(router, setUser)
+                        handleRedirectToLogin(router, setUser)
                     }
                 } else {
-                    // handleRedirectToLogin(router, setUser)
+                    handleRedirectToLogin(router, setUser)
                 }
             }
         } else if (!isPublicApi) {
-            // handleRedirectToLogin(router, setUser)
+            handleRedirectToLogin(router, setUser)
         }
         return config
     })

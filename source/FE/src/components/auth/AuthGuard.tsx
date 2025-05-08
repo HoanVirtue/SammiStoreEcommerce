@@ -34,7 +34,7 @@ const AuthGuard = (props: AuthGuardProps) => {
       && !temporaryToken
     ) {
       if (router.asPath !== '/' && router.asPath !== '/login') {
-        router.replace({
+        router.push({
           pathname: '/login',
           query: { returnUrl: router.asPath }
         })

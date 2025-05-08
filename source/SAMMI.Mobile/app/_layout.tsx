@@ -106,6 +106,13 @@ function RootLayoutNav() {
         />
         
         <Stack.Screen
+          name="my-voucher"
+          options={{
+            headerShown: false,
+          }}
+        />
+        
+        <Stack.Screen
           name="favourite-product"
           options={{
             headerShown: false,

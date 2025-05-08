@@ -20,7 +20,7 @@ import { useDispatch } from 'react-redux'
 import { LoginParams } from '@/types/auth'
 import Toast from 'react-native-toast-message'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { resetInitialState } from '@/stores/auth'
+import { resetInitialState } from '@/stores/cart'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {

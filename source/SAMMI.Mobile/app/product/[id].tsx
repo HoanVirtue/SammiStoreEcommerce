@@ -42,6 +42,7 @@ import { AppDispatch, RootState } from '@/stores';
 import { ROUTE_CONFIG } from '@/configs/route';
 import { getAllReviewByProductId, getOverallReview } from '../../services/review';
 import { getListRelatedProducts } from '../../services/product';
+import Toast from 'react-native-toast-message';
 
 const { width } = Dimensions.get('window');
 
@@ -364,7 +365,10 @@ export default function ProductDetailScreen() {
         })
       ).then(() => {
         if (isSuccessCreate) {
-          Alert.alert('Thêm sản phẩm vào giỏ hàng thành công');
+          Toast.show({
+            type: 'success',
+            text1: 'Thêm sản phẩm vào giỏ hàng thành công',
+          });
           dispatch(
             getCartsAsync({
               params: {
@@ -379,7 +383,11 @@ export default function ProductDetailScreen() {
             })
           );
         } else if (isErrorCreate) {
-          Alert.alert('Lỗi', errorMessageCreate || 'Thêm sản phẩm vào giỏ hàng thất bại. Vui lòng thử lại');
+          Toast.show({
+            type: 'error',
+            text1: 'Lỗi',
+            text2: errorMessageCreate || 'Thêm sản phẩm vào giỏ hàng thất bại. Vui lòng thử lại',
+          });
         }
         setIsAddingToCart(false);
       });

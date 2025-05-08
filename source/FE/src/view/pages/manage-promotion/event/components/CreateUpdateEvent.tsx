@@ -57,9 +57,9 @@ enum PromotionEventType {
 }
 
 enum DiscountTypeEnum {
-    Percentage = 0,
-    FixedAmount = 1,
-    FreeShipping = 2,
+    Percentage = 1,
+    FixedAmount = 2,
+    FreeShipping = 3,
 }
 
 enum ConditionTypeEnum {

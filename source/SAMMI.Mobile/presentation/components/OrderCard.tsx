@@ -18,6 +18,7 @@ import { ROUTE_CONFIG } from '@/configs/route'
 import { OrderStatus, PaymentStatus } from '@/configs/order'
 import { formatPrice } from '@/utils'
 import { createPayBackOrder } from '@/services/order'
+import ConfirmDialog from './ConfirmModal'
 
 
 type TProps = {
@@ -97,11 +98,11 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
                     })
                 ).unwrap()
 
-                if (!isSuccessCreateCart) {
-                    hasError = true
+                if (isSuccessCreateCart) {
+                    hasError = false
                     Toast.show({
-                        type: 'error',
-                        text1: errorMessageCreateCart
+                        type: 'success',
+                        text1: 'Thêm sản phẩm vào giỏ hàng thành công'
                     })
                     break
                 }
@@ -224,6 +225,14 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
     return (
         <>
             {loading && <ActivityIndicator />}
+            <ConfirmDialog
+                open={openCancelDialog}
+                onClose={() => setOpenCancelDialog(false)}
+                handleCancel={() => setOpenCancelDialog(false)}
+                handleConfirm={handleConfirm}
+                title={"Hủy đơn hàng"}
+                description={"Bạn có chắc chắn muốn hủy đơn hàng này không?"}
+            />
             <View style={{
                 backgroundColor: '#fff',
                 borderRadius: 8,

@@ -25,7 +25,7 @@ import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useTranslation } from 'react-i18next';
 import { parseISO, isValid } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
+import { formatInTimeZone } from 'date-fns-tz';
 import { getAllSuppliers } from 'src/services/supplier';
 import { getAllEmployees } from 'src/services/employee';
 import { getAllProducts } from 'src/services/product';
@@ -250,18 +250,18 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
   };
 
   const fetchReceiptDetail = async (receiptId: number) => {
-
     try {
       const res = await getReceiptDetail(receiptId);
       if (res?.result) {
         const data = res.result;
 
-
         let parsedDate: Date | null = null;
         if (data.receiptDate) {
-          parsedDate = parseISO(data.receiptDate); 
+          parsedDate = parseISO(data.receiptDate);
           if (isValid(parsedDate)) {
-              parsedDate = toZonedTime(parsedDate, 'Asia/Ho_Chi_Minh');
+            // Format the date in the local timezone
+            const formattedDate = formatInTimeZone(parsedDate, 'Asia/Ho_Chi_Minh', "yyyy-MM-dd'T'HH:mm:ssXXX");
+            parsedDate = parseISO(formattedDate);
           } else {
             parsedDate = new Date();
           }
@@ -278,7 +278,6 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
             { label: data.supplierName, value: data.supplierId.toString() },
           ]);
         }
-
 
         const employeeExists = employeeOptions.find(
           (option) => option.value === data.employeeId.toString()

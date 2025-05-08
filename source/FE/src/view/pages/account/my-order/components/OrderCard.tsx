@@ -125,9 +125,9 @@ const OrderCard: NextPage<TProps> = (props) => {
                     })
                 ).unwrap();
 
-                if (!isSuccessCreateCart) {
-                    hasError = true;
-                    toast.error(errorMessageCreateCart);
+                if (isSuccessCreateCart) {
+                    hasError = false;
+                    toast.success(t('add_to_cart_success'));
                     break;
                 }
             } catch (error) {

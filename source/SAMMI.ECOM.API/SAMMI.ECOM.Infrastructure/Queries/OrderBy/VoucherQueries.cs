@@ -19,6 +19,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<VoucherDTO> GetById(int id);
         Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Voucher);
         Task<IEnumerable<VoucherDTO>> GetVoucherOfCustomer(int customerId);
+        Task<IEnumerable<VoucherDTO>> GetVoucherActive(int numberTop);
     }
     public class VoucherQueries : QueryRepository<Voucher>, IVoucherQueries
     {
@@ -163,6 +164,50 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.Where("t1.StartDate <= NOW() AND t1.EndDate > NOW()");
                     sqlBuilder.Where("t2.CustomerId = @customerId", new { customerId });
                     return conn.QueryAsync<VoucherDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                });
+        }
+
+        public async Task<IEnumerable<VoucherDTO>> GetVoucherActive(int numberTop)
+        {
+            return await WithDefaultTemplateAsync(
+                async (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("t1.*");
+                    sqlBuilder.Select("t2.*");
+
+                    sqlBuilder.InnerJoin("VoucherCondition t2 ON t1.Id = t2.VoucherId AND t2.IsDeleted != 1");
+
+                    sqlBuilder.Where("t1.EndDate >= NOW() AND t1.IsActive = 1");
+
+                    var voucherDictionary = new Dictionary<int, VoucherDTO>();
+                    var vouchers = await conn.QueryAsync<VoucherDTO, VoucherConditionDTO, VoucherDTO>(sqlTemplate.RawSql,
+                        (voucher, condition) =>
+                        {
+                            if (!voucherDictionary.TryGetValue(voucher.Id, out var voucherEntry))
+                            {
+                                voucherEntry = voucher;
+                                voucherEntry.Conditions = new List<VoucherConditionDTO>();
+                                voucherDictionary.Add(voucherEntry.Id, voucherEntry);
+                            }
+
+                            if (condition != null && voucherEntry.Conditions.All(x => x.Id != condition.Id))
+                            {
+                                voucherEntry.Conditions ??= new();
+                                voucherEntry.Conditions.Add(condition);
+                            }
+
+                            return voucherEntry;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "Id");
+
+                    return vouchers.OrderByDescending(x => x.CreatedDate)
+                        .ThenByDescending(x => x.UsedCount)
+                        .ThenByDescending(x => x.DiscountValue)
+                        .ToList();
+                }, new RequestFilterModel()
+                {
+                    Take = numberTop
                 });
         }
     }

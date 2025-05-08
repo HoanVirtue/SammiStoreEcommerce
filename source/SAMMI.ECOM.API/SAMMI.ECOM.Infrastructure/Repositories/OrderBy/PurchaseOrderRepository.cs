@@ -79,7 +79,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
                     var purchaseDetails = await _detailRepository.Value.GetByPurchaseOrderId(purchase.Id);
                     foreach (var detail in purchaseDetails)
                     {
-                        var product = await _productRepository.Value.FindById(detail);
+                        var product = await _productRepository.Value.FindById(detail.ProductId);
                         if (product != null)
                         {
                             product.StockQuantity = product.StockQuantity == null ? 0 : product.StockQuantity;

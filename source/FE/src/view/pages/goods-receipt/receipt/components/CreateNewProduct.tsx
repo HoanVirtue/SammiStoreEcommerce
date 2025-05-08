@@ -59,7 +59,7 @@ interface TCreateNewProduct {
 type TDefaultValues = {
     code: string;
     name: string;
-    stockQuantity: string;
+    stockQuantity: number;
     price: string;
     importPrice: string;
     discount?: string | null;
@@ -112,11 +112,7 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
     const schema = yup.object().shape({
         code: yup.string().required(t("required_product_code")),
         name: yup.string().required(t("required_product_name")),
-        stockQuantity: yup
-            .string()
-            .required(t("required_product_count_in_stock"))
-            .matches(/^\d+$/, t("must_be_number"))
-            .test("least_count", t("at_least_count_product"), (value) => Number(value) >= 1),
+        stockQuantity: yup.number().default(0),
         ingredient: yup.mixed<EditorState>().required(t('required_ingredient')),
         uses: yup.mixed<EditorState>().required(t('required_uses')),
         usageGuide: yup.mixed<EditorState>().required(t('required_usage_guide')),
@@ -180,7 +176,7 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
     const defaultValues: TDefaultValues = {
         code: productCode,
         name: "",
-        stockQuantity: "",
+        stockQuantity: 0,
         price: "",
         importPrice: "",
         discount: "",
@@ -248,7 +244,8 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
         const payload: TParamsCreateProduct = {
             code: data.code,
             name: data.name,
-            stockQuantity: Number(data.stockQuantity),
+            // stockQuantity: Number(data.stockQuantity),
+            stockQuantity: 0,
             price: Number(data.price),
             importPrice: Number(data.importPrice),
             discount: data.discount ? Number(data.discount) : 0,
@@ -333,7 +330,7 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
                 reset({
                     code: data.code,
                     name: data.name,
-                    stockQuantity: data.stockQuantity.toString(),
+                    stockQuantity: 0,
                     price: data.price.toString(),
                     importPrice: data.importPrice.toString(),
                     discount: data.discount ? (data.discount * 100).toString() : '',
@@ -416,7 +413,6 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
 
                             {/* Image Upload Section */}
                             <Box sx={{ mb: 4 }}>
-                                <Typography variant="subtitle1" sx={{ mb: 2 }}>{t("product_image")}</Typography>
                                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
                                     <Box sx={{
                                         display: 'flex',
@@ -527,6 +523,7 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
                                                     <MemoizedCustomTextField
                                                         fullWidth
                                                         required
+                                                        disabled
                                                         type="number"
                                                         label={t("stock_quantity")}
                                                         onChange={onChange}

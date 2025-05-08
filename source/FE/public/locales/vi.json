@@ -794,6 +794,7 @@
     "new": "Mới",
     "expired": "Hết hạn",
     "applying": "Đang áp dụng",
+    "voucher_not_found": "Không tìm thấy voucher",
     "fully_used": "Đã sử dụng hết",
     "code_copied": "Mã đã được sao chép",
     "no_voucher_available": "Không có voucher nào",
@@ -897,8 +898,10 @@
     "manage_statistic": "Quản lý thống kê",
     "cash_on_delivery": "Thanh toán khi nhận hàng",
     "vnpay": "Thanh toán qua VNPay",
-    
-
+    "no_data_ProductCategory": "Không có dữ liệu về danh mục sản phẩm",
+    "save_voucher": "Lưu voucher",
+    "save_voucher_success": "Lưu voucher thành công",
+    "save_voucher_failed": "Lưu voucher thất bại",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

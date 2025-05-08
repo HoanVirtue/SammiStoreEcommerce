@@ -64,15 +64,8 @@ export const getProductCategoryDetail = async (id: number) => {
 
 export const deleteMultipleProductCategories = async (data: TParamsDeleteMultipleProductCategories) => {
     try {
-        const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}`, {data})
-        if(res?.data?.status === "Success") {
-            return {
-                data: []
-            }
-        }
-        return {
-            data: null
-        }
+        const res = await instance.delete(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT_CATEGORY.INDEX}`, {data})  
+        return res.data
     } catch (error: any) {
         return error?.response?.data
     }

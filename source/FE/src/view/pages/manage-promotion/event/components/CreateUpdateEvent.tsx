@@ -331,6 +331,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 setValue('code', data.code);
                 setValue('isActive', data.isActive);
                 setValue('name', data.name);
+                setValue('imageId', data.imageId);
                 setValue('startDate', addHours(new Date(data.startDate), -7));
                 setValue('endDate', addHours(new Date(data.endDate), -7));
 
@@ -509,20 +510,13 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
 
             if (isEditMode && id) {
                 const result = await dispatch(updateEventAsync({ ...eventData, id, voucherCommands: [] }));
-                console.log("result", result)
                 if (result?.payload?.isSuccess) {
-                    toast.success(t('update_event_success'));
                     onClose();
-                } else {
-                    toast.error(result.payload.response.data.message);
                 }
             } else {
                 const result = await dispatch(createEventAsync({ ...eventData, voucherCommands: data.voucherCommands }));
                 if (result?.payload?.isSuccess) {
-                    toast.success(t('create_event_success'));
                     onClose();
-                } else {
-                    toast.error(result.payload.response.data.message);
                 }
             }
         } catch (error: any) {

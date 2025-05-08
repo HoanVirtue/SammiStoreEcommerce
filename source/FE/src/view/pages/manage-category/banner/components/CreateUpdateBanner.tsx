@@ -157,7 +157,6 @@ const CreateUpdateBanner = (props: TCreateUpdateBanner) => {
             publicId: "''",
             typeImage: file.type,
             value: file.name,
-            
         }
         setBannerImage(newImage)
         setValue("imageCommand", newImage, { shouldValidate: true })

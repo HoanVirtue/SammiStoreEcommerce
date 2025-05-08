@@ -24,7 +24,7 @@ import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useTranslation } from 'react-i18next';
-import { parseISO, isValid } from 'date-fns';
+import { parseISO, isValid, format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { getAllSuppliers } from 'src/services/supplier';
 import { getAllEmployees } from 'src/services/employee';
@@ -32,11 +32,12 @@ import { getAllProducts } from 'src/services/product';
 import CustomTextField from 'src/components/text-field';
 import CustomAutocomplete from 'src/components/custom-autocomplete';
 import Spinner from 'src/components/spinner';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { createReceiptAsync, updateReceiptAsync } from 'src/stores/receipt/action';
-import { AppDispatch } from 'src/stores';
+import { AppDispatch, RootState } from 'src/stores';
 import { getReceiptCode, getReceiptDetail } from 'src/services/receipt';
 import { toast } from 'react-toastify';
+import { resetInitialState } from 'src/stores/receipt';
 
 interface ReceiptItem {
   id: number;
@@ -83,6 +84,11 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
   const [isEditMode, setIsEditMode] = useState(false);
   const [receiptCode, setReceiptCode] = useState('');
   
+  // Get Redux state
+  const { isSuccessCreateUpdate, isErrorCreateUpdate, errorMessageCreateUpdate } = useSelector(
+    (state: RootState) => state.receipt
+  );
+
   // Construct statusOptions directly using the t function from useTranslation
   const statusOptions = {
     "0": {
@@ -302,7 +308,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
             setProductOptions((prev) => [
               ...prev,
               {
-                label: detail.productName || 'Unknown Product',
+                label: detail.productName || 'Không có tên sản phẩm',
                 value: detail.productId.toString(),
                 price: detail.unitPrice,
                 id: detail.productId,
@@ -349,7 +355,6 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
     }
   }, [id, supplierOptions, employeeOptions, productOptions]);
 
-  console.log("mode", isEditMode, id)
 
   const onSubmit: SubmitHandler<ReceiptFormData> = async (data) => {
     setLoading(true);
@@ -369,16 +374,14 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
         })),
       };
 
-
       if (isEditMode && id) {
         const result = await dispatch(updateReceiptAsync({ id, ...receiptData }));
-        if (result?.payload?.result) {
-          toast.success(t('update_receipt_success'));
+        if (result?.payload?.isSuccess) {
           onClose();
         }
       } else {
         const result = await dispatch(createReceiptAsync(receiptData));
-        if (result?.payload?.result) {
+        if (result?.payload?.isSuccess) {
           onClose();
         }
       }
@@ -589,7 +592,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
                       <TableCell width="5%">#</TableCell>
                       <TableCell width="35%">{t('product_name')}</TableCell>
                       <TableCell width="15%">{t('quantity')}</TableCell>
-                      <TableCell width="20%">{t('unit_price')}</TableCell>
+                      <TableCell width="20%">{t('import_price')}</TableCell>
                       <TableCell width="20%">{t('total_product_price')}</TableCell>
                       <TableCell width="5%">
                         <IconButton color="primary" onClick={handleAddItem}>

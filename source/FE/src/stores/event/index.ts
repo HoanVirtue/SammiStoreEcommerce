@@ -108,7 +108,7 @@ export const eventSlice = createSlice({
       state.isSuccessCreateUpdate = !!action.payload?.isSuccess
       state.isErrorCreateUpdate = !action.payload?.isSuccess
       state.typeError = action.payload?.errors
-      state.errorMessageCreateUpdate = action.payload?.message
+      state.errorMessageCreateUpdate = action.payload?.response?.data?.message
     })
     builder.addCase(updateEventAsync.rejected, (state, action) => {
       const payload = action.payload as ReduxPayload;

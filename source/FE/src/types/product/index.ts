@@ -22,6 +22,11 @@ export type TParamsGetAllProducts = {
     keywords?: string;
 }
 
+export type TParamsGetSuggest = {
+    keyWord: string;
+    size: number;
+}
+
 // export type TParamsCreateProduct = {
 //     name: string,
 //     type: string,

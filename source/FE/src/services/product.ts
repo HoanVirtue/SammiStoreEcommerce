@@ -1,7 +1,7 @@
 import axios from "axios"
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateProduct, TParamsDeleteMultipleProducts, TParamsGetAllProducts, TParamsGetRelatedProduct, TParamsGetRelatedProducts, TParamsUpdateProduct } from "src/types/product"
+import { TParamsCreateProduct, TParamsDeleteMultipleProducts, TParamsGetAllProducts, TParamsGetRelatedProduct, TParamsGetRelatedProducts, TParamsUpdateProduct, TParamsGetSuggest } from "src/types/product"
 
 export const getAllProducts = async (data: {params: TParamsGetAllProducts}) => {
     try {
@@ -24,6 +24,15 @@ export const getEndowProducts = async (data: {numberTop: number}) => {
 export const getBestSellingProducts = async (data: {numberTop: number}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-product-best-selling`, {params: data})
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
+export const getSuggestProduct = async (data: {params: TParamsGetSuggest}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-suggest`, data)
         return res.data
     } catch (error) {
         return error

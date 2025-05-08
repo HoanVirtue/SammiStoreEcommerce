@@ -86,9 +86,9 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Other
                 .Must(x => IsValidBase64(x))
                 .WithMessage("Hình ảnh phải là chuỗi Base64 hợp lệ.");
 
-            RuleFor(x => x.PublicId)
-                .NotEmpty()
-                .WithMessage("PublicId không được bỏ trống");
+            //RuleFor(x => x.PublicId)
+            //    .NotEmpty()
+            //    .WithMessage("PublicId không được bỏ trống");
 
             RuleFor(x => x.TypeImage)
                 .NotEmpty()

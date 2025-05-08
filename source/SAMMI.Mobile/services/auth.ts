@@ -56,7 +56,7 @@ export const logoutAuth = async () => {
 
 export const registerAuth = async (data: TRegisterAuth) => {
     try {
-        const res = await axios.post(`${API_ENDPOINT.AUTH.INDEX}/register`, data)
+        const res = await instance.post(`${API_ENDPOINT.AUTH.INDEX}/register`, data)
         return res.data
     } catch (error) {
         return error

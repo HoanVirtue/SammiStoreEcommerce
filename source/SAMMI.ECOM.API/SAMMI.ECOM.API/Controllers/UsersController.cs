@@ -306,10 +306,10 @@ namespace SAMMI.ECOM.API.Controllers
 
         [AuthorizePermission(PermissionEnum.AccountUpdate)]
         [HttpPost("update-avatar")]
-        public async Task<IActionResult> UpdateAvatarAsync([FromBody]string ImageBase64)
+        public async Task<IActionResult> UpdateAvatarAsync([FromBody] CreateImageCommand imageRequest)
         {
             var actionRes = new ActionResponse<ImageDTO>();
-            if (string.IsNullOrEmpty(ImageBase64))
+            if (string.IsNullOrEmpty(imageRequest.ImageBase64))
             {
                 actionRes.AddError("Hình ảnh không được bỏ trống");
                 return BadRequest(actionRes);
@@ -320,13 +320,9 @@ namespace SAMMI.ECOM.API.Controllers
                 actionRes.AddError("Người dùng không tồn tại");
                 return BadRequest(actionRes);
             }
-            var request = new CreateImageCommand
-            {
-                ImageBase64 = ImageBase64,
-                TypeImage = ImageEnum.User.ToString(),
-                Value = UserIdentity.Id.ToString()
-            };
-            var imageRes = await _mediator.Send(request);
+            imageRequest.Value = UserIdentity.Id.ToString();
+            imageRequest.TypeImage = ImageEnum.User.ToString();
+            var imageRes = await _mediator.Send(imageRequest);
             if (!imageRes.IsSuccess)
             {
                 actionRes.AddError(imageRes.Message);

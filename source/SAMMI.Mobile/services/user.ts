@@ -23,9 +23,8 @@ export const createUser = async (data: TParamsCreateUser) => {
 
 
 export const updateUser = async (data: TParamsUpdateUser) => {
-    const { id, ...rests } = data
     try {
-        const res = await instance.put(`${API_ENDPOINT.SYSTEM.USER.INDEX}/${id}`, rests)
+        const res = await instance.post(`${API_ENDPOINT.SYSTEM.USER.INDEX}/update-customer-info`, data)
         return res.data
     } catch (error: any) {
         return error?.response?.data
@@ -65,5 +64,34 @@ export const deleteMultipleUsers = async (data: TParamsDeleteMultipleUsers) => {
         }
     } catch (error: any) {
         return error?.response?.data
+    }
+}
+
+export type TParamsUpdateAvatar = {
+    imageBase64: string; // Required string
+    publicId?: string | null; // Nullable string
+    typeImage?: string | null; // Nullable string
+    value?: any; // Flexible type for object (use `unknown` for stricter typing)
+
+    id?: number; // Required integer
+    createdDate?: string; // DateTime as ISO string (e.g., "2023-10-01T12:00:00Z")
+    updatedDate?: string | null; // Nullable DateTime as ISO string
+    createdBy?: string | null; // Nullable string
+    updatedBy?: string | null; // Nullable string
+    isActive?: boolean; // Required boolean
+    isDeleted?: boolean; // Required boolean
+    displayOrder?: number | null; // Nullable integer
+}
+
+export const updateAvatar = async (imageBase64: string) => {
+    try {
+        const data: TParamsUpdateAvatar = {
+            imageBase64: imageBase64,
+            isActive: true
+        };
+        const res = await instance.post(`${API_ENDPOINT.SYSTEM.USER.INDEX}/update-avatar`, data);
+        return res.data;
+    } catch (error: any) {
+        return error?.response?.data;
     }
 }

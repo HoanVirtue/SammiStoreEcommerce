@@ -91,11 +91,11 @@ export default function ProfileScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.header}>
           <View style={styles.avatarContainer}>
-            {/* {user?.imageUrl ? (
-            <Image source={{ uri: user.imageUrl }} style={styles.avatar} />
-          ) : (
-            <User size={40} color={colors.primary} />
-          )} */}
+            {user?.avatar ? (
+              <Image source={{ uri: user.avatar }} style={styles.avatar} />
+            ) : (
+              <User size={40} color={colors.primary} />
+            )}
           </View>
           <Text style={styles.username}>{user?.fullName}</Text>
           <Text style={styles.email}>{user?.email}</Text>

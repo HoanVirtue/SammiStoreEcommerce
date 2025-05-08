@@ -7,9 +7,15 @@ export type TLoginAuth = {
 };
 
 export type TRegisterAuth = {
-    email: string,
+    firstName: string
+    lastName: string
+    phone: string
+    email: string
+    username: string
     password: string
+    rePassword: string
 }
+
 
 export type TChangePassword = {
     currentPassword: string,
@@ -27,7 +33,15 @@ export interface LoginParams {
 export interface UserDataType {
     id: number;
     username: string
-  }
+}
+
+export interface RegisterParams {
+    username: string;
+    password: string;
+    rememberMe?: boolean;
+    returnUrl?: string;
+    isEmployee?: boolean;
+}
 
 export type ErrCallbackType = (err: any) => void;
 
@@ -38,4 +52,5 @@ export interface AuthValuesType {
     setLoading: (loading: boolean) => void;
     login: (params: LoginParams, errorCallback?: ErrCallbackType) => void;
     logout: () => void;
+    register: (params: RegisterParams, errorCallback?: ErrorCallback) => void;
 }

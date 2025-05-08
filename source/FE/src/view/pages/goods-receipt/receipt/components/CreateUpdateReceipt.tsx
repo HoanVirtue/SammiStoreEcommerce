@@ -302,7 +302,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
             setProductOptions((prev) => [
               ...prev,
               {
-                label: detail.productName || 'Unknown Product',
+                label: detail.productName || 'Không có tên sản phẩm',
                 value: detail.productId.toString(),
                 price: detail.unitPrice,
                 id: detail.productId,

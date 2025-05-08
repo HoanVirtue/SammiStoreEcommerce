@@ -104,10 +104,11 @@ export default function UpdateInfoScreen() {
         email,
         avatar: avatar.startsWith('file://') ? avatar : undefined,
         gender,
+        role: '',
         birthday: birthday.toISOString().split('T')[0]
       };
 
-      await updateUser(updateData);
+      await updateUser(updateData as TParamsUpdateUser);
       Toast.show({
         type: 'success',
         text1: 'Cập nhật thành công',

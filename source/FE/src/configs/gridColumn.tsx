@@ -7,6 +7,7 @@ import Image from 'src/components/image'
 import { getReceiptStatusLabel } from 'src/configs/receipt'
 import { PaymentStatus, ShippingStatus, OrderStatus } from 'src/configs/order'
 import { useMemo } from 'react'
+import { getEventTypeLabel } from './event'
 
 const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   backgroundColor: "#28c76f29",
@@ -103,7 +104,7 @@ export const getOrderColumns = (): GridColDef[] => {
       }
     },
     {
-      field: 'total_price',
+      field: 'totalPrice',
       headerName: t('total_price'),
       flex: 1,
       minWidth: 200,
@@ -458,7 +459,7 @@ export const getProductColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: 'productName',
+      field: 'name',
       headerName: t('product_name'),
       flex: 1,
       minWidth: 350,
@@ -479,7 +480,7 @@ export const getProductColumns = (): GridColDef[] => {
       }
     },
     {
-      field: 'brand',
+      field: 'brandName',
       headerName: t('brand'),
       minWidth: 200,
       maxWidth: 200,
@@ -527,10 +528,10 @@ export const getProductColumns = (): GridColDef[] => {
       }
     },
     {
-      field: 'discountPrice',
+      field: 'newPrice',
       headerName: t('discount_price'),
-      minWidth: 150,
-      maxWidth: 150,
+      minWidth: 250,
+      maxWidth: 250,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
@@ -541,8 +542,8 @@ export const getProductColumns = (): GridColDef[] => {
     {
       field: 'stockQuantity',
       headerName: t('stock_quantity'),
-      minWidth: 100,
-      maxWidth: 100,
+      minWidth: 200,
+      maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
@@ -933,7 +934,7 @@ export const getReceiptColumns = (): GridColDef[] => {
       field: "receipt_code",
       headerName: t("receipt_code"),
       flex: 1,
-      minWidth: 300,
+      minWidth: 160,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
@@ -953,8 +954,8 @@ export const getReceiptColumns = (): GridColDef[] => {
     {
       field: "supplier_name",
       headerName: t("supplier_name"),
-      minWidth: 150,
-      maxWidth: 150,
+      minWidth: 350,
+      maxWidth: 350,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.supplierName}</Typography>,
     },
     {
@@ -1072,63 +1073,63 @@ export const getVoucherColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: "voucher_code",
+      field: "code",
       headerName: t("voucher_code"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
-      field: "voucher_name",
+      field: "name",
       headerName: t("voucher_name"),
-      minWidth: 200,
-      maxWidth: 200,
+      minWidth: 300,
+      maxWidth: 300,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>
     },
     {
-      field: "event_name",
+      field: "eventName",
       headerName: t("event_name"),
-      minWidth: 200,
-      maxWidth: 200,
+      minWidth: 300,
+      maxWidth: 300,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.eventName}</Typography>
     },
     {
-      field: "start_date",
+      field: "startDate",
       headerName: t("start_date"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.startDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
     },
     {
-      field: "end_date",
+      field: "endDate",
       headerName: t("end_date"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.endDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
     },
     {
-      field: "discount_type_name",
+      field: "discountType",
       headerName: t("discount_type_name"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.discountName}</Typography>,
     },
     {
-      field: "discount_value",
+      field: "discountValue",
       headerName: t("discount_value"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.discountValue}</Typography>,
     },
     {
-      field: "usage_limit",
+      field: "usageLimit",
       headerName: t("usage_limit"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.usageLimit}</Typography>,
     },
     {
-      field: "used_count",
+      field: "usedCount",
       headerName: t("used_count"),
       minWidth: 200,
       maxWidth: 200,
@@ -1226,46 +1227,46 @@ export const getEventColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: "event_image ",
+      field: "imageId",
       headerName: t("event_image"),
       flex: 1,
       minWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Image src={params.row.imageUrl} alt={params.row.name} width={50} height={50} />,
     },
     {
-      field: "event_code",
+      field: "code",
       headerName: t("event_code"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
-      field: "event_name",
+      field: "name",
       headerName: t("event_name"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>
     },
     {
-      field: "start_date",
+      field: "startDate",
       headerName: t("start_date"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.startDate, { dateStyle: "short", timeStyle: "short" })}</Typography>,
     },
     {
-      field: "end_date",
+      field: "endDate",
       headerName: t("end_date"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.endDate, { dateStyle: "short", timeStyle: "short" })}</Typography>,
     },
     {
-      field: "event_type",
+      field: "eventType",
       headerName: t("event_type"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.eventType}</Typography>,
+      minWidth: 300,
+      maxWidth: 300,
+      renderCell: (params: GridRenderCellParams) => <Typography>{getEventTypeLabel(params.row.eventType)}</Typography>,
     },
     {
       field: 'status',
@@ -1359,7 +1360,7 @@ export const getCustomerColumns = (): GridColDef[] => {
   const { t } = useTranslation()
   return [
     {
-      field: "customer_code",
+      field: "code",
       headerName: t("customer_code"),
       minWidth: 200,
       maxWidth: 200,
@@ -1503,7 +1504,7 @@ export const getEmployeeColumns = (): GridColDef[] => {
   const { t } = useTranslation()
   return [
     {
-      field: "employee_code",
+      field: "code",
       headerName: t("employee_code"),
       minWidth: 200,
       maxWidth: 200,

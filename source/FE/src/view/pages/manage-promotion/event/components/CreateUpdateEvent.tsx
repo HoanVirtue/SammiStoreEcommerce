@@ -98,6 +98,7 @@ interface VoucherCommand {
     startDate: Date;
     endDate: Date;
     conditions: VoucherCondition[];
+    isActive: boolean;
 }
 
 interface EventImage {
@@ -172,6 +173,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             usageLimit: 0,
             startDate: new Date(),
             endDate: new Date(),
+            isActive: true,
             conditions: [
                 {
                     voucherId: 0,
@@ -234,6 +236,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                     code: yup.string().required(t("voucher_code_required")),
                     name: yup.string().required(t("voucher_name_required")),
                     eventId: yup.number(),
+                    isActive: yup.boolean().default(true),
                     discountTypeId: yup.number().required(t("discount_type_required")),
                     discountValue: yup.number().required(t("discount_value_required")),
                     usageLimit: yup.number().required(t("usage_limit_required")),
@@ -273,6 +276,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             id: 0,
             code: '',
             name: '',
+            isActive: true,
             eventId: isEditMode && id ? id : 0,
             discountTypeId: 0,
             discountValue: 0,
@@ -387,6 +391,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 if (data.voucherCommands && data.voucherCommands.length > 0) {
                     const adjustedVouchers = data.voucherCommands.map((voucher: VoucherCommand) => ({
                         ...voucher,
+                        isActive: voucher.isActive,
                         startDate: addHours(new Date(voucher.startDate), -7),
                         endDate: addHours(new Date(voucher.endDate), -7),
                     }));
@@ -494,6 +499,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                         code: voucher.code,
                         name: voucher.name,
                         eventId: 0,
+                        isActive: voucher.isActive || true,
                         discountTypeId: voucher.discountTypeId,
                         discountValue: voucher.discountValue,
                         usageLimit: voucher.usageLimit,
@@ -533,6 +539,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
             discountTypeId: 0,
             discountValue: 0,
             usageLimit: 0,
+            isActive: true,
             startDate: new Date(),
             endDate: new Date(),
             conditions: [
@@ -595,6 +602,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 discountTypeId: 0,
                 discountValue: 0,
                 usageLimit: 0,
+                isActive: true,
                 startDate: new Date(),
                 endDate: new Date(),
                 conditions: [{

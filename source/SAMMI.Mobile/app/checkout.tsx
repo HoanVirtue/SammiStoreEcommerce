@@ -237,6 +237,7 @@ const CheckoutScreen = () => {
           text1: res?.payload?.message || 'Đặt hàng thất bại',
           text2: 'Vui lòng thử lại sau.'
         });
+        router.push('(tabs)/index' as any)
       }
     }).finally(() => {
       setIsLoading(false);

@@ -64,7 +64,7 @@ const useOrderList = () => {
             take: pageSize,
             skip: (page - 1) * pageSize,
             paging: true,
-            orderBy: "createdDate",
+            orderBy: "updatedDate",
             dir: "desc",
             keywords: debouncedSearchTerm || "''",
             filters: selectedStatus === "all" ? "" : `orderStatus::${selectedStatus}::eq`
@@ -73,6 +73,9 @@ const useOrderList = () => {
 
     const handleGetListOrder = useCallback(() => {
         dispatch(getMyOrdersAsync(queryParams))
+        .then((res) => {    
+            console.log("res : ", res)
+        })  
     }, [queryParams, dispatch])
 
     const handleOnChangePagination = useCallback((page: number, pageSize: number) => {

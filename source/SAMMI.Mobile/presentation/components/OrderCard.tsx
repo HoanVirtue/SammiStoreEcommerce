@@ -42,6 +42,9 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
 
     const handleConfirm = useCallback(() => {
         dispatch(cancelOrderAsync(orderData.code))
+        .then((res) => {
+            console.log("res : ", res)
+        })
     }, [dispatch, orderData.code])
 
     const handleBuyAgain = useCallback(async () => {

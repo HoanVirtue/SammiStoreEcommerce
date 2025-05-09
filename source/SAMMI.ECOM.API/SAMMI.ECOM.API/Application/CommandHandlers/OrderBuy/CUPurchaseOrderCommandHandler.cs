@@ -270,11 +270,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 return actRes;
             }
 
-            if (request.Details.Any(d => existingDetails.Any(p => p.ProductId == d.ProductId && p.Id != d.Id)))
-            {
-                actRes.AddError("Danh sách sản phẩm không được trùng lặp");
-                return actRes;
-            }
+            //if (request.Details.Any(d => existingDetails.Any(p => p.ProductId == d.ProductId && p.Id != d.Id)))
+            //{
+            //    actRes.AddError("Danh sách sản phẩm không được trùng lặp");
+            //    return actRes;
+            //}
             if(request.Details.Count < existingDetails.Count())
             {
                 actRes.AddError($"Danh sách sản phẩm phải lớn hơn hoặc bằng {existingDetails.Count()}");
@@ -368,15 +368,15 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 .NotNull()
                 .WithMessage("Nhà cung cấp bắt buộc chọn");
 
-            RuleFor(x => x.Details)
-                .NotNull()
-                .WithMessage("Danh sách sản phẩm không được bỏ trống")
-                .Must(x => x.Count > 0)
-                .WithMessage("Danh sách sản phẩm phải có ít nhất 1 sản phẩm")
-                .Must(HaveUniqueProductId)
-                .WithMessage("Danh sách sản phẩm chứa mã sản phẩm trùng lặp")
-                .Must(HaveUnitqueDetailId)
-                .WithMessage("Danh sách chi tiết đơn hàng chứa mã chi tiết trùng lặp");
+            //RuleFor(x => x.Details)
+            //    .NotNull()
+            //    .WithMessage("Danh sách sản phẩm không được bỏ trống")
+            //    .Must(x => x.Count > 0)
+            //    .WithMessage("Danh sách sản phẩm phải có ít nhất 1 sản phẩm")
+            //    .Must(HaveUniqueProductId)
+            //    .WithMessage("Danh sách sản phẩm chứa mã sản phẩm trùng lặp")
+            //    .Must(HaveUnitqueDetailId)
+            //    .WithMessage("Danh sách chi tiết đơn hàng chứa mã chi tiết trùng lặp");
 
             RuleForEach(x => x.Details)
                 .SetValidator(new PurchaseOrderDetailCommandValidator());

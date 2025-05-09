@@ -368,6 +368,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
         receiptDate: data.receiptDate?.toISOString(),
         details: data.items.map((item) => ({
           purchaseOrderId: 0,
+          id: item.id,
           productId: item.productId,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
@@ -395,7 +396,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
   const handleAddItem = () => {
     const currentItems = watch('items');
     const newItem: ReceiptItem = {
-      id: currentItems.length + 1,
+      id: 0,
       productId: 0,
       quantity: 0,
       unitPrice: 0,
@@ -555,6 +556,7 @@ const CreateUpdateReceipt: React.FC<CreateUpdateReceiptProps> = ({ id, onClose, 
                     render={({ field: { onChange, value } }) => (
                       <CustomAutocomplete
                         options={Object.values(statusOptions)}
+                        disabled={isEditMode}
                         value={Object.values(statusOptions).find((option) => option.value === value) || null}
                         onChange={(newValue) => {
                           onChange(newValue?.value || '');

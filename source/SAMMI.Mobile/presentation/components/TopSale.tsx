@@ -32,16 +32,16 @@ const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
         handleGetListProduct();
     }, []);
 
-    const renderItem = ({ item }: { item: TProduct }) => (
+    const renderItem = ({ item, index }: { item: TProduct; index: number }) => (
         <View style={styles.productItem}>
-            <ProductCard product={item} />
+            <ProductCard key={`product-${item.id}-${index}`} product={item} />
         </View>
     );
 
     const renderLoadingSkeleton = () => (
         <View style={styles.skeletonContainer}>
             {Array.from(new Array(20)).map((_, index) => (
-                <View key={index} style={styles.skeletonItem}>
+                <View key={`skeleton-${index}`} style={styles.skeletonItem}>
                     <View style={styles.skeletonImage} />
                     <View style={styles.skeletonText} />
                     <View style={[styles.skeletonText, { width: '60%' }]} />
@@ -62,7 +62,7 @@ const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
                 <FlatList
                     data={publicProducts}
                     renderItem={renderItem}
-                    keyExtractor={(item) => item.id.toString()}
+                    keyExtractor={(item, index) => `product-${item.id}-${index}`}
                     numColumns={2}
                     contentContainerStyle={styles.productList}
                     showsVerticalScrollIndicator={false}

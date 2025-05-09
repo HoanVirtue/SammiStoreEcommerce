@@ -46,16 +46,16 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData, refreshTrigger = 0 }) =>
 
     const skeletonCount = 10; // Number of skeleton loaders
 
-    const renderProductItem = ({ item }: { item: TProduct }) => (
+    const renderProductItem = ({ item, index }: { item: TProduct; index: number }) => (
         <View style={styles.productItemContainer}>
-            <ProductCard product={item} />
+            <ProductCard key={`hotsale-product-${item.id}-${index}`} product={item} />
         </View>
     );
 
     const renderSkeletonItem = () => (
         <View style={styles.skeletonContainer}>
             {Array.from(new Array(10)).map((_, index) => (
-                <View key={index} style={styles.skeletonItem}>
+                <View key={`hotsale-skeleton-${index}`} style={styles.skeletonItem}>
                     <View style={styles.skeletonImage} />
                     <View style={styles.skeletonText} />
                     <View style={[styles.skeletonText, { width: '60%' }]} />
@@ -83,7 +83,7 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData, refreshTrigger = 0 }) =>
                         <FlatList
                             data={publicProducts.data}
                             renderItem={renderProductItem}
-                            keyExtractor={(item) => item.id.toString()}
+                            keyExtractor={(item, index) => `hotsale-product-${item.id}-${index}`}
                             numColumns={2}
                             contentContainerStyle={styles.listContentContainer}
                             columnWrapperStyle={styles.columnWrapper}

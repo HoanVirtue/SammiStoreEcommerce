@@ -128,7 +128,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
             productResult.CategoryCode = category?.Code;
             if (_productElasticService != null && await _productElasticService.IsConnected())
             {
-                _productElasticService.AddOrUpdateProduct(productResult);
+                await _productElasticService.AddOrUpdateProduct(productResult);
             }
 
             AppLogger.LogAction(_currentUser,

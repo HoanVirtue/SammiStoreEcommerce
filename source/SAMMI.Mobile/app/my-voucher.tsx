@@ -18,6 +18,7 @@ import Toast from 'react-native-toast-message';
 import { format } from 'date-fns';
 import { TicketIcon, CopyIcon, ArrowLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
+import { colors } from '@/constants/colors';
 
 interface Voucher {
     id: number;
@@ -166,7 +167,6 @@ const MyVouchersPage = () => {
                     </View>
 
                     <View style={styles.codeRow}>
-                        <Text style={styles.label}>Mã:</Text>
                         <View style={styles.codeTextContainer}>
                             <Text style={styles.codeText} numberOfLines={1} ellipsizeMode="tail">{voucher.code}</Text>
                             <TouchableOpacity 
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
         marginTop: 16,
         marginBottom: 16,
         paddingHorizontal: 16,
-        color: '#D81B60', // Màu hồng sang trọng
+        color: colors.primary, // Màu hồng sang trọng
     },
     loadingContainer: {
         flex: 1,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginLeft: 8,
-        color: '#D81B60',
+        color: colors.primary,
         flexShrink: 1,
         flexWrap: 'wrap',
         maxWidth: '80%',
@@ -326,9 +326,9 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         marginBottom: 8,
         backgroundColor: '#FFF0F5',
-        padding: 8,
+        padding: 2,
         borderRadius: 8,
-        flexWrap: 'wrap',
+        flexWrap: 'nowrap',
     },
     label: {
         fontSize: 14,
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: '600',
         marginLeft: 4,
-        color: '#D81B60',
+        color: colors.primary,
         flexShrink: 1,
         maxWidth: 120,
     },
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
     discountText: {
         fontSize: 16,
         fontWeight: '600',
-        color: '#D81B60',
+        color: colors.primary,
         marginLeft: 4,
     },
     divider: {
@@ -387,8 +387,9 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     codeTextContainer: {
-        flexDirection: 'column',
-        justifyContent: 'space-between'
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center'
     },
     navbar: {
         flexDirection: 'row',
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         fontSize: 20,
         fontWeight: 'bold',
-        color: '#D81B60',
+        color: colors.primary,
     },
     placeholder: {
         width: 40, // Để cân bằng với backButton

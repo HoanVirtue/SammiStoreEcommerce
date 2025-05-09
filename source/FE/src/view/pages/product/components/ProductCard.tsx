@@ -91,23 +91,25 @@ const ProductCard: React.FC<TProductCard> = (props: any) => {
                     quantity: 1,
                     operation: 0,
                 })
-            ).then(() => {
-                if (isSuccessCreate) {
+            ).then((res) => {
+                if(res.payload.isSuccess) {
                     toast.success(t('add_to_cart_success'))
-                    dispatch(getCartsAsync({
+                    dispatch(
+                      getCartsAsync({
                         params: {
-                            take: -1,
-                            skip: 0,
-                            paging: false,
-                            orderBy: "name",
-                            dir: "asc",
-                            keywords: "''",
-                            filters: ""
-                        }
-                    }))
-                } else if (isErrorCreate) {
+                          take: -1,
+                          skip: 0,
+                          paging: false,
+                          orderBy: 'name',
+                          dir: 'asc',
+                          keywords: "''",
+                          filters: '',
+                        },
+                      })
+                    );
+                  } else {
                     toast.error(errorMessageCreate)
-                }
+                  }
             })
         } else {
             router.replace({

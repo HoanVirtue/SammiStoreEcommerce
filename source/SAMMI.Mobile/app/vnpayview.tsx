@@ -29,7 +29,6 @@ const VNPayWebViewScreen = () => {
       const paymentStatus = urlParams.get('payment-status') === '1' ? 'success' : 'failed';
       const errorMessage = urlParams.get('error-message');
 
-      
       router.push('payment/vnpay' as any);
 
       // Hiển thị thông báo dựa trên trạng thái thanh toán
@@ -38,7 +37,6 @@ const VNPayWebViewScreen = () => {
         text1: paymentStatus === 'success' ? 'Thanh toán thành công' : 'Thanh toán thất bại',
         text2: paymentStatus === 'success' ? 'Đơn hàng của bạn đã được xử lý.' : errorMessage || 'Lỗi thanh toán',
       });
-      
     }
   };
 

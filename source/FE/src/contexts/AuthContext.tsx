@@ -164,7 +164,7 @@ const AuthProvider = ({ children }: Props) => {
     }
   };
 
-
+  
 
   // const handleLogout = () => {
   //   logoutAuth().then((res) => {
@@ -196,6 +196,7 @@ const AuthProvider = ({ children }: Props) => {
     delete instance.defaults.headers.common['Authorization'];
     dispatch(resetInitialState())
 
+    window.location.href = '/login'
   }
 
   const values = {

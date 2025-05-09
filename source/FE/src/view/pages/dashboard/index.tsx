@@ -79,6 +79,13 @@ export default function DashboardClient() {
   const fetchDashboardData = useCallback(async () => {
     try {
       const token = getAccessToken();
+      
+      // Check if token exists before making API calls
+      if (!token) {
+        setLoading(false);
+        return;
+      }
+
       const headers = {
         Authorization: `Bearer ${token}`
       };
@@ -100,9 +107,8 @@ export default function DashboardClient() {
       setOrderStatus(orderStatus.data.result);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
-      if (axios.isAxiosError(error) && error.response?.status === 401) {
-        window.location.href = '/login';
-      }
+      // Don't redirect here, let the auth guard handle it
+      setLoading(false);
     } finally {
       setLoading(false);
     }

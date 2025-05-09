@@ -1,6 +1,7 @@
 import { API_ENDPOINT } from "@/configs/api"
 import instance from "@/helpers/axios"
 import { TParamsCreateReview, TParamsDeleteMultipleReviews, TParamsGetAllReviews, TParamsUpdateReview, TParamsGetAllReviewsByProductId } from "@/types/review"
+import Toast from "react-native-toast-message"
 
 
 export const getAllReviews = async (data: {params: TParamsGetAllReviews  }) => {
@@ -44,11 +45,17 @@ export const getOverallReview = async (productId: number) => {
 
 export const createReview = async (data: TParamsCreateReview) => {
     try {
+        console.log('create review data service', data)
         const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}`, data)
         console.log('create review res service', res)
         return res.data
     }
     catch (error: any) {
+        console.log('create review error service', error)
+        Toast.show({
+            type: 'error',
+            text1: error?.message,
+        })
         return error?.response?.data
     }
 }

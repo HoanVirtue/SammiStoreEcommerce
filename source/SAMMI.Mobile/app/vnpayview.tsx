@@ -8,8 +8,8 @@ import { router } from 'expo-router';
 
 interface VNPayWebViewParams {
   paymentUrl: string;
-  orderId: number;
-  totalPrice: number;
+  orderId?: number;
+  totalPrice?: number;
 }
 
 const VNPayWebViewScreen = () => {
@@ -25,6 +25,7 @@ const VNPayWebViewScreen = () => {
     // Kiểm tra URL trả về từ VNPay để xác định trạng thái thanh toán
     if (url.includes('payment-status') || url.includes('payment/success') || url.includes('error-message')) {
       const urlParams = new URLSearchParams(url.split('?')[1]);
+      console.log("urlParams: ", urlParams);
       const paymentStatus = urlParams.get('payment-status') === '1' ? 'success' : 'failed';
       const errorMessage = urlParams.get('error-message');
 

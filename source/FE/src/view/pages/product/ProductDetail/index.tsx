@@ -138,20 +138,6 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
             })
     }
 
-    const fetchGetListRelatedProduct = async (slug: string) => {
-        setLoading(true)
-        await getListRelatedProductBySlug({ params: { slug: slug } })
-            .then(async response => {
-                setLoading(false)
-                const data = response?.data
-                if (data) {
-                    setListRelatedProduct(data.products)
-                }
-            })
-            .catch(() => {
-                setLoading(false)
-            })
-    }
 
     //handler
     const handleAddProductToCart = (item: TProduct) => {
@@ -163,8 +149,8 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
                     quantity: productAmount,
                     operation: 0,
                 })
-            ).then(() => {
-                if (isSuccessCreate) {
+            ).then((res) => {
+                if (res?.payload?.isSuccess) {
                     toast.success(t('add_to_cart_success'))
                     dispatch(
                         getCartsAsync({
@@ -179,7 +165,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = () => {
                             },
                         })
                     );
-                } else if (isErrorCreate) {
+                } else {
                     toast.error(errorMessageCreate)
                 }
             })

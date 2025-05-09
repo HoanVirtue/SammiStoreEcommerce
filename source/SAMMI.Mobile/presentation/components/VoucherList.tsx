@@ -1,55 +1,86 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { colors } from '@/constants/colors';
 import { useRouter } from 'expo-router';
+import { getTopVouchers, saveVoucher } from '@/services/voucher';
+import Toast from 'react-native-toast-message';
+import { TicketCheckIcon, TicketIcon } from 'lucide-react-native';
+
 
 interface Voucher {
-  id: string;
+  id: number;
   code: string;
-  discount: number;
-  minPurchase: number;
-  expiryDate: string;
-  description: string;
+  name: string;
+  discountValue: number;
+  conditions: Array<{
+    conditionType: string;
+    conditionValue: string;
+  }>;
+  startDate: string;
+  endDate: string;
 }
-
-const mockVouchers: Voucher[] = [
-  {
-    id: '1',
-    code: 'BEAUTY20',
-    discount: 20,
-    minPurchase: 500000,
-    expiryDate: '2024-12-31',
-    description: 'Giảm 20% cho đơn hàng từ 500.000đ'
-  },
-  {
-    id: '2',
-    code: 'NEWUSER15',
-    discount: 15,
-    minPurchase: 300000,
-    expiryDate: '2024-12-31',
-    description: 'Giảm 15% cho khách hàng mới'
-  },
-  {
-    id: '3',
-    code: 'SUMMER25',
-    discount: 25,
-    minPurchase: 1000000,
-    expiryDate: '2024-12-31',
-    description: 'Giảm 25% cho đơn hàng từ 1.000.000đ'
-  }
-];
 
 export default function VoucherList() {
   const router = useRouter();
+  const [vouchers, setVouchers] = useState<Voucher[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleVoucherPress = (voucher: Voucher) => {
-    // Xử lý khi người dùng nhấn vào voucher
+  const fetchVouchers = async () => {
+    try {
+      setLoading(true);
+      const response = await getTopVouchers({ numberTop: 10 });
+      if (response.isSuccess) {
+        setVouchers(response.result);
+      }
+    } catch (error) {
+      console.error('Error fetching vouchers:', error);
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi',
+        text2: 'Không thể tải danh sách voucher',
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSaveVoucher = (voucher: Voucher) => {
-    // Xử lý lưu voucher
-    alert(`Đã lưu voucher: ${voucher.code}`);
+  const handleSaveVoucher = async (voucherId: number) => {
+    try {
+      const response = await saveVoucher(voucherId);
+      console.log('response', response);
+      if (response.isSuccess) {
+        Toast.show({
+          type: 'success',
+          text1: 'Thành công',
+          text2: 'Đã lưu voucher thành công',
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Lỗi',
+          text2: response.message || 'Lưu voucher thất bại',
+        });
+      }
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Lỗi',
+        text2: 'Lưu voucher thất bại',
+      });
+    }
   };
+
+  useEffect(() => {
+    fetchVouchers();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -64,21 +95,22 @@ export default function VoucherList() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {mockVouchers.map((voucher) => (
+        {vouchers.map((voucher) => (
           <View key={voucher.id} style={styles.voucherCard}>
             <View style={styles.voucherContent}>
-              <Text style={styles.discount}>{voucher.discount}%</Text>
-              <Text style={styles.code}>{voucher.code}</Text>
-              <Text style={styles.description}>{voucher.description}</Text>
-              <Text style={styles.minPurchase}>
-                Áp dụng cho đơn hàng từ {voucher.minPurchase.toLocaleString('vi-VN')}đ
-              </Text>
-              <Text style={styles.expiryDate}>
-                HSD: {new Date(voucher.expiryDate).toLocaleDateString('vi-VN')}
-              </Text>
-              <TouchableOpacity style={styles.saveButton} onPress={() => handleSaveVoucher(voucher)}>
-                <Text style={styles.saveButtonText}>Lưu voucher</Text>
-              </TouchableOpacity>
+              <View style={styles.voucherIcon}>
+                <TicketIcon size={60} color={colors.primary} />
+              </View>
+              <View style={styles.voucherInfo}>
+                <Text style={styles.code}>NHẬP MÃ: {voucher.code}</Text>
+                <Text style={styles.description}>{voucher.name}</Text>
+                <TouchableOpacity 
+                  style={styles.saveButton} 
+                  onPress={() => handleSaveVoucher(voucher.id)}
+                >
+                  <Text style={styles.saveButtonText}>Lưu voucher</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         ))}
@@ -90,21 +122,29 @@ export default function VoucherList() {
 const styles = StyleSheet.create({
   container: {
     marginTop: 16,
+    backgroundColor: colors.white,
+    height: 180,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 16,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 16,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   title: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '700',
     color: colors.text,
   },
   viewAll: {
-    fontSize: 14,
+    fontSize: 13,
     color: colors.primary,
     fontWeight: '600',
   },
@@ -113,62 +153,57 @@ const styles = StyleSheet.create({
   },
   voucherCard: {
     width: 280,
-    minHeight: 160,
-    backgroundColor: colors.primary,
-    borderRadius: 12,
+    height: 100,
+    backgroundColor: colors.white,
+    borderRadius: 8,
     marginRight: 12,
-    padding: 16,
-    elevation: 3,
+    padding: 12,
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2,
+      height: 1,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   voucherContent: {
     flex: 1,
-    justifyContent: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
   },
-  discount: {
-    fontSize: 32,
-    fontWeight: '800',
-    color: colors.white,
+  voucherIcon: {
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  voucherInfo: {
+    flex: 1,
+    justifyContent: 'center',
+    marginLeft: 8,
   },
   code: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: colors.white,
-    marginTop: 4,
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: colors.primary,
+    marginBottom: 2,
   },
   description: {
-    fontSize: 14,
-    color: colors.white,
-    marginTop: 4,
-  },
-  minPurchase: {
     fontSize: 12,
-    color: colors.white,
-    marginTop: 8,
-  },
-  expiryDate: {
-    fontSize: 12,
-    color: colors.white,
-    marginTop: 4,
+    color: colors.textSecondary,
+    marginBottom: 6,
   },
   saveButton: {
-    marginTop: 8,
-    backgroundColor: colors.white,
-    borderRadius: 8,
-    paddingVertical: 6,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: colors.primary,
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    paddingVertical: 4,
+    paddingHorizontal: 12,
+    alignSelf: 'flex-start',
   },
   saveButtonText: {
-    color: colors.primary,
-    fontWeight: 'bold',
-    fontSize: 15,
+    color: colors.white,
+    fontWeight: '600',
+    fontSize: 11,
   },
 }); 

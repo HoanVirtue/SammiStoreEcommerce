@@ -131,6 +131,23 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                         sqlBuilder.Where("t8.PaymentStatus = @PaymentStatus", new { PaymentStatus = filterModel.Get("PaymentStatus") });
                     }
 
+                    if(filterModel.Any("CustomerName"))
+                    {
+                        PropertyFilterModel propertyName = filterModel.GetProperty("CustomerName");
+                        propertyName.FilterColumn = "t2.FullName";
+                        PropertyFilterModel propertyPhone = filterModel.GetProperty("CustomerName");
+                        propertyName.FilterColumn = "t2.Phone";
+                        sqlBuilder.Where($"{RequestFilterModel.GetCommandFromPropertyFilterModel(propertyName)} OR {RequestFilterModel.GetCommandFromPropertyFilterModel(propertyPhone)}");
+                    }
+
+                    //if(filterModel.Any("CustomerAddress"))
+                    //{
+                    //    PropertyFilterModel property = filterModel.GetProperty("CustomerAddress");
+                    //    property.FilterColumn = "CONCAT(t1.CustomerAddress, ', ', t4.Name, ', ', t5.Name, ', ', t6.Name)";
+                    //    sqlBuilder.Where(RequestFilterModel.GetCommandFromPropertyFilterModel(property));
+                    //}
+
+
                     sqlBuilder.GroupBy(@"t1.Id,
                         t1.Code,
                         t1.CustomerId,

@@ -20,6 +20,15 @@ export const getMyVouchers = async (data: { params: TParamsGetAllVouchers }) => 
     }
 }
 
+export const getTopVouchers = async (data: {numberTop: number}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.VOUCHER.INDEX}/get-top-vouchers`, {params: data})
+        return res.data
+    } catch (error) {
+        return error
+    }
+}
+
 export const getVoucherCode = async (data: { params: TParamsGetAllVouchers }) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.VOUCHER.INDEX}/get-code-by-last-id`, data)
@@ -32,6 +41,16 @@ export const getVoucherCode = async (data: { params: TParamsGetAllVouchers }) =>
 export const createVoucher = async (data: TParamsCreateVoucher) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.VOUCHER.INDEX}`, data)
+        return res.data
+    }
+    catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const saveVoucher = async (voucherId: number) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.VOUCHER.INDEX}/save-voucher`,  voucherId)
         return res.data
     }
     catch (error: any) {

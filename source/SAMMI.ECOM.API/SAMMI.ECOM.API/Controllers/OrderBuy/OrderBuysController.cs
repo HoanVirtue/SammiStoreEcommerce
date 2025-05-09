@@ -206,7 +206,8 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             var paymentResult = paymentResponse.Result;
             string[] paymentInfos = paymentResult.OrderDescription.Split('#')[1].Split('_');    
             string orderCode = paymentInfos[0];
-            var redirectUrl = paymentResult.PlatForm == "App" ? _config.GetValue<string>("VNPAYOptions:RedirectUrlApp") : _config.GetValue<string>("VNPAYOptions:RedirectUrl");
+            //var redirectUrl = paymentResult.PlatForm == "App" ? _config.GetValue<string>("VNPAYOptions:RedirectUrlApp") : _config.GetValue<string>("VNPAYOptions:RedirectUrl");
+            var redirectUrl = _config.GetValue<string>("VNPAYOptions:RedirectUrl");
             var payment = await _paymentRepository.GetByOrderCode(orderCode);
             if (payment == null)
             {

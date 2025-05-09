@@ -45,8 +45,7 @@ export const getOrderDetail = async (id: number) => {
 export const createOrder = async (data: TParamsCreateOrder) => {
     try {
 
-        const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/create-order`, data)
-        console.log("createOrder", res.data)
+        const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.ORDER.INDEX}/create-order`, data);
         return res.data
     }
     catch (error: any) {

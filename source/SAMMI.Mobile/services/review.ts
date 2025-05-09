@@ -45,13 +45,10 @@ export const getOverallReview = async (productId: number) => {
 
 export const createReview = async (data: TParamsCreateReview) => {
     try {
-        console.log('create review data service', data)
         const res = await instance.post(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}`, data)
-        console.log('create review res service', res)
         return res.data
     }
     catch (error: any) {
-        console.log('create review error service', error)
         Toast.show({
             type: 'error',
             text1: error?.message,

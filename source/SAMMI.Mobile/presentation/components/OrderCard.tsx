@@ -44,47 +44,6 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
         dispatch(cancelOrderAsync(orderData.code))
     }, [dispatch, orderData.code])
 
-    const handleAddProductToCart = useCallback(async (item: TOrderDetail) => {
-        if (!user?.id) return
-
-        try {
-            await dispatch(
-                createCartAsync({
-                    cartId: 0,
-                    productId: item.productId,
-                    quantity: item.quantity,
-                    operation: 0,
-                })
-            ).unwrap()
-
-            if (isSuccessCreateCart) {
-                await dispatch(
-                    getCartsAsync({
-                        params: {
-                            take: -1,
-                            skip: 0,
-                            paging: false,
-                            orderBy: 'name',
-                            dir: 'asc',
-                            keywords: "''",
-                            filters: '',
-                        },
-                    })
-                )
-            } else {
-                Toast.show({
-                    type: 'error',
-                    text1: errorMessageCreateCart
-                })
-            }
-        } catch (error) {
-            Toast.show({
-                type: 'error',
-                text1: errorMessageCreateCart
-            })
-        }
-    }, [dispatch, user?.id, isSuccessCreateCart, errorMessageCreateCart])
-
     const handleBuyAgain = useCallback(async () => {
         let hasError = false
         for (const item of orderData.details || []) {
@@ -141,14 +100,15 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
     const handlePayment = useCallback(async () => {
         setLoading(true)
         try {
-            const response = await createPayBackOrder({orderCode: orderData.code})
+            const response = await createPayBackOrder({ orderCode: orderData.code })
 
             if (response?.isSuccess) {
-                if (response?.result?.returnUrl) {
-                    router.push('(tabs)/payment' as any)
-                } else {
-                    router.push('(tabs)/payment' as any)
-                }
+                router.push({
+                    pathname: 'vnpayview' as any,
+                    params: {
+                        paymentUrl: response?.result?.returnUrl,
+                      }
+                });
             } else {
                 Toast.show({
                     type: 'error',
@@ -290,6 +250,25 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
                     borderBottomLeftRadius: 8,
                     borderBottomRightRadius: 8,
                 }}>
+                    {(orderData.orderStatus === OrderStatus.Pending.label
+                        || orderData.orderStatus === OrderStatus.WaitingForPayment.label) &&
+                        orderData.paymentStatus !== PaymentStatus.Paid.label
+                        && orderData.paymentMethod === 'VNPay'
+                        && (
+                            <TouchableOpacity style={{
+                                borderWidth: 1,
+                                borderColor: colors.primary,
+                                borderRadius: 4,
+                                paddingVertical: 6,
+                                paddingHorizontal: 16,
+                                marginLeft: 8,
+                            }}
+                                onPress={handlePayment}
+                            >
+                                <Text style={{ color: colors.primary, fontWeight: '600' }}>Thanh toán</Text>
+                            </TouchableOpacity>
+                        )}
+
                     {(orderData.orderStatus === OrderStatus.WaitingForPayment.label || orderData.orderStatus === OrderStatus.Pending.label) &&
                         orderData.paymentMethod !== 'VNPay' && (
                             <TouchableOpacity
@@ -306,21 +285,25 @@ const OrderCard: React.FC<TProps> = ({ orderData }) => {
                                 <Text style={{ color: '#d32f2f', fontWeight: '600' }}>Hủy đơn</Text>
                             </TouchableOpacity>
                         )}
-                    <TouchableOpacity
-                        style={{
-                            borderWidth: 1,
-                            borderColor: colors.primary,
-                            borderRadius: 4,
-                            paddingVertical: 6,
-                            paddingHorizontal: 16,
-                            marginLeft: 8,
-                            opacity: memoDisableBuyAgain ? 0.5 : 1,
-                        }}
-                        onPress={handleBuyAgain}
-                        disabled={memoDisableBuyAgain}
-                    >
-                        <Text style={{ color: colors.primary, fontWeight: '600' }}>Mua lại</Text>
-                    </TouchableOpacity>
+                    {
+                        orderData.orderStatus === OrderStatus.Completed.label && (
+                            <TouchableOpacity
+                                style={{
+                                    borderWidth: 1,
+                                    borderColor: colors.primary,
+                                    borderRadius: 4,
+                                    paddingVertical: 6,
+                                    paddingHorizontal: 16,
+                                    marginLeft: 8,
+                                    opacity: memoDisableBuyAgain ? 0.5 : 1,
+                                }}
+                                onPress={handleBuyAgain}
+                                disabled={memoDisableBuyAgain}
+                            >
+                                <Text style={{ color: colors.primary, fontWeight: '600' }}>Mua lại</Text>
+                            </TouchableOpacity>
+                        )
+                    }
                     <TouchableOpacity
                         style={{
                             borderWidth: 1,

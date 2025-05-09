@@ -83,8 +83,6 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
                 comment: data?.comment ?? "",
             }
 
-
-
             if (imageFile) {
                 const imageCommand = {
                     imageUrl: "",
@@ -100,7 +98,9 @@ const WriteReviewModal = (props: TWriteReviewModal) => {
             } else {
                 dispatch(createReviewAsync(formData))
                 .then((res) => {
-                    console.log('create review res', res)
+                    if(res.payload === undefined || res.payload.isSuccess) {
+                        onClose()
+                    } 
                 })
             }
         }

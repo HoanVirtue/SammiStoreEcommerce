@@ -144,8 +144,8 @@ export const getBannerFields = (): FieldConfig[] => [
 export const getOrderFields = (): FieldConfig[] => [
     { value: "customerName", label: i18n.t("customer_name"), type: "string", operators: getStringOperators() },
     { value: "customerAddress", label: i18n.t("customer_address"), type: "string", operators: getStringOperators() },
-    { value: "customerPhone", label: i18n.t("customer_phone"), type: "string", operators: getStringOperators() },
-    { value: "orderDate", label: i18n.t("place_order_date"), type: "date", operators: getDateOperators() },
+    { value: "phoneNumber", label: i18n.t("customer_phone"), type: "string", operators: getStringOperators() },
+    { value: "createdDate", label: i18n.t("place_order_date"), type: "date", operators: getDateOperators() },
     { value: "totalPrice", label: i18n.t("total_price"), type: "number", operators: getNumberOperators() },
     { value: "paymentStatus", label: i18n.t("payment_status"), type: "string", operators: getStringOperators() },
     { value: "shippingStatus", label: i18n.t("shipping_status"), type: "string", operators: getStringOperators() },
@@ -153,23 +153,24 @@ export const getOrderFields = (): FieldConfig[] => [
 ];
 
 export const getEventFields = (): FieldConfig[] => [
-    { value: "event_code", label: i18n.t("event_code"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("event_code"), type: "string", operators: getStringOperators() },
     { value: "name", label: i18n.t("event_name"), type: "string", operators: getStringOperators() },
-    { value: "start_date", label: i18n.t("start_date"), type: "date", operators: getDateOperators() },
-    { value: "end_date", label: i18n.t("end_date"), type: "date", operators: getDateOperators() },
+    { value: "startDate", label: i18n.t("start_date"), type: "date", operators: getDateOperators() },
+    { value: "endDate", label: i18n.t("end_date"), type: "date", operators: getDateOperators() },
+    { value: "eventType", label: i18n.t("event_type"), type: "string", operators: getStringOperators() },
     { value: "status", label: i18n.t("status"), type: "string", operators: getStringOperators() },
 ];
 
 export const getVoucherFields = (): FieldConfig[] => [
-    { value: "voucher_code", label: i18n.t("voucher_code"), type: "string", operators: getStringOperators() },
+    { value: "code", label: i18n.t("voucher_code"), type: "string", operators: getStringOperators() },
     { value: "name", label: i18n.t("voucher_name"), type: "string", operators: getStringOperators() },
-    { value: "event_name", label: i18n.t("event_name"), type: "string", operators: getStringOperators() },
-    { value: "start_date", label: i18n.t("start_date"), type: "date", operators: getDateOperators() },
-    { value: "end_date", label: i18n.t("end_date"), type: "date", operators: getDateOperators() },
-    { value: "discount_name", label: i18n.t("discount_name"), type: "string", operators: getStringOperators() },
-    { value: "discount_value", label: i18n.t("discount_value"), type: "number", operators: getNumberOperators() },
-    { value: "usage_limit", label: i18n.t("usage_limit"), type: "number", operators: getNumberOperators() },
-    { value: "used_count", label: i18n.t("used_count"), type: "number", operators: getNumberOperators() },
+    { value: "eventName", label: i18n.t("event_name"), type: "string", operators: getStringOperators() },
+    { value: "startDate", label: i18n.t("start_date"), type: "date", operators: getDateOperators() },
+    { value: "endDate", label: i18n.t("end_date"), type: "date", operators: getDateOperators() },
+    { value: "discountType", label: i18n.t("discount_name"), type: "string", operators: getStringOperators() },
+    { value: "discountValue", label: i18n.t("discount_value"), type: "number", operators: getNumberOperators() },
+    { value: "usageLimit", label: i18n.t("usage_limit"), type: "number", operators: getNumberOperators() },
+    { value: "usedCount", label: i18n.t("used_count"), type: "number", operators: getNumberOperators() },
 ];
 
 

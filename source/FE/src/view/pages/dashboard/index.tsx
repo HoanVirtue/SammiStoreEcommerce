@@ -179,7 +179,7 @@ export default function DashboardClient() {
       icon: <DollarSign size={36} className="text-orange-300" />, 
       color: "bg-orange-50" 
     },
-    { label: "Bình luận", value: generalStats?.totalComments || 0, icon: <MessageCircle size={36} className="text-gray-400" />, color: "bg-gray-100" },
+    // { label: "Bình luận", value: generalStats?.totalComments || 0, icon: <MessageCircle size={36} className="text-gray-400" />, color: "bg-gray-100" },
   ], [generalStats, inventoryStats]);
 
   // Memoize popular products
@@ -208,7 +208,7 @@ export default function DashboardClient() {
           {/* Card statistics */}
           <Card className="mb-4 p-6 rounded-2xl shadow-md bg-white">
             <h2 className="text-2xl font-bold mb-8 text-gray-800">Tổng quan thống kê</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
               {mainStats.map((item) => (
                 <div key={item.label} className="transform transition-all duration-200 hover:scale-105">
                   <div className="bg-white rounded-2xl p-4 border border-gray-100 hover:shadow-lg">

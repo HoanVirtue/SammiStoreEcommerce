@@ -50,9 +50,7 @@ export const createVoucher = async (data: TParamsCreateVoucher) => {
 
 export const saveVoucher = async (voucherId: number) => {
     try {
-
-        const res = await instance.post(`${API_ENDPOINT.VOUCHER.INDEX}/save-voucher`, voucherId)
-        console.log('res', res);
+        const res = await instance.post(`${API_ENDPOINT.VOUCHER.INDEX}/save-voucher`,  voucherId)
         return res.data
     }
     catch (error: any) {

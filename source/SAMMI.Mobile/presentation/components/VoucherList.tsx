@@ -95,8 +95,8 @@ export default function VoucherList() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {vouchers.map((voucher) => (
-          <View key={voucher.id} style={styles.voucherCard}>
+        {vouchers.map((voucher, index) => (
+          <View key={`voucher-${voucher.id}-${index}`} style={styles.voucherCard}>
             <View style={styles.voucherContent}>
               <View style={styles.voucherIcon}>
                 <TicketIcon size={60} color={colors.primary} />

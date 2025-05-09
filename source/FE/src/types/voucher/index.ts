@@ -80,6 +80,7 @@ export type TParamsApplyVoucher = {
     startDate: Date;
     endDate: Date;
     conditions:{
+        id: number;
         voucherId: number;
         conditionType: number;
         conditionValue: string;

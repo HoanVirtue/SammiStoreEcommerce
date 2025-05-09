@@ -179,6 +179,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         startDate: new Date(),
         endDate: new Date(),
         conditions: [{
+            id: 0,
             voucherId: 0,
             conditionType: 0,
             conditionValue: "",
@@ -259,6 +260,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                 setValue('endDate', addHours(new Date(data.endDate), 0));
                 if (data.conditions && data.conditions.length > 0) {
                     const conditions = data.conditions.map((condition: VoucherCondition) => ({
+                        id: condition.id,
                         voucherId: condition.voucherId,
                         conditionType: getConditionTypeFromString(condition.conditionType),
                         conditionValue: condition.conditionValue,
@@ -491,7 +493,8 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
 
     const handleAddCondition = () => {
         const newCondition: VoucherCondition = {
-            voucherId: conditions.length + 1,
+            id: 0,
+            voucherId: 0,
             conditionType: 0,
             conditionValue: '',
             displayOrder: conditions.length
@@ -529,7 +532,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         try {
             const adjustedStartDate = addHours(data.startDate, 7);
             const adjustedEndDate = addHours(data.endDate, 7);
-
+            console.log(data);
             if (id) {
                 const result = await dispatch(updateVoucherAsync({
                     id,
@@ -544,6 +547,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                     isActive: true,
                     isDeleted: false,
                     conditions: data.conditions.map(condition => ({
+                        id: condition.id,
                         voucherId: id,
                         conditionType: condition.conditionType,
                         conditionValue: condition.conditionValue,

@@ -25,7 +25,7 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public string? CreatedBy { get; set; }
         public string? UpdatedBy { get; set; }
         [DefaultValue(true)]
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
         [DefaultValue(false)]
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }

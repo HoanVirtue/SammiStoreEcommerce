@@ -25,7 +25,7 @@ namespace SAMMI.ECOM.Domain.Commands.Products
         public DateTime? UpdatedDate { get; set; }
         public string? CreatedBy { get; set; }
         public string? UpdatedBy { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }
     }

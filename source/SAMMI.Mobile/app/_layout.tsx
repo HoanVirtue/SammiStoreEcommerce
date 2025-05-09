@@ -132,6 +132,13 @@ function RootLayoutNav() {
             headerShown: false,
           }}
         />
+
+        <Stack.Screen
+          name="my-order/[orderCode]"
+          options={{
+            headerShown: false
+          }}
+        />
       </Stack>
     </AxiosInterceptor>
   );

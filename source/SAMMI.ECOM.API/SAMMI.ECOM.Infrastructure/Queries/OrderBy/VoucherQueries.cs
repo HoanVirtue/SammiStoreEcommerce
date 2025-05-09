@@ -161,7 +161,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 {
                     sqlBuilder.InnerJoin("MyVoucher t2 ON t1.Id = t2.VoucherId AND t2.IsDeleted != 1");
 
-                    sqlBuilder.Where("t1.StartDate <= NOW() AND t1.EndDate > NOW()");
+                    //sqlBuilder.Where("t1.StartDate <= NOW() AND t1.EndDate > NOW()");
                     sqlBuilder.Where("t2.CustomerId = @customerId", new { customerId });
                     return conn.QueryAsync<VoucherDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 });

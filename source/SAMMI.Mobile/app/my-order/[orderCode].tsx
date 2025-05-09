@@ -1,7 +1,7 @@
 import { AppDispatch, RootState } from "@/stores"
 import { PAYMENT_METHOD } from "@/configs/payment"
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Image, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from '@/hooks/useAuth';
@@ -16,6 +16,7 @@ import { formatPrice } from "@/utils";
 import { MaterialIcons } from '@expo/vector-icons';
 import { colors } from "@/constants/colors";
 import WriteReviewModal from "@/presentation/components/WriteReviewModal";
+import { ArrowLeft } from "lucide-react-native";
 
 
 type TProps = {}
@@ -170,142 +171,156 @@ const MyOrderDetailPage: React.FC<TProps> = () => {
     }, [isSuccessCreate, isErrorCreate, errorMessageCreate])
 
     return (
-        <View style={styles.container}>
-            <WriteReviewModal
-                open={openReview.open}
-                orderId={orderId}
-                orderDetails={orderData?.details || []}
-                onClose={() => setOpenReview({ open: false, userId: 0, productId: 0 })}
-            />
-            <ScrollView style={styles.scrollView}>
-                {/* Order Status Stepper */}
-                
-                {/* Customer Information */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Thông tin khách hàng</Text>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Tên khách hàng:</Text>
-                        <Text style={styles.value}>{orderData?.customerName}</Text>
+        <SafeAreaView style={styles.container}>
+            <StatusBar barStyle="dark-content" />
+            <View style={styles.navbar}>
+                <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+                    <ArrowLeft size={24} color="#D81B60" />
+                </TouchableOpacity>
+                <Text style={styles.navTitle}>Đặt hàng</Text>
+                <View style={styles.placeholder} />
+            </View>
+            <View style={styles.container}>
+                <WriteReviewModal
+                    open={openReview.open}
+                    orderId={orderId}
+                    orderDetails={orderData?.details || []}
+                    onClose={() => setOpenReview({ open: false, userId: 0, productId: 0 })}
+                />
+                <ScrollView style={styles.scrollView}>
+                    {/* Order Status Stepper */}
+                    
+                    {/* Customer Information */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Thông tin khách hàng</Text>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Tên khách hàng:</Text>
+                            <Text style={styles.value}>{orderData?.customerName}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Số điện thoại:</Text>
+                            <Text style={styles.value}>{orderData?.phoneNumber}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Địa chỉ:</Text>
+                            <Text style={[styles.value, styles.addressText]}>{orderData?.customerAddress}</Text>
+                        </View>
                     </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Số điện thoại:</Text>
-                        <Text style={styles.value}>{orderData?.phoneNumber}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Địa chỉ:</Text>
-                        <Text style={[styles.value, styles.addressText]}>{orderData?.customerAddress}</Text>
-                    </View>
-                </View>
 
-                {/* Order Information */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Thông tin đơn hàng</Text>
-                    {orderData?.details?.map((item: TOrderDetail, index: number) => (
-                        <View key={index} style={styles.orderItem}>
-                            <Image
-                                source={{ uri: item.imageUrl || '/public/svgs/placeholder.svg' }}
-                                style={styles.productImage}
-                            />
-                            <View style={styles.productInfo}>
-                                <TouchableOpacity onPress={() => router.push(`/product/${item.productId}`)}>
-                                    <Text style={styles.productName}>{item.productName}</Text>
-                                </TouchableOpacity>
-                                <Text style={styles.quantity}>x{item.quantity}</Text>
+                    {/* Order Information */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Thông tin đơn hàng</Text>
+                        {orderData?.details?.map((item: TOrderDetail, index: number) => (
+                            <View key={index} style={styles.orderItem}>
+                                <Image
+                                    source={{ uri: item.imageUrl || '/public/svgs/placeholder.svg' }}
+                                    style={styles.productImage}
+                                />
+                                <View style={styles.productInfo}>
+                                    <TouchableOpacity onPress={() => router.push(`/product/${item.productId}`)}>
+                                        <Text style={styles.productName}>{item.productName}</Text>
+                                    </TouchableOpacity>
+                                    <Text style={styles.quantity}>x{item.quantity}</Text>
+                                </View>
+                                <Text style={styles.price}>{formatPrice(item.price)}</Text>
                             </View>
-                            <Text style={styles.price}>{formatPrice(item.price)}</Text>
-                        </View>
-                    ))}
+                        ))}
 
-                    <View style={styles.divider} />
-
-                    <View style={styles.priceSummary}>
-                        <View style={styles.priceRow}>
-                            <Text style={styles.priceLabel}>Tạm tính</Text>
-                            <Text style={styles.priceValue}>{formatPrice(orderData?.totalPrice)}</Text>
-                        </View>
-                        <View style={styles.priceRow}>
-                            <Text style={styles.priceLabel}>Phí vận chuyển</Text>
-                            <Text style={styles.priceValue}>{formatPrice(orderData?.costShip || 0)}</Text>
-                        </View>
-                        <View style={styles.priceRow}>
-                            <Text style={styles.priceLabel}>Giảm giá</Text>
-                            <Text style={styles.priceValue}>{formatPrice(orderData?.discount || 0)}</Text>
-                        </View>
                         <View style={styles.divider} />
-                        <View style={styles.priceRow}>
-                            <Text style={styles.totalLabel}>Tổng cộng</Text>
-                            <Text style={styles.totalValue}>
-                                {formatPrice(orderData?.totalPrice + (orderData?.costShip || 0) - (orderData?.discount || 0))}
-                            </Text>
+
+                        <View style={styles.priceSummary}>
+                            <View style={styles.priceRow}>
+                                <Text style={styles.priceLabel}>Tạm tính</Text>
+                                <Text style={styles.priceValue}>{formatPrice(orderData?.totalPrice)}</Text>
+                            </View>
+                            <View style={styles.priceRow}>
+                                <Text style={styles.priceLabel}>Phí vận chuyển</Text>
+                                <Text style={styles.priceValue}>{formatPrice(orderData?.costShip || 0)}</Text>
+                            </View>
+                            <View style={styles.priceRow}>
+                                <Text style={styles.priceLabel}>Giảm giá</Text>
+                                <Text style={styles.priceValue}>{formatPrice(orderData?.discount || 0)}</Text>
+                            </View>
+                            <View style={styles.divider} />
+                            <View style={styles.priceRow}>
+                                <Text style={styles.totalLabel}>Tổng cộng</Text>
+                                <Text style={styles.totalValue}>
+                                    {formatPrice(orderData?.totalPrice + (orderData?.costShip || 0) - (orderData?.discount || 0))}
+                                </Text>
+                            </View>
                         </View>
                     </View>
-                </View>
 
-                {/* Payment & Delivery Information */}
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Thông tin thanh toán & giao hàng</Text>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Phương thức thanh toán:</Text>
-                        <Text style={styles.value}>{orderData?.paymentMethod}</Text>
+                    {/* Payment & Delivery Information */}
+                    <View style={styles.section}>
+                        <Text style={styles.sectionTitle}>Thông tin thanh toán & giao hàng</Text>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Mã đơn hàng:</Text>
+                            <Text style={styles.value}>{orderCode}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Phương thức thanh toán:</Text>
+                            <Text style={styles.value}>{orderData?.paymentMethod}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Trạng thái thanh toán:</Text>
+                            <Text style={styles.value}>{getPaymentStatus(orderData?.paymentStatus)}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Phương thức giao hàng:</Text>
+                            <Text style={styles.value}>{orderData?.deliveryMethod || 'GHN'}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Trạng thái giao hàng:</Text>
+                            <Text style={styles.value}>{getShippingStatus(orderData?.shippingStatus)}</Text>
+                        </View>
+                        <View style={styles.infoRow}>
+                            <Text style={styles.label}>Trạng thái đơn hàng:</Text>
+                            <Text style={styles.value}>{getOrderStatus(orderData?.orderStatus)}</Text>
+                        </View>
                     </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Trạng thái thanh toán:</Text>
-                        <Text style={styles.value}>{getPaymentStatus(orderData?.paymentStatus)}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Phương thức giao hàng:</Text>
-                        <Text style={styles.value}>{orderData?.deliveryMethod || 'GHN'}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Trạng thái giao hàng:</Text>
-                        <Text style={styles.value}>{getShippingStatus(orderData?.shippingStatus)}</Text>
-                    </View>
-                    <View style={styles.infoRow}>
-                        <Text style={styles.label}>Trạng thái đơn hàng:</Text>
-                        <Text style={styles.value}>{getOrderStatus(orderData?.orderStatus)}</Text>
-                    </View>
-                </View>
 
-                {/* Action Buttons */}
-                <View style={styles.actionButtons}>
-                    {(orderData?.orderStatus === OrderStatus.Pending.label
-                        || orderData?.orderStatus === OrderStatus.WaitingForPayment.label) &&
-                        orderData?.paymentStatus !== PaymentStatus.Paid.label
-                        && orderData?.paymentMethod === 'VNPay' && (
+                    {/* Action Buttons */}
+                    <View style={styles.actionButtons}>
+                        {(orderData?.orderStatus === OrderStatus.Pending.label
+                            || orderData?.orderStatus === OrderStatus.WaitingForPayment.label) &&
+                            orderData?.paymentStatus !== PaymentStatus.Paid.label
+                            && orderData?.paymentMethod === 'VNPay' && (
+                                <TouchableOpacity
+                                    style={[styles.button, styles.paymentButton]}
+                                    onPress={() => handlePaymentMethod(orderData.paymentMethod)}
+                                >
+                                    <MaterialIcons name="payment" size={20} color="#fff" />
+                                    <Text style={styles.buttonText}>Thanh toán</Text>
+                                </TouchableOpacity>
+                            )}
+                        {(orderData?.orderStatus === OrderStatus.WaitingForPayment.label || orderData?.orderStatus === OrderStatus.Pending.label) &&
+                            orderData?.paymentMethod !== 'VNPay' && (
+                                <TouchableOpacity
+                                    style={[styles.button, styles.cancelButton]}
+                                    onPress={() => setOpenCancelDialog(true)}
+                                >
+                                    <MaterialIcons name="cancel" size={20} color="#fff" />
+                                    <Text style={styles.buttonText}>Hủy đơn hàng</Text>
+                                </TouchableOpacity>
+                            )}
+                        {orderData?.orderStatus === OrderStatus.Completed.label && (
                             <TouchableOpacity
-                                style={[styles.button, styles.paymentButton]}
-                                onPress={() => handlePaymentMethod(orderData.paymentMethod)}
+                                style={[styles.button, styles.reviewButton]}
+                                onPress={() => setOpenReview({
+                                    open: true,
+                                    userId: user?.id || 0,
+                                    productId: orderData?.details?.[0]?.productId || 0
+                                })}
                             >
-                                <MaterialIcons name="payment" size={20} color="#fff" />
-                                <Text style={styles.buttonText}>Thanh toán</Text>
+                                <MaterialIcons name="star" size={20} color="#fff" />
+                                <Text style={styles.buttonText}>Đánh giá sản phẩm</Text>
                             </TouchableOpacity>
                         )}
-                    {(orderData?.orderStatus === OrderStatus.WaitingForPayment.label || orderData?.orderStatus === OrderStatus.Pending.label) &&
-                        orderData?.paymentMethod !== 'VNPay' && (
-                            <TouchableOpacity
-                                style={[styles.button, styles.cancelButton]}
-                                onPress={() => setOpenCancelDialog(true)}
-                            >
-                                <MaterialIcons name="cancel" size={20} color="#fff" />
-                                <Text style={styles.buttonText}>Hủy đơn hàng</Text>
-                            </TouchableOpacity>
-                        )}
-                    {orderData?.orderStatus === OrderStatus.Completed.label && (
-                        <TouchableOpacity
-                            style={[styles.button, styles.reviewButton]}
-                            onPress={() => setOpenReview({
-                                open: true,
-                                userId: user?.id || 0,
-                                productId: orderData?.details?.[0]?.productId || 0
-                            })}
-                        >
-                            <MaterialIcons name="star" size={20} color="#fff" />
-                            <Text style={styles.buttonText}>Đánh giá sản phẩm</Text>
-                        </TouchableOpacity>
-                    )}
-                </View>
-            </ScrollView>
-        </View>
+                    </View>
+                </ScrollView>
+            </View>
+        </SafeAreaView>
     )
 }
 
@@ -435,6 +450,27 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontSize: 14,
         fontWeight: '500',
+    },
+    navbar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 8,
+        paddingTop: 8,
+        paddingBottom: 8,
+    },
+    navTitle: {
+        flex: 1,
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#D81B60',
+    },
+    placeholder: {
+        width: 40, // Để cân bằng với backButton
+    },
+    backButton: {
+        padding: 8,
     },
 });
 

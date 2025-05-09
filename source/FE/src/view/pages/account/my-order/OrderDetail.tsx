@@ -281,6 +281,12 @@ const MyOrderDetailPage: NextPage<TProps> = () => {
                         <StepLabel step="3" title={t('payment_delivery_information')} />
                         <Stack spacing={2} sx={{ mt: 3 }}>
                             <Stack spacing={1} direction="row" alignItems="center">
+                                <Typography variant="subtitle2" fontWeight='bold'>{t('order_code')}: </Typography>
+                                <Typography variant="body2">
+                                    {orderCode}
+                                </Typography>
+                            </Stack>
+                            <Stack spacing={1} direction="row" alignItems="center">
                                 <Typography variant="subtitle2" fontWeight='bold'>{t('payment_method')}: </Typography>
                                 <Typography variant="body2">
                                     {orderData?.paymentMethod}

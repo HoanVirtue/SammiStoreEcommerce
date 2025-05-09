@@ -123,4 +123,5 @@ export type TOrderItem = {
     discountAmount?: number,
     deliveryMethod?: string,
     createdDate?: Date,
+    
 }

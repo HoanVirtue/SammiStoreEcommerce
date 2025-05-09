@@ -317,14 +317,16 @@ const OrderCard: NextPage<TProps> = (props) => {
                                 {t('cancel_order')}
                             </Button>
                         )}
-                    <Button variant="contained"
-                        color='primary'
-                        onClick={handleBuyAgain}
-                        disabled={memoDisableBuyAgain}
-                        startIcon={<IconifyIcon icon="bx:cart" />}
-                        sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
-                        {t('buy_again')}
-                    </Button>
+                    {orderData.orderStatus === OrderStatus.Cancelled.label && (
+                        <Button variant="contained"
+                            color='primary'
+                            onClick={handleBuyAgain}
+                            disabled={memoDisableBuyAgain}
+                            startIcon={<IconifyIcon icon="bx:cart" />}
+                            sx={{ height: "40px", mt: 3, py: 1.5, fontWeight: 600 }}>
+                            {t('buy_again')}
+                        </Button>
+                    )}
                     <Button type="submit" variant="outlined"
                         onClick={handleNavigateDetail}
                         startIcon={<IconifyIcon icon="icon-park-outline:view-grid-detail" />}

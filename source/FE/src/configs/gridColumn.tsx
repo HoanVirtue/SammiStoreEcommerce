@@ -78,7 +78,7 @@ export const getOrderColumns = (): GridColDef[] => {
       }
     },
     {
-      field: 'orderDate',
+      field: 'createdDate',
       headerName: t('place_order_date'),
       flex: 1,
       minWidth: 200,
@@ -260,21 +260,21 @@ export const getProvinceColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: "province_name",
+      field: "name",
       headerName: t("province_name"),
       flex: 1,
       minWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.name}</Typography>,
     },
     {
-      field: "province_code",
+      field: "code",
       headerName: t("province_code"),
       minWidth: 300,
       maxWidth: 300,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
-      field: "postal_code",
+      field: "postalCode",
       headerName: t("postal_code"),
       minWidth: 300,
       maxWidth: 300,
@@ -326,7 +326,7 @@ export const getWardColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: "ward_name",
+      field: "name",
       headerName: t("ward_name"),
       flex: 1,
       minWidth: 200,
@@ -342,21 +342,21 @@ export const getWardColumns = (): GridColDef[] => {
         </Tooltip>
     },
     {
-      field: "ward_code",
+      field: "code",
       headerName: t("ward_code"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
-      field: "district_name",
+      field: "districtName",
       headerName: t("district_name"),
       flex: 1,
       minWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.districtName}</Typography>,
     },
     {
-      field: "district_code",
+      field: "districtCode",
       headerName: t("district_code"),
       minWidth: 200,
       maxWidth: 200,
@@ -370,7 +370,7 @@ export const getBrandColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: "brand_name",
+      field: "name",
       headerName: t("brand_name"),
       flex: 1,
       minWidth: 200,
@@ -379,7 +379,7 @@ export const getBrandColumns = (): GridColDef[] => {
       ),
     },
     {
-      field: "brand_code",
+      field: "code",
       headerName: t("brand_code"),
       minWidth: 200,
       maxWidth: 200,
@@ -492,7 +492,7 @@ export const getProductColumns = (): GridColDef[] => {
       }
     },
     {
-      field: 'productCategory',
+      field: 'categoryName',
       headerName: t('product_category'),
       minWidth: 200,
       maxWidth: 200,
@@ -795,7 +795,7 @@ export const getBannerColumns = (): GridColDef[] => {
     },
 
     {
-      field: 'imageCommand',
+      field: 'imageUrl',
       headerName: t('banner_image'),
       minWidth: 200,
       maxWidth: 200,
@@ -931,35 +931,35 @@ export const getReceiptColumns = (): GridColDef[] => {
   const theme = useTheme()
   return [
     {
-      field: "receipt_code",
+      field: "code",
       headerName: t("receipt_code"),
       flex: 1,
       minWidth: 160,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
-      field: "employee",
+      field: "employeeName",
       headerName: t("employee"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.employeeName}</Typography>,
     },
     {
-      field: "receipt_date",
+      field: "createdDate",
       headerName: t("receipt_date"),
       minWidth: 200,
       maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => <Typography>{formatDate(params.row.createdDate, { dateStyle: "short", timeStyle: "short" })}</Typography>
     },
     {
-      field: "supplier_name",
+      field: "supplierName",
       headerName: t("supplier_name"),
       minWidth: 350,
       maxWidth: 350,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.supplierName}</Typography>,
     },
     {
-      field: "total_price",
+      field: "totalPrice",
       headerName: t("total_price"),
       minWidth: 200,
       maxWidth: 200,

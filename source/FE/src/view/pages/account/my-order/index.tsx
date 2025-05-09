@@ -86,7 +86,7 @@ const useOrderList = () => {
             take: pageSize,
             skip: (page - 1) * pageSize,
             paging: true,
-            orderBy: "updatedDate",
+            orderBy: selectedStatus === "Cancelled" ? "updatedDate" : "createdDate",
             dir: "desc",
             keywords: debouncedSearchTerm || "''",
             filters: selectedStatus === "all" ? "" : `orderStatus::${selectedStatus}::eq`

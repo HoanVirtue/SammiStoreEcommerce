@@ -120,9 +120,9 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
             transparent={true}
             onRequestClose={onClose}
         >
-            <SafeAreaView style={styles.modalContainer}>
-                <StatusBar barStyle="dark-content" />
-                <View style={styles.modalContent}>
+            {/* <SafeAreaView style={styles.modalContainer}> */}
+                <SafeAreaView style={styles.modalContent}>
+                    <StatusBar barStyle="dark-content" />
                     <View style={styles.header}>
                         <Text style={styles.title}>Chọn mã giảm giá</Text>
                         <TouchableOpacity onPress={onClose} style={styles.closeButton}>
@@ -239,8 +239,8 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
                             style={styles.footerButton}
                         />
                     </View>
-                </View>
-            </SafeAreaView>
+                </SafeAreaView>
+            {/* </SafeAreaView> */}
         </Modal>
     );
 };

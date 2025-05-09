@@ -366,8 +366,8 @@ export default function ProductDetailScreen() {
           quantity: quantity,
           operation: 0,
         })
-      ).then(() => {
-        if (isSuccessCreate) {
+      ).then((res) => {
+        if(res.payload.isSuccess) {
           Toast.show({
             type: 'success',
             text1: 'Thêm sản phẩm vào giỏ hàng thành công',
@@ -385,13 +385,14 @@ export default function ProductDetailScreen() {
               },
             })
           );
-        } else if (isErrorCreate) {
+        } else {
           Toast.show({
             type: 'error',
             text1: 'Lỗi',
             text2: errorMessageCreate || 'Thêm sản phẩm vào giỏ hàng thất bại. Vui lòng thử lại',
           });
         }
+        
         setIsAddingToCart(false);
       });
     } else {

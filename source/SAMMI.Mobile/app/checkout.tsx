@@ -203,7 +203,6 @@ const CheckoutScreen = () => {
         paymentMethodId: Number(selectedPayment),
       })
     ).then(async (res) => {
-      console.log('checkout vnpay res', res);
       if (res?.payload?.isSuccess) {
         const resultData = res.payload.result;
         const orderId = resultData?.orderId;

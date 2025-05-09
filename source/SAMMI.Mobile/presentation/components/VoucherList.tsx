@@ -44,7 +44,6 @@ export default function VoucherList() {
 
   const handleVoucherPress = (voucher: Voucher) => {
     // Xử lý khi người dùng nhấn vào voucher
-    console.log('Selected voucher:', voucher);
   };
 
   const handleSaveVoucher = (voucher: Voucher) => {

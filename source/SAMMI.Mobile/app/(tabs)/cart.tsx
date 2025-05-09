@@ -52,7 +52,7 @@ export default function CartScreen() {
       console.error('Error fetching cart:', error);
       Toast.show({
         type: 'error',
-        text1: 'Failed to load cart',
+        text1: 'Lỗi load giỏ hàng! Vui lòng thử lại sau',
       });
       setCart({ data: [] });
     } finally {
@@ -145,7 +145,7 @@ const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
       } catch (error) {
         Toast.show({
           type: 'error',
-          text1: 'Failed to update quantity',
+          text1: 'Lỗi cập nhật giỏ hàng',
         });
         await fetchCart();
       }
@@ -163,12 +163,12 @@ const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
         setSelectedItems((prev) => prev.filter((id) => id !== productId));
         Toast.show({
           type: 'success',
-          text1: 'Item removed from cart',
+          text1: 'Sản phẩm đã được xóa khỏi giỏ hàng',
         });
       } catch (error) {
         Toast.show({
           type: 'error',
-          text1: 'Failed to remove item',
+          text1: 'Lỗi xóa sản phẩm ra khỏi giỏ hàng',
         });
         await fetchCart();
       }
@@ -187,12 +187,12 @@ const memoTotalPrice = useMemo(() => memoSubtotal, [memoSubtotal]);
       setSelectedItems([]);
       Toast.show({
         type: 'success',
-        text1: 'Selected items removed from cart',
+        text1: 'Các mặt hàng đã chọn đã xóa khỏi giỏ hàng',
       });
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Failed to remove items',
+        text1: 'Lỗi khi xóa sản phẩm khỏi giỏ hàng',
       });
       await fetchCart();
     }

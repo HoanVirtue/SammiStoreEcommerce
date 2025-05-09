@@ -8,7 +8,8 @@ import {
     TextInput,
     ScrollView,
     ActivityIndicator,
-    Platform
+    Platform,
+    StatusBar
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 
@@ -120,6 +121,7 @@ const VoucherModal = ({ open, onClose, onSelectVoucher, cartDetails }: VoucherMo
             onRequestClose={onClose}
         >
             <SafeAreaView style={styles.modalContainer}>
+                <StatusBar barStyle="dark-content" />
                 <View style={styles.modalContent}>
                     <View style={styles.header}>
                         <Text style={styles.title}>Chọn mã giảm giá</Text>

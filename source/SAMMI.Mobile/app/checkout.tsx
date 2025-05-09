@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
   Image,
+  StatusBar,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '@react-navigation/native';
@@ -23,7 +24,7 @@ import { getCurrentAddress } from '@/services/address';
 import { getAllPaymentMethods } from '@/services/payment-method';
 import { getCartData } from '@/services/cart';
 import { formatPrice } from '@/utils';
-import { Truck, Wallet, Ticket } from 'lucide-react-native';
+import { Truck, Wallet, Ticket, ArrowLeft } from 'lucide-react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ProductImage, TProduct } from '../types/product';
 import { TParamsAddresses } from '@/types/address';
@@ -383,7 +384,15 @@ const CheckoutScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-
+      <StatusBar barStyle="dark-content" />
+      
+      <View style={styles.navbar}>
+          <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+              <ArrowLeft size={24} color="#D81B60" />
+          </TouchableOpacity>
+          <Text style={styles.navTitle}>Đặt hàng</Text>
+          <View style={styles.placeholder} />
+      </View>
       <ScrollView style={styles.scrollView}>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Thông tin giao hàng</Text>
@@ -833,6 +842,27 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
   },
+  navbar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingHorizontal: 8,
+        paddingTop: 8,
+        paddingBottom: 8,
+    },
+    navTitle: {
+        flex: 1,
+        textAlign: 'center',
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#D81B60',
+    },
+    placeholder: {
+        width: 40, // Để cân bằng với backButton
+    },
+    backButton: {
+        padding: 8,
+    },
 });
 
 export default CheckoutScreen;

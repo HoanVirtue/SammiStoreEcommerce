@@ -109,10 +109,11 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         padding: 8,
+        justifyContent: 'space-between',
     },
     skeletonItem: {
         width: '48%',
-        margin: 8,
+        marginBottom: 16,
     },
     skeletonImage: {
         height: 200,

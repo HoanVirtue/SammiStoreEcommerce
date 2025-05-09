@@ -5,8 +5,7 @@ import { ProductCard } from './ProductCard';
 import CountDownTimer from './CountDownTimer';
 import NoData from '@/components/NoData';
 import { getEndowProducts } from '@/services/product';
-
-
+import { colors } from '@/constants/colors';
 
 interface HotSaleProps {
     initialData?: any[];
@@ -53,9 +52,15 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData, refreshTrigger = 0 }) =>
         </View>
     );
 
-    const renderSkeletonItem = ({ item, index }: { item: any, index: number }) => (
-        <View style={styles.productItemContainer} key={`skeleton-${index}`}>
-             <ProductCard product={{} as TProduct} />
+    const renderSkeletonItem = () => (
+        <View style={styles.skeletonContainer}>
+            {Array.from(new Array(10)).map((_, index) => (
+                <View key={index} style={styles.skeletonItem}>
+                    <View style={styles.skeletonImage} />
+                    <View style={styles.skeletonText} />
+                    <View style={[styles.skeletonText, { width: '60%' }]} />
+                </View>
+            ))}
         </View>
     );
 
@@ -73,21 +78,13 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData, refreshTrigger = 0 }) =>
                 </View>
                 <View style={styles.productListContainer}>
                     {loading ? (
-                        <FlatList
-                            data={Array.from(new Array(skeletonCount))}
-                            renderItem={renderSkeletonItem}
-                            keyExtractor={(_, index) => `skeleton-${index}`}
-                            numColumns={2} // Adjust number of columns as needed
-                            contentContainerStyle={styles.listContentContainer}
-                            columnWrapperStyle={styles.columnWrapper}
-                            scrollEnabled={false}
-                        />
+                        renderSkeletonItem()
                     ) : publicProducts.data.length > 0 ? (
                         <FlatList
                             data={publicProducts.data}
                             renderItem={renderProductItem}
                             keyExtractor={(item) => item.id.toString()}
-                            numColumns={2} // Adjust number of columns as needed
+                            numColumns={2}
                             contentContainerStyle={styles.listContentContainer}
                             columnWrapperStyle={styles.columnWrapper}
                             scrollEnabled={false}
@@ -162,6 +159,27 @@ const styles = StyleSheet.create({
         padding: 2,
         justifyContent: 'center',
         alignItems: 'center',
+    },
+    skeletonContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        padding: 8,
+        justifyContent: 'space-between',
+    },
+    skeletonItem: {
+        width: '48%',
+        marginBottom: 16,
+    },
+    skeletonImage: {
+        height: 200,
+        backgroundColor: colors.border,
+        borderRadius: 8,
+    },
+    skeletonText: {
+        height: 16,
+        backgroundColor: colors.border,
+        marginTop: 8,
+        borderRadius: 4,
     },
 });
 

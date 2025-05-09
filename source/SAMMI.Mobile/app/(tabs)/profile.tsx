@@ -144,7 +144,7 @@ export default function ProfileScreen() {
             <ChevronRight size={16} color={colors.textSecondary} />
           </Pressable>
 
-          <Pressable style={styles.menuItem} onPress={handleAddress}  >
+          {/* <Pressable style={styles.menuItem} onPress={handleAddress}  >
             <View style={styles.menuItemLeft}>
               <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                 <MapPin size={18} color="#2196F3" />
@@ -152,7 +152,7 @@ export default function ProfileScreen() {
               <Text style={styles.menuItemText}>Quản lý địa chỉ nhận</Text>
             </View>
             <ChevronRight size={16} color={colors.textSecondary} />
-          </Pressable>
+          </Pressable> */}
           
           <Pressable style={styles.menuItem} onPress={handleSignOut}>
             <View style={styles.menuItemLeft}>

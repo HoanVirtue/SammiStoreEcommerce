@@ -902,6 +902,10 @@
     "save_voucher": "Lưu voucher",
     "save_voucher_success": "Lưu voucher thành công",
     "save_voucher_failed": "Lưu voucher thất bại",
+    "save_event_success": "Lưu sự kiện thành công",
+    "save_event_failed": "Lưu sự kiện thất bại",
+    "no_data_event_type": "Không có dữ liệu về loại sự kiện",
+    "no_data_product" : "Không có dữ liệu về sản phẩm",
 
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",

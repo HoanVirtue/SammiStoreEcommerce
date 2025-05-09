@@ -60,8 +60,8 @@ type TDefaultValues = {
     code: string;
     name: string;
     stockQuantity: number;
-    price: string;
-    importPrice: string;
+    price: number;
+    importPrice: number;
     discount?: string | null;
     ingredient: EditorState;
     uses: EditorState;
@@ -152,10 +152,8 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
                 return !startDate || (startDate && value && startDate.getTime() < value?.getTime());
             }),
         status: yup.number().required(t('required_product_status')),
-        price: yup.string().required(t("required_product_price"))
-            .test('least_price', t('at_least_price_product'), (value) => Number(value) >= 1000),
-        importPrice: yup.string().required(t("required_product_import_price"))
-            .test('least_import_price', t('at_least_import_price_product'), (value) => Number(value) >= 1000),
+        price: yup.number().default(0),
+        importPrice: yup.number().default(0),
         images: yup
             .array()
             .of(
@@ -177,8 +175,8 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
         code: productCode,
         name: "",
         stockQuantity: 0,
-        price: "",
-        importPrice: "",
+        price: 0,
+        importPrice: 0,
         discount: "",
         ingredient: EditorState.createEmpty(),
         uses: EditorState.createEmpty(),

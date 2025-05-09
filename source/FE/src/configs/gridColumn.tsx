@@ -7,6 +7,7 @@ import Image from 'src/components/image'
 import { getReceiptStatusLabel } from 'src/configs/receipt'
 import { PaymentStatus, ShippingStatus, OrderStatus } from 'src/configs/order'
 import { useMemo } from 'react'
+import { getEventTypeLabel } from './event'
 
 const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   backgroundColor: "#28c76f29",
@@ -529,8 +530,8 @@ export const getProductColumns = (): GridColDef[] => {
     {
       field: 'discountPrice',
       headerName: t('discount_price'),
-      minWidth: 150,
-      maxWidth: 150,
+      minWidth: 250,
+      maxWidth: 250,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
@@ -541,8 +542,8 @@ export const getProductColumns = (): GridColDef[] => {
     {
       field: 'stockQuantity',
       headerName: t('stock_quantity'),
-      minWidth: 100,
-      maxWidth: 100,
+      minWidth: 200,
+      maxWidth: 200,
       renderCell: (params: GridRenderCellParams) => {
         const { row } = params
         return (
@@ -933,7 +934,7 @@ export const getReceiptColumns = (): GridColDef[] => {
       field: "receipt_code",
       headerName: t("receipt_code"),
       flex: 1,
-      minWidth: 300,
+      minWidth: 160,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>,
     },
     {
@@ -953,8 +954,8 @@ export const getReceiptColumns = (): GridColDef[] => {
     {
       field: "supplier_name",
       headerName: t("supplier_name"),
-      minWidth: 150,
-      maxWidth: 150,
+      minWidth: 350,
+      maxWidth: 350,
       renderCell: (params: GridRenderCellParams) => <Typography>{params.row.supplierName}</Typography>,
     },
     {
@@ -1263,9 +1264,9 @@ export const getEventColumns = (): GridColDef[] => {
     {
       field: "event_type",
       headerName: t("event_type"),
-      minWidth: 200,
-      maxWidth: 200,
-      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.eventType}</Typography>,
+      minWidth: 300,
+      maxWidth: 300,
+      renderCell: (params: GridRenderCellParams) => <Typography>{getEventTypeLabel(params.row.eventType)}</Typography>,
     },
     {
       field: 'status',

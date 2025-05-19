@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateEvent, TParamsDeleteMultipleEvents, TParamsGetAllEvents, TParamsUpdateEvent } from "src/types/event"
+import { TParamsCreateEvent, TParamsDeleteMultipleEvents, TParamsGetAllEvents, TParamsUpdateEvent, TParamsUpdateEventActive } from "src/types/event"
 
 export const getAllEvents= async (data: {params: TParamsGetAllEvents}) => {
     try {
@@ -72,6 +72,17 @@ export const deleteMultipleEvents= async (data: TParamsDeleteMultipleEvents) => 
             data: null
         }
     } catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+
+export const updateEventActive = async (data: TParamsUpdateEventActive) => {
+    try {
+        const res: any = await instance.put(`${API_ENDPOINT.EVENT.INDEX}/change-active/${data.id}`, data)
+        return res
+    }
+    catch (error: any) {
         return error?.response?.data
     }
 }

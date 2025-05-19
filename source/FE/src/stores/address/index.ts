@@ -71,11 +71,13 @@ export const addressesSlice = createSlice({
     builder.addCase(getAllAddressesAsync.pending, (state, action) => {
       state.isLoading = true
     })
+
     builder.addCase(getAllAddressesAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.addresses.data = Array.isArray(action?.payload?.result) ? action?.payload?.result : [];
       state.addresses.total = action?.payload?.result?.totalItemCount
     })
+    
     builder.addCase(getAllAddressesAsync.rejected, (state, action) => {
       state.isLoading = false
       state.addresses.data = []

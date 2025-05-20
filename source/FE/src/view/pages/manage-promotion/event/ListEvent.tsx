@@ -20,6 +20,7 @@ import { getEventFields } from "src/configs/gridConfig";
 import Spinner from "src/components/spinner";
 // Lazy load CreateUpdateEvent component
 const CreateUpdateEvent = lazy(() => import("./components/CreateUpdateEvent"));
+const EventDetail = lazy(() => import("./components/EventDetail"));
 
 // Dynamic import for AdminPage
 const AdminPage = dynamic(() => import("src/components/admin-page"), {
@@ -91,6 +92,11 @@ const ListEventPage: NextPage = () => {
         setShowCreateTab(false);
     };
 
+    const handleCloseDetailTab = () => {
+        setCurrentTab(0);
+        setShowDetailTab(false);
+    };
+
     const handleCloseUpdateTab = () => {
         setCurrentTab(0);
         setShowUpdateTab(false);
@@ -112,6 +118,7 @@ const ListEventPage: NextPage = () => {
                 showCreateTab={showCreateTab}
                 showUpdateTab={showUpdateTab}
                 showDetailTab={showDetailTab}
+                showDetailButton={true}
                 currentTab={currentTab}
                 onTabChange={handleTabChange}
                 onAddClick={handleAddClick}
@@ -120,7 +127,10 @@ const ListEventPage: NextPage = () => {
 
                 onCloseCreateTab={handleCloseCreateTab}
                 onCloseUpdateTab={handleCloseUpdateTab}
+                onCloseDetailTab={handleCloseDetailTab}
+
                 CreateUpdateTabComponent={CreateUpdateEvent}
+                DetailComponent={EventDetail}
                 permissionKey={EVENT_PERMISSION_KEY}
                 fieldMapping={EVENT_FIELD_MAPPING}
                 noDataText="no_data_event"

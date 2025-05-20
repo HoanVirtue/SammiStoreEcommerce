@@ -66,3 +66,8 @@ export type TParamsDeleteEvent = {
 export type TParamsDeleteMultipleEvents = {
     eventIds: number[],
 }
+
+export type TParamsUpdateEventActive = {
+    id: number,
+    isActive: boolean,
+}

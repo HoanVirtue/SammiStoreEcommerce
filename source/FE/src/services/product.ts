@@ -3,6 +3,8 @@ import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
 import { TParamsCreateProduct, TParamsDeleteMultipleProducts, TParamsGetAllProducts, TParamsGetRelatedProduct, TParamsGetRelatedProducts, TParamsUpdateProduct, TParamsGetSuggest } from "src/types/product"
 
+
+
 export const getAllProducts = async (data: {params: TParamsGetAllProducts}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}`, data)

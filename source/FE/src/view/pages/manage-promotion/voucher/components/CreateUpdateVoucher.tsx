@@ -54,8 +54,8 @@ enum ConditionTypeEnum {
 
 interface VoucherCondition {
     voucherId: number;
-    conditionType: number;
-    conditionValue: string;
+    conditionType: number;  
+    conditionValue: number | string;
     id?: number;
     createdDate?: string;
     updatedDate?: string;
@@ -121,14 +121,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
     const [loading, setLoading] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const voucherCode = useSelector((state: any) => state.voucher.voucherCode);
-    const [conditions, setConditions] = useState<VoucherCondition[]>([
-        {
-            voucherId: 0,
-            conditionType: 0,
-            conditionValue: '',
-            displayOrder: 0
-        }
-    ]);
+    const [conditions, setConditions] = useState<VoucherCondition[]>([]);
     const [events, setEvents] = useState<AutocompleteOption[]>([]);
     const [loadingEvents, setLoadingEvents] = useState(false);
     const [provinces, setProvinces] = useState<AutocompleteOption[]>([]);
@@ -163,10 +156,10 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         conditions: yup.array().of(
             yup.object().shape({
                 voucherId: yup.number().default(0),
-                conditionType: yup.number().required(t("condition_type_required")),
-                conditionValue: yup.string().required(t("condition_value_required")),
+                conditionType: yup.number().default(ConditionTypeEnum.MinOrderValue),
+                conditionValue: yup.string().notRequired(),
             })
-        ).required(),
+        ).default([]),
     });
 
     const defaultValues: VoucherFormData = {
@@ -182,7 +175,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
             id: 0,
             voucherId: 0,
             conditionType: 0,
-            conditionValue: "",
+            conditionValue: 0,
         }],
     };
 
@@ -197,6 +190,8 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         mode: 'onChange',
         resolver: yupResolver(schema),
     });
+
+    console.log("eder", errors)
 
     const fetchAllEvents = async () => {
         setLoadingEvents(true);
@@ -514,14 +509,9 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         setSelectedConditionTypes(newSelectedTypes);
 
         if (updatedConditions.length === 0) {
-            const resetCondition = {
-                voucherId: 0,
-                conditionType: 0,
-                conditionValue: '',
-                displayOrder: 0
-            };
-            setConditions([resetCondition]);
-            setValue('conditions', [resetCondition]);
+
+            setConditions([]);
+            setValue('conditions', []);
         } else {
             setConditions(updatedConditions);
             setValue('conditions', updatedConditions);
@@ -532,7 +522,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         try {
             const adjustedStartDate = addHours(data.startDate, 7);
             const adjustedEndDate = addHours(data.endDate, 7);
-            console.log(data);
+
             if (id) {
                 const result = await dispatch(updateVoucherAsync({
                     id,
@@ -546,12 +536,12 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                     endDate: adjustedEndDate,
                     isActive: true,
                     isDeleted: false,
-                    conditions: data.conditions.map(condition => ({
+                    conditions: data?.conditions?.map(condition => ({
                         id: condition.id,
                         voucherId: id,
                         conditionType: condition.conditionType,
                         conditionValue: condition.conditionValue,
-                    })),
+                    })) || [],
                 })).unwrap();
                 
                 if (result?.isSuccess) {
@@ -583,11 +573,11 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                     endDate: adjustedEndDate,
                     isActive: true,
                     isDeleted: false,
-                    conditions: data.conditions.map(condition => ({
+                    conditions: data?.conditions?.map(condition => ({
                         voucherId: 0,
                         conditionType: condition.conditionType,
                         conditionValue: condition.conditionValue,
-                    })),
+                    })) || [],
                 })).unwrap();
 
                 if (result?.isSuccess) {
@@ -808,9 +798,11 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                             </Button>
                         </Box>
 
-                        <Box sx={{ width: '100%', overflowX: 'auto' }}>
-                            <TableContainer sx={{ mt: 2 }}>
-                                <Table size="small" sx={{ minWidth: 800 }}>
+                        {
+                            conditions.length > 0 && (
+                                <Box sx={{ width: '100%', overflowX: 'auto' }}>
+                                    <TableContainer sx={{ mt: 2 }}>
+                                        <Table size="small" sx={{ minWidth: 800 }}>
                                     <TableHead>
                                         <TableRow>
                                             <StyledTableCell width="5%">#</StyledTableCell>
@@ -847,7 +839,6 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                                                 </StyledTableCell>
                                                 <StyledTableCell>
                                                     <Box sx={{ display: 'flex' }}>
-                                                        {conditions.length > 1 && (
                                                             <IconButton
                                                                 color="error"
                                                                 onClick={() => handleRemoveCondition(index)}
@@ -855,7 +846,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                                                             >
                                                                 <RemoveIcon fontSize="small" />
                                                             </IconButton>
-                                                        )}
+                                                
                                                         {index === conditions.length - 1 && (
                                                             <IconButton
                                                                 color="primary"
@@ -873,6 +864,8 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                                 </Table>
                             </TableContainer>
                         </Box>
+                            )
+                        }
                     </form>
                 </Paper>
             </Box>

@@ -10,6 +10,7 @@
         public int? ImageId { get; set; }
         public string? ImageUrl { get; set; }
         public string? Description { get; set; }
+        public List<VoucherDTO>? Vouchers { get; set; }
 
 
         public int Id { get; set; }

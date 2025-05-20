@@ -32,8 +32,35 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
             return WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
+                    sqlBuilder.Select("t2.Name AS EventName");
+                    sqlBuilder.Select("t3.Name AS DiscountName");
+                    sqlBuilder.Select("t4.*");
 
-                    return conn.QueryAsync<VoucherDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                    sqlBuilder.LeftJoin("Event t2 ON t1.EventId = t2.Id AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("DiscountType t3 ON t1.DiscountTypeId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("VoucherCondition t4 ON t1.Id = t4.VoucherId AND t4.IsDeleted != 1");
+
+                    var voucherDictonary = new Dictionary<int, VoucherDTO>();
+                    return conn.QueryAsync<VoucherDTO, VoucherConditionDTO, VoucherDTO>(sqlTemplate.RawSql,
+                        (voucher, condition) =>
+                        {
+                            if (!voucherDictonary.TryGetValue(voucher.Id, out var voucherEntry))
+                            {
+                                voucherEntry = voucher;
+                                voucherEntry.Conditions = new List<VoucherConditionDTO>();
+                                voucherDictonary.Add(voucherEntry.Id, voucherEntry);
+                            }
+
+                            if (condition != null && voucherEntry.Conditions.All(x => x.Id != condition.Id))
+                            {
+                                voucherEntry.Conditions ??= new();
+                                voucherEntry.Conditions.Add(condition);
+                            }
+
+                            return voucherEntry;
+                        },
+                        sqlTemplate.Parameters,
+                        splitOn: "Id");
                 }, filterModel);
         }
 

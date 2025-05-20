@@ -115,6 +115,7 @@ export default function UpdateInfoScreen() {
         });
         return;
       }
+      updateResponse.result.avatar = user?.avatar;
       setUser({...updateResponse.result});
       console.log(updateResponse);
       Toast.show({

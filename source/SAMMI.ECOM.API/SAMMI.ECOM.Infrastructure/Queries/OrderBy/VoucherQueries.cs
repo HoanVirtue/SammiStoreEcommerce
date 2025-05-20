@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data;
+using Dapper;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Core.Models.ResponseModels.PagingList;
 using SAMMI.ECOM.Domain.AggregateModels.EventVoucher;
@@ -20,6 +21,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Voucher);
         Task<IEnumerable<VoucherDTO>> GetVoucherOfCustomer(int customerId);
         Task<IEnumerable<VoucherDTO>> GetVoucherActive(int numberTop);
+        Task<IEnumerable<VoucherDTO>> GetDataByEventId(int eventId);
     }
     public class VoucherQueries : QueryRepository<Voucher>, IVoucherQueries
     {
@@ -236,6 +238,27 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 {
                     Take = numberTop
                 });
+        }
+
+        public Task<IEnumerable<VoucherDTO>> GetDataByEventId(int eventId)
+        {
+            return WithConnectionAsync(conn => conn.QueryAsync<VoucherDTO>(
+                @$"SELECT t1.Id,
+                        t1.Code,
+                        t1.Name,
+                        t1.DiscountTypeId,
+                        t1.DiscountValue,
+                        t1.UsageLimit,
+                        t1.UsedCount,
+                        t1.StartDate,
+                        t1.EndDate,
+                        t1.EventId
+                FROM Voucher t1
+                WHERE t1.EventId = @eventId
+                AND t1.IsDeleted != 1",
+                new { eventId },
+                commandType: CommandType.Text
+            ));
         }
     }
 }

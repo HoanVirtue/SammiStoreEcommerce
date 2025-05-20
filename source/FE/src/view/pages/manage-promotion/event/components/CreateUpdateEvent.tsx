@@ -336,8 +336,12 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                 setValue('isActive', data.isActive);
                 setValue('name', data.name);
                 setValue('imageId', data.imageId);
-                setValue('startDate', addHours(new Date(data.startDate), -7));
-                setValue('endDate', addHours(new Date(data.endDate), -7));
+                
+                // Convert UTC dates to Vietnam timezone (UTC+7)
+                const startDate = new Date(data.startDate);
+                const endDate = new Date(data.endDate);
+                setValue('startDate', addHours(startDate, 0));
+                setValue('endDate', addHours(endDate, 0));
 
                 let numericEventType: number = PromotionEventType.DirectDiscount;
                 switch (data.eventType) {
@@ -392,6 +396,7 @@ const CreateUpdateEvent: React.FC<CreateUpdateEventProps> = ({ id, onClose }) =>
                     const adjustedVouchers = data.voucherCommands.map((voucher: VoucherCommand) => ({
                         ...voucher,
                         isActive: voucher.isActive,
+                        // Convert UTC dates to Vietnam timezone (UTC+7)
                         startDate: addHours(new Date(voucher.startDate), -7),
                         endDate: addHours(new Date(voucher.endDate), -7),
                     }));

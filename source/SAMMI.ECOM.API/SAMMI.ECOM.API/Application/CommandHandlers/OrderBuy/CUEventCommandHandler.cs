@@ -7,6 +7,7 @@ using SAMMI.ECOM.Domain.Commands.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.OrderBuy;
 using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Infrastructure.Queries.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.OrderBy;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
 
@@ -113,16 +114,19 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly IEventRepository _eventRepository;
         private readonly IMediator _mediator;
         private readonly IImageRepository _imageRepository;
+        private readonly IVoucherQueries _voucherQueries;
         public UpdateEventCommandHandler(
             IEventRepository eventRepository,
             IMediator mediator,
             IImageRepository imageRepository,
+            IVoucherQueries voucherQueries,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
             _eventRepository = eventRepository;
             _mediator = mediator;
             _imageRepository = imageRepository;
+            _voucherQueries = voucherQueries;
         }
 
         public override async Task<ActionResponse<EventDTO>> Handle(UpdateEventCommand request, CancellationToken cancellationToken)
@@ -137,6 +141,38 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             ImageDTO imageDTO = null;
             var eventEntity = await _eventRepository.GetByIdAsync(request.Id);
+            if(eventEntity.StartDate <= DateTime.Now && eventEntity.EndDate > DateTime.Now)
+            {
+                if (request.StartDate < eventEntity.StartDate)
+                {
+                    actResponse.AddError("Chương trình khuyến mãi đang diễn ra. Ngày bắt đầu cần thay đổi phải lớn hơn ngày bắt đầu cũ");
+                    return actResponse;
+                }
+                if(request.EventType.ToString() != eventEntity.EventType)
+                {
+                    actResponse.AddError("Chương trình khuyến mãi đang diễn ra. Không được thay đổi loại chương trình khuyến mãi");
+                    return actResponse;
+                }
+            }
+            else
+            {
+                if(request.StartDate < DateTime.Now)
+                {
+                    actResponse.AddError("Ngày bắt đầu phải lớn hoặc bằng ngày hiện tại");
+                    return actResponse;
+                }
+            }
+
+            var vouchers = await _voucherQueries.GetDataByEventId(request.Id);
+            foreach (var vou in vouchers)
+            {
+                if(!(vou.StartDate >= request.StartDate && vou.EndDate <= request.EndDate))
+                {
+                    actResponse.AddError($"Thời gian chương trình không hợp lệ! Phiếu giảm giá {vou.Code} (từ {vou.StartDate:dd/MM/yyyy} đến {vou.EndDate:dd/MM/yyyy})");
+                    return actResponse;
+                }
+            }    
+
             request.ImageId = (request.ImageId == 0 || request.ImageId == null) ? null : request.ImageId;
             if (eventEntity.ImageId != request.ImageId)
             {
@@ -187,9 +223,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
 
             RuleFor(x => x.StartDate)
                 .NotEmpty()
-                .WithMessage("Ngày bắt đầu không được bỏ trống")
-                .Must(x => x > DateTime.Now)
-                .WithMessage("Ngày bắt đầu phải lớn hơn ngày hiện tại");
+                .WithMessage("Ngày bắt đầu không được bỏ trống");
 
             RuleFor(x => x.EndDate)
                 .NotEmpty()

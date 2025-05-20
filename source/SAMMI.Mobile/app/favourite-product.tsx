@@ -1,13 +1,15 @@
 "use client"
 
 // React & Next
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'expo-router'
 import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity, Image, StatusBar } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { colors } from '@/constants/colors'
 import { Heart, ArrowLeft } from 'lucide-react-native'
 import NoData from '@/components/NoData'
+import { getFavourites } from '@/services/favourite'
+import { FavouriteProduct } from '@/types/favourite-product'
 
 // Hardcoded data for cosmetics products
 const MOCK_FAVOURITES = [
@@ -40,14 +42,34 @@ const MOCK_FAVOURITES = [
 export default function FavouriteProductScreen() {
   const router = useRouter()
   const [refreshing, setRefreshing] = useState(false)
-  const [favourites, setFavourites] = useState(MOCK_FAVOURITES)
+  const [favourites, setFavourites] = useState<FavouriteProduct[]>([]);
 
+  useEffect(() => {
+    fetchFavouriteProduct();
+  }, []);
+  
   const onRefresh = () => {
-    setRefreshing(true)
+    setRefreshing(true);
     // Simulate refresh delay
     setTimeout(() => {
-      setRefreshing(false)
+      setRefreshing(false);
     }, 1000)
+  }
+
+  const fetchFavouriteProduct = async () => {
+    try {
+      setRefreshing(true);
+      const response = await getFavourites({params: {}});
+      console.log(response);
+      if(response.isSuccess) {
+        setFavourites(response.data);
+      }
+    } catch(err) {
+
+    } finally {
+      setRefreshing(false);
+    }
+    
   }
 
   const handleRemoveFavourite = (productId: number) => {
@@ -93,17 +115,17 @@ export default function FavouriteProductScreen() {
                     style={styles.productContent}
                   >
                     <Image 
-                      source={{ uri: product.imageUrl }} 
+                      source={{ uri: product.productImage }} 
                       style={styles.productImage}
                       resizeMode="cover"
                     />
                     <View style={styles.productInfo}>
-                      <Text style={styles.brandName}>{product.brand}</Text>
+                      <Text style={styles.brandName}>{product.productName}</Text>
                       <Text style={styles.productName} numberOfLines={2}>
-                        {product.name}
+                        {product.productName}
                       </Text>
                       <Text style={styles.productPrice}>
-                        {product.price.toLocaleString('vi-VN')}đ
+                        {product.newPrice?.toLocaleString('vi-VN')}đ
                       </Text>
                     </View>
                   </TouchableOpacity>

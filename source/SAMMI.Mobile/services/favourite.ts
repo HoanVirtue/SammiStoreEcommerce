@@ -1,9 +1,10 @@
 import instance from '@/helpers/axios';
-import { API_ENDPOINT } from '@/constants/api';
+import { API_ENDPOINT } from "@/configs/api"
 import { TParamsGetAllProducts } from '@/types/product';
 
 export const getFavourites = async (data: { params: TParamsGetAllProducts }) => {
   try {
+    data.params.type = 4;
     const response = await instance.get(API_ENDPOINT.FAVOURITE_PRODUCT.INDEX, data);
     return response.data;
   } catch (error) {

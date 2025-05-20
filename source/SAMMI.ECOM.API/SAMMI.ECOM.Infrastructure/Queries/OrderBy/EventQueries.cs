@@ -20,8 +20,11 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
     }
     public class EventQueries : QueryRepository<Event>, IEventQueries
     {
-        public EventQueries(SammiEcommerceContext context) : base(context)
+        private readonly Lazy<IVoucherQueries> _voucherQueries;
+        public EventQueries(SammiEcommerceContext context,
+            Lazy<IVoucherQueries> voucherQueries) : base(context)
         {
+            _voucherQueries = voucherQueries;
         }
 
         public Task<IEnumerable<EventDTO>> GetAll(RequestFilterModel? filterModel = null)
@@ -37,15 +40,25 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
 
         public async Task<EventDTO> GetById(int id)
         {
-            return await WithDefaultTemplateAsync(
+            var eventDTO = await WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     sqlBuilder.Select("t2.ImageUrl");
                     sqlBuilder.LeftJoin("Image t2 ON t1.ImageId = t2.Id AND t2.IsDeleted != 1");
+
                     sqlBuilder.Where("t1.Id = @id", new { id });
                     return conn.QueryFirstOrDefaultAsync<EventDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }
             );
+
+            if(eventDTO == null)
+                return eventDTO;
+            var vouchers = await _voucherQueries.Value.GetAll(new RequestFilterModel()
+            {
+                Filters = $"EventId::{id}::eq"
+            });
+            eventDTO.Vouchers = vouchers != null && vouchers.Any() ? vouchers.ToList() : null;
+            return eventDTO;
         }
 
         public Task<IPagedList<EventDTO>> GetList(RequestFilterModel filterModel)

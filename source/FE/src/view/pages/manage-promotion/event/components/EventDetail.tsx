@@ -21,6 +21,9 @@ import StepLabel from "src/components/step-label";
 
 import { toast } from "react-toastify"
 
+import { getEventTypeLabel } from "src/configs/event";
+
+
 interface TEventDetail {
     id: number
     onClose: () => void
@@ -44,7 +47,40 @@ interface EventData {
     isActive: boolean;
     isDeleted: boolean;
     displayOrder: number | null;
-
+    vouchers?: {
+        code: string;
+        name: string;
+        discountTypeId: number;
+        discountName: string;
+        eventId: number;
+        eventName: string;
+        discountValue: number;
+        usageLimit: number;
+        usedCount: number;
+        startDate: string;
+        endDate: string;
+        conditions: {
+            voucherId: number;
+            conditionType: string;
+            conditionValue: string;
+            id: number;
+            createdDate: string;
+            updatedDate: string | null;
+            createdBy: string;
+            updatedBy: string | null;
+            isActive: boolean;
+            isDeleted: boolean;
+            displayOrder: number | null;
+        }[];
+        id: number;
+        createdDate: string;
+        updatedDate: string | null;
+        createdBy: string;
+        updatedBy: string | null;
+        isActive: boolean;
+        isDeleted: boolean;
+        displayOrder: number | null;
+    }[];
 }
 
 
@@ -128,6 +164,23 @@ const EventDetail = (props: TEventDetail) => {
         return new Date(dateString).toLocaleString();
     }
 
+    const getConditionTypeLabel = (type: string): string => {
+        switch (type) {
+            case 'MinOrderValue':
+                return t('min_order_value');
+            case 'MaxDiscountAmount':
+                return t('max_discount_amount');
+            case 'RequiredQuantity':
+                return t('required_quantity');
+            case 'AllowedRegions':
+                return t('allowed_regions');
+            case 'RequiredProducts':
+                return t('required_products');
+            default:
+                return type;
+        }
+    };
+
     return (
         <>
             {loading && <Spinner />}
@@ -149,6 +202,7 @@ const EventDetail = (props: TEventDetail) => {
                 </Stack>
 
                 <Stack spacing={3}>
+                    <Stack direction="row" sx={{justifyContent: "space-between"}}>
                     <Box
                         sx={{
                             p: 3,
@@ -205,7 +259,7 @@ const EventDetail = (props: TEventDetail) => {
                                     {t('event_type')}:
                                 </Typography>
                                 <Typography variant="body2">
-                                    {eventData?.eventType}
+                                    {getEventTypeLabel(eventData?.eventType as any)}
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -278,6 +332,108 @@ const EventDetail = (props: TEventDetail) => {
                             )}
                         </Stack>
                     </Box>
+                    </Stack>
+
+                    {eventData?.vouchers && eventData.vouchers.length > 0 && (
+                        <Box
+                            sx={{
+                                p: 3,
+                                bgcolor: 'background.neutral',
+                                borderRadius: 1,
+                            }}
+                        >
+                            <StepLabel step="4" title={t('voucher_information')} />
+                            <Stack spacing={3} sx={{ mt: 3 }}>
+                                {eventData.vouchers.map((voucher, index) => (
+                                    <Box key={voucher.id} sx={{ p: 2, bgcolor: 'background.paper', borderRadius: 1 }}>
+                                        <Stack spacing={2}>
+                                            <Stack spacing={1} direction="row" alignItems="center">
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {t('voucher_code')}:
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    {voucher.code}
+                                                </Typography>
+                                            </Stack>
+
+                                            <Stack spacing={1} direction="row" alignItems="center">
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {t('voucher_name')}:
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    {voucher.name}
+                                                </Typography>
+                                            </Stack>
+
+                                            <Stack spacing={1} direction="row" alignItems="center">
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {t('discount_type')}:
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    {voucher.discountName}
+                                                </Typography>
+                                            </Stack>
+
+                                            <Stack spacing={1} direction="row" alignItems="center">
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {t('discount_value')}:
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    {voucher.discountValue}%
+                                                </Typography>
+                                            </Stack>
+
+                                            <Stack spacing={1} direction="row" alignItems="center">
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {t('usage_limit')}:
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    {voucher.usedCount}/{voucher.usageLimit}
+                                                </Typography>
+                                            </Stack>
+
+                                            <Stack spacing={1} direction="row" alignItems="center">
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {t('valid_period')}:
+                                                </Typography>
+                                                <Typography variant="body2">
+                                                    {formatDate(voucher.startDate)} - {formatDate(voucher.endDate)}
+                                                </Typography>
+                                            </Stack>
+
+                                            {voucher.conditions && voucher.conditions.length > 0 && (
+                                                <Stack spacing={1}>
+                                                    <Typography variant="subtitle2" fontWeight="bold">
+                                                        {t('voucher_conditions')}:
+                                                    </Typography>
+                                                    {voucher.conditions.map((condition) => (
+                                                        <Box key={condition.id} sx={{ pl: 2 }}>
+                                                            <Typography variant="body2">
+                                                                {`${getConditionTypeLabel(condition.conditionType)}: ${
+                                                                    condition.conditionType === 'MinOrderValue' ? 
+                                                                    formatPrice(Number(condition.conditionValue)) : 
+                                                                    condition.conditionValue
+                                                                }`}
+                                                            </Typography>
+                                                        </Box>
+                                                    ))}
+                                                </Stack>
+                                            )}
+
+                                            <Stack spacing={1} direction="row" alignItems="center">
+                                                <Typography variant="subtitle2" fontWeight="bold">
+                                                    {t('status')}:
+                                                </Typography>
+                                                <Typography variant="body2" color={voucher.isActive ? 'success.main' : 'error.main'}>
+                                                    {voucher.isActive ? t('active') : t('inactive')}
+                                                </Typography>
+                                            </Stack>
+                                        </Stack>
+                                    </Box>
+                                ))}
+                            </Stack>
+                        </Box>
+                    )}
                 </Stack>
             </Container>
         </>

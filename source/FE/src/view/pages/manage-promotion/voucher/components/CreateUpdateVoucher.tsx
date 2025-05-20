@@ -55,7 +55,7 @@ enum ConditionTypeEnum {
 interface VoucherCondition {
     voucherId: number;
     conditionType: number;  
-    conditionValue: number | string;
+    conditionValue?: string;
     id?: number;
     createdDate?: string;
     updatedDate?: string;
@@ -157,7 +157,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
             yup.object().shape({
                 voucherId: yup.number().default(0),
                 conditionType: yup.number().default(ConditionTypeEnum.MinOrderValue),
-                conditionValue: yup.string().notRequired(),
+                conditionValue: yup.string(),
             })
         ).default([]),
     });
@@ -175,7 +175,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
             id: 0,
             voucherId: 0,
             conditionType: 0,
-            conditionValue: 0,
+            conditionValue: "0",
         }],
     };
 
@@ -191,7 +191,6 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         resolver: yupResolver(schema),
     });
 
-    console.log("eder", errors)
 
     const fetchAllEvents = async () => {
         setLoadingEvents(true);
@@ -408,7 +407,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
         const updatedConditions = [...conditions];
         updatedConditions[index] = {
             ...updatedConditions[index],
-            conditionValue: Array.isArray(value) ? value.join(',') : value
+            conditionValue: Array.isArray(value) ? value.join(',') : String(value)
         };
         setConditions(updatedConditions);
         setValue('conditions', updatedConditions);
@@ -491,7 +490,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
             id: 0,
             voucherId: 0,
             conditionType: 0,
-            conditionValue: '',
+            conditionValue: "0",
             displayOrder: conditions.length
         };
 
@@ -540,7 +539,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                         id: condition.id,
                         voucherId: id,
                         conditionType: condition.conditionType,
-                        conditionValue: condition.conditionValue,
+                        conditionValue: String(condition.conditionValue),
                     })) || [],
                 })).unwrap();
                 
@@ -576,7 +575,7 @@ const CreateUpdateVoucher: React.FC<CreateUpdateVoucherProps> = ({ id, onClose }
                     conditions: data?.conditions?.map(condition => ({
                         voucherId: 0,
                         conditionType: condition.conditionType,
-                        conditionValue: condition.conditionValue,
+                        conditionValue: String(condition.conditionValue),
                     })) || [],
                 })).unwrap();
 

@@ -101,7 +101,7 @@
     "already_have_an_account": "Bạn đã có tài khoản?",
     "dont_have_an_account": "Bạn chưa có tài khoản?",
     "forgot_password": "Quên mật khẩu?",
-    "remember_me": "Nhớ mật khẩu",
+    "remember_me": "Nhớ tài khoản",
     "or": "hoặc",
     "name": "Tên",
     "fullname": "Họ tên",
@@ -914,8 +914,6 @@
     "enter_usage_limit": "Nhập giới hạn sử dụng",
     "enter_usage_limit_required": "Giới hạn sử dụng không được để trống",
     "enter_usage_limit_min_0": "Giới hạn sử dụng phải lớn hơn 0",
-    
-
     "province_id": "Mã Tỉnh/Thành phố",
     "order_status_updated_successfully": "Cập nhật trạng thái đơn hàng thành công",
     "receipt_status_updated_successfully": "Cập nhật trạng thái phiếu nhập hàng thành công",
@@ -927,5 +925,9 @@
     "none": "Không chọn",
     "rows_per_page": "Số dòng mỗi trang",
     "of": "trong",
+    "voucher_information": "Thông tin mã giảm giá",
+    "valid_period": "Thời gian hiệu lực",    
+    
+
     "more_than": "nhiều hơn"
 }

@@ -329,7 +329,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             //        Title = "Khách hàng đã thanh toán, chờ xử lý",
             //        Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
             //    });
-            return Redirect($"{redirectUrl}?order-code={orderCode}&payment-status=1");
+            return Redirect($"{redirectUrl}?order-id={order.Id}&payment-status=1");
         }
 
         [AuthorizePermission(PermissionEnum.CustomerOrderPayment)]

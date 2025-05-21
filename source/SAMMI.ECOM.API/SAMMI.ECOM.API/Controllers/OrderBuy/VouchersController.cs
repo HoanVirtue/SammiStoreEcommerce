@@ -76,6 +76,13 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return Ok(await _voucherQueries.GetById(id));
         }
 
+        [AuthorizePermission(PermissionEnum.VoucherView)]
+        [HttpGet("voucher-valid")]
+        public IActionResult GetVoucherValid(List<ProductVoucher> request)
+        {
+            return Ok();
+        }
+
         [AuthorizePermission(PermissionEnum.VoucherCreate)]
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] CUVoucherCommand request)

@@ -25,4 +25,10 @@
         public bool IsDeleted { get; set; }
         public int? DisplayOrder { get; set; }
     }
+
+    public class ProductVoucher
+    {
+        public int ProductId { get; set; }
+        public int Quantity { get; set; }
+    }
 }

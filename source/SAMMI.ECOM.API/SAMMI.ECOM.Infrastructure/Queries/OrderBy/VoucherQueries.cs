@@ -15,7 +15,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
     public interface IVoucherQueries : IQueryRepository
     {
         Task<IPagedList<VoucherDTO>> GetList(RequestFilterModel filterModel);
-        Task<IEnumerable<SelectionItem>> GetSelectionList(RequestFilterModel? request);
+        Task<IEnumerable<SelectionItem>> GetSelectionList(List<ProductVoucher> details);
         Task<IEnumerable<VoucherDTO>> GetAll(RequestFilterModel? filterModel = null);
         Task<VoucherDTO> GetById(int id);
         Task<string?> GetCodeByLastId(CodeEnum? type = CodeEnum.Voucher);
@@ -23,6 +23,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
         Task<IEnumerable<VoucherDTO>> GetVoucherActive(int numberTop);
         Task<IEnumerable<VoucherDTO>> GetDataByEventId(int eventId);
     }
+
     public class VoucherQueries : QueryRepository<Voucher>, IVoucherQueries
     {
         public VoucherQueries(SammiEcommerceContext context) : base(context)
@@ -153,16 +154,17 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                 filterModel);
         }
 
-        public Task<IEnumerable<SelectionItem>> GetSelectionList(RequestFilterModel? request)
+        public Task<IEnumerable<SelectionItem>> GetSelectionList(List<ProductVoucher> details)
         {
             return WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
                     sqlBuilder.Select("t1.Id as Value");
-                    sqlBuilder.Select("t1.Name as Text");
+                    sqlBuilder.Select("CONCAT(t1.Code, '-', t1.Name) as Text");
 
+                    sqlBuilder.Where("t1.IsActive = 1 AND t1.StartDate <= NOW() AND t1.EndDate > NOW()");
                     return conn.QueryAsync<SelectionItem>(sqlTemplate.RawSql, sqlTemplate.Parameters);
-                }, request
+                }
             );
         }
 

@@ -57,7 +57,7 @@ export const CustomerSlice = createSlice({
     builder.addCase(getAllCustomersAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.customers.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
-      state.customers.total = action?.payload?.data?.totalItemCount
+      state.customers.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllCustomersAsync.rejected, (state, action) => {
       state.isLoading = false

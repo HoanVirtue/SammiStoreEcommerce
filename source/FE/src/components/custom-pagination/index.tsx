@@ -35,8 +35,11 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
     const pageCount = Math.ceil(rowLength / pageSize);
 
     const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {
-        onChangePagination(newPage, pageSize);
+        onChangePagination(newPage , pageSize);
     };
+
+    const startIndex = (page - 1 )* pageSize + 1;
+    const endIndex = Math.min((page) * pageSize, rowLength);
 
     return (
         <Box sx={{
@@ -52,11 +55,11 @@ const CustomPagination = React.forwardRef((props: TProps, ref: React.Ref<any>) =
                         <Box>
                             <span>{t('Đang hiển thị ')}</span>
                             <span className='font-bold'>
-                                {page === 1 ? page : (page - 1) * pageSize + 1}
+                                {startIndex}
                                 {' - '}
                             </span>
                             <span className='font-bold'>
-                                {page * pageSize < rowLength ? page * pageSize : rowLength}
+                                {endIndex}
                             </span>
                             <span> trên </span>
                             <span className='font-bold'>{rowLength}</span>

@@ -1,8 +1,8 @@
 import { RequestFilterModel } from 'src/types/common';
 
 export interface SaleRevenueFilterModel extends RequestFilterModel {
-  dateFrom?: Date;
-  dateTo?: Date;
+  dateFrom?: string;
+  dateTo?: string;
   paymentMethodId?: number;
   skip?: number;
   take?: number;
@@ -16,10 +16,19 @@ export interface SaleRevenueFilterModel extends RequestFilterModel {
 }
 
 export interface ImportStatisticFilterModel {
-  dateFrom?: Date;
-  dateTo?: Date;
+  dateFrom?: string;
+  dateTo?: string;
   employeeId?: number;
   supplierId?: number;
+  skip?: number;
+  take?: number;
+  paging?: boolean;
+  type?: number;
+  orderBy?: string;
+  dir?: string;
+  filters?: string;
+  keywords?: string;
+  restrictOrderBy?: boolean;
 }
 
 export interface SaleRevenueData {

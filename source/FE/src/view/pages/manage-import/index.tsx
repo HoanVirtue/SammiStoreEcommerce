@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getImportStatistics } from '@/services/report';
 import { formatCurrency } from '@/utils/format';
@@ -8,6 +8,9 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
+import 'dayjs/locale/vi';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { 
   Box, 
   Card, 
@@ -18,36 +21,59 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
-  Paper,
-  TablePagination,
-  CircularProgress
+  CircularProgress,
+  useTheme
 } from '@mui/material';
 import { ImportStatistic, ImportStatisticDetail } from '@/types/report';
+import CustomDataGrid from 'src/components/custom-data-grid';
+import CustomPagination from 'src/components/custom-pagination';
+import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig';
+import { hexToRGBA } from 'src/utils/hex-to-rgba';
+import { GridColDef } from '@mui/x-data-grid';
+import { getImportColumns } from '@/configs/gridColumn';
+
+// Configure dayjs with plugins and locale
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.locale('vi');
+dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
+
+const columns = getImportColumns();
 
 const ImportStatisticsPage = () => {
   const { t } = useTranslation();
-  const [startDate, setStartDate] = useState<dayjs.Dayjs>(dayjs().startOf('year'));
-  const [endDate, setEndDate] = useState<dayjs.Dayjs>(dayjs().endOf('year'));
+  const theme = useTheme();
+  const [startDate, setStartDate] = useState<dayjs.Dayjs>(dayjs().tz('Asia/Ho_Chi_Minh').startOf('year'));
+  const [endDate, setEndDate] = useState<dayjs.Dayjs>(dayjs().tz('Asia/Ho_Chi_Minh').endOf('year'));
   const [employeeId, setEmployeeId] = useState<number | null>(null);
   const [supplierId, setSupplierId] = useState<number | null>(null);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
   const { data: importData, isLoading } = useQuery<{result: ImportStatistic}>({
-    queryKey: ['import-statistics', startDate, endDate, employeeId, supplierId],
-    queryFn: () =>
-      getImportStatistics({
-        dateFrom: startDate.toDate(),
-        dateTo: endDate.toDate(),
+    queryKey: ['import-statistics', startDate, endDate, employeeId, supplierId, page, pageSize],
+    queryFn: async () => {
+      const dateFrom = startDate.tz('Asia/Ho_Chi_Minh').format();
+      const dateTo = endDate.tz('Asia/Ho_Chi_Minh').format();
+
+      return getImportStatistics({
+        dateFrom,
+        dateTo,
         employeeId: employeeId || undefined,
         supplierId: supplierId || undefined,
-      }),
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        paging: true,
+        type: 1,
+        orderBy: 'CreatedDate',
+        dir: 'DESC',
+        filters: [
+          employeeId !== null ? `employeeId::${employeeId}::eq` : '',
+          supplierId !== null ? `supplierId::${supplierId}::eq` : ''
+        ].filter(Boolean).join('&&'),
+      });
+    },
+    refetchOnWindowFocus: false
   });
 
   const importTableData = Array.isArray(importData?.result?.imports?.subset)
@@ -58,14 +84,10 @@ const ImportStatisticsPage = () => {
   const totalQuantity = importData?.result?.totalQuantity || 0;
   const totalCount = importData?.result?.imports?.totalItemCount || 0;
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleOnChangePagination = useCallback((newPage: number, newPageSize: number) => {
     setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+    setPageSize(newPageSize);
+  }, []);
 
   const handleEmployeeChange = (event: SelectChangeEvent<number | string>) => {
     setEmployeeId(event.target.value === '' ? null : Number(event.target.value));
@@ -73,6 +95,18 @@ const ImportStatisticsPage = () => {
 
   const handleSupplierChange = (event: SelectChangeEvent<number | string>) => {
     setSupplierId(event.target.value === '' ? null : Number(event.target.value));
+  };
+
+  const PaginationComponent = () => {
+    return (
+      <CustomPagination
+        pageSize={pageSize}
+        pageSizeOptions={PAGE_SIZE_OPTIONS}
+        onChangePagination={handleOnChangePagination}
+        page={page}
+        rowLength={totalCount}
+      />
+    );
   };
 
   return (
@@ -84,16 +118,17 @@ const ImportStatisticsPage = () => {
           </Typography>
           
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', mb: 3 }}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="vi">
               <Box sx={{ display: 'flex', gap: 2 }}>
                 <DatePicker
                   label={t('from_date')}
                   value={startDate}
                   onChange={(newValue) => {
                     if (newValue) {
-                      setStartDate(newValue);
+                      setStartDate(newValue.tz('Asia/Ho_Chi_Minh'));
                     }
                   }}
+                  format="DD/MM/YYYY"
                   slotProps={{ textField: { size: 'small' } }}
                 />
                 <DatePicker
@@ -101,9 +136,10 @@ const ImportStatisticsPage = () => {
                   value={endDate}
                   onChange={(newValue) => {
                     if (newValue) {
-                      setEndDate(newValue);
+                      setEndDate(newValue.tz('Asia/Ho_Chi_Minh'));
                     }
                   }}
+                  format="DD/MM/YYYY"
                   slotProps={{ textField: { size: 'small' } }}
                 />
               </Box>
@@ -155,65 +191,27 @@ const ImportStatisticsPage = () => {
               </>
             )}
           </Box>
-          
-          <TableContainer component={Paper}>
-            <Table size="small">
-              <TableHead>
-                <TableRow>
-                  <TableCell>{t('receipt_code')}</TableCell>
-                  <TableCell>{t('employee')}</TableCell>
-                  <TableCell>{t('supplier')}</TableCell>
-                  <TableCell align="right">{t('total_price')}</TableCell>
-                  <TableCell align="right">{t('quantity')}</TableCell>
-                  <TableCell>{t('created_date')}</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {isLoading ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center">
-                      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2, py: 2 }}>
-                        <CircularProgress size={24} />
-                        <Typography>{t('loading')}</Typography>
-                      </Box>
-                    </TableCell>
-                  </TableRow>
-                ) : importTableData.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} align="center">
-                      <Typography sx={{ py: 2 }}>{t('no_data')}</Typography>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  importTableData.map((row: ImportStatisticDetail) => (
-                    <TableRow key={row.code}>
-                      <TableCell>{row.code}</TableCell>
-                      <TableCell>{row.employeeName}</TableCell>
-                      <TableCell>{row.supplierName}</TableCell>
-                      <TableCell align="right">{formatCurrency(row.totalPrice || 0)}</TableCell>
-                      <TableCell align="right">{row.totalQuantity}</TableCell>
-                      <TableCell>
-                        {formatDate(row.createdDate, { dateStyle: "medium", timeStyle: "short" })}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          
-          <TablePagination
-            rowsPerPageOptions={[5, 10, 25]}
-            component="div"
-            count={totalCount}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-            labelRowsPerPage={t('rows_per_page')}
-            labelDisplayedRows={({ from, to, count }) => 
-              `${from}-${to} ${t('of')} ${count !== -1 ? count : `${t('more_than')} ${to}`}`
-            }
+
+          <CustomDataGrid
+            rows={importTableData}
+            columns={columns}
+            getRowId={(row) => row.code}
+            disableRowSelectionOnClick
+            autoHeight
+            loading={isLoading}
+            sortingOrder={['desc', 'asc']}
+            sortingMode='server'
+            slots={{
+              pagination: PaginationComponent
+            }}
+            disableColumnFilter
+            disableColumnMenu
+            sx={{
+              ".selected-row": {
+                backgroundColor: `${hexToRGBA(theme.palette.primary.main, 0.08)} !important`,
+                color: `${theme.palette.primary.main} !important`
+              }
+            }}
           />
         </CardContent>
       </Card>

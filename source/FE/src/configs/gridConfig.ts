@@ -173,5 +173,15 @@ export const getVoucherFields = (): FieldConfig[] => [
     { value: "usedCount", label: i18n.t("used_count"), type: "number", operators: getNumberOperators() },
 ];
 
+export const getRevenueFields = (): FieldConfig[] => [
+    { value: "code", label: i18n.t("order_code"), type: "string", operators: getStringOperators() },
+    { value: "customerName", label: i18n.t("customer_name"), type: "string", operators: getStringOperators() },
+    { value: "phoneNumber", label: i18n.t("phone_number"), type: "string", operators: getStringOperators() },
+    { value: "paymentMethod", label: i18n.t("payment_method"), type: "string", operators: getStringOperators() },
+    { value: "orderStatus", label: i18n.t("order_status"), type: "string", operators: getStringOperators() },
+    { value: "totalPrice", label: i18n.t("total_price"), type: "number", operators: getNumberOperators() },
+    { value: "totalQuantity", label: i18n.t("quantity"), type: "number", operators: getNumberOperators() },
+    { value: "createdDate", label: i18n.t("created_date"), type: "date", operators: getDateOperators() },
+];
 
 export const PAGE_SIZE_OPTIONS = [10, 20, 30, 40, 50, 100];

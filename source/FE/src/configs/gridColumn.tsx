@@ -8,6 +8,12 @@ import { getReceiptStatusLabel } from 'src/configs/receipt'
 import { PaymentStatus, ShippingStatus, OrderStatus } from 'src/configs/order'
 import { useMemo } from 'react'
 import { getEventTypeLabel } from './event'
+import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   backgroundColor: "#28c76f29",
@@ -1757,3 +1763,177 @@ export const getSupplierColumns = (): GridColDef[] => {
   },
   ]
 }
+
+export const getRevenueColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  const theme = useTheme()
+  return [
+    {
+      field: 'code',
+      headerName: t('order_code'),
+      flex: 1,
+      minWidth: 350,
+      maxWidth: 350,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography>{row?.code}</Typography>
+      }
+    },
+    {
+      field: 'customerName',
+      headerName: t('customer_name'),
+      flex: 1,
+      minWidth: 250,
+      maxWidth: 250,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography sx={{
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          display: '-webkit-box',
+          WebkitLineClamp: 1,
+          WebkitBoxOrient: 'vertical',
+        }}>{row?.customerName} ({row?.phoneNumber})</Typography>
+      }
+    },
+    {
+      field: 'paymentMethod',
+      headerName: t('payment_method'),
+      flex: 1,
+      minWidth: 250,
+      maxWidth: 250,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography>{row?.paymentMethod}</Typography>
+      }
+    },
+    {
+      field: 'orderStatus',
+      headerName: t('order_status'),
+      flex: 1,
+      minWidth: 250,
+      maxWidth: 250,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        const status = row?.orderStatus
+        let background = theme.palette.grey[500]
+        let label = ''
+
+        switch (status) {
+          case 'Pending':
+            background = theme.palette.warning.main
+            label = t('pending')
+            break
+          case 'WaitingForPayment':
+            background = theme.palette.warning.main
+            label = t('waiting_for_payment')
+            break
+          case 'Processing':
+            background = theme.palette.info.main
+            label = t('processing')
+            break
+          case 'Completed':
+            background = theme.palette.success.main
+            label = t('completed')
+            break
+          case 'Cancelled':
+            background = theme.palette.error.main
+            label = t('cancelled')
+            break
+        }
+
+        return <StyledOrderStatus background={background} label={label} />
+      }
+    },
+    {
+      field: 'totalPrice',
+      headerName: t('total_price'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography>{formatPrice(row?.totalPrice || 0)}</Typography>
+      }
+    },
+    {
+      field: 'totalQuantity',
+      headerName: t('quantity'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return <Typography>{row?.totalQuantity}</Typography>
+      }
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 200,
+      maxWidth: 200,
+      renderCell: (params: GridRenderCellParams) => {
+        const { row } = params
+        return (
+          <Typography>
+            {formatDate(row?.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+          </Typography>
+        )
+      }
+    }
+  ]
+}
+
+
+export const getImportColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  return [
+    {
+      field: 'code',
+      headerName: t('receipt_code'),
+      flex: 1,
+      minWidth: 120,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>
+    },
+    {
+      field: 'employeeName',
+      headerName: t('employee'),
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.employeeName}</Typography>
+    },
+    {
+      field: 'supplierName',
+      headerName: t('supplier'),
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.supplierName}</Typography>
+    },
+    {
+      field: 'totalPrice',
+      headerName: t('total_price'),
+      flex: 1,
+      minWidth: 120,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatPrice(params.row.totalPrice || 0)}</Typography>
+    },
+    {
+      field: 'totalQuantity',
+      headerName: t('quantity'),
+      flex: 1,
+      minWidth: 100,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.totalQuantity}</Typography>
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params: GridRenderCellParams) => (
+        <Typography>
+          {formatDate(params.row.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
+  ]
+} 

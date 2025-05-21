@@ -26,19 +26,15 @@ import { getOrderFields } from 'src/configs/gridConfig'
 import { formatDate } from 'src/utils'
 import { getOrderColumns } from 'src/configs/gridColumn'
 import Spinner from 'src/components/spinner'
+import AdminPage from '@/components/admin-page'
+import CreateOrder from './components/CreateOrder'
+import CreateNewCustomer from './components/CreateNewCustomer'
 type TProps = {}
 
 interface TStatusChip extends ChipProps {
     background: string
 }
 
-const StyledOrderStatus = styled(Chip)<TStatusChip>(({ theme, background }) => ({
-    backgroundColor: background,
-    color: theme.palette.common.white,
-    fontSize: "14px",
-    padding: "8px 4px",
-    fontWeight: 600
-}))
 
 // Create a memoized selector for order data
 const createOrderSelector = createSelector(
@@ -52,11 +48,6 @@ const createOrderSelector = createSelector(
     })
 );
 
-// Dynamic import for AdminPage
-const AdminPage = dynamic(() => import("src/components/admin-page"), {
-    loading: () => <Spinner />,
-    ssr: false
-});
 
 const ListOrderPage: NextPage<TProps> = () => {
     const { t } = useTranslation()
@@ -64,6 +55,8 @@ const ListOrderPage: NextPage<TProps> = () => {
     const [currentTab, setCurrentTab] = useState(0)
     const [selectedOrderId, setSelectedOrderId] = useState<number>(0)
     const [showCreateTab, setShowCreateTab] = React.useState(false);
+    const [showCreateNewTab, setShowCreateNewTab] = React.useState(false);
+    
     const [showUpdateTab, setShowUpdateTab] = React.useState(false);
     const [showDetailTab, setShowDetailTab] = React.useState(false);
 
@@ -79,10 +72,32 @@ const ListOrderPage: NextPage<TProps> = () => {
         }
     };
 
+    
+    const handleAddClick = () => {
+        setCurrentTab(1);
+        setShowCreateTab(true);
+    };
+
+    
+  const handleCreateNewClick = () => {
+    setCurrentTab(4);
+    setShowCreateNewTab(true);
+  };
+
     const handleDetailClick = (id: number) => {
         setSelectedOrderId(id);
         setShowDetailTab(true);
         setCurrentTab(3);
+    };
+
+    const handleCloseCreateTab = () => {
+        setCurrentTab(0);
+        setShowCreateTab(false);
+    };
+
+    const handleCloseCreateNewTab = () => {
+        setCurrentTab(1);
+        setShowCreateNewTab(false);
     };
 
     return (
@@ -101,17 +116,26 @@ const ListOrderPage: NextPage<TProps> = () => {
                 fieldMapping={{
                     "fullname": "customerName",
                 }}
+                CreateUpdateTabComponent = {CreateOrder}
+                CreateNewTabComponent={CreateNewCustomer}
                 DetailComponent={OrderDetail}
                 showTab={true}
                 showCreateTab={showCreateTab}
                 showDetailTab={showDetailTab}
+                showCreateNewTab={showCreateNewTab}
                 currentTab={currentTab}
                 onTabChange={handleTabChange}
                 onDetailClick={handleDetailClick}
+                onAddClick={handleAddClick}
+                onCreateNewClick={handleCreateNewClick}
 
-                onCloseDetailTab={() => setShowDetailTab(false)}
+                onCloseDetailTab={() => {
+                    setShowDetailTab(false)
+                    setCurrentTab(0)
+                }}
+                onCloseCreateTab={handleCloseCreateTab}
+                onCloseCreateNewTab={handleCloseCreateNewTab}
 
-                hideAddButton={true}
                 hideUpdateButton={true}
                 hideDeleteButton={true}
 

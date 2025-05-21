@@ -131,6 +131,8 @@ const AdminPage: NextPage<AdminPageProps> = ({
   useEffect(() => {
     if (router.pathname.includes("receipt")) {
       setNewEntityName("product");
+    } else if(router.pathname.includes("manage-order")){
+      setNewEntityName("customer");
     }
   }, [router.pathname]);
 

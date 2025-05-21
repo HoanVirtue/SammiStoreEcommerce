@@ -930,6 +930,13 @@
     "no_data_revenue": "Không có dữ liệu về doanh thu",
     "no_data_import": "Không có dữ liệu về nhập hàng",
     "no_data_inventory": "Không có dữ liệu về tồn kho",
+    "create_new_order": "Tạo mới đơn hàng",
+    "required_customer_name": "Tên khách hàng không được để trống",
+    "required_payment_method": "Phương thức thanh toán không được để trống",
+    "order_details": "Chi tiết đơn hàng",
+    "enter_customer_name": "Nhập tên khách hàng", 
+    "create_new_customer": "Thêm mới khách hàng",
+      
     
 
     "more_than": "nhiều hơn"

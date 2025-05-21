@@ -1,6 +1,6 @@
 import { API_ENDPOINT } from "src/configs/api"
 import instance from "src/helpers/axios"
-import { TParamsCreateCustomer, TParamsDeleteMultipleCustomers, TParamsGetAllCustomers, TParamsUpdateCustomer } from "src/types/customer"
+import { TParamsCreateCustomer, TParamsCreateCustomerFaster, TParamsDeleteMultipleCustomers, TParamsGetAllCustomers, TParamsUpdateCustomer } from "src/types/customer"
 
 export const getAllCustomers = async (data: {params: TParamsGetAllCustomers}) => {
     try {
@@ -23,6 +23,16 @@ export const getCustomerCode = async (data: {params: {type: number}}) => {
 export const createCustomer = async (data: TParamsCreateCustomer) => {
     try {
         const res = await instance.post(`${API_ENDPOINT.USER.CUSTOMER.INDEX}`, data)
+        return res.data
+    } 
+    catch (error: any) {
+        return error?.response?.data
+    }
+}
+
+export const createCustomerFaster = async (data: TParamsCreateCustomerFaster) => {
+    try {
+        const res = await instance.post(`${API_ENDPOINT.USER.CUSTOMER.INDEX}/create-faster`, data)
         return res.data
     } 
     catch (error: any) {

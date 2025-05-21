@@ -87,12 +87,11 @@ const RevenueStatisticsPage = () => {
   const [startDate, setStartDate] = useState<dayjs.Dayjs>(dayjs().tz('Asia/Ho_Chi_Minh').startOf('year'));
   const [endDate, setEndDate] = useState<dayjs.Dayjs>(dayjs().tz('Asia/Ho_Chi_Minh').endOf('year'));
   const [paymentMethodId, setPaymentMethodId] = useState<number | null>(null);
-  const [customerId, setCustomerId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['revenue-statistics', startDate, endDate, paymentMethodId, customerId, page, pageSize],
+    queryKey: ['revenue-statistics', startDate, endDate, paymentMethodId, page, pageSize],
     queryFn: async () => {
       // Gửi ngày lên API dưới dạng ISO string theo Asia/Ho_Chi_Minh
       const dateFrom = startDate.tz('Asia/Ho_Chi_Minh').format();
@@ -101,16 +100,13 @@ const RevenueStatisticsPage = () => {
       const response = await getSalesRevenue({
         dateFrom,
         dateTo,
+        paymentMethodId: paymentMethodId ?? undefined,
         skip: (page - 1) * pageSize,
         take: pageSize,
         paging: true,
         type: 1, // Grid type
         orderBy: 'CreatedDate',
         dir: 'DESC',
-        filters: [
-          paymentMethodId !== null ? `paymentMethodId::${paymentMethodId}::eq` : '',
-          customerId !== null ? `customerId::${customerId}::eq` : ''
-        ].filter(Boolean).join('&&'),
       });
       return response as SalesRevenueResponse;
     },
@@ -135,21 +131,6 @@ const RevenueStatisticsPage = () => {
     setPaymentMethodId(event.target.value === '' ? null : Number(event.target.value));
   };
 
-  const handleCustomerChange = (event: SelectChangeEvent<number | string>) => {
-    setCustomerId(event.target.value === '' ? null : Number(event.target.value));
-  };
-
-  // Lọc danh sách khách hàng duy nhất từ dữ liệu
-  const uniqueCustomers = revenueTableData.reduce((acc: Array<{ id: number, name: string, phone: string }>, item: RevenueDetail) => {
-    if (!acc.some(c => c.id === item.customerId)) {
-      acc.push({
-        id: item.customerId,
-        name: item.customerName || '',
-        phone: item.phoneNumber || ''
-      });
-    }
-    return acc;
-  }, []);
 
   // Update the columns to format dates in Vietnamese format
   const columns = getRevenueColumns().map(column => {
@@ -226,23 +207,6 @@ const RevenueStatisticsPage = () => {
                 <MenuItem value={2}>{t('vnpay')}</MenuItem>
               </Select>
             </FormControl>
-
-            <FormControl sx={{ minWidth: 200 }} size="small">
-              <InputLabel id="customer-select-label">{t('select_customer')}</InputLabel>
-              <Select
-                labelId="customer-select-label"
-                value={customerId || ''}
-                onChange={handleCustomerChange}
-                label={t('select_customer')}
-              >
-                <MenuItem value=""><em>{t('none')}</em></MenuItem>
-                {uniqueCustomers.map((customer: { id: number, name: string, phone: string }) => (
-                  <MenuItem key={customer.id} value={customer.id}>
-                    {customer.name} ({customer.phone})
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
           </Box>
 
           <Box sx={{ mb: 3 }}>
@@ -273,7 +237,8 @@ const RevenueStatisticsPage = () => {
             sortingOrder={['desc', 'asc']}
             sortingMode='server'
             slots={{
-              pagination: PaginationComponent
+              pagination: PaginationComponent,
+              noRowsOverlay: () => <Box sx={{ p: 2, textAlign: "center" }}>{t('no_data_revenue')}</Box>,
             }}
             disableColumnFilter
             disableColumnMenu

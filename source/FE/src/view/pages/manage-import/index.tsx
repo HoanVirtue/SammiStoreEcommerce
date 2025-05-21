@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getImportStatistics } from '@/services/report';
+import { getAllEmployees } from '@/services/employee';
+import { getAllSuppliers } from '@/services/supplier';
 import { formatCurrency } from '@/utils/format';
-import { formatDate } from '@/utils';
+import { formatDate, formatPrice } from '@/utils';
 import { useTranslation } from 'react-i18next';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -29,7 +31,7 @@ import CustomDataGrid from 'src/components/custom-data-grid';
 import CustomPagination from 'src/components/custom-pagination';
 import { PAGE_SIZE_OPTIONS } from 'src/configs/gridConfig';
 import { hexToRGBA } from 'src/utils/hex-to-rgba';
-import { GridColDef } from '@mui/x-data-grid';
+import { GridColDef, GridRenderCellParams } from '@mui/x-data-grid';
 import { getImportColumns } from '@/configs/gridColumn';
 
 // Configure dayjs with plugins and locale
@@ -37,8 +39,6 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.locale('vi');
 dayjs.tz.setDefault('Asia/Ho_Chi_Minh');
-
-const columns = getImportColumns();
 
 const ImportStatisticsPage = () => {
   const { t } = useTranslation();
@@ -49,6 +49,98 @@ const ImportStatisticsPage = () => {
   const [supplierId, setSupplierId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(PAGE_SIZE_OPTIONS[0]);
+
+  // Add employee query
+  const { data: employeeData, isLoading: isLoadingEmployees } = useQuery({
+    queryKey: ['employees'],
+    queryFn: async () => {
+      const response = await getAllEmployees({
+        params: {
+          take: -1,
+          skip: 0,
+          paging: false,
+          orderBy: "name",
+          dir: "asc",
+          keywords: "''",
+          filters: ""
+      }
+      });
+      return response;
+    }
+  });
+
+  const employees = employeeData?.result?.subset || [];
+
+  // Add supplier query
+  const { data: supplierData, isLoading: isLoadingSuppliers } = useQuery({
+    queryKey: ['suppliers'],
+    queryFn: async () => {
+      const response = await getAllSuppliers({
+        params: {
+          take: -1,
+          skip: 0,
+          paging: false,
+          orderBy: "name",
+          dir: "asc",
+          keywords: "''",
+          filters: ""
+        }
+      });
+      return response;
+    }
+  });
+
+  const suppliers = supplierData?.result?.subset || [];
+
+  // Define columns inside the component
+  const columns: GridColDef[] = [
+    {
+      field: 'code',
+      headerName: t('receipt_code'),
+      flex: 1,
+      minWidth: 250,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>
+    },
+    {
+      field: 'employeeName',
+      headerName: t('employee'),
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.employeeName}</Typography>
+    },
+    {
+      field: 'supplierName',
+      headerName: t('supplier'),
+      flex: 1,
+      minWidth: 350,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.supplierName}</Typography>
+    },
+    {
+      field: 'totalPrice',
+      headerName: t('total_price'),
+      flex: 1,
+      minWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatPrice(params.row.totalPrice || 0)}</Typography>
+    },
+    {
+      field: 'totalQuantity',
+      headerName: t('quantity'),
+      flex: 1,
+      minWidth: 200,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.totalQuantity}</Typography>
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 250,
+      renderCell: (params: GridRenderCellParams) => (
+        <Typography>
+          {formatDate(params.row.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
+  ];
 
   const { data: importData, isLoading } = useQuery<{result: ImportStatistic}>({
     queryKey: ['import-statistics', startDate, endDate, employeeId, supplierId, page, pageSize],
@@ -67,10 +159,6 @@ const ImportStatisticsPage = () => {
         type: 1,
         orderBy: 'CreatedDate',
         dir: 'DESC',
-        filters: [
-          employeeId !== null ? `employeeId::${employeeId}::eq` : '',
-          supplierId !== null ? `supplierId::${supplierId}::eq` : ''
-        ].filter(Boolean).join('&&'),
       });
     },
     refetchOnWindowFocus: false
@@ -152,10 +240,14 @@ const ImportStatisticsPage = () => {
                 value={employeeId || ''}
                 onChange={handleEmployeeChange}
                 label={t('select_employee')}
+                disabled={isLoadingEmployees}
               >
                 <MenuItem value=""><em>{t('none')}</em></MenuItem>
-                <MenuItem value={1}>{t('employee')} 1</MenuItem>
-                <MenuItem value={2}>{t('employee')} 2</MenuItem>
+                {employees.map((employee: any) => (
+                  <MenuItem key={employee.id} value={employee.id}>
+                    {employee.fullName}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
             
@@ -166,10 +258,14 @@ const ImportStatisticsPage = () => {
                 value={supplierId || ''}
                 onChange={handleSupplierChange}
                 label={t('select_supplier')}
+                disabled={isLoadingSuppliers}
               >
                 <MenuItem value=""><em>{t('none')}</em></MenuItem>
-                <MenuItem value={1}>{t('supplier')} 1</MenuItem>
-                <MenuItem value={2}>{t('supplier')} 2</MenuItem>
+                {suppliers.map((supplier: any) => (
+                  <MenuItem key={supplier.id} value={supplier.id}>
+                    {supplier.fullName}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Box>
@@ -202,7 +298,8 @@ const ImportStatisticsPage = () => {
             sortingOrder={['desc', 'asc']}
             sortingMode='server'
             slots={{
-              pagination: PaginationComponent
+              pagination: PaginationComponent,
+              noRowsOverlay: () => <Box sx={{ p: 2, textAlign: "center" }}>{t('no_data_import')}</Box>,
             }}
             disableColumnFilter
             disableColumnMenu

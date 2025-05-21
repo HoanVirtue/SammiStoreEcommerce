@@ -927,6 +927,9 @@
     "of": "trong",
     "voucher_information": "Thông tin mã giảm giá",
     "valid_period": "Thời gian hiệu lực",    
+    "no_data_revenue": "Không có dữ liệu về doanh thu",
+    "no_data_import": "Không có dữ liệu về nhập hàng",
+    "no_data_inventory": "Không có dữ liệu về tồn kho",
     
 
     "more_than": "nhiều hơn"

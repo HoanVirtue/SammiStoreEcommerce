@@ -128,7 +128,6 @@ const ListReceiptPage: NextPage = () => {
         onCreateNewClick={handleCreateNewClick}
 
         hideAddButton={false}
-
         showDetailButton={true}
 
         onCloseCreateTab={() => setShowCreateTab(false)}

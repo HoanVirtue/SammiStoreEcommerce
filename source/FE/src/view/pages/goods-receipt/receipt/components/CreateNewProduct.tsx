@@ -205,7 +205,6 @@ const CreateNewProduct = (props: TCreateNewProduct) => {
         resolver: yupResolver(schema)
     });
 
-    console.log("errors", errors);
 
     const handleUploadProductImage = useCallback(async (file: File) => {
         try {

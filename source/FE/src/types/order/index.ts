@@ -33,7 +33,7 @@ export interface TItemOrderProduct {
     isActive: boolean;
     isDeleted: boolean;
     displayOrder: number | null;
-} 
+}
 
 export type TItemCart = {
     productId: number;
@@ -68,8 +68,8 @@ export type TParamsCreateOrder = {
     customerAddress: string;
     costShip: number;
     trackingNumber?: string;
-    estimatedDeliveryDate?: Date| string | null;
-    actualDeliveryDate?: Date|string | null;
+    estimatedDeliveryDate?: Date | string | null;
+    actualDeliveryDate?: Date | string | null;
     shippingCompanyId: number;
     details: {
         id: number;
@@ -85,6 +85,26 @@ export type TParamsCreateOrder = {
     isBuyNow?: boolean;
     paymentMethodId: number;
 }
+
+export type TParamsCreateOrderShop = {
+    code: string;
+    customerId: number;
+    orderStatus: string;    
+    shippingStatus: string;
+    voucherId?: number;
+    discountValue?: number;
+    details: {
+        orderId: number
+        productId: number;
+        quantity: number;
+        price: number;
+        tax?: number;
+    }[];
+    paymentMethodId: number;
+    isActive: boolean;
+    isDelete: boolean;
+}
+
 
 
 export interface TParamsUpdateOrder extends TParamsCreateOrder {
@@ -123,5 +143,5 @@ export type TOrderItem = {
     discountAmount?: number,
     deliveryMethod?: string,
     createdDate?: Date,
-    
+
 }

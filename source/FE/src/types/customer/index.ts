@@ -33,6 +33,17 @@ export type TParamsCreateCustomer = {
     isLock: boolean | false;
 }
 
+
+export type TParamsCreateCustomerFaster = {
+    firstName: string;
+    lastName: string;
+    email: string | null;
+    phone: string;
+    gender: number;
+    isActive: boolean | true;
+    isDelete: boolean | false;
+}
+
 export interface TParamsUpdateCustomer extends TParamsCreateCustomer {
     id: number
 }

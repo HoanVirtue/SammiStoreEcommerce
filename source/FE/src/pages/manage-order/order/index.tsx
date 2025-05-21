@@ -2,9 +2,10 @@ import { NextPage } from 'next'
 import { lazy, Suspense } from 'react'
 import { PERMISSIONS } from 'src/configs/permission'
 import Spinner from 'src/components/spinner'
+import ListOrderPage from '@/view/pages/manage-order/order/ListOrder'
 //views
 // Dynamically import the ListOrder component
-const ListOrderPage = lazy(() => import('src/view/pages/manage-order/order/ListOrder'))
+
 
 type TProps = {}
 

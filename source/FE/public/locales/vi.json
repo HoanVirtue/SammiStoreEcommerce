@@ -936,8 +936,7 @@
     "order_details": "Chi tiết đơn hàng",
     "enter_customer_name": "Nhập tên khách hàng", 
     "create_new_customer": "Thêm mới khách hàng",
-      
-    
+    "create_order_successfully": "Thêm mới đơn hàng thành công",
 
     "more_than": "nhiều hơn"
 }

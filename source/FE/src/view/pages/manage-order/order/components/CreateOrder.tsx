@@ -57,8 +57,6 @@ interface OrderItem {
 
 interface OrderFormValues {
     customerId: string;
-    orderStatus: string;
-    shippingStatus: string;
     voucherId?: string;
     discountValue?: string;
     paymentMethodId: string;
@@ -116,8 +114,6 @@ const CreateOrder: React.FC<ICreateOrder> = ({ onClose, onCreateNew }) => {
 
     const schema = yup.object({
         customerId: yup.string().required(t('required_customer_name')),
-        orderStatus: yup.string().required(t('required_order_status')),
-        shippingStatus: yup.string().required(t('required_shipping_status')),
         voucherId: yup.string().optional(),
         discountValue: yup.string().optional(),
         paymentMethodId: yup.string().required(t('required_payment_method')),
@@ -134,10 +130,8 @@ const CreateOrder: React.FC<ICreateOrder> = ({ onClose, onCreateNew }) => {
 
     const defaultValues: OrderFormValues = {
         customerId: '',
-        orderStatus: '',
-        shippingStatus: '',
-        voucherId: '',
-        discountValue: '',
+        voucherId: '0',
+        discountValue: '0',
         paymentMethodId: '',
         details: [{ id: 0, productId: 0, quantity: 0, price: 0, total: 0 }],
     };
@@ -269,9 +263,9 @@ const CreateOrder: React.FC<ICreateOrder> = ({ onClose, onCreateNew }) => {
             setLoading(true);
             const payload: TParamsCreateOrderShop = {
                 customerId: Number(data.customerId),
-                orderStatus: data.orderStatus,
+                orderStatus: "",
                 code: "",
-                shippingStatus: data.shippingStatus,
+                shippingStatus: "",
                 voucherId: data.voucherId ? Number(data.voucherId) : 0,
                 discountValue: data.discountValue ? Number(data.discountValue) : undefined,
                 paymentMethodId: Number(data.paymentMethodId),
@@ -286,9 +280,15 @@ const CreateOrder: React.FC<ICreateOrder> = ({ onClose, onCreateNew }) => {
                 isDelete: false,
             };
 
-            await createOrderShop(payload);
-            toast.success(t('create_order_successfully'))
-            // onClose()
+            const response = await createOrderShop(payload);
+            if (response?.result?.returnUrl) {
+
+                window.open(response.result.returnUrl, '_blank');
+            } else {
+                // For other payment methods or no returnUrl
+                toast.success(t('create_order_successfully'));
+                onClose();
+            }
         } catch (error) {
             toast.error(t('failed_to_create_order'));
             console.error('Create order error:', error);
@@ -431,49 +431,14 @@ const CreateOrder: React.FC<ICreateOrder> = ({ onClose, onCreateNew }) => {
 
                                 <Grid item xs={12} md={6}>
                                     <Controller
-                                        name="orderStatus"
-                                        control={control}
-                                        render={({ field: { onChange, value } }) => (
-                                            <CustomAutocomplete
-                                                options={orderStatuses}
-                                                value={orderStatuses.find(option => option.value === value) || null}
-                                                onChange={(newValue) => onChange(newValue?.value || '')}
-                                                label={t('order_status')}
-                                                error={!!errors.orderStatus}
-                                                helperText={errors.orderStatus?.message}
-                                                required
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} md={6}>
-                                    <Controller
-                                        name="shippingStatus"
-                                        control={control}
-                                        render={({ field: { onChange, value } }) => (
-                                            <CustomAutocomplete
-                                                options={shippingStatuses}
-                                                value={shippingStatuses.find(option => option.value === value) || null}
-                                                onChange={(newValue) => onChange(newValue?.value || '')}
-                                                label={t('shipping_status')}
-                                                error={!!errors.shippingStatus}
-                                                helperText={errors.shippingStatus?.message}
-                                                required
-                                            />
-                                        )}
-                                    />
-                                </Grid>
-
-                                <Grid item xs={12} md={6}>
-                                    <Controller
                                         name="voucherId"
                                         control={control}
                                         render={({ field }) => (
                                             <CustomTextField
                                                 {...field}
                                                 fullWidth
-                                                label={t('voucher_id')}
+                                                defaultValue={0}
+                                                label={t('voucher')}
                                                 type="number"
                                             />
                                         )}

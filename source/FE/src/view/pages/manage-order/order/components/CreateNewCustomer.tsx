@@ -260,11 +260,21 @@ const CreateNewCustomer = (props: TCreateNewCustomer) => {
                                                     control={
                                                         <Switch
                                                             checked={value}
-                                                            onChange={(e) => onChange(e.target.checked)}
+                                                            onChange={(e) => onChange(e.target.checked ? 1 : 0)}
+                                                            sx={{
+                                                                '& .MuiSwitch-track': {
+                                                                    color: theme.palette.primary.main,
+                                                                    border: `1px solid ${theme.palette.primary.main}`,
+                                                                    backgroundColor: theme.palette.primary.main,
+                                                                    '&:hover': {
+                                                                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                                                    },
+                                                                },
+                                                            }}
                                                             color="primary"
                                                         />
                                                     }
-                                                    label={t("active")}
+                                                    label={Boolean(value) ? t("active") : t("inactive")}
                                                 />
                                             )}
                                         />

@@ -75,6 +75,26 @@ namespace SAMMI.ECOM.Domain.Commands.User
         public DateTime? Birthday { get; set; }
     }
 
+    public class CreateCustomerFasterCommand : IRequest<ActionResponse<CustomerDTO>>
+    {
+        public int Id { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public int? Gender { get; set; }
+        public string? Email { get; set; }
+        public string Phone { get; set; }
+
+        public DateTime? CreatedDate { get; set; }
+        public DateTime? UpdatedDate { get; set; }
+        public string? CreatedBy { get; set; }
+        public string? UpdatedBy { get; set; }
+        [DefaultValue(true)]
+        public bool IsActive { get; set; } = true;
+        [DefaultValue(false)]
+        public bool IsDeleted { get; set; }
+        public int? DisplayOrder { get; set; }
+    }
+
     public class CUSupplierCommand : CUUserCommand, IRequest<ActionResponse<SupplierDTO>>
     {
 

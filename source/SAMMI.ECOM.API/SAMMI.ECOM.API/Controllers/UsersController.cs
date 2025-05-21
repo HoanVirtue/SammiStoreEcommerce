@@ -105,6 +105,10 @@ namespace SAMMI.ECOM.API.Controllers
         {
             if (request.Type == RequestType.SimpleAll)
                 return Ok(await _usersQueries.GetCustomerAll(request));
+            else if(request.Type == RequestType.Selection)
+            {
+                return Ok(await _usersQueries.GetCustomerSelection());
+            }    
             return Ok(await _usersQueries.GetCustomerList(request));
         }
 
@@ -118,6 +122,22 @@ namespace SAMMI.ECOM.API.Controllers
         [AuthorizePermission(PermissionEnum.CustomerCreate)]
         [HttpPost("customer")]
         public async Task<IActionResult> PostCustomer([FromBody] CUCustomerCommand request)
+        {
+            if (request.Id != 0)
+            {
+                return BadRequest();
+            }
+            var response = await _mediator.Send(request);
+            if (!response.IsSuccess)
+            {
+                return BadRequest(response);
+            }
+            return Ok(response);
+        }
+
+        [AuthorizePermission(PermissionEnum.CustomerCreate)]
+        [HttpPost("customer/create-faster")]
+        public async Task<IActionResult> CreateFasterCustomer([FromBody] CreateCustomerFasterCommand request)
         {
             if (request.Id != 0)
             {

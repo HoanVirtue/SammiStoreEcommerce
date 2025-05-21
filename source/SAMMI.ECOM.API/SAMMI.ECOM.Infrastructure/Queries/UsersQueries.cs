@@ -6,6 +6,7 @@ using SAMMI.ECOM.Domain.DomainModels.Auth;
 using SAMMI.ECOM.Domain.DomainModels.System;
 using SAMMI.ECOM.Domain.DomainModels.Users;
 using SAMMI.ECOM.Domain.Enums;
+using SAMMI.ECOM.Domain.GlobalModels.Common;
 using SAMMI.ECOM.Repository.GenericRepositories;
 using SAMMI.ECOM.Utility;
 using System.Data;
@@ -33,6 +34,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries
         Task<IEnumerable<CustomerDTO>> GetCustomerAll(RequestFilterModel? filterModel = null);
 
         Task<IPagedList<CustomerDTO>> GetCustomerList(RequestFilterModel filterModel);
+        Task<IEnumerable<SelectionItem>> GetCustomerSelection();
 
         Task<CustomerDTO> GetCustomerById(int id);
 
@@ -298,6 +300,21 @@ namespace SAMMI.ECOM.Infrastructure.Queries
                     sqlBuilder.Where("t1.Id = @id", new { id });
                     return conn.QueryFirstOrDefaultAsync<UserDTO>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 });
+        }
+
+        public Task<IEnumerable<SelectionItem>> GetCustomerSelection()
+        {
+            return WithDefaultTemplateAsync(
+                (conn, sqlBuilder, sqlTemplate) =>
+                {
+                    sqlBuilder.Select("t1.Id as Value");
+                    sqlBuilder.Select("CONCAT(t1.FullName, '-', t1.Phone) as Text");
+
+                    sqlBuilder.Where("t1.Type = @type", new {type = TypeUserEnum.Customer.ToString()});
+
+                    return conn.QueryAsync<SelectionItem>(sqlTemplate.RawSql, sqlTemplate.Parameters);
+                }
+            );
         }
     }
 }

@@ -192,6 +192,28 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             return BadRequest(response);
         }
 
+
+        [HttpPost("create-order-shop")]
+        public async Task<IActionResult> CreateOrderFromShop([FromBody] CreateOrderFromShopCommand request)
+        {
+            if (request.Id != 0)
+                return BadRequest();
+
+            var response = await _mediator.Send(request);
+            if (response.IsSuccess)
+            {
+                return Ok(response);
+            }
+            AppLogger.LogWarning(UserIdentity,
+                    PermissionEnum.CustomerOrderPlace.ToPolicyName(),
+                    $"User {UserIdentity.FullName} tạo đơn hàng thất bại!",
+                    new
+                    {
+                        response.Errors
+                    });
+            return BadRequest(response);
+        }
+
         [AllowAnonymous]
         [HttpGet("vnpay/payment-callback")]
         public async Task<IActionResult> PaymentCallback()

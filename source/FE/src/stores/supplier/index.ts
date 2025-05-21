@@ -57,7 +57,7 @@ export const SupplierSlice = createSlice({
     builder.addCase(getAllSuppliersAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.suppliers.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
-      state.suppliers.total = action?.payload?.data?.totalItemCount
+      state.suppliers.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllSuppliersAsync.rejected, (state, action) => {
       state.isLoading = false

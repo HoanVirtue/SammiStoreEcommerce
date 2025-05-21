@@ -57,7 +57,7 @@ export const employeeSlice = createSlice({
     builder.addCase(getAllEmployeesAsync.fulfilled, (state, action) => {
       state.isLoading = false
       state.employees.data = Array.isArray(action?.payload?.result?.subset) ? action?.payload?.result?.subset : [];
-      state.employees.total = action?.payload?.data?.totalItemCount
+      state.employees.total = action?.payload?.result?.totalItemCount
     })
     builder.addCase(getAllEmployeesAsync.rejected, (state, action) => {
       state.isLoading = false

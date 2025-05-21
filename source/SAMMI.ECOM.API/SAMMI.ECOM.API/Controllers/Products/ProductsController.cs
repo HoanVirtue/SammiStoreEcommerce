@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
 using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.API.Services.SeriaLog;
+using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
@@ -27,6 +28,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             IProductRepository productRepository,
             IProductElasticService productElasticService,
             IProductCategoryRepository categoryRepository,
+            UserIdentity userIdentity,
             IMediator mediator,
             ILogger<ProductsController> logger) : base(mediator, logger)
         {
@@ -34,6 +36,7 @@ namespace SAMMI.ECOM.API.Controllers.Products
             _productRepository = productRepository;
             _productElasticService = productElasticService;
             _categoryRepository = categoryRepository;
+            UserIdentity = userIdentity;
         }
 
         [AuthorizePermission(PermissionEnum.ProductView)] 

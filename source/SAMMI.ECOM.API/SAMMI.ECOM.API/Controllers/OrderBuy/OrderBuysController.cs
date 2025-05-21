@@ -229,7 +229,8 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             string[] paymentInfos = paymentResult.OrderDescription.Split('#')[1].Split('_');    
             string orderCode = paymentInfos[0];
             //var redirectUrl = paymentResult.PlatForm == "App" ? _config.GetValue<string>("VNPAYOptions:RedirectUrlApp") : _config.GetValue<string>("VNPAYOptions:RedirectUrl");
-            var redirectUrl = _config.GetValue<string>("VNPAYOptions:RedirectUrl");
+            var order = await _orderRepository.FindByCode(orderCode);
+            var redirectUrl = order.WardId != null ? _config.GetValue<string>("VNPAYOptions:RedirectUrl") : _config.GetValue<string>("VNPAYOptions:RedirectUrlBill");
             var payment = await _paymentRepository.GetByOrderCode(orderCode);
             if (payment == null)
             {
@@ -272,12 +273,25 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
                 return Redirect($"{redirectUrl}?payment-status=0&error-message={Uri.EscapeUriString("Lỗi cập nhật trạng thái thanh toán.")}");
             }
 
-            var updateOrderStatusCommand = new UpdateOrderStatusCommand
+            UpdateOrderStatusCommand updateOrderStatusCommand = null;
+            if(order.WardId == null)
             {
-                OrderId = payment.OrderId,
-                PaymentStatus = PaymentStatusEnum.Paid,
-                ShippingStatus = ShippingStatusEnum.Processing,
-            };
+                updateOrderStatusCommand = new UpdateOrderStatusCommand
+                {
+                    OrderId = payment.OrderId,
+                    PaymentStatus = PaymentStatusEnum.Paid,
+                    ShippingStatus = ShippingStatusEnum.NotShipped,
+                };
+            }
+            else
+            {
+                updateOrderStatusCommand = new UpdateOrderStatusCommand
+                {
+                    OrderId = payment.OrderId,
+                    PaymentStatus = PaymentStatusEnum.Paid,
+                    ShippingStatus = ShippingStatusEnum.Processing,
+                };
+            }    
             var orderUpdateRes = await _orderRepository.UpdateOrderStatus(updateOrderStatusCommand);
             if (!orderUpdateRes.IsSuccess)
             {
@@ -315,7 +329,7 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             //        Title = "Khách hàng đã thanh toán, chờ xử lý",
             //        Content = $"Có đơn hàng mới mã {orderCode} đã thanh toán, đang chờ xử lý"
             //    });
-            return Redirect($"{redirectUrl}?payment-status=1");
+            return Redirect($"{redirectUrl}?order-code={orderCode}&payment-status=1");
         }
 
         [AuthorizePermission(PermissionEnum.CustomerOrderPayment)]

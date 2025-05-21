@@ -276,11 +276,13 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             var actRes = new ActionResponse();
             var order = await GetByIdAsync(orderStatus.OrderId);
             if (Enum.TryParse<ShippingStatusEnum>(order.ShippingStatus, true, out ShippingStatusEnum currentShip)
+                && order.WardId != null
                 && !IsValidShippingStatus(currentShip, orderStatus.ShippingStatus))
             {
                 actRes.AddError("Trạng thái vận chuyển không hợp lệ");
                 return actRes;
             }
+
 
             var payment = await _paymentRepository.Value.GetByOrderCode(order.Code);
             if (Enum.TryParse<PaymentStatusEnum>(payment.PaymentStatus, true, out PaymentStatusEnum currentPayment)
@@ -293,6 +295,7 @@ namespace SAMMI.ECOM.Infrastructure.Repositories.OrderBy
             order.OrderStatus = (orderStatus.PaymentStatus, orderStatus.ShippingStatus) switch
             {
                 (PaymentStatusEnum.Paid, ShippingStatusEnum.Processing) => OrderStatusEnum.Processing.ToString(),
+                (PaymentStatusEnum.Paid, ShippingStatusEnum.NotShipped) => OrderStatusEnum.Completed.ToString(), //new
                 (PaymentStatusEnum.Paid, ShippingStatusEnum.Delivered) => OrderStatusEnum.Completed.ToString(),
                 (PaymentStatusEnum.Paid, ShippingStatusEnum.Lost) => OrderStatusEnum.Cancelled.ToString(),
                 (PaymentStatusEnum.Unpaid, ShippingStatusEnum.Processing) => OrderStatusEnum.Processing.ToString(),

@@ -115,6 +115,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             request.ShippingStatus = ShippingStatusEnum.NotShipped.ToString();
             request.OrderStatus = paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString()
                 ? OrderStatusEnum.WaitingForPayment.ToString()
+                : paymentMethod.Code == PaymentMethodEnum.CASH.ToString()
+                ? OrderStatusEnum.Completed.ToString()
                 : OrderStatusEnum.Pending.ToString();
             request.CreatedDate = DateTime.Now;
             request.CreatedBy = "System";
@@ -144,17 +146,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 if (!actResponse.IsSuccess)
                     return actResponse;
 
-                // update cart && update stock quantity
-                var cartDetail = await _cartDetailRepository.GetByUserIdAndProductId(_currentUser.Id, detail.ProductId);
-                if (cartDetail != null)
-                {
-                    actResponse.Combine(_cartDetailRepository.DeleteAndSave(cartDetail.Id));
-                    if (!actResponse.IsSuccess)
-                        return actResponse;
-
-                    product.StockQuantity -= cartDetail.Quantity;
-                    await _cartDetailQueries.RemoveCartCache(_currentUser.Id);
-                }
+                product.StockQuantity -= detail.Quantity;
                 actResponse.Combine(await _productRepository.UpdateAndSave(product));
                 if (!actResponse.IsSuccess)
                 {
@@ -194,6 +186,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 PaymentAmount = totalAmount,
                 PaymentStatus = paymentMethod.Code == PaymentMethodEnum.VNPAY.ToString()
                     ? PaymentStatusEnum.Pending.ToString()
+                    : paymentMethod.Code == PaymentMethodEnum.CASH.ToString()
+                    ? PaymentStatusEnum.Paid.ToString()
                     : PaymentStatusEnum.Unpaid.ToString(),
                 PaymentMethodId = request.PaymentMethodId,
             };

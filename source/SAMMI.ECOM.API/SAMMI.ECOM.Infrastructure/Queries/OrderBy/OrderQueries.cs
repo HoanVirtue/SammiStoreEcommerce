@@ -355,7 +355,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                     sqlBuilder.Where($"t1.CreatedDate >= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateFrom)}' AND t1.CreatedDate <= '{string.Format("{0:yyyy-MM-dd HH:mm:ss}", filterModel.DateTo)}'");
                     if (filterModel.PaymentMethodId != null && filterModel.PaymentMethodId != 0)
                     {
-                        sqlBuilder.Where($"t3.PaymentMethodId = {filterModel.PaymentMethodId}");
+                        sqlBuilder.Where($"t4.PaymentMethodId = {filterModel.PaymentMethodId}");
                     }
 
                     sqlBuilder.GroupBy(@"t1.Id,

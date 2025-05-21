@@ -72,7 +72,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         public override async Task<ActionResponse<OrderDTO>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<OrderDTO>();
-            if (!_wardRepository.IsExisted(request.WardId))
+            if (request.WardId != null && _wardRepository.IsExisted(request.WardId))
             {
                 actResponse.AddError("Mã phường không tồn tại.");
                 return actResponse;
@@ -257,7 +257,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         {
             RuleFor(x => x.WardId)
                 .NotEmpty()
-                .WithMessage("Mã phường không được bỏ trống");
+                .WithMessage("Mã phường không được bỏ trống")
+                .When(x => x.IsBuyInStore == true);
 
             RuleFor(x => x.PaymentMethodId)
                 .NotEmpty()

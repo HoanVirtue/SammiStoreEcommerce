@@ -16,6 +16,7 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
             CreateMap<User, UserDTO>();
 
             CreateMap<CUCustomerCommand, User>();
+            CreateMap<CreateCustomerFasterCommand, User>();
             CreateMap<User, CustomerDTO>();
 
             CreateMap<CUSupplierCommand, User>();
@@ -26,6 +27,8 @@ namespace SAMMI.ECOM.API.Infrastructure.AutoMapperConfigs
 
             CreateMap<UpdateCustomerInfoRequest, CustomerDTO>();
             CreateMap<UpdateEmployeeInfoRequest, EmployeeDTO>();
+
+
         }
     }
 }

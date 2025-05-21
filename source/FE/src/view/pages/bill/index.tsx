@@ -278,6 +278,7 @@ const BillPage: React.FC = () => {
   const { t } = useTranslation();
   const orderId = router.query['order-id'];
   const paymentStatus = router.query['payment-status'];
+  const errorMessage = router.query['error-message'];
   const [loading, setLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);
   const [invoiceData, setInvoiceData] = React.useState<InvoiceProps | null>(null);
@@ -299,11 +300,39 @@ const BillPage: React.FC = () => {
 
   React.useEffect(() => {
     const fetchOrderDetails = async () => {
-      if (!orderId) return;
+      if (!orderId) {
+        setError('Không tìm thấy mã đơn hàng');
+        setLoading(false);
+        return;
+      }
+
+      // Check payment status
+      if (paymentStatus === '0') {
+        if (errorMessage) {
+          setError(decodeURIComponent(errorMessage as string));
+        } else {
+          setError('Giao dịch không thành công');
+        }
+        setLoading(false);
+        return;
+      }
+
+      // Only proceed if payment status is 1
+      if (paymentStatus !== '1') {
+        setError('Trạng thái thanh toán không hợp lệ');
+        setLoading(false);
+        return;
+      }
 
       try {
         setLoading(true);
         const response = await getManageOrderDetail(+orderId);
+
+        if (!response.result) {
+          setError('Không tìm thấy thông tin đơn hàng');
+          setLoading(false);
+          return;
+        }
 
         const orderData = response.result;
 
@@ -344,7 +373,7 @@ const BillPage: React.FC = () => {
     };
 
     fetchOrderDetails();
-  }, [orderId, paymentStatus]);
+  }, [orderId, paymentStatus, errorMessage]);
 
   if (loading) {
     return (
@@ -356,8 +385,27 @@ const BillPage: React.FC = () => {
 
   if (error) {
     return (
-      <Box sx={{ textAlign: 'center', mt: 4 }}>
-        <Typography color="error">{error}</Typography>
+      <Box sx={{ 
+        textAlign: 'center', 
+        mt: 4,
+        mb: 8,
+        p: 6,
+        minHeight: '50vh',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff3f3',
+        borderRadius: 2,
+        border: '2px solid #ffcdd2',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
+      }}>
+        <Typography color="error" variant="h4" gutterBottom sx={{ mb: 3 }}>
+          Lỗi
+        </Typography>
+        <Typography color="error" variant="h6" sx={{ maxWidth: '600px', lineHeight: 1.6 }}>
+          {error}
+        </Typography>
       </Box>
     );
   }
@@ -368,7 +416,5 @@ const BillPage: React.FC = () => {
 
   return <Invoice {...invoiceData} />;
 };
-
-
 
 export default BillPage;

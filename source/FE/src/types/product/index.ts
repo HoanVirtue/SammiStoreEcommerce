@@ -8,6 +8,7 @@ export type ProductImage = {
     value: string;
     id: number;
     displayOrder: number;
+    isDeleted?: boolean;
 }
 
 export type TParamsGetAllProducts = {
@@ -77,6 +78,8 @@ export type TParamsCreateProduct = {
     startDate?: string;
     endDate?: string;
     images: ProductImage[];
+    existImages?: ProductImage[];
+    newImages?: ProductImage[];
 };
 
 export interface TParamsUpdateProduct{

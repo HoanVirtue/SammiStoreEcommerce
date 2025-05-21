@@ -8,6 +8,12 @@ import { getReceiptStatusLabel } from 'src/configs/receipt'
 import { PaymentStatus, ShippingStatus, OrderStatus } from 'src/configs/order'
 import { useMemo } from 'react'
 import { getEventTypeLabel } from './event'
+import dayjs from 'dayjs'
+import timezone from 'dayjs/plugin/timezone'
+import utc from 'dayjs/plugin/utc'
+
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const StyledPublicProduct = styled(Chip)<ChipProps>(({ theme }) => ({
   backgroundColor: "#28c76f29",
@@ -1878,3 +1884,56 @@ export const getRevenueColumns = (): GridColDef[] => {
     }
   ]
 }
+
+
+export const getImportColumns = (): GridColDef[] => {
+  const { t } = useTranslation()
+  return [
+    {
+      field: 'code',
+      headerName: t('receipt_code'),
+      flex: 1,
+      minWidth: 120,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.code}</Typography>
+    },
+    {
+      field: 'employeeName',
+      headerName: t('employee'),
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.employeeName}</Typography>
+    },
+    {
+      field: 'supplierName',
+      headerName: t('supplier'),
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.supplierName}</Typography>
+    },
+    {
+      field: 'totalPrice',
+      headerName: t('total_price'),
+      flex: 1,
+      minWidth: 120,
+      renderCell: (params: GridRenderCellParams) => <Typography>{formatPrice(params.row.totalPrice || 0)}</Typography>
+    },
+    {
+      field: 'totalQuantity',
+      headerName: t('quantity'),
+      flex: 1,
+      minWidth: 100,
+      renderCell: (params: GridRenderCellParams) => <Typography>{params.row.totalQuantity}</Typography>
+    },
+    {
+      field: 'createdDate',
+      headerName: t('created_date'),
+      flex: 1,
+      minWidth: 150,
+      renderCell: (params: GridRenderCellParams) => (
+        <Typography>
+          {formatDate(params.row.createdDate, { dateStyle: "medium", timeStyle: "short" })}
+        </Typography>
+      )
+    }
+  ]
+} 

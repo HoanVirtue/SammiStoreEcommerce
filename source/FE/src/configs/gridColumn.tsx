@@ -1793,7 +1793,7 @@ export const getRevenueColumns = (): GridColDef[] => {
           display: '-webkit-box',
           WebkitLineClamp: 1,
           WebkitBoxOrient: 'vertical',
-        }}>{row?.customerName} ({row?.phoneNumber})</Typography>
+        }}>{row?.customerName} - {row?.phoneNumber}</Typography>
       }
     },
     {

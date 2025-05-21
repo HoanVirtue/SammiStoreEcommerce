@@ -369,33 +369,37 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
             var inventoryList = await WithPagingTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>
                 {
-                    //sqlBuilder.Select("MAX(t3.CreatedDate) AS LastReceiptDate");
-                    //sqlBuilder.Select("DATEDIFF(NOW(), MAX(t3.CreatedDate)) AS DaysSinceLastReceipt");
+                    sqlBuilder.Select("MAX(t3.CreatedDate) AS LastReceiptDate");
+                    sqlBuilder.Select("DATEDIFF(NOW(), MAX(t3.CreatedDate)) AS DaysSinceLastReceipt");
 
-                    //sqlBuilder.LeftJoin("PurchaseOrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
-                    //sqlBuilder.LeftJoin("PurchaseOrder t3 ON t2.PurchaseOrderId = t3.Id AND t3.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("PurchaseOrderDetail t2 ON t1.Id = t2.ProductId AND t2.IsDeleted != 1");
+                    sqlBuilder.LeftJoin("PurchaseOrder t3 ON t2.PurchaseOrderId = t3.Id AND t3.IsDeleted != 1");
 
-                    //if (filterModel.MinimumStockQuantity != null)
-                    //{
-                    //    sqlBuilder.Where("t1.StockQuantity < @minimumStockQuantity", new { minimumStockQuantity = filterModel.MinimumStockQuantity });
-                    //}
+                    sqlBuilder.Where("(t1.Status = 1 OR t1.Status = 0)");
+                    if (filterModel.MaximumStockQuantity != null)
+                    {
+                        sqlBuilder.Where("t1.StockQuantity < @minimumStockQuantity", new { minimumStockQuantity = filterModel.MaximumStockQuantity });
+                    }
 
-                    //sqlBuilder.GroupBy(@"t1.Id,
-                    //    t1.Code,
-                    //    t1.Name,
-                    //    t1.StockQuantity,
-                    //    t1.Price,
-                    //    t1.Status,
-                    //    t1.CategoryId,
-                    //    t1.CreatedDate,
-                    //    t1.UpdatedDate,
-                    //    t1.CreatedBy,
-                    //    t1.UpdatedBy,
-                    //    t1.IsActive,
-                    //    t1.IsDeleted,
-                    //    t1.DisplayOrder");
+                    sqlBuilder.GroupBy(@"t1.Id,
+                        t1.Code,
+                        t1.Name,
+                        t1.StockQuantity,
+                        t1.Price,
+                        t1.Status,
+                        t1.CategoryId,
+                        t1.CreatedDate,
+                        t1.UpdatedDate,
+                        t1.CreatedBy,
+                        t1.UpdatedBy,
+                        t1.IsActive,
+                        t1.IsDeleted,
+                        t1.DisplayOrder");
 
-                    //sqlBuilder.Having("DATEDIFF(NOW(), MAX(t3.CreatedDate)) > @daysOfExistence OR MAX(t3.CreatedDate) IS NULL", new { daysOfExistence = filterModel.DaysOfExistence });
+                    if (filterModel.DaysOfExistence != null)
+                    {
+                        sqlBuilder.Having("DATEDIFF(NOW(), MAX(t3.CreatedDate)) > @daysOfExistence OR MAX(t3.CreatedDate) IS NULL", new { daysOfExistence = filterModel.DaysOfExistence });
+                    }
 
                     //sqlBuilder.OrderBy("t1.StockQuantity DESC");
 
@@ -459,8 +463,10 @@ namespace SAMMI.ECOM.Infrastructure.Queries.Products
 
                         ORDER BY t1.Id DESC , t1.StockQuantity DESC
                         ";
-                    return conn.QueryAsync<InventoryStatisticDetail>(query, sqlTemplate.Parameters);
+                    return conn.QueryAsync<InventoryStatisticDetail>(sqlTemplate.RawSql, sqlTemplate.Parameters);
                 }, filterModel);
+
+            inventoryList.Subset = inventoryList.Subset.OrderByDescending(x => x.StockQuantity).ToList();
 
             var totalInventory = await WithDefaultTemplateAsync(
                 (conn, sqlBuilder, sqlTemplate) =>

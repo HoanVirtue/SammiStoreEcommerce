@@ -64,9 +64,9 @@ type TDefaultValues = {
     price: string;
     importPrice: string;
     discount?: string | null;
-    ingredient: EditorState;
-    uses: EditorState;
-    usageGuide: EditorState;
+    ingredient?: EditorState;
+    uses?: EditorState;
+    usageGuide?: EditorState;
     brandId: string;
     categoryId: string;
     status: number;
@@ -93,6 +93,8 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
     const [categoryOptions, setCategoryOptions] = useState<{ label: string; value: string }[]>([]);
     const [brandOptions, setBrandOptions] = useState<{ label: string; value: string }[]>([]);
     const [productImages, setProductImages] = useState<ProductImage[]>([]);
+    const [existingImages, setExistingImages] = useState<ProductImage[]>([]);
+    const [newImages, setNewImages] = useState<ProductImage[]>([]);
     const [tabValue, setTabValue] = useState(0);
     const [isEditMode, setIsEditMode] = useState(false);
     const [productCode, setProductCode] = useState<string>("");
@@ -118,9 +120,9 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             .required(t("required_product_count_in_stock"))
             .matches(/^\d+$/, t("must_be_number"))
             .test("least_count", t("at_least_count_product"), (value) => Number(value) >= 1),
-        ingredient: yup.mixed<EditorState>().required(t('required_ingredient')),
-        uses: yup.mixed<EditorState>().required(t('required_uses')),
-        usageGuide: yup.mixed<EditorState>().required(t('required_usage_guide')),
+        ingredient: yup.mixed<EditorState>(),
+        uses: yup.mixed<EditorState>(),
+        usageGuide: yup.mixed<EditorState>(),
         brandId: yup.string().required(t("required_brand")),
         categoryId: yup.string().required(t("required_product_category")),
         discount: yup.string().notRequired()
@@ -234,70 +236,111 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                 displayOrder: productImages.length + 1,
             };
 
-            // Cập nhật state và form value
+            // Add to newImages array
+            const updatedNewImages = [...newImages, newImage];
+            setNewImages(updatedNewImages);
+
+            // Update combined productImages for display
             const updatedImages = [...productImages, newImage];
             setProductImages(updatedImages);
             setValue("images", updatedImages, { shouldValidate: true });
         } catch (error) {
             console.error('Error uploading image:', error);
-            // Có thể thêm thông báo lỗi cho người dùng ở đây
+        }
+    }, [productImages, newImages, setValue]);
+
+    // Modify handleDeleteImage to mark images as deleted instead of removing them
+    const handleDeleteImage = useCallback((index: number, image: ProductImage) => {
+        // Remove from display array
+        const updatedImages = productImages.filter((_, i) => i !== index);
+        setProductImages(updatedImages);
+        setValue('images', updatedImages, { shouldValidate: true });
+
+        if (image.id) {
+            // For existing images, mark as deleted instead of removing
+            setExistingImages(prev => prev.map(img => 
+                img.id === image.id ? { ...img, isDeleted: true } : img
+            ));
+        } else {
+            // For new images, remove from newImages array
+            setNewImages(prev => prev.filter((_, i) => i !== index));
         }
     }, [productImages, setValue]);
 
+    // Modify onSubmit to handle the updated image structure
     const onSubmit: SubmitHandler<TDefaultValues> = useCallback(async (data) => {
-        // Helper function to format Date to Vietnam Time string 'YYYY-MM-DD HH:MM:SS'
-        const formatToVietnamTime = (date: Date | null | undefined): string | undefined => {
-            if (!date) return undefined;
-            try {
-                // Return date in ISO 8601 format (UTC)
-                return date.toISOString();
-            } catch (error) {
-                console.error("Error formatting date to ISO string:", error);
-                // Fallback or re-throw if necessary
-                return undefined; // Or handle error appropriately
+        try {
+            setLoading(true);
+            // Helper function to format Date to Vietnam Time string 'YYYY-MM-DD HH:MM:SS'
+            const formatToVietnamTime = (date: Date | null | undefined): string | undefined => {
+                if (!date) return undefined;
+                try {
+                    // Return date in ISO 8601 format (UTC)
+                    return date.toISOString();
+                } catch (error) {
+                    console.error("Error formatting date to ISO string:", error);
+                    return undefined;
+                }
+            };
+
+            const preparedExistImages = existingImages.map((img, index) => ({
+                ...img,
+                displayOrder: index + 1,
+                value: index === 0 ? "main" : "sub",
+                isDeleted: img.isDeleted || false
+            }));
+
+            const preparedNewImages = newImages.map((img, index) => ({
+                ...img,
+                displayOrder: index + 1,
+                value: index === 0 && existingImages.filter(img => !img.isDeleted).length === 0 ? "main" : "sub",
+                isDeleted: false
+            }));
+
+            const payload: TParamsCreateProduct = {
+                code: data.code,
+                name: data.name,
+                stockQuantity: Number(data.stockQuantity),
+                price: Number(data.price),
+                importPrice: Number(data.importPrice),
+                discount: data.discount ? Number(data.discount) : 0,
+                ingredient: data?.ingredient ? draftToHtml(convertToRaw(data?.ingredient.getCurrentContent())) : "",
+                uses: data?.uses ? draftToHtml(convertToRaw(data?.uses.getCurrentContent())) : "",
+                usageGuide: data?.usageGuide ? draftToHtml(convertToRaw(data?.usageGuide.getCurrentContent())) : "",
+                brandId: Number(data.brandId),
+                categoryId: Number(data.categoryId),
+                status: data.status,
+                startDate: formatToVietnamTime(data.startDate),
+                endDate: formatToVietnamTime(data.endDate),
+                images: !id ? [...preparedExistImages, ...preparedNewImages] : [],
+                existImages: id ? preparedExistImages : [],
+                newImages: id ? preparedNewImages : []
+            };
+
+            if (id) {
+                // Update existing product
+                const updatePayload = {
+                    id,
+                    ...payload
+                };
+                const response = await dispatch(updateProductAsync(updatePayload)).unwrap();
+                if (response) {
+                    onClose();
+                }
+            } else {
+                // Create new product
+                const response = await dispatch(createProductAsync(payload)).unwrap();
+                if (response) {
+                    onClose();
+                }
             }
-        };
-
-        const preparedImages = productImages.map((img, index) => ({
-            ...img,
-            displayOrder: index + 1,
-            value: index === 0 ? "main" : "sub"
-        }));
-
-        const payload: TParamsCreateProduct = {
-            code: data.code,
-            name: data.name,
-            stockQuantity: Number(data.stockQuantity),
-            price: Number(data.price),
-            importPrice: Number(data.importPrice),
-            discount: data.discount ? Number(data.discount) : 0,
-            ingredient: data?.ingredient ? draftToHtml(convertToRaw(data?.ingredient.getCurrentContent())) : "",
-            uses: data?.uses ? draftToHtml(convertToRaw(data?.uses.getCurrentContent())) : "",
-            usageGuide: data?.usageGuide ? draftToHtml(convertToRaw(data?.usageGuide.getCurrentContent())) : "",
-            brandId: Number(data.brandId),
-            categoryId: Number(data.categoryId),
-            status: data.status,
-            startDate: formatToVietnamTime(data.startDate), // Format date here
-            endDate: formatToVietnamTime(data.endDate),     // Format date here
-            images: preparedImages,
-        };
-
-        if (id) {
-            const result = await dispatch(updateProductAsync({ id: id, ...payload }));
-            if (result?.payload?.result) {
-                toast.success(t('update_product_success'));
-                onClose();
-              }
-        } else {
-
-            const result = await dispatch(createProductAsync(payload));
-            if (result?.payload?.result) {
-                toast.success(t('create_product_success'));
-                onClose();
-              }
+        } catch (error: any) {
+            console.error('Error submitting product:', error);
+            toast.error(error?.message || (id ? t('update_product_failed') : t('create_product_failed')));
+        } finally {
+            setLoading(false);
         }
-
-    }, [id, dispatch, productImages]);
+    }, [id, dispatch, existingImages, newImages, t, onClose]);
 
     // Memoized handlers
     const handleTabChange = useCallback((event: React.SyntheticEvent, newValue: number) => {
@@ -351,6 +394,14 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
             const res = await getProductDetail(productId);
             const data = res?.result;
             if (data) {
+                // Set existing images with isDeleted initialized as false
+                const existingImgs = (data.images || []).map((img: any )=> ({
+                    ...img,
+                    isDeleted: false
+                }));
+                setExistingImages(existingImgs);
+                setProductImages(existingImgs);
+                
                 reset({
                     code: data.code,
                     name: data.name,
@@ -366,9 +417,8 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                     status: data.status,
                     startDate: data.startDate ? new Date(data.startDate) : null,
                     endDate: data.endDate ? new Date(data.endDate) : null,
-                    images: data.images,
+                    images: existingImgs,
                 });
-                setProductImages(data.images || []);
             }
         } catch (error) {
             console.error('Error fetching product details:', error);
@@ -476,11 +526,7 @@ const CreateUpdateProduct = (props: TCreateUpdateProduct) => {
                                                                 backgroundColor: theme.palette.background.paper
                                                             }
                                                         }}
-                                                        onClick={() => {
-                                                            const updatedImages = productImages.filter((_, i) => i !== index);
-                                                            setProductImages(updatedImages);
-                                                            setValue('images', updatedImages, { shouldValidate: true });
-                                                        }}
+                                                        onClick={() => handleDeleteImage(index, img)}
                                                     >
                                                         <IconifyIcon icon='material-symbols:delete-rounded' />
                                                     </IconButton>

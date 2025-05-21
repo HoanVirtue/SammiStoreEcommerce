@@ -940,6 +940,15 @@ namespace SAMMI.ECOM.Infrastructure
                     IsDeleted = false,
                     CreatedDate = DateTime.Now,
                     CreatedBy = "System"
+                },
+                new PaymentMethod()
+                {
+                    Code = PaymentMethodEnum.CASH.ToString(),
+                    Name = "Tiền mặt",
+                    IsActive = true,
+                    IsDeleted = false,
+                    CreatedDate = DateTime.Now,
+                    CreatedBy = "System"
                 }
             };
 

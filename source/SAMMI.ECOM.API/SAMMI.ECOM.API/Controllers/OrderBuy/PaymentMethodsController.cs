@@ -33,6 +33,10 @@ namespace SAMMI.ECOM.API.Controllers.OrderBuy
             {
                 return Ok(await _methodQueries.GetAll(request));
             }
+            else if(request.Type == RequestType.Selection)
+            {
+                return Ok(await _methodQueries.GetSelectionList(request));
+            }    
             return Ok(await _methodQueries.GetList(request));
         }
 

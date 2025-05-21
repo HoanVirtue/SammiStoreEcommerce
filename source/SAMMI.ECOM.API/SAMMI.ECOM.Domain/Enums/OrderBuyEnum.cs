@@ -13,7 +13,8 @@ namespace SAMMI.ECOM.Domain.Enums
     public enum PaymentMethodEnum
     {
         COD,
-        VNPAY
+        VNPAY,
+        CASH
     }
 
     public enum PaymentStatusEnum

@@ -60,7 +60,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
 
                     sqlBuilder.InnerJoin("Users t2 ON t1.CustomerId = t2.Id");
                     sqlBuilder.LeftJoin("Voucher t3 ON t1.VoucherId = t3.Id");
-                    sqlBuilder.InnerJoin("Ward t4 ON t1.WardId = t4.Id");
+                    sqlBuilder.LeftJoin("Ward t4 ON t1.WardId = t4.Id");
                     sqlBuilder.LeftJoin("District t5 ON t4.DistrictId = t5.Id");
                     sqlBuilder.LeftJoin("Province t6 ON t5.ProvinceId = t5.Id");
                     sqlBuilder.InnerJoin("OrderDetail t7 ON t1.Id = t7.OrderId");
@@ -98,6 +98,8 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
                         splitOn: "Id");
 
                     var orderDTO = orders.FirstOrDefault();
+                    if (orderDTO == null)
+                        return orderDTO;
                     orderDTO.TotalQuantity = orderDTO.Details.Sum(x => x.Quantity);
                     orderDTO.TotalPrice = orderDTO.Details.Sum(x => x.Quantity * x.Price);
 
@@ -119,7 +121,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
 
                     sqlBuilder.InnerJoin("Users t2 ON t1.CustomerId = t2.Id");
                     sqlBuilder.LeftJoin("Voucher t3 ON t1.VoucherId = t3.Id");
-                    sqlBuilder.InnerJoin("Ward t4 ON t1.WardId = t4.Id");
+                    sqlBuilder.LeftJoin("Ward t4 ON t1.WardId = t4.Id");
                     sqlBuilder.LeftJoin("District t5 ON t4.DistrictId = t5.Id");
                     sqlBuilder.LeftJoin("Province t6 ON t5.ProvinceId = t5.Id");
                     sqlBuilder.InnerJoin("OrderDetail t7 ON t1.Id = t7.OrderId");
@@ -189,7 +191,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
 
                     sqlBuilder.InnerJoin("Users t2 ON t1.CustomerId = t2.Id");
                     sqlBuilder.LeftJoin("Voucher t3 ON t1.VoucherId = t3.Id");
-                    sqlBuilder.InnerJoin("Ward t4 ON t1.WardId = t4.Id");
+                    sqlBuilder.LeftJoin("Ward t4 ON t1.WardId = t4.Id");
                     sqlBuilder.LeftJoin("District t5 ON t4.DistrictId = t5.Id");
                     sqlBuilder.LeftJoin("Province t6 ON t5.ProvinceId = t5.Id");
                     sqlBuilder.InnerJoin("OrderDetail t7 ON t1.Id = t7.OrderId");
@@ -257,7 +259,7 @@ namespace SAMMI.ECOM.Infrastructure.Queries.OrderBy
 
                     sqlBuilder.InnerJoin("Users t2 ON t1.CustomerId = t2.Id");
                     sqlBuilder.LeftJoin("Voucher t3 ON t1.VoucherId = t3.Id");
-                    sqlBuilder.InnerJoin("Ward t4 ON t1.WardId = t4.Id");
+                    sqlBuilder.LeftJoin("Ward t4 ON t1.WardId = t4.Id");
                     sqlBuilder.LeftJoin("District t5 ON t4.DistrictId = t5.Id");
                     sqlBuilder.LeftJoin("Province t6 ON t5.ProvinceId = t5.Id");
                     sqlBuilder.InnerJoin("OrderDetail t7 ON t1.Id = t7.OrderId");

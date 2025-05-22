@@ -35,6 +35,8 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         private readonly IMyVoucherRepository _myVoucherRepository;
         private readonly INotificationRepository _notifiRepository;
         private readonly IRoleRepository _roleRepository;
+        private readonly UserIdentity _userIdentity;
+
         public CreateOrderCommandHandler(
             IOrderRepository orderRepository,
             IOrderDetailRepository detailRepository,
@@ -50,6 +52,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             IMyVoucherRepository myVoucherRepository,
             UserIdentity currentUser,
             IRoleRepository roleRepository,
+            UserIdentity userIdentity,
             INotificationRepository notificationRepository,
             IMapper mapper) : base(currentUser, mapper)
         {
@@ -67,18 +70,20 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
             _myVoucherRepository = myVoucherRepository;
             _notifiRepository = notificationRepository;
             _roleRepository = roleRepository;
+            _userIdentity = userIdentity;
         }
 
         public override async Task<ActionResponse<OrderDTO>> Handle(CreateOrderCommand request, CancellationToken cancellationToken)
         {
             var actResponse = new ActionResponse<OrderDTO>();
+            request.WardId = request.WardId == 0 ? null : request.WardId;
             if (request.WardId != null && _wardRepository.IsExisted(request.WardId))
             {
                 actResponse.AddError("Mã phường không tồn tại.");
                 return actResponse;
             }
 
-            foreach(var p in request.Details)
+            foreach (var p in request.Details)
             {
                 if(!_productRepository.IsExisted(p.ProductId))
                 {
@@ -126,7 +131,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
                 ? OrderStatusEnum.WaitingForPayment.ToString()
                 : OrderStatusEnum.Pending.ToString();
             request.CreatedDate = DateTime.Now;
-            request.CreatedBy = "System";
+            request.CreatedBy = _userIdentity.UserName;
 
             var createOrderRes = await _orderRepository.CreateAndSave(request);
             actResponse.Combine(createOrderRes);

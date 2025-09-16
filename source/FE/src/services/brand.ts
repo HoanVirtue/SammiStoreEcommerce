@@ -11,7 +11,7 @@ export const getAllBrands = async (data: {params: TParamsGetAllBrands}) => {
     }
 }
 
-export const getOutstandingBrand = async (data: {numberTop: number}) => {
+export const getOutstandingBrand = async (data: {numberTop: number, isPublic: boolean}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.BRAND.INDEX}/get-brands`, {params: data})
         return res.data

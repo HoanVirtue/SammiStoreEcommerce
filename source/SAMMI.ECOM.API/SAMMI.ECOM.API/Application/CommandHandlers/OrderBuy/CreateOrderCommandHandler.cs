@@ -77,7 +77,7 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.OrderBuy
         {
             var actResponse = new ActionResponse<OrderDTO>();
             request.WardId = request.WardId == 0 ? null : request.WardId;
-            if (request.WardId != null && _wardRepository.IsExisted(request.WardId))
+            if (request.WardId != null && !_wardRepository.IsExisted(request.WardId))
             {
                 actResponse.AddError("Mã phường không tồn tại.");
                 return actResponse;

@@ -73,6 +73,9 @@ namespace SAMMI.ECOM.API.Infrastructure.AutofacModules
 
             builder.RegisterType<ElasticClient>().As<IElasticClient>().SingleInstance();
             builder.RegisterType<ProductElasticService>().As<IProductElasticService>().SingleInstance();
+            builder.RegisterGeneric(typeof(ElasticService<>))
+                .As(typeof(IElasticService<>))
+                .SingleInstance();
 
             builder.RegisterType<EmailHelper>().As<EmailHelper>().SingleInstance();
 

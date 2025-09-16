@@ -100,7 +100,7 @@ const OutstandingBrand: FC = () => {
         const fetchData = async () => {
             try {
                 setLoading(true);
-                const response = await getOutstandingBrand({numberTop: 20});
+                const response = await getOutstandingBrand({numberTop: 20, isPublic: true});
                 if (response?.isSuccess && response?.result) {
                     setBrands(response.result);
                 } else {

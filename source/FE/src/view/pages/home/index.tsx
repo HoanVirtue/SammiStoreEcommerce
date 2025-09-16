@@ -133,6 +133,7 @@ const HomePage: NextPage<HomePageProps> = ({ initialData }) => {
                     dir: "asc",
                     paging: true,
                     keywords: "''",
+                    isPublic: true
                 },
             }
             const res = await getAllProducts(query)

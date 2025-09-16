@@ -24,7 +24,7 @@ const TopSale: React.FC<TopSaleProps> = ({ initialData }) => {
 
     const handleGetListProduct = async () => {
         setLoading(true)
-        await getBestSellingProducts({numberTop: 20}).then((res) => {
+        await getBestSellingProducts({numberTop: 20, isPublic: true}).then((res) => {
             if (res?.result) {
                 setLoading(false)
                 setPublicProducts({

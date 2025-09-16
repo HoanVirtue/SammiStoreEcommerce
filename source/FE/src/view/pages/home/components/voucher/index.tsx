@@ -80,7 +80,7 @@ const ListVoucher: React.FC<ListVoucherProps> = ({ initialData }) => {
     const fetchVouchers = async () => {
         try {
             setLoading(true);
-            const response = await getTopVouchers({ numberTop: 10 });
+            const response = await getTopVouchers({ numberTop: 10, isPublic: true });
             if (response.isSuccess) {
                 setVouchers(response.result);
             }

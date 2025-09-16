@@ -20,7 +20,7 @@ export const getMyVouchers = async (data: { params: TParamsGetAllVouchers }) => 
     }
 }
 
-export const getTopVouchers = async (data: {numberTop: number}) => {
+export const getTopVouchers = async (data: {numberTop: number, isPublic: boolean}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.VOUCHER.INDEX}/get-top-vouchers`, {params: data})
         return res.data

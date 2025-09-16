@@ -14,7 +14,7 @@ export const getAllProducts = async (data: {params: TParamsGetAllProducts}) => {
     }
 }
 
-export const getEndowProducts = async (data: {numberTop: number}) => {
+export const getEndowProducts = async (data: {numberTop: number, isPublic: boolean}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-products-endow`, {params: data})
         return res.data
@@ -23,7 +23,7 @@ export const getEndowProducts = async (data: {numberTop: number}) => {
     }
 }
 
-export const getBestSellingProducts = async (data: {numberTop: number}) => {
+export const getBestSellingProducts = async (data: {numberTop: number, isPublic: boolean}) => {
     try {
         const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-product-best-selling`, {params: data})
         return res.data
@@ -101,7 +101,7 @@ export const getProductDetail = async (id: number) => {
 
 export const getPublicProductDetail = async (id: number) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-product/${id}`)
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-product/${id}`, {params: {isPublic: true}})
         return res.data
     } catch (error: any) {
         return error?.response?.data
@@ -140,7 +140,13 @@ export const getListRelatedProductBySlug = async (data: {params: TParamsGetRelat
 
 export const getListRelatedProducts = async (data: {params: TParamsGetRelatedProducts}) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-related-products`, data)
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-related-products`, {
+            ...data,
+            params: {
+                ...data.params,
+                isPublic: true
+            }
+        })
         return res.data
     } catch (error: any) {
         return error?.response?.data
@@ -201,5 +207,20 @@ export const getAllViewedProduct = async (data: {params: TParamsGetAllProducts})
         return res.data
     } catch (error: any) {
         return error?.response?.data
+    }
+}
+
+export const getAllProductsByCategoryId = async (data: {params: TParamsGetAllProducts}) => {
+    try {
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_PRODUCT.PRODUCT.INDEX}/get-products-by-category`, {
+            ...data,
+            params: {
+                ...data.params,
+                isPublic: true
+            }
+        })
+        return res.data
+    } catch (error) {
+        return error
     }
 }

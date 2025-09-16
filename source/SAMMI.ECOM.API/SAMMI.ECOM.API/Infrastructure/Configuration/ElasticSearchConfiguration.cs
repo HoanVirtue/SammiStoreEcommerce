@@ -38,6 +38,20 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
                 .Ignore(p => p.CreatedBy)
                 .Ignore(p => p.UpdatedBy)
                 .Ignore(p => p.DisplayOrder));
+
+            //settings.DefaultMappingFor<BrandDTO>(m => m
+            //    .Ignore(p => p.CreatedDate)
+            //    .Ignore(p => p.UpdatedDate)
+            //    .Ignore(p => p.CreatedBy)
+            //    .Ignore(p => p.UpdatedBy)
+            //    .Ignore(p => p.DisplayOrder));
+
+            //settings.DefaultMappingFor<ProductCategoryDTO>(m => m
+            //    .Ignore(p => p.CreatedDate)
+            //    .Ignore(p => p.UpdatedDate)
+            //    .Ignore(p => p.CreatedBy)
+            //    .Ignore(p => p.UpdatedBy)
+            //    .Ignore(p => p.DisplayOrder));
         }
 
 
@@ -45,7 +59,9 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
         {
             //await CreateIndexForType<ProductDTO>(client, IndexElasticEnum.Product.GetDescription());
             // create index products
-            await CreateIndexProduct(client);
+            CreateIndexProduct(client);
+            CreateIndexForType<ProductCategoryDTO>(client, IndexElasticEnum.Category.GetDescription());
+            CreateIndexForType<ProductCategoryDTO>(client, IndexElasticEnum.Brand.GetDescription());
         }
 
         private static async Task CreateIndexProduct(IElasticClient client)
@@ -73,6 +89,7 @@ namespace SAMMI.ECOM.API.Infrastructure.Configuration
                 }
             }
         }
+
 
         private static async Task CreateIndexForType<T>(IElasticClient client, string indexName) where T : class
         {

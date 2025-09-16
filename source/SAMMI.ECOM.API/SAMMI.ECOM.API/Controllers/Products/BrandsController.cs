@@ -3,11 +3,14 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using SAMMI.ECOM.API.Application;
+using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
+using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Queries.Brands;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
+using SAMMI.ECOM.Utility;
 
 namespace SAMMI.ECOM.API.Controllers.Brands
 {
@@ -15,14 +18,17 @@ namespace SAMMI.ECOM.API.Controllers.Brands
     {
         private readonly IBrandQueries _brandQueries;
         private readonly IBrandRepository _brandRepository;
+        private readonly IElasticService<BrandDTO> _elasticService;
         public BrandsController(
             IBrandQueries brandQueries,
             IBrandRepository brandRepository,
+            IElasticService<BrandDTO> elasticService,
             IMediator mediator,
             ILogger<BrandsController> logger) : base(mediator, logger)
         {
             _brandQueries = brandQueries;
             _brandRepository = brandRepository;
+            _elasticService = elasticService;
         }
 
         [AuthorizePermission(PermissionEnum.BrandView)]
@@ -137,6 +143,10 @@ namespace SAMMI.ECOM.API.Controllers.Brands
         [HttpGet("get-brands")]
         public async Task<IActionResult> GetBrandsAsync(int numberTop = 20)
         {
+            if (_elasticService != null && await _elasticService.IsConnected())
+            {
+                return Ok(await _elasticService.GetData(IndexElasticEnum.Brand.GetDescription(), numberTop));
+            }
             RequestFilterModel filterModel = new RequestFilterModel()
             {
                 Take = numberTop

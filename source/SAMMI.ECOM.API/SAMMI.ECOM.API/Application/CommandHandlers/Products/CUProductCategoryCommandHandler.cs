@@ -1,22 +1,28 @@
 ﻿using AutoMapper;
 using FluentValidation;
+using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
+using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
+using SAMMI.ECOM.Utility;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
 {
     public class CUProductCategoryCommandHandler : CustombaseCommandHandler<CUProductCategoryCommand, ProductCategoryDTO>
     {
         private readonly IProductCategoryRepository _categoryRespository;
+        private readonly IElasticService<ProductCategoryDTO> _elasticService;
         public CUProductCategoryCommandHandler(
             IProductCategoryRepository categoryRespository,
+            IElasticService<ProductCategoryDTO> elasticService,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
             _categoryRespository = categoryRespository;
+            _elasticService = elasticService;
         }
 
         public override async Task<ActionResponse<ProductCategoryDTO>> Handle(CUProductCategoryCommand request, CancellationToken cancellationToken)
@@ -65,6 +71,10 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 actResponse.SetResult(_mapper.Map<ProductCategoryDTO>(updateRes.Result));
             }
 
+            if (_elasticService != null && await _elasticService.IsConnected())
+            {
+                _elasticService.AddOrUpdate(IndexElasticEnum.Category.GetDescription(), actResponse.Result);
+            }
             return actResponse;
         }
     }

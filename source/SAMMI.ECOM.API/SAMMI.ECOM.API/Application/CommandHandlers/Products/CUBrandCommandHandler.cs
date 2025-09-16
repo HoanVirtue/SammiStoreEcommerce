@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
 using FluentValidation;
 using MediatR;
+using SAMMI.ECOM.API.Services.ElasticSearch;
 using SAMMI.ECOM.Core.Authorizations;
 using SAMMI.ECOM.Core.Models;
 using SAMMI.ECOM.Domain.Commands.Products;
 using SAMMI.ECOM.Domain.DomainModels.Products;
 using SAMMI.ECOM.Domain.Enums;
 using SAMMI.ECOM.Infrastructure.Repositories.Products;
+using SAMMI.ECOM.Utility;
 
 namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
 {
@@ -15,16 +17,19 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
         private readonly IBrandRepository _brandRepository;
         private readonly IMediator _mediator;
         private readonly IImageRepository _imageRepository;
+        private readonly IElasticService<BrandDTO> _elasticService;
         public CUBrandCommandHandler(
             IBrandRepository brandRepository,
             IMediator mediator,
             IImageRepository imageRepository,
+            IElasticService<BrandDTO> elasticService,
             UserIdentity currentUser,
             IMapper mapper) : base(currentUser, mapper)
         {
             _brandRepository = brandRepository;
             _mediator = mediator;
             _imageRepository = imageRepository;
+            _elasticService = elasticService;
         }
 
         public override async Task<ActionResponse<BrandDTO>> Handle(CUBrandCommand request, CancellationToken cancellationToken)
@@ -103,6 +108,11 @@ namespace SAMMI.ECOM.API.Application.CommandHandlers.Products
                 var updateRes = await _brandRepository.UpdateAndSave(request);
                 actResponse.Combine(updateRes);
                 actResponse.SetResult(_mapper.Map<BrandDTO>(updateRes.Result));
+            }
+
+            if (_elasticService != null && await _elasticService.IsConnected())
+            {
+                _elasticService.AddOrUpdate(IndexElasticEnum.Brand.GetDescription(), actResponse.Result);
             }
 
             return actResponse;

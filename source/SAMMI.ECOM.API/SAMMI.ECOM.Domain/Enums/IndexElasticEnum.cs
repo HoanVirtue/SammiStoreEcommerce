@@ -6,6 +6,10 @@ namespace SAMMI.ECOM.Domain.Enums
     {
         [Description("products")]
         Product,
+        [Description("brands")]
+        Brand,
+        [Description("product-categories")]
+        Category
     }
 
     public enum CompletionElasticEnum

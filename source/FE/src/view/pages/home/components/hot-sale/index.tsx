@@ -27,7 +27,7 @@ const HotSale: React.FC<HotSaleProps> = ({ initialData }) => {
     const handleGetListProduct = async () => {
         setLoading(true)
         try {
-            const res = await getEndowProducts({ numberTop: 20 });
+            const res = await getEndowProducts({ numberTop: 20, isPublic: true });
             if (res?.result) {
                 setPublicProducts({
                     data: res.result,

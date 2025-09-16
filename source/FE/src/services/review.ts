@@ -21,9 +21,15 @@ export const getReviewDetail = async (id: number) => {
     }
 }
 
-export const getAllReviewByProductId = async (data: {params: TParamsGetAllReviewsByProductId  }) => {
+export const getAllReviewByProductId = async (data: {params: TParamsGetAllReviewsByProductId }) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/get-reviews-product`, data)
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/get-reviews-product`, {
+            ...data,
+            params: {
+                ...data.params,
+                isPublic: true
+            }
+        })
         return res.data
     } catch (error) {
         return error
@@ -34,7 +40,11 @@ export const getAllReviewByProductId = async (data: {params: TParamsGetAllReview
 
 export const getOverallReview = async (productId: number) => {
     try {
-        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/get-overall-rating/${productId}`)
+        const res = await instance.get(`${API_ENDPOINT.MANAGE_ORDER.REVIEW.INDEX}/get-overall-rating/${productId}`, {
+            params: {
+                isPublic: true
+            }
+        })
         return res.data
     } catch (error) {
         return error
